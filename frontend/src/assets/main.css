@@ -1,35 +1,15 @@
-@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+body {
+  @apply overflow-hidden bg-contain bg-no-repeat w-screen h-screen bg-gradient-to-br from-blue-400 to-blue-900 text-white;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+.text-body {
+  @apply text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+.text-title {
+  @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl;
 }
