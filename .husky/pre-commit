@@ -1,1 +1,1 @@
-cd frontend && bun run format && bun run lint
+cd frontend && npm run format && npm run lint
