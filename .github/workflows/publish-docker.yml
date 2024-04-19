@@ -55,6 +55,10 @@ jobs:
             --tag ghcr.io/${{ env.IMAGE_NAME }}backend:latest \
       - name: Clean up dangling images
         run: docker image prune -f -a
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
   deploy-skylab:
     uses: ./.github/workflows/deploy-skylab.yml
     if: ${{ inputs.deploy-skylab }}
