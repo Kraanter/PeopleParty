@@ -4,6 +4,20 @@ on:
   workflow_dispatch:
 
   workflow_call:
+    secrets:
+      USERNAME:
+        required: true
+      PASSWORD:
+        required: true
+      HOST:
+        required: true
+      PORT:
+
+env:
+  USERNAME: ${{ secrets.USERNAME }}
+  PASSWORD: ${{ secrets.PASSWORD }}
+  PORT: ${{ secrets.PORT }}
+  HOST: ${{ secrets.HOST }}
 
 jobs:
   copy:
