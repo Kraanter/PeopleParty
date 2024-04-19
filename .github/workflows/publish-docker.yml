@@ -42,7 +42,7 @@ jobs:
       - name: tag and push frontend image
         run: |
           docker build --push \
-            --f ./frontend/dockerfile
+            -f ./frontend/dockerfile
             --tag ghcr.io/${{ env.IMAGE_NAME }}portal:${{ inputs.tag }} \
             --tag ghcr.io/${{ env.IMAGE_NAME }}portal:latest \
       - name: Clean up dangling images
@@ -50,7 +50,7 @@ jobs:
       - name: tag and push backend image
         run: |
           docker build --push \
-            --f ./backend/dockerfile
+            -f ./backend/dockerfile
             --tag ghcr.io/${{ env.IMAGE_NAME }}backend:${{ inputs.tag }} \
             --tag ghcr.io/${{ env.IMAGE_NAME }}backend:latest \
       - name: Clean up dangling images
