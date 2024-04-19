@@ -18,7 +18,7 @@ on:
 # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: kraanter/peopleparty
 
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
@@ -42,17 +42,17 @@ jobs:
       - name: tag and push frontend image
         run: |
           docker build --push \
-            --f ./frontend/Dockerfile
-            --tag ghcr.io/${{ env.IMAGE_NAME }}Portal:${{ inputs.tag }} \
-            --tag ghcr.io/${{ env.IMAGE_NAME }}Portal:latest \
+            --f ./frontend/dockerfile
+            --tag ghcr.io/${{ env.IMAGE_NAME }}portal:${{ inputs.tag }} \
+            --tag ghcr.io/${{ env.IMAGE_NAME }}portal:latest \
       - name: Clean up dangling images
         run: docker image prune -f -a
       - name: tag and push backend image
         run: |
           docker build --push \
-            --f ./backend/Dockerfile
-            --tag ghcr.io/${{ env.IMAGE_NAME }}Backend:${{ inputs.tag }} \
-            --tag ghcr.io/${{ env.IMAGE_NAME }}Backend:latest \
+            --f ./backend/dockerfile
+            --tag ghcr.io/${{ env.IMAGE_NAME }}backend:${{ inputs.tag }} \
+            --tag ghcr.io/${{ env.IMAGE_NAME }}backend:latest \
       - name: Clean up dangling images
         run: docker image prune -f -a
   deploy-skylab:
