@@ -29,9 +29,14 @@ Go to the root of the backend project
 ```sh
 cd backend
 ```
-run conan install
+Run conan install
+- Linux & MacOS:
 ```sh
-conan install . --output-folder=build --build=missing
+conan install . --output-folder=build --build=missing --settings=build_type=Debug
+```
+- Windows:
+```sh
+conan install . --output-folder=build --build=missing --settings=build_type=Debug -s compiler.cppstd=17
 ```
 
 5. Generate the CMake files
@@ -39,24 +44,34 @@ conan install . --output-folder=build --build=missing
 cd build
 ```
 ```sh
-cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug
 ```
 windows users might need to run this instead
 ```sh
-cmake .. -G "Visual Studio 15 2017" -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
+cmake .. -G "Visual Studio 17 2022" -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Debug
 ```
 
 ## Run backend
 After you generated your cmake directory run the following commands, replace 
-`NAME_OF_YOUR_CMAKE_DIRECTORY` with the name of the directory where you generated 
+with the name of the directory where you generated 
 your cmake files.
+- Linux & MacOS:
 ```sh
-cmake --build NAME_OF_YOUR_CMAKE_DIRECTORY/. && NAME_OF_YOUR_CMAKE_DIRECTORY/People-Party-Backend
+cmake --build build/. 
+build/PeopleParty-Backend
+```
+- Windows:
+```sh
+cmake --build build/.
+build/Debug/PeopleParty-Backend
 ```
 
 ## Run tests
-After you generated your cmake directory run CTest. Replace 
-`NAME_OF_YOUR_CMAKE_DIRECTORY` with the name of your cmake directory.
+- Linux & MacOS:
 ```sh
-ctest --test-dir NAME_OF_YOUR_CMAKE_DIRECTORY
+build/PeopleParty-Backend-Tests
+```
+- Windows:
+```sh
+build/Debug/PeopleParty-Backend-Tests
 ```
