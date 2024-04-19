@@ -32,5 +32,5 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          sudo docker compose pull
-          sudo docker compose -f docker-compose.yml up --build -d --force-recreate
+          docker compose pull
+          docker compose -f docker-compose.yml up --build -d --force-recreate
