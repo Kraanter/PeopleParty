@@ -1,9 +1,8 @@
 # People Party Backend
 
 This is the c++ project of the People Party backend! This project uses CMake,
-CTest and doctest. Tests are written using the doctest testing framework and
-they should be ran using CTest (but you can also just run the test executable).
-All dependencies should be automatically imported by the CMake so it should be 
+Conan and doctest. Tests are written using the doctest testing framework.
+All dependencies should be automatically installed and imported by Conan so it should be 
 easy to get started.
 
 ## Getting started
@@ -17,26 +16,34 @@ git clone git@github.com:Kraanter/PeopleParty.git
 ```
 when using ssh authentication.
 
-2. Install CMake
+2. Install Conan
+See [conan.io](https://conan.io/downloads)
+
+3. Install CMake
 Find the correct distribution on [this page](https://cmake.org/download/) and 
 install it. When using some fancy IDE like CLion it will already be included in 
 there.
 
-3. Generate CMake
-Generate the cmake files in any way you like. You can use this command
+4. Install dependancies
+Go to the root of the backend project
 ```sh
-mkdir out && cd out && cmake build ..
+cd backend
 ```
-or any other way you see fit.
+run conan install
+```sh
+conan install . --output-folder=build --build=missing
+```
 
-4. Running the backend
-First build the binaries
+5. Generate the CMake files
 ```sh
-cmake --build .
+cd build
 ```
-then run the backend like this
 ```sh
-./People-Party-Backend
+cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+```
+windows users might need to run this instead
+```sh
+cmake .. -G "Visual Studio 15 2017" -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
 ```
 
 ## Run backend

@@ -4,3 +4,4 @@
 !tests/
 !src/
 !.gitignore
+!conanfile.txt
