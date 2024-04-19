@@ -1,7 +1,6 @@
-out/
-.cache/
-include/
-compile_commands.json
-
-cmake-build-debug/
-.idea/
+/*
+!CMakeLists.txt
+!readme.md
+!tests/
+!src/
+!.gitignore
