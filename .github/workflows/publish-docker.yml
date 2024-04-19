@@ -46,18 +46,19 @@ jobs:
             --tag ghcr.io/${{ env.IMAGE_NAME }}portal:latest frontend/.
       - name: Clean up dangling images
         run: docker image prune -f -a
-      - name: tag and push backend image
-        run: |
-          docker build --push \
-            --tag ghcr.io/${{ env.IMAGE_NAME }}backend:${{ inputs.tag }} \
-            --tag ghcr.io/${{ env.IMAGE_NAME }}backend:latest backend/.
-      - name: Clean up dangling images
-        run: docker image prune -f -a
+      # - name: tag and push backend image
+      #   run: |
+      #     docker build --push \
+      #       --tag ghcr.io/${{ env.IMAGE_NAME }}backend:${{ inputs.tag }} \
+      #       --tag ghcr.io/${{ env.IMAGE_NAME }}backend:latest backend/.
+      # - name: Clean up dangling images
+      #   run: docker image prune -f -a
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag }}
   deploy-skylab:
+    needs: "build-and-push-image"
     uses: ./.github/workflows/deploy-skylab.yml
     if: ${{ inputs.deploy-skylab }}
     secrets: inherit

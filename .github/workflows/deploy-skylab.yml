@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: debug
+      run: echo "${{ toJson(secrets) }}"
     - name: copy file via ssh
       uses: appleboy/scp-action@v0.1.7
       with:
