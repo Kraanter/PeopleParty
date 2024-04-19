@@ -1,0 +1,32 @@
+name: Deploy latest GHCR to Skylab
+
+on:
+  workflow_dispatch:
+
+  workflow_call:
+
+jobs:
+  copy:
+    name: Copy files to Skylab
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: copy file via ssh
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        source: "nginx/*,docker-compose.yml"
+        target: "~"
+    - name: Execute docker-compose on Skylab
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script: |
+          docker-compose pull
+          docker-compose -f docker-compose.yml up --build -d --force-recreate
