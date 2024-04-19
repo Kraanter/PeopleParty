@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  nginx:
+    image: peoplepartyproxy
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    restart: always
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+  client:
+    image: peoplepartyportel
+    build:
+      context: ./frontend
+      dockerfile: dockerfile
