@@ -29,7 +29,7 @@ FetchContent_MakeAvailable(uSockets_content)
 file(GLOB_RECURSE SOURCES ${usockets_content_SOURCE_DIR}/src/*.c)
 add_library(uSockets ${SOURCES})
 target_include_directories(uSockets PUBLIC ${usockets_content_SOURCE_DIR}/src)
-target_compile_definitions(uSockets PRIVATE LIBUS_NO_SSL)
+target_compile_definitions(uSockets PRIVATE LIBUS_NO_SSL UWS_NO_ZLIB)
 
 FetchContent_Declare(
         uWebSockets_content
@@ -39,10 +39,9 @@ FetchContent_Declare(
         GIT_SUBMODULES ""
 )
 FetchContent_MakeAvailable(uWebSockets_content)
-find_package(ZLIB REQUIRED)
 add_library(uWebSockets INTERFACE)
 target_include_directories(uWebSockets INTERFACE ${uwebsockets_content_SOURCE_DIR}/src/)
-target_link_libraries(uWebSockets INTERFACE uSockets ${ZLIB_LIBRARIES})
+target_link_libraries(uWebSockets INTERFACE uSockets)
 
 ### Main project ###
 
