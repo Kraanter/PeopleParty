@@ -2,7 +2,7 @@
 
 This is the c++ project of the People Party backend! This project uses CMake,
 Conan and doctest. Tests are written using the doctest testing framework.
-All dependencies should be automatically installed and imported by Conan so it should be 
+All dependencies should be automatically installed and imported by Conan so it should be
 easy to get started.
 
 ## Getting started
@@ -20,8 +20,8 @@ when using ssh authentication.
 See [conan.io](https://conan.io/downloads)
 
 3. Install CMake
-Find the correct distribution on [this page](https://cmake.org/download/) and 
-install it. When using some fancy IDE like CLion it will already be included in 
+Find the correct distribution on [this page](https://cmake.org/download/) and
+install it. When using some fancy IDE like CLion it will already be included in
 there.
 
 4. Install dependancies
@@ -36,7 +36,7 @@ conan install . --output-folder=build --build=missing --settings=build_type=Debu
 ```
 - Windows:
 ```sh
-conan install . --output-folder=build --build=missing --settings=build_type=Debug -s compiler.cppstd=17
+conan install . --output-folder=build --build=missing --settings=build_type=Debug -s compiler.cppstd=23
 ```
 
 5. Generate the CMake files
@@ -51,13 +51,27 @@ windows users might need to run this instead
 cmake .. -G "Visual Studio 17 2022" -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Debug
 ```
 
+6. Install formatter
+Install pre-commit like explained [here](https://pre-commit.com/#install).
+
+Install clang-format
+```sh
+pip install clang-format
+```
+
+Install the hooks
+```sh
+pre-commit install
+```
+
+
 ## Run backend
-After you generated your cmake directory run the following commands, replace 
-with the name of the directory where you generated 
+After you generated your cmake directory run the following commands, replace
+with the name of the directory where you generated
 your cmake files.
 - Linux & MacOS:
 ```sh
-cmake --build build/. 
+cmake --build build/.
 build/PeopleParty-Backend
 ```
 - Windows:

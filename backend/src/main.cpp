@@ -1,6 +1,5 @@
-#include <iostream>
 #include <uWebSockets/App.h>
 
-int main() {
-    std::cout << "Hello World!" << std::endl;
-}
+#include <iostream>
+
+auto main() -> int { std::cout << "Hello World!" << '\n'; }
