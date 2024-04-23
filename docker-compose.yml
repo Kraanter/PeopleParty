@@ -16,3 +16,10 @@ services:
     build:
       context: ./frontend
       dockerfile: dockerfile
+  api:
+    image: peoplepartyserver
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - 7789:80
