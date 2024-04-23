@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
-      contents: read
+      contents: write
       packages: write
       #
     steps:
@@ -42,24 +42,25 @@ jobs:
       - name: tag and push frontend image
         run: |
           docker build --push \
-            -f ./frontend/dockerfile
             --tag ghcr.io/${{ env.IMAGE_NAME }}portal:${{ inputs.tag }} \
-            --tag ghcr.io/${{ env.IMAGE_NAME }}portal:latest \
+            --tag ghcr.io/${{ env.IMAGE_NAME }}portal:latest frontend/.
       - name: Clean up dangling images
         run: docker image prune -f -a
-      - name: tag and push backend image
-        run: |
-          docker build --push \
-            -f ./backend/dockerfile
-            --tag ghcr.io/${{ env.IMAGE_NAME }}backend:${{ inputs.tag }} \
-            --tag ghcr.io/${{ env.IMAGE_NAME }}backend:latest \
-      - name: Clean up dangling images
-        run: docker image prune -f -a
+      # - name: tag and push backend image
+      #   run: |
+      #     docker build --push \
+      #       --tag ghcr.io/${{ env.IMAGE_NAME }}backend:${{ inputs.tag }} \
+      #       --tag ghcr.io/${{ env.IMAGE_NAME }}backend:latest backend/.
+      # - name: Clean up dangling images
+      #   run: docker image prune -f -a
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   deploy-skylab:
+    needs: "build-and-push-image"
     uses: ./.github/workflows/deploy-skylab.yml
     if: ${{ inputs.deploy-skylab }}
     secrets: inherit

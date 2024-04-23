@@ -1,5 +1,8 @@
 name: Deploy latest GHCR to Skylab
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
 
@@ -8,6 +11,7 @@ on:
 jobs:
   copy:
     name: Copy files to Skylab
+    environment: main
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -28,5 +32,5 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          docker-compose pull
-          docker-compose -f docker-compose.yml up --build -d --force-recreate
+          docker compose pull
+          docker compose -f docker-compose.yml up --build -d --force-recreate
