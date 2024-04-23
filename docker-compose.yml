@@ -12,3 +12,14 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
   client:
     image: ghcr.io/kraanter/peoplepartyportal
+    build:
+      context: ./frontend
+      dockerfile: dockerfile
+  api:
+    image: ghcr.io/kraanter/peoplepartyserver
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - 7789:80
+    restart: unless-stopped

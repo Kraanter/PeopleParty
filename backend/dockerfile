@@ -1,0 +1,28 @@
+FROM alpine:3.17.0 AS build
+
+RUN apk update && \
+    apk add --no-cache \
+    build-base \
+    cmake \
+    python3 \
+    py3-pip \
+    && pip3 install conan
+
+WORKDIR /app
+
+COPY src/ ./src/
+COPY tests/ ./tests/
+
+COPY CMakeLists.txt .
+COPY conanfile.txt .
+
+RUN conan profile detect
+RUN conan install . --output-folder=build --build=missing --settings=build_type=Debug
+
+WORKDIR /app/build
+RUN cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug
+
+WORKDIR /app
+RUN cmake --build build/. 
+
+CMD ["./build/PeopleParty-Backend"]
