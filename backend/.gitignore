@@ -5,3 +5,4 @@
 !src/
 !.gitignore
 !conanfile.txt
+!.pre-commit-config.yaml
