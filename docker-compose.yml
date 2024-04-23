@@ -13,5 +13,5 @@ services:
   client:
     image: ghcr.io/kraanter/peoplepartyportal
   api:
-    image: ghcr.io/kraanter/peoplepartyserver
+    image: ghcr.io/kraanter/peoplepartybackend
     restart: unless-stopped
