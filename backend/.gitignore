@@ -6,3 +6,4 @@
 !.gitignore
 !conanfile.txt
 !.pre-commit-config.yaml
+!.clang-tidy
