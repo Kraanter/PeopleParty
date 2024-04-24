@@ -83,12 +83,11 @@ export default defineComponent({
             }
         },
         sendMessage(message: string) {
-            this.sendTime = new Date();
-            if (message === '') {
-                message = 'ping';
-            }
-            this.socket?.send(message);
-            this.message = '';
+            // build the message
+            let builder = new flatbuffers.Builder();
+            // working on the message
+            //let GameStateClientPayload = GameStatePayload.;
+
         },
         hostRoom() {
             // connect to the websocket and set the roomID that you got from the socket

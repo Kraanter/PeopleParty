@@ -87,10 +87,44 @@ void send_join_message(uWS::WebSocket<true, true, SocketData> *&ws) {
   ws->getUserData()->room->send(buf, builder.GetSize());
 }
 
+uint8_t *stringToUint8(const std::string &str) {
+  uint8_t *buffer = new uint8_t[str.length()];
+  for (size_t i = 0; i < str.length(); ++i) {
+    buffer[i] = static_cast<uint8_t>(str[i]);
+  }
+  return buffer;
+}
+
 void process_message(uWS::WebSocket<true, true, SocketData> *&ws,
                      std::string_view message, uWS::OpCode opCode) {
   Room *room = ws->getUserData()->room;
   Client *client = ws->getUserData()->client;
+
+  // Parse the message
+  auto parsedMessage = GetMessage(stringToUint8(
+      std::string(message)));  // Assuming GetMessage is a generated function
+
+  // Determine the message type
+  switch (parsedMessage->type()) {
+    case MessageType::MessageType_Host: {
+      // Access HostPayload
+      auto hostPayload = parsedMessage->payload_as_HostPayloadType();
+      // Process host payload...
+      break;
+    }
+    case MessageType::MessageType_Join: {
+      // Access JoinPayload
+      auto joinPayload = parsedMessage->payload_as_JoinPayloadType();
+      // Process join payload...
+      break;
+    }
+    case MessageType::MessageType_GameState: {
+      // Access GameStatePayload
+      auto gameStatePayload = parsedMessage->payload_as_GameStatePayloadType();
+      // Process game state payload...
+      break;
+    }
+  }
 
   // ws->getUserData()->room->send("message: " + std::string(message));
 }
