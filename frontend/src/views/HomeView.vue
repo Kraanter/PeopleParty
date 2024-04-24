@@ -28,7 +28,7 @@
 import { defineComponent } from "vue";
 
 import * as flatbuffers from 'flatbuffers';
-import { MessageType, Message, HostPayload, JoinPayload, GameStatePayload, Payload } from './../../src/models/flatbuffer'; // Import generated TypeScript code
+import { MessageType, Message, HostPayloadType, JoinPayloadType, GameStatePayload } from './../flatbuffers/message'; // Import generated TypeScript code
 
 export default defineComponent({
     name: "ViewPage",
@@ -57,14 +57,14 @@ export default defineComponent({
             switch (receivedMessage.type()) {
                 case MessageType.Host: {
                     // Access HostPayload
-                    const hostPayload = receivedMessage.payload(new HostPayload());
+                    const hostPayload = receivedMessage.payload(new HostPayloadType());
                     // Process host payload...
                     console.log("Received Host Payload: ", hostPayload.roomId());
                     break;
                 }
                 case MessageType.Join: {
                     // Access JoinPayload
-                    const joinPayload = receivedMessage.payload(new JoinPayload());
+                    const joinPayload = receivedMessage.payload(new JoinPayloadType());
                     // Process join payload...
                     console.log("Received Join Payload: ", joinPayload.success());
                     break;
