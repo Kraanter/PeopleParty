@@ -1,0 +1,5 @@
+table LeaderboardPayloadType {
+    success: short;
+}
+
+root_type LeaderboardPayloadType;

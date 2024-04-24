@@ -28,7 +28,7 @@
 import { defineComponent } from "vue";
 
 import * as flatbuffers from 'flatbuffers';
-import { Message } from './../../src/models/message'; // Import generated TypeScript code
+import { MessageType, Message, HostPayload, JoinPayload, GameStatePayload, Payload } from './../../src/models/flatbuffer'; // Import generated TypeScript code
 
 export default defineComponent({
     name: "ViewPage",
@@ -46,6 +46,42 @@ export default defineComponent({
 
     },
     methods: {
+        handleMessage(messageData: Uint8Array) {
+            // Create a flatbuffer buffer from the received data
+            const buf = new flatbuffers.ByteBuffer(messageData);
+
+            // Get the root message
+            const receivedMessage = Message.getRootAsMessage(buf);
+
+            // Switch case based on message type
+            switch (receivedMessage.type()) {
+                case MessageType.Host: {
+                    // Access HostPayload
+                    const hostPayload = receivedMessage.payload(new HostPayload());
+                    // Process host payload...
+                    console.log("Received Host Payload: ", hostPayload.roomId());
+                    break;
+                }
+                case MessageType.Join: {
+                    // Access JoinPayload
+                    const joinPayload = receivedMessage.payload(new JoinPayload());
+                    // Process join payload...
+                    console.log("Received Join Payload: ", joinPayload.success());
+                    break;
+                }
+                case MessageType.GameState: {
+                    // Access GameStatePayload
+                    // No payload for GameState
+                    console.log("Received Game State Message");
+                    break;
+                }
+                default: {
+                    // Handle unknown message type
+                    console.log("Received Unknown Message Type");
+                    break;
+                }
+            }
+        },
         sendMessage(message: string) {
             this.sendTime = new Date();
             if (message === '') {
@@ -74,16 +110,15 @@ export default defineComponent({
                 };
 
                 this.socket.onmessage = (event) => {
-                    console.log(event.data);
-
                     var enc = new TextEncoder();
                     let data = enc.encode(event.data);
 
-                    console.log(data);
-                    let buf = new flatbuffers.ByteBuffer(data);
+                    this.handleMessage(data);
+                    // console.log(data);
+                    // let buf = new flatbuffers.ByteBuffer(data);
 
-                    let gameState = Message.getRootAsMessage(buf);
-                    console.log('Message received: ', gameState.type(), gameState.payload());
+                    // let gameState = Message.getRootAsMessage(buf);
+                    // console.log('Message received: ', gameState.type(), gameState.payload());
 
                     // if (event.data.includes('roomID: ')) {
                     //     this.roomID = event.data.split('roomID: ')[1];

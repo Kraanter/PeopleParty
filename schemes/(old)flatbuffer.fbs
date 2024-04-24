@@ -1,0 +1,29 @@
+enum MessageType: byte {
+    Host,
+    Join,
+    GameState
+}
+
+// Define different types of payloads
+table HostPayload {
+    room_id: short;
+}
+
+table JoinPayload {
+    success: bool;
+}
+
+table GameStatePayload {}
+
+union Payload {
+    HostPayload,
+    JoinPayload,
+    GameStatePayload
+}
+
+table Message {
+    type: MessageType;
+    payload: Payload;
+}
+
+root_type Message;

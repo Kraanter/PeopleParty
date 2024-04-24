@@ -1,0 +1,13 @@
+enum Shape: byte { Circle = 0, Square, Triangle = 2 }
+
+table CountingGameState {
+    objects: [Object];
+}
+
+table Object {
+  shape: Shape;
+  x_pos: short;
+  y_pos: short;
+}
+
+root_type CountingGameState;

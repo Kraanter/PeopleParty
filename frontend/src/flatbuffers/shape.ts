@@ -2,8 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export enum MessageType {
-  Host = 0,
-  Join = 1,
-  GameState = 2
+export enum Shape {
+  Circle = 0,
+  Square = 1,
+  Triangle = 2
 }

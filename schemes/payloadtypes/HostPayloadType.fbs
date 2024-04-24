@@ -1,0 +1,5 @@
+table HostPayloadType {
+    room_id: short;
+}
+
+root_type HostPayloadType;

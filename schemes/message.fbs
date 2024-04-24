@@ -1,0 +1,28 @@
+// Automatically generated main schema file
+// Include all payload types to build the scheme
+
+include "payloadtypes/GameStatePayloadType.fbs";
+include "payloadtypes/HostPayloadType.fbs";
+include "payloadtypes/JoinPayloadType.fbs";
+include "payloadtypes/LeaderboardPayloadType.fbs";
+
+enum MessageType: byte {
+    GameState,
+    Host,
+    Join,
+    Leaderboard,
+}
+
+union Payload {
+    GameStatePayloadType,
+    HostPayloadType,
+    JoinPayloadType,
+    LeaderboardPayloadType,
+}
+
+table Message {
+    type: MessageType;
+    payload: Payload;
+}
+
+root_type Message;

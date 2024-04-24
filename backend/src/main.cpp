@@ -8,7 +8,7 @@
 #include "room.h"
 
 // different types of serialization / deserialization
-#include "../fbs/flatbuffer_generated.h"
+#include "flatbuffer/message_generated.h"
 
 std::map<int, Room> rooms;
 std::map<int, Client> clients;
@@ -43,24 +43,48 @@ void remove_client(uWS::WebSocket<true, true, SocketData> *&ws) {
   clients.erase(client->client_id);
 }
 
-void send_join_message(uWS::WebSocket<true, true, SocketData> *&ws) {
-  std::ostringstream ostr;
-  ostr << "roomID: " << ws->getUserData()->room->room_id << std::endl;
+flatbuffers::Offset<HostPayloadType> buildHostPayload(
+    flatbuffers::FlatBufferBuilder &builder, short room_id) {
+  return CreateHostPayloadType(builder, room_id);
+}
 
+flatbuffers::Offset<JoinPayloadType> buildJoinPayload(
+    flatbuffers::FlatBufferBuilder &builder, bool success) {
+  return CreateJoinPayloadType(builder, success);
+}
+
+void send_host_message(uWS::WebSocket<true, true, SocketData> *&ws) {
   // Populate your game state struct
   flatbuffers::FlatBufferBuilder builder;
 
-  auto payload = builder.CreateString("Hello World!");
-  auto gameState = CreateMessage(builder, MessageType_Host, payload);
+  auto payload = buildHostPayload(builder, ws->getUserData()->room->room_id);
+  auto message = CreateMessage(builder, MessageType_Host,
+                               Payload_HostPayloadType, payload.Union());
 
-  builder.Finish(gameState);
+  builder.Finish(message);
 
   uint8_t *buf = builder.GetBufferPointer();
-  std::cout << *buf << std::endl;
+
   std::cout << "Sending message of size " << builder.GetSize() << std::endl;
 
-  ws->getUserData()->room->send(
-      std::string(reinterpret_cast<char *>(buf), builder.GetSize()));
+  ws->getUserData()->room->send(buf, builder.GetSize());
+}
+
+void send_join_message(uWS::WebSocket<true, true, SocketData> *&ws) {
+  // Populate your game state struct
+  flatbuffers::FlatBufferBuilder builder;
+
+  auto payload = buildJoinPayload(builder, true);
+  auto message = CreateMessage(builder, MessageType_Join,
+                               Payload_JoinPayloadType, payload.Union());
+
+  builder.Finish(message);
+
+  uint8_t *buf = builder.GetBufferPointer();
+
+  std::cout << "Sending message of size " << builder.GetSize() << std::endl;
+
+  ws->getUserData()->room->send(buf, builder.GetSize());
 }
 
 void process_message(uWS::WebSocket<true, true, SocketData> *&ws,
@@ -68,17 +92,7 @@ void process_message(uWS::WebSocket<true, true, SocketData> *&ws,
   Room *room = ws->getUserData()->room;
   Client *client = ws->getUserData()->client;
 
-  ws->getUserData()->room->send("message: " + std::string(message));
-
-  // if (message == "rps create") {
-  //     room->current_game = new RPSBracket(client, room->clients); // Todo: So
-  //     uh we gotta clean this memory up at some point ws->send("Created RPS",
-  //     uWS::TEXT); return;
-  // }
-  // if (message == "rps shoot") {
-  //     room->current_game->Update(20000);
-  //     return;
-  // }
+  // ws->getUserData()->room->send("message: " + std::string(message));
 }
 
 int main() {
@@ -140,7 +154,7 @@ int main() {
                [](auto *ws) {
                  create_room(ws);
                  create_client(true, ws);
-                 send_join_message(ws);
+                 send_host_message(ws);
                },
            .message =
                [](auto *ws, std::string_view message, uWS::OpCode opCode) {

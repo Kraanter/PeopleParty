@@ -5,6 +5,7 @@
 import * as flatbuffers from 'flatbuffers';
 
 import { MessageType } from './message-type.js';
+import { Payload, unionToPayload, unionListToPayload } from './payload.js';
 
 
 export class Message {
@@ -30,23 +31,30 @@ type():MessageType {
   return offset ? this.bb!.readInt8(this.bb_pos + offset) : MessageType.Host;
 }
 
-payload():string|null
-payload(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
-payload(optionalEncoding?:any):string|Uint8Array|null {
+payloadType():Payload {
   const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : Payload.NONE;
+}
+
+payload<T extends flatbuffers.Table>(obj:any):any|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__union(obj, this.bb_pos + offset) : null;
 }
 
 static startMessage(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 }
 
 static addType(builder:flatbuffers.Builder, type:MessageType) {
   builder.addFieldInt8(0, type, MessageType.Host);
 }
 
+static addPayloadType(builder:flatbuffers.Builder, payloadType:Payload) {
+  builder.addFieldInt8(1, payloadType, Payload.NONE);
+}
+
 static addPayload(builder:flatbuffers.Builder, payloadOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(1, payloadOffset, 0);
+  builder.addFieldOffset(2, payloadOffset, 0);
 }
 
 static endMessage(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -62,9 +70,10 @@ static finishSizePrefixedMessageBuffer(builder:flatbuffers.Builder, offset:flatb
   builder.finish(offset, undefined, true);
 }
 
-static createMessage(builder:flatbuffers.Builder, type:MessageType, payloadOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createMessage(builder:flatbuffers.Builder, type:MessageType, payloadType:Payload, payloadOffset:flatbuffers.Offset):flatbuffers.Offset {
   Message.startMessage(builder);
   Message.addType(builder, type);
+  Message.addPayloadType(builder, payloadType);
   Message.addPayload(builder, payloadOffset);
   return Message.endMessage(builder);
 }
