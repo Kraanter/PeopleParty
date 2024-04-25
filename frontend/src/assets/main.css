@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply overflow-hidden bg-contain bg-no-repeat w-screen h-screen bg-gradient-to-br from-blue-400 to-blue-900 text-white;
+}
+
+.text-body {
+  @apply text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl;
+}
+
+.text-title {
+  @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl;
+}

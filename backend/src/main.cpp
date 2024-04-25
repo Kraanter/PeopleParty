@@ -1,0 +1,5 @@
+#include <uWebSockets/App.h>
+
+#include <iostream>
+
+auto main() -> int { std::cout << "Hello World!" << '\n'; }

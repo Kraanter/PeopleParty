@@ -1,0 +1,8 @@
+[requires]
+uwebsockets/20.62.0
+doctest/2.4.11
+
+[generators]
+CMakeDeps
+CMakeToolchain
+

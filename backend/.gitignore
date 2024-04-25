@@ -1,0 +1,9 @@
+/*
+!CMakeLists.txt
+!readme.md
+!tests/
+!src/
+!.gitignore
+!conanfile.txt
+!.pre-commit-config.yaml
+!.clang-tidy
