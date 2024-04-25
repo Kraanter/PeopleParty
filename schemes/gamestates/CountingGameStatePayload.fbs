@@ -1,6 +1,6 @@
 enum Shape: byte { Circle = 0, Square, Triangle = 2 }
 
-table CountingGameState {
+table CountingGameStatePayload {
     objects: [Object];
 }
 
@@ -10,4 +10,4 @@ table Object {
   y_pos: short;
 }
 
-root_type CountingGameState;
+root_type CountingGameStatePayload;

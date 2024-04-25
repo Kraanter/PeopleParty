@@ -1,5 +1,0 @@
-table CountingClientData {
-    new_int: short;
-}
-
-root_type CountingClientData;

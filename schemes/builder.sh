@@ -26,7 +26,8 @@ done
 echo "" >> "$GameStateTypeOutputFile"
 echo "enum GameStateType: byte {" >> "$GameStateTypeOutputFile"
 for type in ${GameStatePayloadTypes[@]}; do
-	echo "    $type," >> "$GameStateTypeOutputFile"
+	gamestateType=${type//"Payload"/""}
+	echo "    $gamestateType," >> "$GameStateTypeOutputFile"
 done
 echo "}" >> "$GameStateTypeOutputFile"
 
@@ -52,7 +53,7 @@ echo "root_type GameStatePayloadType;" >> "$GameStateTypeOutputFile"
 # ======================================================
 
 PayloadTypesDir="schemes/payloadtypes"
-OutputFile="schemes/message.fbs"
+OutputFile="schemes/messageClass.fbs"
 payloadTypes=()
 
 rm -f "$OutputFile"

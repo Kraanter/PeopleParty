@@ -8,7 +8,7 @@
 #include "room.h"
 
 // different types of serialization / deserialization
-#include "flatbuffer/message_generated.h"
+#include "flatbuffer/messageClass_generated.h"
 
 std::map<int, Room> rooms;
 std::map<int, Client> clients;
@@ -95,33 +95,79 @@ uint8_t *stringToUint8(const std::string &str) {
   return buffer;
 }
 
+void process_gamestate(const GameStatePayloadType *gameStatePayload) {
+  std::cout << "inside gamestate " << gameStatePayload->gamestatepayload()
+            << std::endl;
+  switch (gameStatePayload->gamestatetype()) {
+    case GameStateType::GameStateType_CountingClientData: {
+      std::cout << "debug client data" << std::endl;
+      auto playerMove =
+          gameStatePayload->gamestatepayload_as_CountingClientDataPayload();
+      std::cout << "Player new int " << playerMove->new_int() << std::endl;
+      // Process player move...
+      break;
+    }
+    case GameStateType::GameStateType_CountingGameState: {
+      std::cout << "debug gamestate" << std::endl;
+      auto playerAttack =
+          gameStatePayload->gamestatepayload_as_CountingGameStatePayload();
+      // Process player attack...
+      break;
+    }
+  }
+}
+
 void process_message(uWS::WebSocket<true, true, SocketData> *&ws,
                      std::string_view message, uWS::OpCode opCode) {
   Room *room = ws->getUserData()->room;
   Client *client = ws->getUserData()->client;
 
-  // Parse the message
-  auto parsedMessage = GetMessage(stringToUint8(
-      std::string(message)));  // Assuming GetMessage is a generated function
+  std::cout << "Received message of size " << message.size() << std::endl;
 
+  // Parse the message
+  const uint8_t *uint8Payload =
+      reinterpret_cast<const uint8_t *>(message.data());
+  auto parsedMessage = GetMessage(uint8Payload);
+
+  if (parsedMessage == nullptr) {
+    std::cout << "Root message is null" << std::endl;
+    return;
+  }
   // Determine the message type
   switch (parsedMessage->type()) {
     case MessageType::MessageType_Host: {
       // Access HostPayload
       auto hostPayload = parsedMessage->payload_as_HostPayloadType();
+      if (hostPayload == nullptr) {
+        std::cout << "Host payload is null" << std::endl;
+        return;
+      }
       // Process host payload...
+      std::cout << "room id: " << hostPayload->room_id() << std::endl;
       break;
     }
     case MessageType::MessageType_Join: {
       // Access JoinPayload
       auto joinPayload = parsedMessage->payload_as_JoinPayloadType();
       // Process join payload...
+      if (joinPayload == nullptr) {
+        std::cout << "Join payload is null" << std::endl;
+        return;
+      }
+      std::cout << "Join success: " << joinPayload->success() << std::endl;
       break;
     }
     case MessageType::MessageType_GameState: {
       // Access GameStatePayload
       auto gameStatePayload = parsedMessage->payload_as_GameStatePayloadType();
       // Process game state payload...
+      if (gameStatePayload == nullptr) {
+        std::cout << "Game state payload is null" << std::endl;
+        return;
+      }
+      std::cout << "Processing game state " << parsedMessage << " and payload "
+                << gameStatePayload << std::endl;
+      process_gamestate(gameStatePayload);
       break;
     }
   }

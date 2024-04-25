@@ -7,22 +7,22 @@ import * as flatbuffers from 'flatbuffers';
 import { Object_ } from './object.js';
 
 
-export class CountingGameState {
+export class CountingGameStatePayload {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):CountingGameState {
+  __init(i:number, bb:flatbuffers.ByteBuffer):CountingGameStatePayload {
   this.bb_pos = i;
   this.bb = bb;
   return this;
 }
 
-static getRootAsCountingGameState(bb:flatbuffers.ByteBuffer, obj?:CountingGameState):CountingGameState {
-  return (obj || new CountingGameState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+static getRootAsCountingGameStatePayload(bb:flatbuffers.ByteBuffer, obj?:CountingGameStatePayload):CountingGameStatePayload {
+  return (obj || new CountingGameStatePayload()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-static getSizePrefixedRootAsCountingGameState(bb:flatbuffers.ByteBuffer, obj?:CountingGameState):CountingGameState {
+static getSizePrefixedRootAsCountingGameStatePayload(bb:flatbuffers.ByteBuffer, obj?:CountingGameStatePayload):CountingGameStatePayload {
   bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new CountingGameState()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+  return (obj || new CountingGameStatePayload()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
 objects(index: number, obj?:Object_):Object_|null {
@@ -35,7 +35,7 @@ objectsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-static startCountingGameState(builder:flatbuffers.Builder) {
+static startCountingGameStatePayload(builder:flatbuffers.Builder) {
   builder.startObject(1);
 }
 
@@ -55,14 +55,14 @@ static startObjectsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static endCountingGameState(builder:flatbuffers.Builder):flatbuffers.Offset {
+static endCountingGameStatePayload(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createCountingGameState(builder:flatbuffers.Builder, objectsOffset:flatbuffers.Offset):flatbuffers.Offset {
-  CountingGameState.startCountingGameState(builder);
-  CountingGameState.addObjects(builder, objectsOffset);
-  return CountingGameState.endCountingGameState(builder);
+static createCountingGameStatePayload(builder:flatbuffers.Builder, objectsOffset:flatbuffers.Offset):flatbuffers.Offset {
+  CountingGameStatePayload.startCountingGameStatePayload(builder);
+  CountingGameStatePayload.addObjects(builder, objectsOffset);
+  return CountingGameStatePayload.endCountingGameStatePayload(builder);
 }
 }

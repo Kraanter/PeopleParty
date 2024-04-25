@@ -1,0 +1,5 @@
+table CountingClientDataPayload {
+    new_int: short;
+}
+
+root_type CountingClientDataPayload;

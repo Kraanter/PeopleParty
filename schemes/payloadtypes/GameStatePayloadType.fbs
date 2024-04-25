@@ -1,8 +1,8 @@
 // Automatically generated main schema file
 // Include all gamestate types to build the GameStatePayloadType scheme
 
-include "gamestates/CountingClientData.fbs";
-include "gamestates/CountingGameState.fbs";
+include "gamestates/CountingClientDataPayload.fbs";
+include "gamestates/CountingGameStatePayload.fbs";
 
 enum GameStateType: byte {
     CountingClientData,
@@ -10,8 +10,8 @@ enum GameStateType: byte {
 }
 
 union GameStatePayload {
-    CountingClientData,
-    CountingGameState,
+    CountingClientDataPayload,
+    CountingGameStatePayload,
 }
 
 table GameStatePayloadType {
