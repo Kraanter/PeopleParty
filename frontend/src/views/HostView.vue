@@ -32,8 +32,6 @@ const generateURL = () => `${window.location.origin}/join?code=${partyCode.value
     </n-card>
 
     <!-- Redirect link to /host -->
-    <router-link to="/join" class="fixed bottom-8 mt-6 underline">
-      Join a party!
-    </router-link>
+    <router-link to="/join" class="fixed bottom-8 mt-6 underline"> Join a party! </router-link>
   </div>
 </template>
