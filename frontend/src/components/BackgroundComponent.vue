@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type ObservablePoint, TilingSprite } from 'pixi.js'
 import { Application, onTick } from 'vue3-pixi'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 const color = 0xa0c8ff
 
