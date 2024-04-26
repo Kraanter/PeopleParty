@@ -30,8 +30,14 @@ function resize() {
 
 <template>
   <Application :backgroundColor="0x6792d3">
-    <tiling-sprite :width="width" :height="height" :texture="bgTexture" :tile-scale="bgScale" :tint="color"
-      :tile-position="bgPos">
+    <tiling-sprite
+      :width="width"
+      :height="height"
+      :texture="bgTexture"
+      :tile-scale="bgScale"
+      :tint="color"
+      :tile-position="bgPos"
+    >
     </tiling-sprite>
   </Application>
 </template>
