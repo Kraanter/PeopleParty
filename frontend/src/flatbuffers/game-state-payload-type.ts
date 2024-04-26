@@ -2,97 +2,71 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import * as flatbuffers from 'flatbuffers'
+import * as flatbuffers from 'flatbuffers';
 
-import {
-  GameStatePayload,
-  unionToGameStatePayload,
-  unionListToGameStatePayload
-} from './game-state-payload.js'
-import { GameStateType } from './game-state-type.js'
+import { GameStatePayload, unionToGameStatePayload, unionListToGameStatePayload } from './game-state-payload.js';
+import { GameStateType } from './game-state-type.js';
+
 
 export class GameStatePayloadType {
-  bb: flatbuffers.ByteBuffer | null = null
-  bb_pos = 0
-  __init(i: number, bb: flatbuffers.ByteBuffer): GameStatePayloadType {
-    this.bb_pos = i
-    this.bb = bb
-    return this
-  }
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):GameStatePayloadType {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
 
-  static getRootAsGameStatePayloadType(
-    bb: flatbuffers.ByteBuffer,
-    obj?: GameStatePayloadType
-  ): GameStatePayloadType {
-    return (obj || new GameStatePayloadType()).__init(
-      bb.readInt32(bb.position()) + bb.position(),
-      bb
-    )
-  }
+static getRootAsGameStatePayloadType(bb:flatbuffers.ByteBuffer, obj?:GameStatePayloadType):GameStatePayloadType {
+  return (obj || new GameStatePayloadType()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
 
-  static getSizePrefixedRootAsGameStatePayloadType(
-    bb: flatbuffers.ByteBuffer,
-    obj?: GameStatePayloadType
-  ): GameStatePayloadType {
-    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH)
-    return (obj || new GameStatePayloadType()).__init(
-      bb.readInt32(bb.position()) + bb.position(),
-      bb
-    )
-  }
+static getSizePrefixedRootAsGameStatePayloadType(bb:flatbuffers.ByteBuffer, obj?:GameStatePayloadType):GameStatePayloadType {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new GameStatePayloadType()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+}
 
-  gamestatetype(): GameStateType {
-    const offset = this.bb!.__offset(this.bb_pos, 4)
-    return offset ? this.bb!.readInt8(this.bb_pos + offset) : GameStateType.CountingClientData
-  }
+gamestatetype():GameStateType {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : GameStateType.CountingClientData;
+}
 
-  gamestatepayloadType(): GameStatePayload {
-    const offset = this.bb!.__offset(this.bb_pos, 6)
-    return offset ? this.bb!.readUint8(this.bb_pos + offset) : GameStatePayload.NONE
-  }
+gamestatepayloadType():GameStatePayload {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : GameStatePayload.NONE;
+}
 
-  gamestatepayload<T extends flatbuffers.Table>(obj: any): any | null {
-    const offset = this.bb!.__offset(this.bb_pos, 8)
-    return offset ? this.bb!.__union(obj, this.bb_pos + offset) : null
-  }
+gamestatepayload<T extends flatbuffers.Table>(obj:any):any|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__union(obj, this.bb_pos + offset) : null;
+}
 
-  static startGameStatePayloadType(builder: flatbuffers.Builder) {
-    builder.startObject(3)
-  }
+static startGameStatePayloadType(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+}
 
-  static addGamestatetype(builder: flatbuffers.Builder, gamestatetype: GameStateType) {
-    builder.addFieldInt8(0, gamestatetype, GameStateType.CountingClientData)
-  }
+static addGamestatetype(builder:flatbuffers.Builder, gamestatetype:GameStateType) {
+  builder.addFieldInt8(0, gamestatetype, GameStateType.CountingClientData);
+}
 
-  static addGamestatepayloadType(
-    builder: flatbuffers.Builder,
-    gamestatepayloadType: GameStatePayload
-  ) {
-    builder.addFieldInt8(1, gamestatepayloadType, GameStatePayload.NONE)
-  }
+static addGamestatepayloadType(builder:flatbuffers.Builder, gamestatepayloadType:GameStatePayload) {
+  builder.addFieldInt8(1, gamestatepayloadType, GameStatePayload.NONE);
+}
 
-  static addGamestatepayload(
-    builder: flatbuffers.Builder,
-    gamestatepayloadOffset: flatbuffers.Offset
-  ) {
-    builder.addFieldOffset(2, gamestatepayloadOffset, 0)
-  }
+static addGamestatepayload(builder:flatbuffers.Builder, gamestatepayloadOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, gamestatepayloadOffset, 0);
+}
 
-  static endGameStatePayloadType(builder: flatbuffers.Builder): flatbuffers.Offset {
-    const offset = builder.endObject()
-    return offset
-  }
+static endGameStatePayloadType(builder:flatbuffers.Builder):flatbuffers.Offset {
+  const offset = builder.endObject();
+  return offset;
+}
 
-  static createGameStatePayloadType(
-    builder: flatbuffers.Builder,
-    gamestatetype: GameStateType,
-    gamestatepayloadType: GameStatePayload,
-    gamestatepayloadOffset: flatbuffers.Offset
-  ): flatbuffers.Offset {
-    GameStatePayloadType.startGameStatePayloadType(builder)
-    GameStatePayloadType.addGamestatetype(builder, gamestatetype)
-    GameStatePayloadType.addGamestatepayloadType(builder, gamestatepayloadType)
-    GameStatePayloadType.addGamestatepayload(builder, gamestatepayloadOffset)
-    return GameStatePayloadType.endGameStatePayloadType(builder)
-  }
+static createGameStatePayloadType(builder:flatbuffers.Builder, gamestatetype:GameStateType, gamestatepayloadType:GameStatePayload, gamestatepayloadOffset:flatbuffers.Offset):flatbuffers.Offset {
+  GameStatePayloadType.startGameStatePayloadType(builder);
+  GameStatePayloadType.addGamestatetype(builder, gamestatetype);
+  GameStatePayloadType.addGamestatepayloadType(builder, gamestatepayloadType);
+  GameStatePayloadType.addGamestatepayload(builder, gamestatepayloadOffset);
+  return GameStatePayloadType.endGameStatePayloadType(builder);
+}
 }

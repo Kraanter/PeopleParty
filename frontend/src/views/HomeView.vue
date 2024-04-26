@@ -120,6 +120,7 @@ export default defineComponent({
         // let CountingClientPayloadData = CountingClientDataPayload.createCountingClientDataPayload(builder, 30);
         // let GameStatePayloadData = GameStatePayloadType.createGameStatePayloadType(builder, GameStateType.CountingClientData, GameStatePayload.CountingClientDataPayload, CountingClientPayloadData);
         // let messagePacket = Message.createMessage(builder, MessageType.GameState, Payload.GameStatePayloadType, GameStatePayloadData);
+        this.sendTime = new Date();
 
         let builder = new flatbuffers.Builder()
 
@@ -139,60 +140,14 @@ export default defineComponent({
 
         builder.finish(messagePacket2)
 
-        var dec = new TextDecoder()
-        console.log(builder.asUint8Array())
-        let data = dec.decode(builder.asUint8Array())
+        // Uint decoding to string
+        let uintarray = [4,0,0,0,246,255,255,255,16,0,0,0,0,1,10,0,10,0,0,0,9,0,4,0,10,0,0,0,12,0,0,0,0,1,6,0,8,0,6,0,6,0,0,0,0,0,30,0];
 
-        let unpackmessage = Message.getRootAsMessage(
-          new flatbuffers.ByteBuffer(builder.asUint8Array())
-        )
-        console.log('Unpacked message: ', unpackmessage.type())
-        switch (unpackmessage.type()) {
-          case MessageType.Host: {
-            break
-          }
-          case MessageType.Join: {
-            break
-          }
-          case MessageType.GameState: {
-            // Access GameStatePayload
-            // No payload for GameState
-            const gamestatePayload = unpackmessage.payload(new GameStatePayloadType())
-            const clientsendData = gamestatePayload.gamestatepayload(
-              new CountingClientDataPayload()
-            )
-            console.log('Received data: ', clientsendData.newInt())
-            break
-          }
-          default: {
-            // Handle unknown message type
-            console.log('Received Unknown Message Type')
-            break
-          }
-        }
+        //let data = String.fromCharCode(...builder.asUint8Array())
+        let data = String.fromCharCode(...uintarray)
+        console.log('Sending data after decoding: ', data)
 
-        this.socket.send(data)
-
-        // GameStatePayloadType.startGameStatePayloadType(builder);
-        // GameStatePayloadType.addGamestatetype(builder, GameStateType.CountingClientData);
-        // GameStatePayloadType.addGamestatepayload(builder, CountingClientPayload);
-        // let GameStatePayload = GameStatePayloadType.endGameStatePayloadType(builder);
-
-        // Message.startMessage(builder);
-        // Message.addType(builder, MessageType.GameState);
-        // Message.addPayload(builder, GameStatePayload);
-        // let messagePacket = Message.endMessage(builder);
-
-        // builder.finish(messagePacket);
-
-        // // send the message
-
-        // this.socket.send(builder.asUint8Array());
-
-        // const buffer = Buffer.Buffer.from(builder.asUint8Array());
-        // const dataAsString = buffer.toString('utf-8');
-        // console.log('Sending message: ', dataAsString);
-        // this.socket.send(dataAsString);
+        this.socket.send(builder.asUint8Array());
       }
     },
     hostRoom() {

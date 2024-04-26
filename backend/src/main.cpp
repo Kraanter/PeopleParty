@@ -87,6 +87,41 @@ void send_join_message(uWS::WebSocket<true, true, SocketData> *&ws) {
   ws->getUserData()->room->send(buf, builder.GetSize());
 }
 
+void send_gamestate_message(uWS::WebSocket<true, true, SocketData> *&ws) {
+  flatbuffers::FlatBufferBuilder builder;
+
+  // First make 100 objects
+  std::vector<flatbuffers::Offset<Object>> objectsVector;
+  for (int i = 0; i < 1000000; i++) {
+    flatbuffers::Offset<Object> object =
+        CreateObject(builder, Shape_Circle, 1, 1);
+    objectsVector.push_back(object);
+  }
+  auto objectsPayload = builder.CreateVector(objectsVector);
+
+  // Make the clientGameStatePayload
+  auto clientGameStatePayload =
+      CreateCountingGameStatePayload(builder, objectsPayload);
+
+  // Make the game state message
+  auto gameStatePayload =
+      CreateGameStatePayloadType(builder, GameStateType_CountingGameState,
+                                 GameStatePayload_CountingGameStatePayload,
+                                 clientGameStatePayload.Union());
+
+  auto message =
+      CreateMessage(builder, MessageType_GameState,
+                    Payload_GameStatePayloadType, gameStatePayload.Union());
+
+  builder.Finish(message);
+
+  uint8_t *buf = builder.GetBufferPointer();
+
+  std::cout << "Sending message of size " << builder.GetSize() << std::endl;
+
+  ws->getUserData()->room->send(buf, builder.GetSize(), uWS::OpCode::BINARY);
+}
+
 uint8_t *stringToUint8(const std::string &str) {
   uint8_t *buffer = new uint8_t[str.length()];
   for (size_t i = 0; i < str.length(); ++i) {
@@ -95,7 +130,8 @@ uint8_t *stringToUint8(const std::string &str) {
   return buffer;
 }
 
-void process_gamestate(const GameStatePayloadType *gameStatePayload) {
+void process_gamestate(const GameStatePayloadType *gameStatePayload,
+                       uWS::WebSocket<true, true, SocketData> *&ws) {
   std::cout << "inside gamestate " << gameStatePayload->gamestatepayload()
             << std::endl;
   switch (gameStatePayload->gamestatetype()) {
@@ -104,6 +140,7 @@ void process_gamestate(const GameStatePayloadType *gameStatePayload) {
       auto playerMove =
           gameStatePayload->gamestatepayload_as_CountingClientDataPayload();
       std::cout << "Player new int " << playerMove->new_int() << std::endl;
+      send_gamestate_message(ws);
       // Process player move...
       break;
     }
@@ -127,14 +164,19 @@ void process_message(uWS::WebSocket<true, true, SocketData> *&ws,
   std::cout << "Received message " << message.data() << std::endl;
 
   // Parse the message
-  const uint8_t uint8Payload[] ={4,0,0,0,246,255,255,255,16,0,0,0,0,1,10,0,10,0,0,0,9,0,4,0,10,0,0,0,12,0,0,0,0,1,6,0,8,0,6,0,6,0,0,0,0,0,30,0};
-//      reinterpret_cast<const uint8_t *>(message.data());
+  // const uint8_t uint8Payload[] =
+  // {4,0,0,0,246,255,255,255,16,0,0,0,0,1,10,0,10,0,0,0,9,0,4,0,10,0,0,0,12,0,0,0,0,1,6,0,8,0,6,0,6,0,0,0,0,0,30,0};
 
-  auto parsedMessage = GetMessage(uint8Payload);
+  const uint8_t *frommessage =
+      reinterpret_cast<const uint8_t *>(message.data());
 
-  // Verify the message
-  flatbuffers::Verifier verifier(uint8Payload, sizeof(*uint8Payload) / sizeof(uint8_t));
-  if (!parsedMessage->Verify(verifier)) {
+  std::vector<uint8_t> fromMessageVector(message.begin(), message.end());
+  uint8_t *p = &fromMessageVector[0];
+
+  auto parsedMessage = GetMessage(frommessage);
+
+  flatbuffers::Verifier verifier(frommessage, message.size());
+  if (!VerifyMessageBuffer(verifier)) {
     std::cout << "Message verification failed" << std::endl;
     return;
   }
@@ -177,7 +219,7 @@ void process_message(uWS::WebSocket<true, true, SocketData> *&ws,
       }
       std::cout << "Processing game state " << parsedMessage << " and payload "
                 << gameStatePayload << std::endl;
-      process_gamestate(gameStatePayload);
+      process_gamestate(gameStatePayload, ws);
       break;
     }
   }

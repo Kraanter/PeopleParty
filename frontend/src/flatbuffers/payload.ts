@@ -2,10 +2,11 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import { GameStatePayloadType } from './game-state-payload-type.js'
-import { HostPayloadType } from './host-payload-type.js'
-import { JoinPayloadType } from './join-payload-type.js'
-import { LeaderboardPayloadType } from './leaderboard-payload-type.js'
+import { GameStatePayloadType } from './game-state-payload-type.js';
+import { HostPayloadType } from './host-payload-type.js';
+import { JoinPayloadType } from './join-payload-type.js';
+import { LeaderboardPayloadType } from './leaderboard-payload-type.js';
+
 
 export enum Payload {
   NONE = 0,
@@ -17,46 +18,29 @@ export enum Payload {
 
 export function unionToPayload(
   type: Payload,
-  accessor: (
-    obj: GameStatePayloadType | HostPayloadType | JoinPayloadType | LeaderboardPayloadType
-  ) => GameStatePayloadType | HostPayloadType | JoinPayloadType | LeaderboardPayloadType | null
-): GameStatePayloadType | HostPayloadType | JoinPayloadType | LeaderboardPayloadType | null {
-  switch (Payload[type]) {
-    case 'NONE':
-      return null
-    case 'GameStatePayloadType':
-      return accessor(new GameStatePayloadType())! as GameStatePayloadType
-    case 'HostPayloadType':
-      return accessor(new HostPayloadType())! as HostPayloadType
-    case 'JoinPayloadType':
-      return accessor(new JoinPayloadType())! as JoinPayloadType
-    case 'LeaderboardPayloadType':
-      return accessor(new LeaderboardPayloadType())! as LeaderboardPayloadType
-    default:
-      return null
+  accessor: (obj:GameStatePayloadType|HostPayloadType|JoinPayloadType|LeaderboardPayloadType) => GameStatePayloadType|HostPayloadType|JoinPayloadType|LeaderboardPayloadType|null
+): GameStatePayloadType|HostPayloadType|JoinPayloadType|LeaderboardPayloadType|null {
+  switch(Payload[type]) {
+    case 'NONE': return null;
+    case 'GameStatePayloadType': return accessor(new GameStatePayloadType())! as GameStatePayloadType;
+    case 'HostPayloadType': return accessor(new HostPayloadType())! as HostPayloadType;
+    case 'JoinPayloadType': return accessor(new JoinPayloadType())! as JoinPayloadType;
+    case 'LeaderboardPayloadType': return accessor(new LeaderboardPayloadType())! as LeaderboardPayloadType;
+    default: return null;
   }
 }
 
 export function unionListToPayload(
   type: Payload,
-  accessor: (
-    index: number,
-    obj: GameStatePayloadType | HostPayloadType | JoinPayloadType | LeaderboardPayloadType
-  ) => GameStatePayloadType | HostPayloadType | JoinPayloadType | LeaderboardPayloadType | null,
+  accessor: (index: number, obj:GameStatePayloadType|HostPayloadType|JoinPayloadType|LeaderboardPayloadType) => GameStatePayloadType|HostPayloadType|JoinPayloadType|LeaderboardPayloadType|null,
   index: number
-): GameStatePayloadType | HostPayloadType | JoinPayloadType | LeaderboardPayloadType | null {
-  switch (Payload[type]) {
-    case 'NONE':
-      return null
-    case 'GameStatePayloadType':
-      return accessor(index, new GameStatePayloadType())! as GameStatePayloadType
-    case 'HostPayloadType':
-      return accessor(index, new HostPayloadType())! as HostPayloadType
-    case 'JoinPayloadType':
-      return accessor(index, new JoinPayloadType())! as JoinPayloadType
-    case 'LeaderboardPayloadType':
-      return accessor(index, new LeaderboardPayloadType())! as LeaderboardPayloadType
-    default:
-      return null
+): GameStatePayloadType|HostPayloadType|JoinPayloadType|LeaderboardPayloadType|null {
+  switch(Payload[type]) {
+    case 'NONE': return null;
+    case 'GameStatePayloadType': return accessor(index, new GameStatePayloadType())! as GameStatePayloadType;
+    case 'HostPayloadType': return accessor(index, new HostPayloadType())! as HostPayloadType;
+    case 'JoinPayloadType': return accessor(index, new JoinPayloadType())! as JoinPayloadType;
+    case 'LeaderboardPayloadType': return accessor(index, new LeaderboardPayloadType())! as LeaderboardPayloadType;
+    default: return null;
   }
 }

@@ -25,7 +25,7 @@ void Client::send(const uint8_t* payload, size_t size,
   std::string dataAsString =
       std::string(reinterpret_cast<const char*>(payload), size);
 
-  ws->send(dataAsString, opcode);
+  ws->send(dataAsString, uWS::OpCode::BINARY);
 }
 
 bool operator==(const Client& a, const Client& b) {

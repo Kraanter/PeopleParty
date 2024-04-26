@@ -345,13 +345,13 @@ struct Object FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   Shape shape() const {
     return static_cast<Shape>(GetField<int8_t>(VT_SHAPE, 0));
   }
-  int16_t x_pos() const { return GetField<int16_t>(VT_X_POS, 0); }
-  int16_t y_pos() const { return GetField<int16_t>(VT_Y_POS, 0); }
+  int64_t x_pos() const { return GetField<int64_t>(VT_X_POS, 0); }
+  int64_t y_pos() const { return GetField<int64_t>(VT_Y_POS, 0); }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_SHAPE, 1) &&
-           VerifyField<int16_t>(verifier, VT_X_POS, 2) &&
-           VerifyField<int16_t>(verifier, VT_Y_POS, 2) && verifier.EndTable();
+           VerifyField<int64_t>(verifier, VT_X_POS, 8) &&
+           VerifyField<int64_t>(verifier, VT_Y_POS, 8) && verifier.EndTable();
   }
 };
 
@@ -362,11 +362,11 @@ struct ObjectBuilder {
   void add_shape(Shape shape) {
     fbb_.AddElement<int8_t>(Object::VT_SHAPE, static_cast<int8_t>(shape), 0);
   }
-  void add_x_pos(int16_t x_pos) {
-    fbb_.AddElement<int16_t>(Object::VT_X_POS, x_pos, 0);
+  void add_x_pos(int64_t x_pos) {
+    fbb_.AddElement<int64_t>(Object::VT_X_POS, x_pos, 0);
   }
-  void add_y_pos(int16_t y_pos) {
-    fbb_.AddElement<int16_t>(Object::VT_Y_POS, y_pos, 0);
+  void add_y_pos(int64_t y_pos) {
+    fbb_.AddElement<int64_t>(Object::VT_Y_POS, y_pos, 0);
   }
   explicit ObjectBuilder(::flatbuffers::FlatBufferBuilder &_fbb) : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -380,7 +380,7 @@ struct ObjectBuilder {
 
 inline ::flatbuffers::Offset<Object> CreateObject(
     ::flatbuffers::FlatBufferBuilder &_fbb, Shape shape = Shape_Circle,
-    int16_t x_pos = 0, int16_t y_pos = 0) {
+    int64_t x_pos = 0, int64_t y_pos = 0) {
   ObjectBuilder builder_(_fbb);
   builder_.add_y_pos(y_pos);
   builder_.add_x_pos(x_pos);

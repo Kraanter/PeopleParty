@@ -6,7 +6,7 @@
       "start": "docker-compose -f docker-compose.yml up --build",
       "flatbuffers:all": "npm run build:flatbuffer  && npm run move:flatbuffer",
 
-      "build:flatbuffer": "bash schemes/builder.sh && flatc --cpp --ts -o fbsout/ schemes/messageClass.fbs --gen-all --oneof-union",
+      "build:flatbuffer": "bash schemes/builder.sh && flatc --cpp --ts -o fbsout/ schemes/messageClass.fbs --gen-all",
       "move:flatbuffer": "npm run move:flatbuffer:prepare && npm run move:flatbuffer:move && npm run move:flatbuffer:cleanup",
       "move:flatbuffer:prepare": "mkdir backend\\src\\flatbuffer\\ || mkdir frontend\\src\\flatbuffers\\ || exit 0",
       "move:flatbuffer:move": "move fbsout\\messageClass_generated.h backend\\src\\flatbuffer\\ && move fbsout\\*.ts frontend\\src\\flatbuffers\\",

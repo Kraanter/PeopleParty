@@ -6,8 +6,8 @@ table CountingGameStatePayload {
 
 table Object {
   shape: Shape;
-  x_pos: short;
-  y_pos: short;
+  x_pos: long;
+  y_pos: long;
 }
 
 root_type CountingGameStatePayload;
