@@ -107,15 +107,11 @@ export default defineComponent({
                 // for some reason uncommenting the next lines work
 
                 //let CountingClientPayloadData = CountingClientDataPayload.createCountingClientDataPayload(builder, 30);
-
                 //let GameStatePayloadData = GameStatePayloadType.createGameStatePayloadType(builder, GameStateType.CountingClientData, GameStatePayload.CountingClientDataPayload, CountingClientPayloadData);
-
                 //let messagePacket = Message.createMessage(builder, MessageType.GameState, Payload.GameStatePayloadType, GameStatePayloadData);
 
                 let ff2 = CountingClientDataPayload.createCountingClientDataPayload(builder, 30);
-
                 let ff = GameStatePayloadType.createGameStatePayloadType(builder, GameStateType.CountingClientData, GameStatePayload.CountingClientDataPayload, ff2);
-
                 let messagePacket2 = Message.createMessage(builder, MessageType.GameState, Payload.GameStatePayloadType, ff);
 
                 builder.finish(messagePacket2);
