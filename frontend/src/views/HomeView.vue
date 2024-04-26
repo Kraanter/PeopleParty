@@ -1,11 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { NCard } from 'naive-ui'
+</script>
 
 <template>
-  <main class="flex justify-center items-center w-full min-h-screen">
-    <div class="flex flex-col gap-5 items-center">
-      <h1 class="text-title">People Party</h1>
-
-      <h3 class="text-body">Soon</h3>
-    </div>
-  </main>
+  <div>
+    <n-card title="People Party" size="huge"> Host, join </n-card>
+  </div>
 </template>
