@@ -2,4 +2,10 @@
 
 #include <iostream>
 
-auto main() -> int { std::cout << "Hello World!" << '\n'; }
+#include "websocket.h"
+
+auto main() -> int {
+  srand(std::time(0));
+
+  WebSocket webSocket;
+}
