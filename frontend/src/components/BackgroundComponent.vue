@@ -7,6 +7,7 @@ const color = 0xa0c8ff
 
 let bgTexture = '/drawing.png'
 let bgPos = ref({ x: 0, y: 0 })
+// @ts-ignore
 const bgScale: ObservablePoint = { x: 0.3, y: 0.3 }
 
 onTick(() => {
@@ -29,14 +30,8 @@ function resize() {
 
 <template>
   <Application :backgroundColor="0x6792d3">
-    <tiling-sprite
-      :width="width"
-      :height="height"
-      :texture="bgTexture"
-      :tile-scale="bgScale"
-      :tint="color"
-      :tile-position="bgPos"
-    >
+    <tiling-sprite :width="width" :height="height" :texture="bgTexture" :tile-scale="bgScale" :tint="color"
+      :tile-position="bgPos">
     </tiling-sprite>
   </Application>
 </template>

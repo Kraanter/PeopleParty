@@ -16,7 +16,7 @@ const router = createRouter({
         // Otherwise, redirect to host page
         to.name = 'host'
         return to
-      },
+      }
     },
     {
       path: '/host',
