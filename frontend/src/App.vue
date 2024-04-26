@@ -18,8 +18,8 @@ function resize() {
 </script>
 
 <template>
-  <main class="w-full h-full">
-    <RouterView class="absolute z-10 max-w-80 max-h-80" />
+  <main class="relative w-screen min-h-screen h-screen">
+    <RouterView class="absolute z-10 w-full h-full" />
 
     <Background :width="width" :height="height" class="fixed top-0 left-0"></Background>
   </main>
