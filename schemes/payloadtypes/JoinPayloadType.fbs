@@ -1,0 +1,5 @@
+table JoinPayloadType {
+    success: bool;
+}
+
+root_type JoinPayloadType;
