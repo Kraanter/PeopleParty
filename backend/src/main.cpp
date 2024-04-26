@@ -124,13 +124,16 @@ void process_message(uWS::WebSocket<true, true, SocketData> *&ws,
 
   std::cout << "Received message of size " << message.size() << std::endl;
 
+  std::cout << "Received message " << message.data() << std::endl;
+
   // Parse the message
-  const uint8_t *uint8Payload =
-      reinterpret_cast<const uint8_t *>(message.data());
+  const uint8_t uint8Payload[] ={4,0,0,0,246,255,255,255,16,0,0,0,0,1,10,0,10,0,0,0,9,0,4,0,10,0,0,0,12,0,0,0,0,1,6,0,8,0,6,0,6,0,0,0,0,0,30,0};
+//      reinterpret_cast<const uint8_t *>(message.data());
+
   auto parsedMessage = GetMessage(uint8Payload);
 
   // Verify the message
-  flatbuffers::Verifier verifier(uint8Payload, message.size());
+  flatbuffers::Verifier verifier(uint8Payload, sizeof(*uint8Payload) / sizeof(uint8_t));
   if (!parsedMessage->Verify(verifier)) {
     std::cout << "Message verification failed" << std::endl;
     return;

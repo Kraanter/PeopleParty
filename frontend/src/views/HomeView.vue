@@ -89,26 +89,27 @@ export default defineComponent({
         sendMessage(newInt: number) {
             if (this.socket) {
                 // let builder = new flatbuffers.Builder();
-
+                //
                 // let hostPayload = HostPayloadType.createHostPayloadType(builder, newInt);
-
+                //
                 // let messagePacket = Message.createMessage(builder, MessageType.Host, Payload.HostPayloadType, hostPayload);
-
+                //
                 // builder.finish(messagePacket);
-
+                //
                 // var dec = new TextDecoder();
                 // let data = dec.decode(builder.asUint8Array());
-
+                //
                 // this.socket.send(data);
 
 
-                let builder = new flatbuffers.Builder();
 
                 // for some reason uncommenting the next lines work
 
-                //let CountingClientPayloadData = CountingClientDataPayload.createCountingClientDataPayload(builder, 30);
-                //let GameStatePayloadData = GameStatePayloadType.createGameStatePayloadType(builder, GameStateType.CountingClientData, GameStatePayload.CountingClientDataPayload, CountingClientPayloadData);
-                //let messagePacket = Message.createMessage(builder, MessageType.GameState, Payload.GameStatePayloadType, GameStatePayloadData);
+                // let CountingClientPayloadData = CountingClientDataPayload.createCountingClientDataPayload(builder, 30);
+                // let GameStatePayloadData = GameStatePayloadType.createGameStatePayloadType(builder, GameStateType.CountingClientData, GameStatePayload.CountingClientDataPayload, CountingClientPayloadData);
+                // let messagePacket = Message.createMessage(builder, MessageType.GameState, Payload.GameStatePayloadType, GameStatePayloadData);
+
+                let builder = new flatbuffers.Builder();
 
                 let ff2 = CountingClientDataPayload.createCountingClientDataPayload(builder, 30);
                 let ff = GameStatePayloadType.createGameStatePayloadType(builder, GameStateType.CountingClientData, GameStatePayload.CountingClientDataPayload, ff2);
@@ -117,35 +118,36 @@ export default defineComponent({
                 builder.finish(messagePacket2);
 
                 var dec = new TextDecoder();
+                console.log(builder.asUint8Array())
                 let data = dec.decode(builder.asUint8Array());
+
+                let unpackmessage = Message.getRootAsMessage(new flatbuffers.ByteBuffer(builder.asUint8Array()));
+                console.log('Unpacked message: ', unpackmessage.type());
+                switch (unpackmessage.type()) {
+                    case MessageType.Host: {
+                        break;
+                    }
+                    case MessageType.Join: {
+                        break;
+                    }
+                    case MessageType.GameState: {
+                        // Access GameStatePayload
+                        // No payload for GameState
+                        const gamestatePayload = unpackmessage.payload(new GameStatePayloadType());
+                        const clientsendData = gamestatePayload.gamestatepayload(new CountingClientDataPayload());
+                        console.log('Received data: ', clientsendData.newInt());
+                        break;
+                    }
+                    default: {
+                        // Handle unknown message type
+                        console.log("Received Unknown Message Type");
+                        break;
+                    }
+                }
 
                 this.socket.send(data);
 
 
-
-                // let unpackmessage = Message.getRootAsMessage(new flatbuffers.ByteBuffer(builder.asUint8Array()));
-                // console.log('Unpacked message: ', unpackmessage.type());
-                // switch (unpackmessage.type()) {
-                //     case MessageType.Host: {
-                //         break;
-                //     }
-                //     case MessageType.Join: {
-                //         break;
-                //     }
-                //     case MessageType.GameState: {
-                //         // Access GameStatePayload
-                //         // No payload for GameState
-                //         const gamestatePayload = unpackmessage.payload(new GameStatePayloadType());
-                //         const clientsendData =  gamestatePayload.gamestatepayload(new CountingClientDataPayload());
-                //         console.log('Received data: ', clientsendData.newInt());
-                //         break;
-                //     }
-                //     default: {
-                //         // Handle unknown message type
-                //         console.log("Received Unknown Message Type");
-                //         break;
-                //     }
-                // }
 
                 // GameStatePayloadType.startGameStatePayloadType(builder);
                 // GameStatePayloadType.addGamestatetype(builder, GameStateType.CountingClientData);
