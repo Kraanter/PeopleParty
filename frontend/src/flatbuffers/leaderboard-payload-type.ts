@@ -2,47 +2,62 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import * as flatbuffers from 'flatbuffers';
+import * as flatbuffers from 'flatbuffers'
 
 export class LeaderboardPayloadType {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):LeaderboardPayloadType {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
+  bb: flatbuffers.ByteBuffer | null = null
+  bb_pos = 0
+  __init(i: number, bb: flatbuffers.ByteBuffer): LeaderboardPayloadType {
+    this.bb_pos = i
+    this.bb = bb
+    return this
+  }
 
-static getRootAsLeaderboardPayloadType(bb:flatbuffers.ByteBuffer, obj?:LeaderboardPayloadType):LeaderboardPayloadType {
-  return (obj || new LeaderboardPayloadType()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
+  static getRootAsLeaderboardPayloadType(
+    bb: flatbuffers.ByteBuffer,
+    obj?: LeaderboardPayloadType
+  ): LeaderboardPayloadType {
+    return (obj || new LeaderboardPayloadType()).__init(
+      bb.readInt32(bb.position()) + bb.position(),
+      bb
+    )
+  }
 
-static getSizePrefixedRootAsLeaderboardPayloadType(bb:flatbuffers.ByteBuffer, obj?:LeaderboardPayloadType):LeaderboardPayloadType {
-  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new LeaderboardPayloadType()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
+  static getSizePrefixedRootAsLeaderboardPayloadType(
+    bb: flatbuffers.ByteBuffer,
+    obj?: LeaderboardPayloadType
+  ): LeaderboardPayloadType {
+    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH)
+    return (obj || new LeaderboardPayloadType()).__init(
+      bb.readInt32(bb.position()) + bb.position(),
+      bb
+    )
+  }
 
-success():number {
-  const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
-}
+  success(): number {
+    const offset = this.bb!.__offset(this.bb_pos, 4)
+    return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0
+  }
 
-static startLeaderboardPayloadType(builder:flatbuffers.Builder) {
-  builder.startObject(1);
-}
+  static startLeaderboardPayloadType(builder: flatbuffers.Builder) {
+    builder.startObject(1)
+  }
 
-static addSuccess(builder:flatbuffers.Builder, success:number) {
-  builder.addFieldInt16(0, success, 0);
-}
+  static addSuccess(builder: flatbuffers.Builder, success: number) {
+    builder.addFieldInt16(0, success, 0)
+  }
 
-static endLeaderboardPayloadType(builder:flatbuffers.Builder):flatbuffers.Offset {
-  const offset = builder.endObject();
-  return offset;
-}
+  static endLeaderboardPayloadType(builder: flatbuffers.Builder): flatbuffers.Offset {
+    const offset = builder.endObject()
+    return offset
+  }
 
-static createLeaderboardPayloadType(builder:flatbuffers.Builder, success:number):flatbuffers.Offset {
-  LeaderboardPayloadType.startLeaderboardPayloadType(builder);
-  LeaderboardPayloadType.addSuccess(builder, success);
-  return LeaderboardPayloadType.endLeaderboardPayloadType(builder);
-}
+  static createLeaderboardPayloadType(
+    builder: flatbuffers.Builder,
+    success: number
+  ): flatbuffers.Offset {
+    LeaderboardPayloadType.startLeaderboardPayloadType(builder)
+    LeaderboardPayloadType.addSuccess(builder, success)
+    return LeaderboardPayloadType.endLeaderboardPayloadType(builder)
+  }
 }

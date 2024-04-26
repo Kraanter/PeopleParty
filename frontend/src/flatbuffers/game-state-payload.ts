@@ -2,9 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import { CountingClientDataPayload } from './counting-client-data-payload.js';
-import { CountingGameStatePayload } from './counting-game-state-payload.js';
-
+import { CountingClientDataPayload } from './counting-client-data-payload.js'
+import { CountingGameStatePayload } from './counting-game-state-payload.js'
 
 export enum GameStatePayload {
   NONE = 0,
@@ -14,25 +13,38 @@ export enum GameStatePayload {
 
 export function unionToGameStatePayload(
   type: GameStatePayload,
-  accessor: (obj:CountingClientDataPayload|CountingGameStatePayload) => CountingClientDataPayload|CountingGameStatePayload|null
-): CountingClientDataPayload|CountingGameStatePayload|null {
-  switch(GameStatePayload[type]) {
-    case 'NONE': return null;
-    case 'CountingClientDataPayload': return accessor(new CountingClientDataPayload())! as CountingClientDataPayload;
-    case 'CountingGameStatePayload': return accessor(new CountingGameStatePayload())! as CountingGameStatePayload;
-    default: return null;
+  accessor: (
+    obj: CountingClientDataPayload | CountingGameStatePayload
+  ) => CountingClientDataPayload | CountingGameStatePayload | null
+): CountingClientDataPayload | CountingGameStatePayload | null {
+  switch (GameStatePayload[type]) {
+    case 'NONE':
+      return null
+    case 'CountingClientDataPayload':
+      return accessor(new CountingClientDataPayload())! as CountingClientDataPayload
+    case 'CountingGameStatePayload':
+      return accessor(new CountingGameStatePayload())! as CountingGameStatePayload
+    default:
+      return null
   }
 }
 
 export function unionListToGameStatePayload(
   type: GameStatePayload,
-  accessor: (index: number, obj:CountingClientDataPayload|CountingGameStatePayload) => CountingClientDataPayload|CountingGameStatePayload|null,
+  accessor: (
+    index: number,
+    obj: CountingClientDataPayload | CountingGameStatePayload
+  ) => CountingClientDataPayload | CountingGameStatePayload | null,
   index: number
-): CountingClientDataPayload|CountingGameStatePayload|null {
-  switch(GameStatePayload[type]) {
-    case 'NONE': return null;
-    case 'CountingClientDataPayload': return accessor(index, new CountingClientDataPayload())! as CountingClientDataPayload;
-    case 'CountingGameStatePayload': return accessor(index, new CountingGameStatePayload())! as CountingGameStatePayload;
-    default: return null;
+): CountingClientDataPayload | CountingGameStatePayload | null {
+  switch (GameStatePayload[type]) {
+    case 'NONE':
+      return null
+    case 'CountingClientDataPayload':
+      return accessor(index, new CountingClientDataPayload())! as CountingClientDataPayload
+    case 'CountingGameStatePayload':
+      return accessor(index, new CountingGameStatePayload())! as CountingGameStatePayload
+    default:
+      return null
   }
 }
