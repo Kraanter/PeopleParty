@@ -3,6 +3,13 @@
 #include "globals.h"
 #include "party.h"
 
+Client::Client() {
+  this->client_id = generate_client_id();
+  this->name = "";
+  this->party = nullptr;
+  this->ws = nullptr;
+}
+
 Client::Client(const std::string name, const Party* party) {
   this->client_id = generate_client_id();
   this->name = name;
@@ -32,6 +39,6 @@ std::ostream& operator<<(std::ostream& stream, const Client& client) {
 
 int generate_client_id() {
   int id = 0;
-  while (parties.contains(id)) id++;
+  while (clients.contains(id)) id++;
   return id;
 }

@@ -3,6 +3,8 @@
 
 #include "client.h"
 
+class Client;
+
 struct SocketData {
   Client* client;
   int party_id;

@@ -12,6 +12,14 @@ Party* PartyRepository::CreateParty() {
 
 void PartyRepository::RemoveParty(int party_id) {
   // remove every client in the party
+  Party* p = &parties[party_id];
+
+  for (int i = 0; i < p->clients.size(); i++) {
+    clients.RemoveClient(p->clients[i]->client_id);
+  }
+
+  // TODO: maybe erase host as well?
+
   parties.erase(party_id);
 }
 

@@ -1,3 +1,6 @@
+#ifndef PARTY_REPOSITORY_H
+#define PARTY_REPOSITORY_H
+
 #include "party.h"
 
 class PartyRepository {
@@ -12,3 +15,5 @@ class PartyRepository {
   bool contains(Party party);
   Party* operator[](int party);
 };
+
+#endif  // PARTY_REPOSITORY_H

@@ -23,6 +23,6 @@ class Party {
   void send(const std::string, uWS::OpCode opcode = uWS::BINARY);
 };
 std::ostream &operator<<(std::ostream &stream, const Party &party);
-int generate_party_id(const std::map<int, Party> &parties);
+int generate_party_id();
 
 #endif  // PARTY_H

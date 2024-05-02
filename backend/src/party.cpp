@@ -1,5 +1,7 @@
 #include "party.h"
 
+#include "globals.h"
+
 Party::Party() {
   party_id = generate_party_id();
   host = nullptr;
@@ -46,7 +48,7 @@ std::ostream &operator<<(std::ostream &stream, const Party &party) {
   return stream;
 }
 
-int generate_party_id(const std::map<int, Party> &parties) {
+int generate_party_id() {
   const int random = rand();
   int id = random % 10000;
   while (parties.contains(id)) {

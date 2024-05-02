@@ -6,6 +6,8 @@
 #include "role.h"
 #include "typedefs.h"
 
+class Party;
+
 class Client {
  public:
   int client_id;
@@ -15,6 +17,7 @@ class Client {
   WS* ws;
 
  public:
+  Client();
   Client(const std::string name, const Party* party);
   void send(const uint8_t* payload, const size_t size,
             uWS::OpCode opcode = uWS::BINARY) const;

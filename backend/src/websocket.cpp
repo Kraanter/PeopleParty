@@ -1,10 +1,26 @@
 #include "websocket.h"
 
 #include "client.h"
+#include "flatbuffer_message_builder.h"
 #include "globals.h"
 #include "socketdata.h"
 
 WebSocket::WebSocket() { this->init(); }
+
+void send_host_message(WS *ws) {
+  std::pair<uint8_t *, int> output =
+      FlatbufferMessageBuilder::buildHostMessage(ws->getUserData()->party_id);
+  Party *p = parties[ws->getUserData()->party_id];
+
+  p->send(output.first, output.second);
+}
+
+void send_join_message(WS *ws) {
+  std::pair<uint8_t *, int> output =
+      FlatbufferMessageBuilder::buildJoinMessage();
+
+  ws->getUserData()->client->send(output.first, output.second);
+}
 
 void WebSocket::init() {
   uWS::SSLApp()
@@ -37,7 +53,7 @@ void WebSocket::init() {
            .open =
                [](auto *ws) {
                  ws->getUserData()->client->ws = ws;
-                 // send_join_message(ws);
+                 send_join_message(ws);
                },
            .message =
                [](auto *ws, std::string_view message, uWS::OpCode opCode) {
@@ -45,16 +61,17 @@ void WebSocket::init() {
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
-                 parties.RemoveParty(ws->getUserData()->party_id);
+                 clients.RemoveClient(ws->getUserData()->client->client_id);
                }})
-      .ws<Client *>(
+      .ws<SocketData>(
           "/host",
           {/* Handlers */
            .open =
                [](auto *ws) {
                  Party *p = parties.CreateParty();
-                 clients.CreateClient("HOST", p);
-                 //  send_host_message(ws);
+                 Client *c = clients.CreateClient("HOST", p);
+                 p->host = c;
+                 send_host_message(ws);
                },
            .message =
                [](auto *ws, std::string_view message, uWS::OpCode opCode) {
@@ -62,7 +79,7 @@ void WebSocket::init() {
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
-                 // remove_client(ws);
+                 parties.RemoveParty(ws->getUserData()->party_id);
                }})
       .listen(7899,
               [](auto *listen_socket) {
