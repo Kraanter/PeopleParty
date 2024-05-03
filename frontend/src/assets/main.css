@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 body {
-  @apply overflow-hidden bg-contain bg-no-repeat w-screen h-screen bg-gradient-to-br from-blue-400 to-blue-900 text-white;
+  @apply overflow-hidden w-screen h-screen text-white;
+  background-color: var(--secondary, lightblue);
 }
 
 .text-body {

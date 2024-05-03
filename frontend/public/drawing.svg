@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="drawing.svg"
+   id="svg5"
+   version="1.1"
+   viewBox="0 0 64 64"
+   height="64mm"
+   width="64mm"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="2.384821"
+     inkscape:cx="118.24787"
+     inkscape:cy="106.50695"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="1712"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g10686"
+     showguides="true"
+     inkscape:snap-page="true" />
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient3217"
+       inkscape:swatch="solid">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop3215" />
+    </linearGradient>
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask3977">
+      <rect
+         style="fill:#ffffff;fill-opacity:0.401958;stroke:none;stroke-width:10;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect3979"
+         width="64"
+         height="64"
+         x="17.37586"
+         y="13.863597" />
+    </mask>
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask6917">
+      <rect
+         style="fill:#ffffff;fill-opacity:0.401958;stroke:none;stroke-width:25;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect6919"
+         width="64"
+         height="64"
+         x="17.37586"
+         y="13.863597" />
+    </mask>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath11189">
+      <rect
+         style="fill:#ffffff;fill-opacity:0;stroke:none;stroke-width:25;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers fill stroke"
+         id="rect11191"
+         width="64"
+         height="64"
+         x="17.37586"
+         y="13.863597" />
+    </clipPath>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-17.37586,-13.863597)">
+    <g
+       id="g10686"
+       clip-path="url(#clipPath11189)">
+      <path
+         style="fill:none;stroke:#ffffff;stroke-width:25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 17.37586,77.863597 64,-64"
+         id="path7716"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="fill:none;stroke:#ffffff;stroke-width:25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 49.37586,109.8636 32,-32.000003 32.00001,-32.000002"
+         id="path7716-0"
+         sodipodi:nodetypes="ccc" />
+      <path
+         style="fill:none;stroke:#ffffff;stroke-width:25;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m -14.62414,45.863602 32,-32.000005 32.000012,-32.000002"
+         id="path7716-0-9"
+         sodipodi:nodetypes="ccc" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2"
+     transform="translate(-17.37586,-13.863597)">
+    <rect
+       style="fill:none;fill-opacity:1;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;paint-order:markers fill stroke;stroke:none;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect1471"
+       width="64"
+       height="64"
+       x="17.37586"
+       y="13.863597" />
+  </g>
+</svg>
