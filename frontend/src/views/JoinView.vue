@@ -3,11 +3,15 @@ import { computed, onMounted, watchEffect } from 'vue'
 import { NCard, NInput, NButton, NResult, NH1, NCollapseTransition } from 'naive-ui'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useWebSocketStore } from '@/stores/confettiStore'
+
+const websocketStore = useWebSocketStore()
 
 const onlyAllowNumber = (value: string) => !value || /^\d+$/.test(value)
 
 const code = ref<string[]>([])
 const username = ref('')
+const error = ref('')
 const inputElements = ref<HTMLInputElement[]>([])
 const nameInput = ref<HTMLInputElement>()
 const joinPromise = ref<Promise<void>>()
@@ -20,6 +24,20 @@ onMounted(() => {
   if (codeString.value.length === partyCodeLength) {
     nameInput.value?.focus()
   }
+
+  const unsubscribe = websocketStore.subscribe((success: boolean) => {
+    if (success) {
+      joinPromise.value = undefined
+      joined.value = true
+      error.value = ''
+    } else {
+      joinPromise.value = undefined
+      error.value = 'Failed to join party. Please check the code and try again.'
+    }
+  })
+
+  // Unsubscribe when component is unmounted
+  return unsubscribe
 })
 
 const codeString = computed(() => code.value.join('') ?? '')
@@ -27,6 +45,7 @@ const joinable = computed(
   () => codeString.value?.length === partyCodeLength && username.value.length > 3
 )
 const joining = computed(() => !!joinPromise.value)
+const hasError = computed(() => !!error.value)
 
 const partyCodeLength = 4
 
@@ -76,9 +95,7 @@ const keyDown = (index: number, event: KeyboardEvent) => {
 const join = () => {
   joinPromise.value = new Promise<void>((resolve) => {
     setTimeout(() => {
-      console.log('Joined party with code:', codeString.value, 'and username:', username.value)
-      joinPromise.value = undefined
-      joined.value = true
+      websocketStore.join(codeString.value, username.value)
       resolve()
     }, 1000)
   })
@@ -126,6 +143,11 @@ const join = () => {
           :loading="joining"
           :disabled="joining"
         />
+      </n-collapse-transition>
+
+      <!-- Error message -->
+      <n-collapse-transition :show="hasError">
+        <p class="text-red-500 text-center mt-4">{{ error }}</p>
       </n-collapse-transition>
 
       <!-- Join button -->

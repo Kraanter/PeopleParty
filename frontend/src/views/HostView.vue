@@ -1,9 +1,26 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { NCard, NButton, NQrCode, NResult } from 'naive-ui'
+import { useWebSocketStore } from '@/stores/confettiStore';
+
+const websocketStore = useWebSocketStore();
 
 const joined = ref(false)
 const partyCode = ref('1234')
+
+const host = () => {
+  websocketStore.host();
+}
+
+onMounted(() => {
+  const unsubscribe = websocketStore.subscribe((roomId: string) => {
+    partyCode.value = roomId
+    joined.value = true
+  })
+
+  // Unsubscribe when component is unmounted
+  return unsubscribe
+})
 
 const generateURL = () => `${window.location.origin}/join?code=${partyCode.value}`
 </script>
@@ -26,7 +43,7 @@ const generateURL = () => `${window.location.origin}/join?code=${partyCode.value
     <n-card class="max-w-md m-3" v-else>
       <n-result status="404" title="Host a Party!" size="huge">
         <template #footer>
-          <n-button type="primary" size="large" block round @click="joined = true">Host</n-button>
+          <n-button type="primary" size="large" block round @click="host()">Host</n-button>
         </template>
       </n-result>
     </n-card>

@@ -1,10 +1,19 @@
 import { defineStore } from 'pinia'
 
+import * as flatbuffers from 'flatbuffers'
+import {
+  MessageType,
+  HostPayloadType,
+  JoinPayloadType,
+  Message,
+} from './../flatbuffers/messageClass' // Import generated TypeScript code
+
 const baseUrl = 'ws://localhost:7899';
 
 export const useWebSocketStore = defineStore('websocket', {
   state: () => ({
-    websocket: null as WebSocket | null
+    websocket: null as WebSocket | null,
+    listeners: [] as Function[]
   }),
   actions: {
     host() {
@@ -12,7 +21,7 @@ export const useWebSocketStore = defineStore('websocket', {
       this.websocket.binaryType = 'arraybuffer';
       this.setUpListeners();
     },
-    join(roomId: number, name: string) {
+    join(roomId: string, name: string) {
       this.websocket = new WebSocket(baseUrl + `/join/${roomId}/${name}`);
       this.websocket.binaryType = 'arraybuffer';
       this.setUpListeners();
@@ -37,31 +46,42 @@ export const useWebSocketStore = defineStore('websocket', {
         }
 
         this.websocket.onclose = (event) => {
+          // set joining to false, maybe need a better error handling for when the connection is closed
+          this.listeners.forEach(listener => listener(false));
           console.log('WebSocket connection closed: ', event)
         }
       }
     },
-    handleMessage(data: ArrayBuffer) {
-      // const buf = new flatbuffers.ByteBuffer(data);
-      // const receivedMessage = Message.getRootAsMessage(buf);
+    subscribe(callback: Function) {
+      this.listeners.push(callback)
+      // Return an unsubscribe function
+      return () => {
+        const index = this.listeners.indexOf(callback)
+        if (index !== -1) {
+          this.listeners.splice(index, 1)
+        }
+      }
+    },
+    handleMessage(data: Uint8Array) {
+      const buf = new flatbuffers.ByteBuffer(data);
+      const receivedMessage = Message.getRootAsMessage(buf);
 
-      // switch (receivedMessage.type()) {
-      //   case MessageType.Host: {
-      //     const hostPayload = receivedMessage.payload(new HostPayloadType());
-      //     console.log('Received Host Payload: ', hostPayload.roomId());
-      //     this.roomID = hostPayload.roomId();
-      //     break;
-      //   }
-      //   case MessageType.Join: {
-      //     const joinPayload = receivedMessage.payload(new JoinPayloadType());
-      //     console.log('Received Join Payload: ', joinPayload.success());
-      //     break;
-      //   }
-      //   default: {
-      //     console.log('Received Unknown Message Type');
-      //     break;
-      //   }
-      // }
+      switch (receivedMessage.type()) {
+        case MessageType.Host: {
+          const hostPayload = receivedMessage.payload(new HostPayloadType());
+          this.listeners.forEach(listener => listener(hostPayload.roomId()));
+          break;
+        }
+        case MessageType.Join: {
+          const joinPayload = receivedMessage.payload(new JoinPayloadType());
+          this.listeners.forEach(listener => listener(joinPayload.success()));
+          break;
+        }
+        default: {
+          console.log('Received Unknown Message Type');
+          break;
+        }
+      }
     }
   }
 });
