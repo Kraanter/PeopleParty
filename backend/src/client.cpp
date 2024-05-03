@@ -17,6 +17,13 @@ Client::Client(const std::string name, const Party* party) {
   this->ws = nullptr;
 }
 
+Client::Client(const std::string name, const Party* party, WS* ws) {
+  this->client_id = generate_client_id();
+  this->name = name;
+  this->party = party;
+  this->ws = ws;
+}
+
 void Client::send(const uint8_t* payload, const size_t size,
                   uWS::OpCode opcode) const {
   // convert the received uint8_t to a char pointer to a string

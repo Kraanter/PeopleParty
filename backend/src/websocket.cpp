@@ -8,18 +8,15 @@
 WebSocket::WebSocket() { this->init(); }
 
 void send_host_message(WS *ws) {
-  std::pair<uint8_t *, int> output =
-      FlatbufferMessageBuilder::buildHostMessage(ws->getUserData()->party_id);
-  Party *p = parties[ws->getUserData()->party_id];
-
-  p->send(output.first, output.second);
+  std::string output = FlatbufferMessageBuilder::buildHostMessage(ws->getUserData()->party_id);
+  
+  ws->getUserData()->client->send(output);
 }
 
 void send_join_message(WS *ws) {
-  std::pair<uint8_t *, int> output =
-      FlatbufferMessageBuilder::buildJoinMessage();
+  std::string output = FlatbufferMessageBuilder::buildJoinMessage();
 
-  ws->getUserData()->client->send(output.first, output.second);
+  ws->getUserData()->client->send(output);
 }
 
 void WebSocket::init() {
@@ -41,8 +38,9 @@ void WebSocket::init() {
                    return;
                  };
 
-                 Client *c =
-                     clients.CreateClient(client_name, parties[party_id]);
+                 Client *c = clients.CreateClient(client_name, parties[party_id]);
+
+                 parties[party_id]->add_client(c);
 
                  res->template upgrade<SocketData>(
                      {.client = c, .party_id = party_id},
@@ -69,8 +67,12 @@ void WebSocket::init() {
            .open =
                [](auto *ws) {
                  Party *p = parties.CreateParty();
-                 Client *c = clients.CreateClient("HOST", p);
+                 Client *c = clients.CreateClient("HOST", p, ws);
                  p->host = c;
+
+                 ws->getUserData()->client = c;
+                 ws->getUserData()->party_id = p->party_id;
+
                  send_host_message(ws);
                },
            .message =

@@ -1,7 +1,8 @@
 #include "flatbuffer_message_builder.h"
+#include <iostream>
 
 namespace FlatbufferMessageBuilder {
-std::pair<uint8_t *, int> buildHostMessage(int room_id) {
+std::string buildHostMessage(int room_id) {
   flatbuffers::FlatBufferBuilder builder;
 
   auto payload = CreateHostPayloadType(builder, room_id);
@@ -12,10 +13,12 @@ std::pair<uint8_t *, int> buildHostMessage(int room_id) {
 
   uint8_t *buf = builder.GetBufferPointer();
 
-  return {buf, builder.GetSize()};
+  std::string dataAsString = std::string(reinterpret_cast<const char*>(buf), builder.GetSize());
+
+  return dataAsString;
 }
 
-std::pair<uint8_t *, int> buildJoinMessage() {
+std::string buildJoinMessage() {
   flatbuffers::FlatBufferBuilder builder;
 
   auto payload = CreateJoinPayloadType(builder, true);
@@ -26,13 +29,15 @@ std::pair<uint8_t *, int> buildJoinMessage() {
 
   uint8_t *buf = builder.GetBufferPointer();
 
-  return {buf, builder.GetSize()};
+  std::string dataAsString = std::string(reinterpret_cast<const char*>(buf), builder.GetSize());
+
+  return dataAsString;
 }
 
-std::pair<uint8_t *, int> buildGameStateMessage() {
+std::string buildGameStateMessage() {
   // TODO: when we have minigames a interface Minigame will be provided as
   // parameter, It will call minigame.buildGameStateMessage() or something than.
 
-  return {nullptr, 0};
+  return "";
 }
 };  // namespace FlatbufferMessageBuilder

@@ -1,5 +1,5 @@
 table HostPayloadType {
-    room_id: short;
+    room_id: long;
 }
 
 root_type HostPayloadType;

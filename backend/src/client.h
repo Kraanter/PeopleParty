@@ -19,6 +19,7 @@ class Client {
  public:
   Client();
   Client(const std::string name, const Party* party);
+  Client(const std::string name, const Party* party, WS* ws);
   void send(const uint8_t* payload, const size_t size,
             uWS::OpCode opcode = uWS::BINARY) const;
   void send(const std::string& payload, uWS::OpCode opcode = uWS::BINARY) const;

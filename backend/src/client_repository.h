@@ -10,6 +10,7 @@ class ClientRepository {
  public:
   ClientRepository();
   Client* CreateClient(const std::string name, const Party* party);
+  Client* CreateClient(const std::string name, const Party* party, WS* ws);
   void RemoveClient(int client_id);
   bool contains(int client_id);
   bool contains(Client client);

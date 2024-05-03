@@ -9,6 +9,13 @@ Client* ClientRepository::CreateClient(const std::string name,
   return &clients[client.client_id];
 }
 
+Client* ClientRepository::CreateClient(const std::string name,
+                                       const Party* party, WS* ws) {
+  Client client = Client(name, party, ws);
+  clients[client.client_id] = client;
+  return &clients[client.client_id];
+}
+
 void ClientRepository::RemoveClient(int client_id) { clients.erase(client_id); }
 
 bool ClientRepository::contains(int client_id) {
