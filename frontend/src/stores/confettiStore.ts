@@ -1,87 +1,87 @@
 import { defineStore } from 'pinia'
 
 import * as flatbuffers from 'flatbuffers'
-import {
-  MessageType,
-  HostPayloadType,
-  JoinPayloadType,
-  Message,
-} from './../flatbuffers/messageClass' // Import generated TypeScript code
+import { MessageType, HostPayloadType, JoinPayloadType, Message } from './../flatbuffers/messageClass'
+import { ref } from 'vue';
 
 const baseUrl = 'ws://localhost:7899';
 
-export const useWebSocketStore = defineStore('websocket', {
-  state: () => ({
-    websocket: null as WebSocket | null,
-    listeners: [] as Function[]
-  }),
-  actions: {
-    host() {
-      this.websocket = new WebSocket(baseUrl + '/host');
-      this.websocket.binaryType = 'arraybuffer';
-      this.setUpListeners();
-    },
-    join(roomId: string, name: string) {
-      this.websocket = new WebSocket(baseUrl + `/join/${roomId}/${name}`);
-      this.websocket.binaryType = 'arraybuffer';
-      this.setUpListeners();
-    },
-    sendMessage(message: string) {
-      if (this.websocket) {
-        // TODO: flatbuffer stuff, not needed yet because no messages will be sent yet.
-        this.websocket.send(message);
-      } else {
-        console.error('WebSocket is not initialized.');
-      }
-    },
-    setUpListeners() {
-      if (this.websocket) {
-        this.websocket.onopen = () => {
-          console.log('WebSocket connection established.')
-        }
+export const useWebSocketStore = defineStore('websocket', () => {
+  const websocket = ref<WebSocket | null>(null)
+  const listeners = ref<Function[]>([])
 
-        this.websocket.onmessage = (event) => {
-          const uintarray = new Uint8Array(event.data)
-          this.handleMessage(uintarray)
-        }
+  function host() {
+    websocket.value = new WebSocket(baseUrl + '/host');
+    websocket.value.binaryType = 'arraybuffer';
+    setUpListeners();
+  }
 
-        this.websocket.onclose = (event) => {
-          // set joining to false, maybe need a better error handling for when the connection is closed
-          this.listeners.forEach(listener => listener(false));
-          console.log('WebSocket connection closed: ', event)
-        }
-      }
-    },
-    subscribe(callback: Function) {
-      this.listeners.push(callback)
-      // Return an unsubscribe function
-      return () => {
-        const index = this.listeners.indexOf(callback)
-        if (index !== -1) {
-          this.listeners.splice(index, 1)
-        }
-      }
-    },
-    handleMessage(data: Uint8Array) {
-      const buf = new flatbuffers.ByteBuffer(data);
-      const receivedMessage = Message.getRootAsMessage(buf);
+  function join(roomId: string, name: string) {
+    websocket.value = new WebSocket(baseUrl + `/join/${roomId}/${name}`);
+    websocket.value.binaryType = 'arraybuffer';
+    setUpListeners();
+  }
 
-      switch (receivedMessage.type()) {
-        case MessageType.Host: {
-          const hostPayload = receivedMessage.payload(new HostPayloadType());
-          this.listeners.forEach(listener => listener(hostPayload.roomId()));
-          break;
-        }
-        case MessageType.Join: {
-          const joinPayload = receivedMessage.payload(new JoinPayloadType());
-          this.listeners.forEach(listener => listener(joinPayload.success()));
-          break;
-        }
-        default: {
-          console.log('Received Unknown Message Type');
-          break;
-        }
+  function sendMessage(message: string) {
+    if (websocket.value) {
+      // TODO: flatbuffer stuff, not needed yet because no messages will be sent yet.
+      websocket.value.send(message);
+    } else {
+      console.error('WebSocket is not initialized.');
+    }
+  }
+
+  function setUpListeners() {
+    if (websocket.value) {
+      websocket.value.onopen = () => {
+        console.log('WebSocket connection established.')
+      }
+
+      websocket.value.onmessage = (event) => {
+        const uintarray = new Uint8Array(event.data)
+        handleMessage(uintarray)
+      }
+
+      websocket.value.onclose = (event) => {
+        // set joining to false, maybe need a better error handling for when the connection is closed
+        listeners.value.forEach(listener => listener(false));
+        console.log('WebSocket connection closed: ', event)
       }
     }
   }
+
+  function subscribe(callback: Function) {
+    listeners.value.push(callback)
+    // Return an unsubscribe function
+    return () => {
+      const index = listeners.value.indexOf(callback)
+      if (index !== -1) {
+        listeners.value.splice(index, 1)
+      }
+    }
+  }
+
+  function handleMessage(data: Uint8Array) {
+    const buf = new flatbuffers.ByteBuffer(data);
+    const receivedMessage = Message.getRootAsMessage(buf);
+
+    switch (receivedMessage.type()) {
+      case MessageType.Host: {
+        const hostPayload = receivedMessage.payload(new HostPayloadType());
+        listeners.value.forEach(listener => listener(hostPayload.roomId()));
+        break;
+      }
+      case MessageType.Join: {
+        const joinPayload = receivedMessage.payload(new JoinPayloadType());
+        listeners.value.forEach(listener => listener(joinPayload.success()));
+        break;
+      }
+      default: {
+        console.log('Received Unknown Message Type');
+        break;
+      }
+    }
+  }
+
+  return { host, join, sendMessage, subscribe }
 });
