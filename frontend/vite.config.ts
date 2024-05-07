@@ -26,7 +26,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/confetti": {
-        target: 'ws://localhost:7789',
+        target: 'ws://localhost:7899/',
         rewrite: (path) => path.replace(/^\/confetti/, ''),
         ws: true,
       }
