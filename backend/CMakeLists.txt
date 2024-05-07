@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 ### Dependencies ###
 find_package(uwebsockets REQUIRED)
 find_package(doctest)
+find_package(flatbuffers REQUIRED)
 
 ### Main project ###
 # Get source files
@@ -24,6 +25,7 @@ add_executable(PeopleParty-Backend ${source_files})
 
 # Link dependencies
 target_link_libraries(PeopleParty-Backend uwebsockets::uwebsockets)
+target_link_libraries(PeopleParty-Backend flatbuffers::flatbuffers)
 
 ### Tests ###
 # Enable testing

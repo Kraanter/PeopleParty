@@ -18,6 +18,7 @@
     "prepare": "cd .. && husky"
   },
   "dependencies": {
+    "flatbuffers": "^24.3.25",
     "pinia": "^2.1.7",
     "pixi.js": "^8.1.0",
     "vue": "^3.4.21",
