@@ -1,0 +1,22 @@
+// Automatically generated main schema file
+// Include all payload types to build the scheme
+
+include "payloadtypes/HostPayloadType.fbs";
+include "payloadtypes/JoinPayloadType.fbs";
+
+enum MessageType: byte {
+    Host,
+    Join,
+}
+
+union Payload {
+    HostPayloadType,
+    JoinPayloadType,
+}
+
+table Message {
+    type: MessageType;
+    payload: Payload;
+}
+
+root_type Message;
