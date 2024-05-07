@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "license": "MIT",
     "scripts": {
-      "start": "docker-compose -f docker-compose.yml up --build",
+      "start": "docker-compose -f docker-compose-dev.yml up --build",
 
       "flatbuffers:all": "npm run build:flatbuffer  && npm run move:flatbuffer",
 

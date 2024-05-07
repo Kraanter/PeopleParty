@@ -4,7 +4,7 @@ import * as flatbuffers from 'flatbuffers'
 import { MessageType, HostPayloadType, JoinPayloadType, Message } from './../flatbuffers/messageClass'
 import { ref } from 'vue';
 
-const baseUrl = `ws:${window.location.hostname}:7899`;
+const baseUrl = `ws:${window.location.host}/confetti`;
 
 export const useWebSocketStore = defineStore('websocket', () => {
   const websocket = ref<WebSocket | null>(null)
