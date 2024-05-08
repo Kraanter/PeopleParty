@@ -93,12 +93,15 @@ const keyDown = (index: number, event: KeyboardEvent) => {
 }
 
 const join = () => {
-  joinPromise.value = new Promise<void>((resolve) => {
-    setTimeout(() => {
+  if (username.value.length < 4) {
+    error.value = 'Username must be at least 4 characters long.'
+  } else {
+    joinPromise.value = new Promise<void>((resolve) => {
+      error.value = ''
       websocketStore.join(codeString.value, username.value)
       resolve()
-    }, 1000)
-  })
+    })
+  }
 }
 </script>
 <template>
