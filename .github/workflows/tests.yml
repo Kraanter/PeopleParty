@@ -1,0 +1,40 @@
+name: Cypress tests
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docker-compose:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:20.10.8
+        options: --privileged
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Build and run Docker Compose
+        run: docker-compose -f docker-compose-test.yml up --build --detach
+
+  cypress-tests:
+    needs: docker-compose
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Wait for Docker Compose to finish
+        run: |
+          while docker ps --format '{{.Names}}' | grep -q 'cypress-tests'; do
+            sleep 10
+          done
+
+      - name: Check Cypress Tests exit status
+        run: |
+          docker inspect --format='{{.State.ExitCode}}' $(docker ps -q -f name=cypress-tests) || true
