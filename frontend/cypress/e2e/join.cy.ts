@@ -1,3 +1,4 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 describe('join test', () => {
 
   it('Should be able to host a party', () => {
