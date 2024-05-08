@@ -55,6 +55,14 @@ watchEffect(() => {
   }
 })
 
+watchEffect(() => {
+  if (error.value) {
+    setTimeout(() => {
+      error.value = ''
+    }, 10000)
+  }
+})
+
 const changeSelected = (index: number) => {
   if (index > -1 && index < partyCodeLength) {
     inputElements.value[index].select()
@@ -96,10 +104,9 @@ const join = () => {
   if (username.value.length < 4) {
     error.value = 'Username must be at least 4 characters long.'
   } else {
-    joinPromise.value = new Promise<void>((resolve) => {
-      error.value = ''
+    if (joinPromise.value) return
+    joinPromise.value = new Promise<void>(() => {
       websocketStore.join(codeString.value, username.value)
-      resolve()
     })
   }
 }
