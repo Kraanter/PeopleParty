@@ -29,6 +29,5 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          cd beta
-          docker compose pull
-          docker compose -f docker-compose-staging.yml up --build -d --force-recreate
+          docker compose -f beta/docker-compose-staging.yml pull
+          docker compose -f beta/docker-compose-staging.yml up --build -d --force-recreate
