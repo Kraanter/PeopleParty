@@ -1,0 +1,37 @@
+name: Deploy staging GHCR to Skylab
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+
+  workflow_call:
+
+jobs:
+  copy:
+    name: Copy files to Skylab
+    environment: main
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: copy file via ssh
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        source: "nginx/*,docker-compose-staging.yml"
+        target: "~/beta"
+    - name: Execute docker-compose on Skylab
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd beta
+          docker compose pull
+          docker compose -f docker-compose.yml up --build -d --force-recreate
