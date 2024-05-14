@@ -70,7 +70,7 @@ const changeSelected = (index: number) => {
 }
 
 const onChange = (index: number, value: string) => {
-  if (index < 0 || index >= partyCodeLength) return
+  if (index < 0 || index >= partyCodeLength || !onlyAllowNumber(value[0])) return
 
   if (value) {
     if (index < partyCodeLength - 1) {
