@@ -55,6 +55,14 @@ watchEffect(() => {
   }
 })
 
+watchEffect(() => {
+  if (error.value) {
+    setTimeout(() => {
+      error.value = ''
+    }, 10000)
+  }
+})
+
 const changeSelected = (index: number) => {
   if (index > -1 && index < partyCodeLength) {
     inputElements.value[index].select()
@@ -62,7 +70,7 @@ const changeSelected = (index: number) => {
 }
 
 const onChange = (index: number, value: string) => {
-  if (index < 0 || index >= partyCodeLength) return
+  if (index < 0 || index >= partyCodeLength || !onlyAllowNumber(value[0])) return
 
   if (value) {
     if (index < partyCodeLength - 1) {
@@ -93,12 +101,14 @@ const keyDown = (index: number, event: KeyboardEvent) => {
 }
 
 const join = () => {
-  joinPromise.value = new Promise<void>((resolve) => {
-    setTimeout(() => {
+  if (username.value.length < 4) {
+    error.value = 'Username must be at least 4 characters long.'
+  } else {
+    if (joinPromise.value) return
+    joinPromise.value = new Promise<void>(() => {
       websocketStore.join(codeString.value, username.value)
-      resolve()
-    }, 1000)
-  })
+    })
+  }
 }
 </script>
 <template>
