@@ -13,7 +13,7 @@ describe('join test', () => {
     cy.get('.text-title').should('contain', 'Party code:')
     cy.get('.text-title').should('not.contain', 'false')
 
-    // open a new thread to join the room
+    // join the room with the room code
     cy.get('.text-title').then(($el) => {
       const roomCode = $el.text().split(' ')[2]
       cy.visit('/join')
@@ -23,7 +23,7 @@ describe('join test', () => {
       cy.get('button').click()
       cy.wait(2000)
 
-      cy.get('.max-w-md').children().first().should('contain', 'Joined')
+      cy.get('.max-w-md').children().first().should('contain', 'Joined', { timeout: 10000 })
     })
   })
 })

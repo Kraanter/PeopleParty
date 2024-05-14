@@ -1,12 +1,13 @@
 name: Cypress tests
 
-on:
-  push:
+on: 
+  pull_request:
     branches:
       - main
+      - staging
 
 jobs:
-  docker-compose:
+  cypress-tests:
     runs-on: ubuntu-latest
     services:
       docker:
@@ -22,19 +23,22 @@ jobs:
           sudo apt-get install -y docker-compose
 
       - name: Build and run Docker Compose
-        run: docker-compose -f docker-compose-test.yml up --build --detach
-
-  cypress-tests:
-    needs: docker-compose
+        run: docker-compose -f docker-compose-test.yml up --abort-on-container-exit --build
+  doctest-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
-      - name: Wait for Docker Compose to finish
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Install
         run: |
-          while docker ps --format '{{.Names}}' | grep -q 'cypress-tests'; do
-            sleep 10
-          done
-
-      - name: Check Cypress Tests exit status
-        run: |
-          docker inspect --format='{{.State.ExitCode}}' $(docker ps -q -f name=cypress-tests) || true
+          sudo apt-get update
+          sudo apt-get install -y cmake
+          pip3 install conan
+      - name: Generate
+        run: cd backend && conan profile detect && conan install . --output-folder=build --build=missing --settings=build_type=Debug
+      - name: Build Conan
+        run: cd backend/build && cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug
+      - name: Build
+        run: cd backend && cmake --build build/.
+      - name: Run Tests
+        run: cd backend && ./build/PeopleParty-Backend-Tests
