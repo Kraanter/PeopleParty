@@ -3,15 +3,18 @@
 
 include "payloadtypes/HostPayloadType.fbs";
 include "payloadtypes/JoinPayloadType.fbs";
+include "payloadtypes/MiniGamePayloadType.fbs";
 
 enum MessageType: byte {
     Host,
     Join,
+    MiniGame,
 }
 
 union Payload {
     HostPayloadType,
     JoinPayloadType,
+    MiniGamePayloadType,
 }
 
 table Message {
