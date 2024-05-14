@@ -50,9 +50,12 @@ std::ostream &operator<<(std::ostream &stream, const Party &party) {
 
 int generate_party_id() {
   const int random = rand();
-  int id = random % 10000;
+  int id = (random % 9000) + 1000;
   while (parties.contains(id)) {
     id++;
+    if (id > 9999) {
+      id = 1000;
+    }
   }
   return id;
 }

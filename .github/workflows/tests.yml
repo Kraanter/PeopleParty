@@ -1,0 +1,44 @@
+name: Cypress tests
+
+on: 
+  pull_request:
+    branches:
+      - main
+      - staging
+
+jobs:
+  cypress-tests:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:20.10.8
+        options: --privileged
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Build and run Docker Compose
+        run: docker-compose -f docker-compose-test.yml up --abort-on-container-exit --build
+  doctest-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Install
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake
+          pip3 install conan
+      - name: Generate
+        run: cd backend && conan profile detect && conan install . --output-folder=build --build=missing --settings=build_type=Debug
+      - name: Build Conan
+        run: cd backend/build && cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug
+      - name: Build
+        run: cd backend && cmake --build build/.
+      - name: Run Tests
+        run: cd backend && ./build/PeopleParty-Backend-Tests

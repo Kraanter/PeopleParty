@@ -91,7 +91,11 @@ void WebSocket::init() {
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
-                 parties.RemoveParty(ws->getUserData()->party_id);
+                // wait for 5 seconds before removing the party
+                std::thread([ws]() {
+                  std::this_thread::sleep_for(std::chrono::seconds(5));
+                    parties.RemoveParty(ws->getUserData()->party_id);
+                }).detach();
                }})
       .listen(7899,
               [](auto *listen_socket) {

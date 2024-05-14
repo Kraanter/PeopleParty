@@ -39,11 +39,16 @@ file(GLOB_RECURSE test_files
         ${tests_source_dir}/*.h
 )
 
+# exclude main.cpp from source files
+list(FILTER source_files EXCLUDE REGEX "main.cpp")
+
 # Create test target
-add_executable(PeopleParty-Backend-Tests ${test_files})
+add_executable(PeopleParty-Backend-Tests ${test_files} ${source_files})
 
 # Link dependencies
 target_link_libraries(PeopleParty-Backend-Tests doctest::doctest)
+target_link_libraries(PeopleParty-Backend-Tests uwebsockets::uwebsockets)
+target_link_libraries(PeopleParty-Backend-Tests flatbuffers::flatbuffers)
 
 # Enable CTest
 #include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
