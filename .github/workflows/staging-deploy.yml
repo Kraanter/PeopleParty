@@ -1,8 +1,5 @@
 name: Deploy staging GHCR to Skylab
 
-permissions:
-  contents: write
-
 on:
   workflow_dispatch:
 

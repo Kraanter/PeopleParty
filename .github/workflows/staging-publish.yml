@@ -47,7 +47,7 @@ jobs:
         run: docker image prune -f -a
   deploy-skylab:
     needs: "build-and-push-image"
-    uses: ./.github/workflows/deploy-skylab-staging.yml
-    if: ${{ inputs.deploy-skylab || github.ref === 'refs/heads/staging' }}
+    uses: ./.github/workflows/staging-deploy.yml
+    if: ${{ inputs.deploy-skylab || github.ref == 'refs/heads/staging' }}
     secrets: inherit
 
