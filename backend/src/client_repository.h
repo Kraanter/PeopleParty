@@ -15,6 +15,7 @@ class ClientRepository {
   bool contains(int client_id);
   bool contains(Client client);
   Client* operator[](int client_id);
+  int size();
 };
 
 #endif  // CLIENT_REPOSITORY_H

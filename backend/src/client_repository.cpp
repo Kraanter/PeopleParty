@@ -29,3 +29,7 @@ bool ClientRepository::contains(Client client) {
 Client* ClientRepository::operator[](int client_id) {
   return &clients[client_id];
 }
+
+int ClientRepository::size() {
+    return clients.size();
+}
