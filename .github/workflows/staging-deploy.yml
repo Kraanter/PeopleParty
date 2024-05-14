@@ -34,4 +34,4 @@ jobs:
         script: |
           cd beta
           docker compose pull
-          docker compose -f docker-compose.yml up --build -d --force-recreate
+          docker compose -f docker-compose-staging.yml up --build -d --force-recreate
