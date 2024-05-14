@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
 import { NCard, NButton, NQrCode, NResult } from 'naive-ui'
-import { useWebSocketStore } from '@/stores/confettiStore';
+import { useWebSocketStore } from '@/stores/confettiStore'
 
-const websocketStore = useWebSocketStore();
+const websocketStore = useWebSocketStore()
 
 const joined = ref(false)
 const partyCode = ref('1234')
 
 const host = () => {
-  websocketStore.host();
+  websocketStore.host()
 }
 
 onMounted(() => {
