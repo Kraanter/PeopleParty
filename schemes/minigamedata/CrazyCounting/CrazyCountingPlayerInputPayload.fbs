@@ -1,0 +1,8 @@
+enum Input: byte { Increase, Decrease }
+
+table CrazyCountingPlayerInputPayload {
+    input_type: Input;
+}
+
+
+root_type CrazyCountingPlayerInputPayload;

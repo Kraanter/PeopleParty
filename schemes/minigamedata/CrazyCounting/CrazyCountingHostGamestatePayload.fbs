@@ -1,0 +1,10 @@
+table CrazyCountingHostGamestatePayload {
+    objects: [Object];
+}
+
+table Object {
+  x_pos: long;
+  y_pos: long;
+}
+
+root_type CrazyCountingHostGamestatePayload;
