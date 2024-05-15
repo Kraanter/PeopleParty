@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { NCard, NButton, NQrCode, NResult } from 'naive-ui'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import GameManager from '@/components/GameManager.vue';
+import GameManager from '@/components/GameManager.vue'
 
 const websocketStore = useWebSocketStore()
 

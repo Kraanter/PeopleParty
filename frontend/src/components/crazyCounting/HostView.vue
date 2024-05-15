@@ -10,8 +10,8 @@ type PosData = {
 const size = ref(100)
 
 const props = defineProps<{
-  width: number,
-  height: number,
+  width: number
+  height: number
   data: PosData[]
 }>()
 
@@ -54,7 +54,12 @@ onMounted(() => {
       </text>
     </template>
     <Application :width :height background-color="white">
-      <sprite v-for="(pos, i) in data" :position="interpolatePosition(pos)" :key="i" texture="/circle.svg" />
+      <sprite
+        v-for="(pos, i) in data"
+        :position="interpolatePosition(pos)"
+        :key="i"
+        texture="/circle.svg"
+      />
     </Application>
   </Loader>
 </template>

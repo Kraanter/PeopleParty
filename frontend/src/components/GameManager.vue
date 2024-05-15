@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { defineAsyncComponent, ref, watch, defineProps, onMounted } from 'vue';
+import { defineAsyncComponent, ref, watch, defineProps, onMounted } from 'vue'
 
 const props = defineProps<{
   isHost: boolean
-}>();
+}>()
 
 const gameName = ref('crazyCounting')
 
 const debounce = (func: Function, wait: number) => {
-  let timeout: number | undefined;
+  let timeout: number | undefined
   return (...args: any[]) => {
     clearTimeout(timeout)
     timeout = setTimeout(() => {
@@ -28,7 +28,7 @@ const game = ref(getComponent(gameName.value))
 const height = ref(0)
 const width = ref(0)
 
-const hostData = ref<{ x: number, y: number }[]>([])
+const hostData = ref<{ x: number; y: number }[]>([])
 
 for (let i = 0; i < 100; i++) {
   hostData.value.push({ x: Math.random() * 2 - 1, y: Math.random() * 2 - 1 })
@@ -63,12 +63,24 @@ onMounted(() => {
   }
 })
 
-watch(gameName, debounce((value: string) => {
-  game.value = getComponent(value)
-}, 500))
+watch(
+  gameName,
+  debounce((value: string) => {
+    game.value = getComponent(value)
+  }, 500)
+)
 </script>
 <template>
-  <div id="container" class="p-2 bg-black backdrop-blur-xl bg-opacity-50 shadow-lg rounded-md w-full h-[97dvh] m-3">
-    <component v-if="width && height" :is="game" :data="isHost ? hostData : gameData" :height :width />
+  <div
+    id="container"
+    class="p-2 bg-black backdrop-blur-xl bg-opacity-50 shadow-lg rounded-md w-full h-[97dvh] m-3"
+  >
+    <component
+      v-if="width && height"
+      :is="game"
+      :data="isHost ? hostData : gameData"
+      :height
+      :width
+    />
   </div>
 </template>

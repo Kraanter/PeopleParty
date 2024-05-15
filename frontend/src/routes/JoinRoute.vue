@@ -123,16 +123,35 @@ const join = () => {
       <n-h1 class="mb-6 text-center">Join a Party!</n-h1>
 
       <div class="flex justify-between gap-4">
-        <n-input v-bind:key="i" v-for="i in partyCodeLength" placeholder="" :allow-input="onlyAllowNumber"
-          ref="inputElements" id="partyCode" size="large" :autofocus="i === 1" :disabled="joining"
-          class="text-center flex items-center !text-3xl font-extrabold aspect-square" v-model:value="code[i - 1]"
-          @input="onChange(i - 1, $event)" @keydown="keyDown(i - 1, $event)" />
+        <n-input
+          v-bind:key="i"
+          v-for="i in partyCodeLength"
+          placeholder=""
+          :allow-input="onlyAllowNumber"
+          ref="inputElements"
+          id="partyCode"
+          size="large"
+          :autofocus="i === 1"
+          :disabled="joining"
+          class="text-center flex items-center !text-3xl font-extrabold aspect-square"
+          v-model:value="code[i - 1]"
+          @input="onChange(i - 1, $event)"
+          @keydown="keyDown(i - 1, $event)"
+        />
       </div>
 
       <!-- Name input -->
       <n-collapse-transition class="mt-6" :show="codeString?.length === partyCodeLength">
-        <n-input ref="nameInput" v-model:value="username" placeholder="Username" size="large" class="w-full"
-          @keydown.enter="join" :loading="joining" :disabled="joining" />
+        <n-input
+          ref="nameInput"
+          v-model:value="username"
+          placeholder="Username"
+          size="large"
+          class="w-full"
+          @keydown.enter="join"
+          :loading="joining"
+          :disabled="joining"
+        />
       </n-collapse-transition>
 
       <!-- Error message -->
