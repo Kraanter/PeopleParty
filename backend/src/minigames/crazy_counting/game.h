@@ -13,6 +13,7 @@
 class CrazyCountingGame : public Minigame {
 public:
     CrazyCountingGame(int entity_count, const Party& party);
+    ~CrazyCountingGame() = default;
 private:
     std::vector<Entity> entities;
     std::map<int, int> counting_register;
@@ -20,7 +21,7 @@ private:
     void send_entities();
     void send_count(int client_id);
     void update(unsigned long delta_time);
-
+    void process_input(const std::string& payload) override;
 };
 
 #endif //PEOPLEPARTY_BACKEND_GAME_H

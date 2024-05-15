@@ -3,6 +3,8 @@
 //
 
 #include "game.h"
+#include "../../flatbuffer/messageClass_generated.h"
+#include "../../utils.h"
 #include <cmath>
 
 CrazyCountingGame::CrazyCountingGame(int entity_count, const Party& party) : Minigame(party) {
@@ -12,15 +14,24 @@ CrazyCountingGame::CrazyCountingGame(int entity_count, const Party& party) : Min
 }
 
 void CrazyCountingGame::send_entities() {
-    // todo: Create the flatbuffer payload
+    // Create the flatbuffer object
+    flatbuffers::FlatBufferBuilder builder;
+    std::vector<flatbuffers::Offset<Object>> objects;
+    for (Entity entity: entities) {
+        objects.push_back(CreateObject(builder, entity.position.first, entity.position.second));
+    }
+    auto objects_vector = builder.CreateVector(objects);
 
-    // todo: Encode payload to binary
+    // Encode payload to binary
+    auto payload = CreateCrazyCountingHostGamestatePayload(builder, objects_vector);
 
-    // todo: Send payload to client
+    // Send payload to client
+    send_gamestate([](Client* client) { return client->party->host == client; }, builder, payload.Union());
 }
 
 void CrazyCountingGame::send_count(int client_id) {
     // todo: Create the flatbuffer payload
+
 
     // todo: Encode payload to binary
 
@@ -39,4 +50,5 @@ void CrazyCountingGame::update(unsigned long delta_time) {
     for (Entity entity: entities) {
         entity.update(delta_time);
     }
+    send_entities();
 }
