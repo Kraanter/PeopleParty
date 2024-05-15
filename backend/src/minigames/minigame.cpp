@@ -4,6 +4,10 @@
 
 #include "minigame.h"
 
-MiniGame::MiniGame(const Game* game) {
+MiniGame::MiniGame(Game* game) {
     this->game = game;
+}
+
+void MiniGame::finish() {
+    game->nextGame();
 }

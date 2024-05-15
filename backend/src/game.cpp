@@ -12,7 +12,7 @@ Game::Game(const Party* party) {
     this->party = party;
 
     // For now adds all minigames
-    //miniGames.push(new CrazyCounting_MiniGame(10, this));
+    miniGames.push(new CrazyCounting_MiniGame(10, this));
 }
 
 void Game::nextGame() {
@@ -21,7 +21,7 @@ void Game::nextGame() {
         miniGames.pop();
 
         // Infinite loop for now
-        //miniGames.push(new CrazyCounting_MiniGame(10, this));
+        miniGames.push(new CrazyCounting_MiniGame(10, this));
     }
 }
 

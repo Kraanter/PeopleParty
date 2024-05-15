@@ -12,10 +12,11 @@ class Game;
 
 class MiniGame {
 public:
-    MiniGame(const Game* game);
+    MiniGame(Game* game);
+    void finish();
     virtual void process_input(const MiniGamePayloadType* payload, Client* from) = 0;
 protected:
-    const Game* game;
+    Game* game;
 };
 
 
