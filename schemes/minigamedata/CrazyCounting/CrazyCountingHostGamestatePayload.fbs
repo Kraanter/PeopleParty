@@ -3,8 +3,8 @@ table CrazyCountingHostGamestatePayload {
 }
 
 table Object {
-  x_pos: long;
-  y_pos: long;
+  x_pos: float;
+  y_pos: float;
 }
 
 root_type CrazyCountingHostGamestatePayload;
