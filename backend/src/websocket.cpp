@@ -78,6 +78,7 @@ void WebSocket::init() {
                  std::cout << "connection started with host" << std::endl;
                  Party *p = parties.CreateParty();
                  Client *c = clients.CreateClient("HOST", p, ws);
+                 c->isHost = true;
                  p->host = c;
 
                  ws->getUserData()->client = c;
