@@ -2,8 +2,8 @@
 // Created by itssiem on 5/14/24.
 //
 
-#ifndef PEOPLEPARTY_BACKEND_COUNTING_H
-#define PEOPLEPARTY_BACKEND_COUNTING_H
+#ifndef PEOPLEPARTY_BACKEND_COUNTING_REGISTER_H
+#define PEOPLEPARTY_BACKEND_COUNTING_REGISTER_H
 
 #include <map>
 
@@ -17,4 +17,4 @@ private:
     std::map<int, int> counting_register;
 };
 
-#endif //PEOPLEPARTY_BACKEND_COUNTING_H
+#endif //PEOPLEPARTY_BACKEND_COUNTING_REGISTER_H

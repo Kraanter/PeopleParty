@@ -2,7 +2,7 @@
 // Created by itssiem on 5/14/24.
 //
 
-#include "counting.h"
+#include "counting_register.h"
 
 int CountingRegister::increase(int client_id) {
     if (counting_register.find(client_id) == counting_register.end()) {
