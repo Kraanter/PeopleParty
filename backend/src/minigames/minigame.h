@@ -5,14 +5,16 @@
 #ifndef PEOPLEPARTY_BACKEND_MINIGAME_H
 #define PEOPLEPARTY_BACKEND_MINIGAME_H
 
-#include "../party.h"
+#include "../game.h"
 
-class Minigame {
+class Game;
+
+class MiniGame {
 public:
-    Minigame(const Party& party);
-    virtual void process_input(const std::string& payload) = 0;
+    MiniGame(const Game* game);
+    virtual void process_input(const MiniGamePayloadType* payload, Client* from) = 0;
 protected:
-    Party party;
+    const Game* game;
 };
 
 

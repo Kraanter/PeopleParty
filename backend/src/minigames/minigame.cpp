@@ -4,6 +4,6 @@
 
 #include "minigame.h"
 
-Minigame::Minigame(const Party& party) {
-    this->party = party;
+MiniGame::MiniGame(const Game* game) {
+    this->game = game;
 }

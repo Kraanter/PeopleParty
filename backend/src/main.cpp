@@ -9,6 +9,5 @@
 auto main() -> int {
   srand(std::time(0));
   // FIXME: Debug line
-  CrazyCounting_MiniGame game(10, *parties[0]);
   WebSocket webSocket;
 }

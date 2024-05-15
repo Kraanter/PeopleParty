@@ -1,10 +1,12 @@
 #include "party.h"
 
 #include "globals.h"
+#include "game.h"
 
 Party::Party() {
   party_id = generate_party_id();
   host = nullptr;
+  game = new Game(this);
 }
 
 void Party::add_client(Client *client) { clients.push_back(client); }

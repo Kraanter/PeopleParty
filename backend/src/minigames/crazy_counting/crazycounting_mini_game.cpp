@@ -7,7 +7,7 @@
 #include "../../utils.h"
 #include <cmath>
 
-CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, const Party& party) : Minigame(party) {
+CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : MiniGame(game) {
     for (int i = 0; i < entity_count; i++) {
         entities.emplace_back();
     }
@@ -38,12 +38,26 @@ void CrazyCounting_MiniGame::send_count(int client_id) {
     // todo: Send payload to client
 }
 
-void CrazyCounting_MiniGame::process_input(const std::string &payload) {
-    // todo: Parse payload
-
-    // todo: Increment or Decrement the counter
-
-    // todo: Send new count back to client
+void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, Client* from) {
+    switch(payload->gamestatetype()) {
+        case GameStateType_CrazyCountingPlayerInput: {
+            auto input = payload->gamestatepayload_as_CrazyCountingPlayerInputPayload();
+            switch (input->input_type())
+            {
+                case Input_Increase: {
+                    counting_register.increase(from->client_id);
+                    send_count(from->client_id);
+                    break;
+                }
+                case Input_Decrease: {
+                    counting_register.decrease(from->client_id);
+                    send_count(from->client_id);
+                    break;
+                }
+            }
+            break;
+        }
+    }
 }
 
 void CrazyCounting_MiniGame::update(unsigned long delta_time) {
