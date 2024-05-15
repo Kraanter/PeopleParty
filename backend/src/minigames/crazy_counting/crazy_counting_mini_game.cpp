@@ -2,18 +2,18 @@
 // Created by itssiem on 5/14/24.
 //
 
-#include "game.h"
+#include "crazy_counting_mini_game.h"
 #include "../../flatbuffer/messageClass_generated.h"
 #include "../../utils.h"
 #include <cmath>
 
-CrazyCountingGame::CrazyCountingGame(int entity_count, const Party& party) : Minigame(party) {
+CrazyCountingMiniGame::CrazyCountingMiniGame(int entity_count, const Party& party) : Minigame(party) {
     for (int i = 0; i < entity_count; i++) {
         entities.emplace_back();
     }
 }
 
-void CrazyCountingGame::send_entities() {
+void CrazyCountingMiniGame::send_entities() {
     // Create the flatbuffer object
     flatbuffers::FlatBufferBuilder builder;
     std::vector<flatbuffers::Offset<Object>> objects;
@@ -29,7 +29,7 @@ void CrazyCountingGame::send_entities() {
     send_gamestate([](Client* client) { return client->party->host == client; }, builder, payload.Union());
 }
 
-void CrazyCountingGame::send_count(int client_id) {
+void CrazyCountingMiniGame::send_count(int client_id) {
     // todo: Create the flatbuffer payload
 
 
@@ -38,7 +38,7 @@ void CrazyCountingGame::send_count(int client_id) {
     // todo: Send payload to client
 }
 
-void CrazyCountingGame::process_input(const std::string &payload) {
+void CrazyCountingMiniGame::process_input(const std::string &payload) {
     // todo: Parse payload
 
     // todo: Increment or Decrement the counter
@@ -46,7 +46,7 @@ void CrazyCountingGame::process_input(const std::string &payload) {
     // todo: Send new count back to client
 }
 
-void CrazyCountingGame::update(unsigned long delta_time) {
+void CrazyCountingMiniGame::update(unsigned long delta_time) {
     for (Entity entity: entities) {
         entity.update(delta_time);
     }

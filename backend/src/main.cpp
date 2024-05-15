@@ -4,11 +4,11 @@
 
 #include "websocket.h"
 #include "globals.h"
-#include "minigames/crazy_counting/game.h"
+#include "minigames/crazy_counting/crazy_counting_mini_game.h"
 
 auto main() -> int {
   srand(std::time(0));
   // FIXME: Debug line
-  CrazyCountingGame game(10, *parties[0]);
+  CrazyCountingMiniGame game(10, *parties[0]);
   WebSocket webSocket;
 }
