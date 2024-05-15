@@ -3,19 +3,19 @@
 //
 
 #include <cstdlib>
-#include "entity.h"
+#include "crazycounting_entity.h"
 
-Entity::Entity() {
+CrazyCounting_Entity::CrazyCounting_Entity() {
     position.first = (float)std::rand() / RAND_MAX;
     position.second = (float)std::rand() / RAND_MAX;
 }
 
-Entity::Entity(float x, float y) {
+CrazyCounting_Entity::CrazyCounting_Entity(float x, float y) {
     position.first = x;
     position.second = y;
 }
 
-void Entity::update(unsigned long delta_time) {
+void CrazyCounting_Entity::update(unsigned long delta_time) {
     // todo: steering behaviours
     position.first = (float)std::rand() / RAND_MAX;
     position.second = (float)std::rand() / RAND_MAX;
