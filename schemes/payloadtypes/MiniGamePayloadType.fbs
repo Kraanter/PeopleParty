@@ -1,20 +1,20 @@
 // Automatically generated main schema file
 // Include all gamestate types to build the MiniGamePayloadType scheme
 
+include "minigamedata/CrazyCounting/CrazyCountingHostEntitiesPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingPlayerIntPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingPlayerInputPayload.fbs";
-include "minigamedata/CrazyCounting/CrazyCountingHostGamestatePayload.fbs";
 
 enum GameStateType: byte {
+    CrazyCountingHostEntities,
     CrazyCountingPlayerInt,
     CrazyCountingPlayerInput,
-    CrazyCountingHostGamestate,
 }
 
 union GameStatePayload {
+    CrazyCountingHostEntitiesPayload,
     CrazyCountingPlayerIntPayload,
     CrazyCountingPlayerInputPayload,
-    CrazyCountingHostGamestatePayload,
 }
 
 table MiniGamePayloadType {
