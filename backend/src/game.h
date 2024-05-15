@@ -22,7 +22,7 @@ public:
     void nextGame();
     void process_input(const MiniGamePayloadType* payload, Client* from);
 public:
-    std::vector<const Client*> clients;
+    std::vector<Client*> clients;
     std::map<const Client*, int> scores;
 private:
     const Party* party;

@@ -3,18 +3,18 @@
 
 include "minigamedata/CrazyCounting/CrazyCountingHostEntitiesPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingPlayerInputPayload.fbs";
-include "minigamedata/CrazyCounting/CrazyCountingPlayerIntPayload.fbs";
+include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
 
 enum GameStateType: byte {
     CrazyCountingHostEntities,
     CrazyCountingPlayerInput,
-    CrazyCountingPlayerInt,
+    CrazyCountingPlayerUpdate,
 }
 
 union GameStatePayload {
     CrazyCountingHostEntitiesPayload,
     CrazyCountingPlayerInputPayload,
-    CrazyCountingPlayerIntPayload,
+    CrazyCountingPlayerUpdatePayload,
 }
 
 table MiniGamePayloadType {

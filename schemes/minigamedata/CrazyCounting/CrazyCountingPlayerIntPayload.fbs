@@ -1,5 +1,0 @@
-table CrazyCountingPlayerIntPayload {
-    new_int: short;
-}
-
-root_type CrazyCountingPlayerIntPayload;
