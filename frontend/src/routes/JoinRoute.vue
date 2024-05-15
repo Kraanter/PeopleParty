@@ -4,6 +4,7 @@ import { NCard, NInput, NButton, NResult, NH1, NCollapseTransition } from 'naive
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useWebSocketStore } from '@/stores/confettiStore'
+import GameManager from '@/components/GameManager.vue'
 
 const websocketStore = useWebSocketStore()
 
@@ -15,7 +16,7 @@ const error = ref('')
 const inputElements = ref<HTMLInputElement[]>([])
 const nameInput = ref<HTMLInputElement>()
 const joinPromise = ref<Promise<void>>()
-const joined = ref(false)
+const joined = ref(true)
 
 const route = useRoute()
 
@@ -113,46 +114,25 @@ const join = () => {
 </script>
 <template>
   <div class="flex justify-center items-center">
-    <n-card class="max-w-md m-3" v-if="joined">
-      <n-result
-        status="success"
-        title="Joined"
-        :description="`Succesfully joined party: ${codeString}!`"
-      />
-    </n-card>
+    <GameManager :is-host="false" v-if="joined" />
+    <!-- TODO: Put this back the way it was -->
+    <!-- <n-card class="max-w-md m-3" v-if="joined">
+      <n-result status="success" title="Joined" :description="`Succesfully joined party: ${codeString}!`" />
+    </n-card> -->
     <n-card class="max-w-md m-3" v-else>
       <n-h1 class="mb-6 text-center">Join a Party!</n-h1>
 
       <div class="flex justify-between gap-4">
-        <n-input
-          v-bind:key="i"
-          v-for="i in partyCodeLength"
-          placeholder=""
-          :allow-input="onlyAllowNumber"
-          ref="inputElements"
-          id="partyCode"
-          size="large"
-          :autofocus="i === 1"
-          :disabled="joining"
-          class="text-center flex items-center !text-3xl font-extrabold aspect-square"
-          v-model:value="code[i - 1]"
-          @input="onChange(i - 1, $event)"
-          @keydown="keyDown(i - 1, $event)"
-        />
+        <n-input v-bind:key="i" v-for="i in partyCodeLength" placeholder="" :allow-input="onlyAllowNumber"
+          ref="inputElements" id="partyCode" size="large" :autofocus="i === 1" :disabled="joining"
+          class="text-center flex items-center !text-3xl font-extrabold aspect-square" v-model:value="code[i - 1]"
+          @input="onChange(i - 1, $event)" @keydown="keyDown(i - 1, $event)" />
       </div>
 
       <!-- Name input -->
       <n-collapse-transition class="mt-6" :show="codeString?.length === partyCodeLength">
-        <n-input
-          ref="nameInput"
-          v-model:value="username"
-          placeholder="Username"
-          size="large"
-          class="w-full"
-          @keydown.enter="join"
-          :loading="joining"
-          :disabled="joining"
-        />
+        <n-input ref="nameInput" v-model:value="username" placeholder="Username" size="large" class="w-full"
+          @keydown.enter="join" :loading="joining" :disabled="joining" />
       </n-collapse-transition>
 
       <!-- Error message -->

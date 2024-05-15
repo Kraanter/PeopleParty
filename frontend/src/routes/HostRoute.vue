@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { NCard, NButton, NQrCode, NResult } from 'naive-ui'
 import { useWebSocketStore } from '@/stores/confettiStore'
+import GameManager from '@/components/GameManager.vue';
 
 const websocketStore = useWebSocketStore()
 
-const joined = ref(false)
-const partyCode = ref('1234')
+const joined = computed(() => partyCode.value !== '')
+const partyCode = ref('')
 
 const host = () => {
   websocketStore.host()
@@ -15,7 +16,6 @@ const host = () => {
 onMounted(() => {
   const unsubscribe = websocketStore.subscribe((roomId: string) => {
     partyCode.value = roomId
-    joined.value = true
   })
 
   // Unsubscribe when component is unmounted
@@ -26,7 +26,9 @@ const generateURL = () => `${window.location.origin}/join?code=${partyCode.value
 </script>
 <template>
   <div class="flex justify-center items-center">
-    <n-card class="lg:mx-44 md:max-w-2/3 2xl:mx-96 m-3" v-if="joined">
+    <GameManager is-host v-if="joined" />
+    <!-- TODO: Set this back to what it was -->
+    <!-- <n-card class="lg:mx-44 md:max-w-2/3 2xl:mx-96 m-3" v-if="joined">
       <div class="flex flex-col sm:flex-row">
         <div class="m-auto">
           <n-qr-code :size="250" style="padding: 0" :value="generateURL()" />
@@ -39,7 +41,7 @@ const generateURL = () => `${window.location.origin}/join?code=${partyCode.value
           <n-button type="primary" size="large" block round>Start game</n-button>
         </div>
       </div>
-    </n-card>
+    </n-card> -->
     <n-card class="max-w-md m-3" v-else>
       <n-result status="404" title="Host a Party!" size="huge">
         <template #footer>

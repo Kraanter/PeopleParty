@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  @apply overflow-hidden w-screen h-screen text-white;
+  @apply overflow-hidden w-dvw h-dvh text-white;
   background-color: var(--secondary, lightblue);
 }
 
