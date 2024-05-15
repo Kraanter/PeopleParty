@@ -52,6 +52,10 @@ void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, C
                     send_count(from->client_id);
                     break;
                 }
+                case Input_Submit: {
+                    // TODO: stop a timer
+                    break;
+                }
             }
             break;
         }
