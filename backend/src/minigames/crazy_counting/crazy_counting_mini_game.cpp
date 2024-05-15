@@ -16,14 +16,14 @@ CrazyCountingMiniGame::CrazyCountingMiniGame(int entity_count, const Party& part
 void CrazyCountingMiniGame::send_entities() {
     // Create the flatbuffer object
     flatbuffers::FlatBufferBuilder builder;
-    std::vector<flatbuffers::Offset<Object>> objects;
+    std::vector<flatbuffers::Offset<FBCrazyCountingEntity>> entities_buffer;
     for (Entity entity: entities) {
-        objects.push_back(CreateObject(builder, entity.position.first, entity.position.second));
+        entities_buffer.push_back(CreateFBCrazyCountingEntity(builder, entity.position.first, entity.position.second));
     }
-    auto objects_vector = builder.CreateVector(objects);
+    auto entities_vector = builder.CreateVector(entities_buffer);
 
     // Encode payload to binary
-    auto payload = CreateCrazyCountingHostGamestatePayload(builder, objects_vector);
+    auto payload = CreateCrazyCountingHostEntitiesPayload(builder, entities_vector);
 
     // Send payload to client
     send_gamestate([](Client* client) { return client->party->host == client; }, builder, payload.Union());
