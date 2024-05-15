@@ -7,6 +7,7 @@
 
 #include "../game.h"
 
+class Client;
 class Game;
 
 class MiniGame {

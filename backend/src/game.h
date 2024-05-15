@@ -10,8 +10,10 @@
 #include "party.h"
 #include "minigames/minigame.h"
 #include <queue>
+#include <map>
 
 class MiniGame;
+class Party;
 
 class Game {
 public:

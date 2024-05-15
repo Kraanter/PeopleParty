@@ -9,7 +9,7 @@
 
 class CrazyCounting_CountingRegister {
 public:
-    CrazyCounting_CountingRegister();
+    CrazyCounting_CountingRegister() = default;
     int increase(int client_id);
     int decrease(int client_id);
     int get_count(int client_id);
