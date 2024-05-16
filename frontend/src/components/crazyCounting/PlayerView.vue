@@ -56,8 +56,9 @@ const decrement = () => {
         </button>
       </div>
       <button
-        class="bg-red-400 active:bg-red-500 rounded-full text-white grid p-4"
+        class="bg-red-400 active:bg-red-500 disabled:bg-slate-400 rounded-full text-white grid p-4"
         @click="submitAnswer"
+        :disabled="data.submitted"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -73,7 +74,8 @@ const decrement = () => {
             d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
           />
         </svg>
-        <span class="text-2xl font-bold">Press to lock in</span>
+        <span class="text-2xl font-bold" v-if="data.submitted">Anwser locked</span>
+        <span class="text-2xl font-bold" v-else>Press to lock in</span>
         <span class="text-lg">{{ data.time }} seconds left</span>
       </button>
     </div>
