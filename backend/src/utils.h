@@ -23,9 +23,7 @@ void send_message(const std::function<bool(Client*)>& expression, const std::str
 }
 
 void send_gamestate(const std::function<bool(Client*)>& expression, flatbuffers::FlatBufferBuilder& builder, flatbuffers::Offset<> gamestate = 0) {
-    auto gameStatePayload = CreateMiniGamePayloadType(builder, GameStateType_CrazyCountingHostEntities,
-                                                      GameStatePayload_CrazyCountingHostEntitiesPayload, gamestate.Union());
-    auto message = CreateMessage(builder, MessageType_MiniGame, Payload_MiniGamePayloadType, gameStatePayload.Union());
+    auto message = CreateMessage(builder, MessageType_MiniGame, Payload_MiniGamePayloadType, gamestate.Union());
 
     builder.Finish(message);
     int size = builder.GetSize();
