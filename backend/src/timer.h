@@ -22,7 +22,7 @@ public:
 
 void Timer::setTimeout(auto function, int delay) {
     active = true;
-    std::thread t([=]() {
+    std::thread t([&]() {
         if(!active.load()) return;
         std::this_thread::sleep_for(std::chrono::milliseconds(delay));
         if(!active.load()) return;
@@ -33,7 +33,7 @@ void Timer::setTimeout(auto function, int delay) {
 
 void Timer::setInterval(auto function, int interval) {
     active = true;
-    std::thread t([=]() {
+    std::thread t([&]() {
         while(active.load()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(interval));
             if(!active.load()) return;
@@ -43,7 +43,7 @@ void Timer::setInterval(auto function, int interval) {
     t.detach();
 }
 
-void Timer::stop() {
+inline void Timer::stop() {
     active = false;
 }
 
