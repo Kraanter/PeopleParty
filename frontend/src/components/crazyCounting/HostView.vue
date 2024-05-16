@@ -1,7 +1,12 @@
 <script lang="ts" setup>
-import { Application, Loader } from 'vue3-pixi'
+import { Application, Loader, type LoadAsset } from 'vue3-pixi'
 import { ref, toRefs, defineProps, watch, computed } from 'vue'
-import { CrazyCountingHostEntitiesPayload, FBCrazyCountingEntity, GameStateType, type MiniGamePayloadType } from '@/flatbuffers/messageClass';
+import {
+  CrazyCountingHostEntitiesPayload,
+  FBCrazyCountingEntity,
+  GameStateType,
+  type MiniGamePayloadType
+} from '@/flatbuffers/messageClass'
 
 const size = ref(100)
 
@@ -27,9 +32,11 @@ const interpolatePosition = (entity: FBCrazyCountingEntity) => {
 }
 
 const proccessData = (data: MiniGamePayloadType) => {
-  switch(data.gamestatetype()) {
+  switch (data.gamestatetype()) {
     case GameStateType.CrazyCountingHostEntities: {
-      const hostEntitiesPayload: CrazyCountingHostEntitiesPayload = data.gamestatepayload(new FBCrazyCountingEntity())
+      const hostEntitiesPayload: CrazyCountingHostEntitiesPayload = data.gamestatepayload(
+        new FBCrazyCountingEntity()
+      )
       let localEntities: FBCrazyCountingEntity[] = []
 
       for (let i = 0; i < hostEntitiesPayload.entitiesLength(); i++) {
@@ -48,11 +55,10 @@ watch(
   },
   { immediate: true }
 )
-
 </script>
 <template>
   <div class="w-full flex justify-center">
-    <Loader :resources="['/circle.svg']">
+    <Loader :resources="['/assets/games/crazyCounting/circle.svg']">
       <template #fallback="{ progress }">
         <text :x="120" :y="120" :anchor="0.5">
           <!-- TODO: Add a nice loading screen -->
@@ -61,10 +67,10 @@ watch(
       </template>
       <Application :width="appSize" :height="appSize" background-color="white">
         <sprite
-        v-for="(entity, i) in entities"
-        :position="interpolatePosition(entity as FBCrazyCountingEntity)"
+          v-for="(entity, i) in entities"
+          :position="interpolatePosition(entity as FBCrazyCountingEntity)"
           :key="i"
-          texture="/circle.svg"
+          texture="/assets/games/crazyCounting/circle.svg"
         />
       </Application>
     </Loader>
