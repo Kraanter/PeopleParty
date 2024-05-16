@@ -3,11 +3,11 @@
 //
 
 #include "minigame.h"
+#include "../game.h"
 
-MiniGame::MiniGame(Game* game) {
-    this->game = game;
+MiniGame::MiniGame(Game *game) : GameState(game) {
 }
 
-void MiniGame::finish() {
-    game->nextGame();
+void MiniGame::finished() {
+    game->nextGameState<typeof(*this)>();
 }

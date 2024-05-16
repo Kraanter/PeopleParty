@@ -5,19 +5,16 @@
 #ifndef PEOPLEPARTY_BACKEND_MINIGAME_H
 #define PEOPLEPARTY_BACKEND_MINIGAME_H
 
-#include "../game.h"
 
-class Client;
+#include "../game_state.h"
+
 class Game;
 
-class MiniGame {
+class MiniGame : protected GameState {
 public:
-    MiniGame(Game* game);
-    void finish();
-    virtual void process_input(const MiniGamePayloadType* payload, Client* from) = 0;
+    MiniGame(Game *game);
 protected:
-    Game* game;
+    void finished() override;
 };
-
 
 #endif //PEOPLEPARTY_BACKEND_MINIGAME_H

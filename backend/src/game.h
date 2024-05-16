@@ -7,26 +7,44 @@
 
 
 #include "flatbuffer/messageClass_generated.h"
-#include "party.h"
 #include "minigames/minigame.h"
+#include "minigames/crazy_counting/crazycounting_mini_game.h"
 #include <queue>
 #include <map>
 
 class MiniGame;
 class Party;
+class GameState;
+class Client;
 
 class Game {
 public:
-    Game();
     Game(const Party* party);
-    void nextGame();
+    template <typename T>
+    void nextGameState() {
+        if (std::is_base_of<MiniGame, T>::value) {
+            // We just finished a minigame so we change to the leaderboard
+            // todo: Create leaderboard
+            return;
+        }
+        if (miniGames.empty()) {
+            // todo: Go to the podium
+            return;
+        }
+
+        current_gamestate = (GameState *)miniGames.front();
+        miniGames.pop();
+
+        // fixme: Infinite loop for now
+        miniGames.push(new CrazyCounting_MiniGame(10, this));
+    }
     void process_input(const MiniGamePayloadType* payload, Client* from);
 public:
     std::vector<const Client*> clients;
     std::map<const Client*, int> scores;
 private:
     const Party* party;
-    MiniGame* current_minigame;
+    GameState* current_gamestate;
     std::queue<MiniGame*> miniGames;
 };
 
