@@ -2,8 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export enum MessageType {
-  Host = 0,
-  Join = 1,
-  MiniGame = 2
+export enum Input {
+  Increase = 0,
+  Decrease = 1,
+  Submit = 2
 }

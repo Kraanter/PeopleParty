@@ -1,19 +1,17 @@
 <script lang="ts" setup>
-import { Application, onTick, Loader } from 'vue3-pixi'
-import { ref, onMounted, toRefs, defineProps, computed } from 'vue'
-
-type PosData = {
-  x: number
-  y: number
-}
+import { Application, Loader } from 'vue3-pixi'
+import { ref, toRefs, defineProps, watch, computed } from 'vue'
+import { CrazyCountingHostEntitiesPayload, FBCrazyCountingEntity, GameStateType, type MiniGamePayloadType } from '@/flatbuffers/messageClass';
 
 const size = ref(100)
 
 const props = defineProps<{
   width: number
   height: number
-  data: PosData[]
+  data: MiniGamePayloadType
 }>()
+
+const entities = ref<FBCrazyCountingEntity[]>([])
 
 const { width, height, data } = toRefs(props)
 
@@ -21,33 +19,36 @@ const appSize = computed(() => {
   return Math.min(width.value, height.value)
 })
 
-const interpolatePosition = (pos: PosData) => {
+const interpolatePosition = (entity: FBCrazyCountingEntity) => {
   return {
-    x: Math.abs(pos.x) * (appSize.value - size.value),
-    y: Math.abs(pos.y) * (appSize.value - size.value)
+    x: Math.abs(entity.xPos()) * (appSize.value - size.value),
+    y: Math.abs(entity.yPos()) * (appSize.value - size.value)
   }
 }
 
-// TODO: Remove animation and connect to the server
-onMounted(() => {
-  onTick(() => {
-    data.value.forEach((pos) => {
-      let newPosX = pos.x + 0.01
-      let newPosY = pos.y + 0.01
+const proccessData = (data: MiniGamePayloadType) => {
+  switch(data.gamestatetype()) {
+    case GameStateType.CrazyCountingHostEntities: {
+      const hostEntitiesPayload: CrazyCountingHostEntitiesPayload = data.gamestatepayload(new FBCrazyCountingEntity())
+      let localEntities: FBCrazyCountingEntity[] = []
 
-      if (newPosX > 1) {
-        newPosX = -1
+      for (let i = 0; i < hostEntitiesPayload.entitiesLength(); i++) {
+        const entity = hostEntitiesPayload.entities(i)
+        localEntities.push(entity!)
       }
+      entities.value = localEntities
+    }
+  }
+}
 
-      if (newPosY > 1) {
-        newPosY = -1
-      }
+watch(
+  data,
+  (newData) => {
+    proccessData(newData)
+  },
+  { immediate: true }
+)
 
-      pos.x = newPosX
-      pos.y = newPosY
-    })
-  })
-})
 </script>
 <template>
   <div class="w-full flex justify-center">
@@ -60,8 +61,8 @@ onMounted(() => {
       </template>
       <Application :width="appSize" :height="appSize" background-color="white">
         <sprite
-          v-for="(pos, i) in data"
-          :position="interpolatePosition(pos)"
+        v-for="(entity, i) in entities"
+        :position="interpolatePosition(entity as FBCrazyCountingEntity)"
           :key="i"
           texture="/circle.svg"
         />
