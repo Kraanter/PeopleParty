@@ -1,10 +1,12 @@
 #include "party.h"
 
 #include "globals.h"
+#include "game.h"
 
 Party::Party() {
   party_id = generate_party_id();
   host = nullptr;
+  game = new Game(this);
 }
 
 void Party::add_client(Client *client) { clients.push_back(client); }
@@ -22,7 +24,9 @@ void Party::remove_client(Client *client) {
 
 void Party::promote_client(Client *client) {
   if (std::find(clients.begin(), clients.end(), client) != clients.end()) {
-    host = client;
+      host->isHost = false;
+      client->isHost = true;
+      host = client;
   } else {
     std::cerr << "Tried to promote " << *client << " but it was found in party "
               << party_id << "\n";

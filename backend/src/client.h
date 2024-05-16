@@ -3,7 +3,6 @@
 #include <uWebSockets/WebSocket.h>
 
 #include "party.h"
-#include "role.h"
 #include "typedefs.h"
 
 class Party;
@@ -13,7 +12,8 @@ class Client {
   int client_id;
   std::string name;
   const Party* party;
-  Role role;
+  bool isHost = false;
+  bool isSpectating = true;
   WS* ws;
 
  public:

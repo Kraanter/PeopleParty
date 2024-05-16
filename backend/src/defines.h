@@ -1,0 +1,12 @@
+//
+// Created by itssiem on 5/16/24.
+//
+
+#ifndef PEOPLEPARTY_BACKEND_DEFINES_H
+#define PEOPLEPARTY_BACKEND_DEFINES_H
+
+#define MILLISECONDS * 1
+#define SECONDS * 1000
+#define MINUTES * 60 SECONDS
+
+#endif //PEOPLEPARTY_BACKEND_DEFINES_H

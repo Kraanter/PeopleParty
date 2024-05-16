@@ -19,6 +19,24 @@ void send_join_message(WS *ws) {
   ws->getUserData()->client->send(output);
 }
 
+void process_message(WS *ws, std::string_view message) {
+  const uint8_t *buffer = reinterpret_cast<const uint8_t *>(message.data());
+  auto parsedMessage = GetMessage(buffer);
+
+  // if (!VerifyMessageBuffer(flatbuffers::Verifier(buffer, message.size()))) {
+  //   std::cout << "Message verification failed" << std::endl;
+  //   return;
+  // }
+
+  switch (parsedMessage->type()) {
+    case MessageType::MessageType_MiniGame: {
+      auto gameStatePayload = parsedMessage->payload_as_MiniGamePayloadType();
+      parties[ws->getUserData()->party_id]->game->process_input(gameStatePayload, ws->getUserData()->client);
+      break;
+    }
+  }
+}
+
 void WebSocket::init() {
   uWS::SSLApp()
       // Catch all route
@@ -64,7 +82,7 @@ void WebSocket::init() {
                },
            .message =
                [](auto *ws, std::string_view message, uWS::OpCode opCode) {
-                 //  process_message(ws, message, opCode);
+                 process_message(ws, message);
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
@@ -78,6 +96,7 @@ void WebSocket::init() {
                  std::cout << "connection started with host" << std::endl;
                  Party *p = parties.CreateParty();
                  Client *c = clients.CreateClient("HOST", p, ws);
+                 c->isHost = true;
                  p->host = c;
 
                  ws->getUserData()->client = c;
@@ -87,7 +106,7 @@ void WebSocket::init() {
                },
            .message =
                [](auto *ws, std::string_view message, uWS::OpCode opCode) {
-                 // process_message(ws, message, opCode);
+                 process_message(ws, message);
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
