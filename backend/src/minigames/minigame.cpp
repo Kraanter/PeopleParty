@@ -9,5 +9,5 @@ MiniGame::MiniGame(Game *game) : GameState(game) {
 }
 
 void MiniGame::finished() {
-    game->nextGameState<typeof(*this)>();
+    game->nextGameState<decltype(*this)>();
 }
