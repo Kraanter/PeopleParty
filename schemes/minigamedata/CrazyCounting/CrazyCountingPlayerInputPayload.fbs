@@ -1,4 +1,4 @@
-enum Input: byte { Increase, Decrease }
+enum Input: byte { Increase, Decrease, Submit }
 
 table CrazyCountingPlayerInputPayload {
     input_type: Input;

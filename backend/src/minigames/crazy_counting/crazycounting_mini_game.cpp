@@ -29,10 +29,17 @@ void CrazyCounting_MiniGame::send_entities() {
     send_gamestate([](Client* client) { return client->party->host == client; }, builder, payload.Union());
 }
 
-void CrazyCounting_MiniGame::send_count(int client_id) {
-    flatbuffers::FlatBufferBuilder builder;
+void CrazyCounting_MiniGame::send_players_update() {
+    for (Client* client: game->clients) {
+        if (!client->isHost) {
+            send_player_update(client->client_id);
+        }
+    }
+}
 
-    auto payload = CreateCrazyCountingPlayerIntPayload(builder, counting_register.get_count(client_id));
+void CrazyCounting_MiniGame::send_player_update(int client_id) {
+    flatbuffers::FlatBufferBuilder builder;
+    auto payload = CreateCrazyCountingPlayerUpdatePayload(builder, counting_register.get_count(client_id), 1000);
 
     send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, payload.Union());
 }
@@ -45,12 +52,16 @@ void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, C
             {
                 case Input_Increase: {
                     counting_register.increase(from->client_id);
-                    send_count(from->client_id);
+                    send_player_update(from->client_id);
                     break;
                 }
                 case Input_Decrease: {
                     counting_register.decrease(from->client_id);
-                    send_count(from->client_id);
+                    send_player_update(from->client_id);
+                    break;
+                }
+                case Input_Submit: {
+                    // TODO: stop a timer
                     break;
                 }
             }

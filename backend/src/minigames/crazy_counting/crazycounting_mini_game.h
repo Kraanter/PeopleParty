@@ -21,7 +21,8 @@ private:
     CrazyCounting_CountingRegister counting_register;
 private:
     void send_entities();
-    void send_count(int client_id);
+    void send_players_update();
+    void send_player_update(int client_id);
     void update(unsigned long delta_time);
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
 };
