@@ -16,7 +16,7 @@ const error = ref('')
 const inputElements = ref<HTMLInputElement[]>([])
 const nameInput = ref<HTMLInputElement>()
 const joinPromise = ref<Promise<void>>()
-const joined = ref(true)
+const joined = ref(false)
 
 const route = useRoute()
 
@@ -51,12 +51,6 @@ const hasError = computed(() => !!error.value)
 const partyCodeLength = 4
 
 watchEffect(() => {
-  if (codeString.value.length === partyCodeLength) {
-    nameInput.value?.focus()
-  }
-})
-
-watchEffect(() => {
   if (error.value) {
     setTimeout(() => {
       error.value = ''
@@ -67,6 +61,10 @@ watchEffect(() => {
 const changeSelected = (index: number) => {
   if (index > -1 && index < partyCodeLength) {
     inputElements.value[index].select()
+  } else if (index === partyCodeLength) {
+    setTimeout(() => {
+      nameInput.value?.focus()
+    }, 100)
   }
 }
 
@@ -74,7 +72,7 @@ const onChange = (index: number, value: string) => {
   if (index < 0 || index >= partyCodeLength || !onlyAllowNumber(value[0])) return
 
   if (value) {
-    if (index < partyCodeLength - 1) {
+    if (index < partyCodeLength) {
       changeSelected(index + 1)
     }
   }
@@ -90,6 +88,7 @@ const onChange = (index: number, value: string) => {
 }
 
 const keyDown = (index: number, event: KeyboardEvent) => {
+  event.preventDefault()
   if (event.key === 'Backspace') {
     if (code.value[index]) {
       code.value[index] = ''
@@ -98,6 +97,12 @@ const keyDown = (index: number, event: KeyboardEvent) => {
         changeSelected(index - 1)
       }
     }
+  } else if (event.key === 'ArrowLeft') {
+    changeSelected(index - 1)
+  } else if (event.key === 'ArrowRight') {
+    changeSelected(index + 1)
+  } else if (event.key.length === 1) {
+    onChange(index, event.key)
   }
 }
 
@@ -114,11 +119,15 @@ const join = () => {
 </script>
 <template>
   <div class="flex justify-center items-center">
-    <GameManager :is-host="false" v-if="joined" />
+    <!-- <GameManager :is-host="false" v-if="joined" /> -->
     <!-- TODO: Put this back the way it was -->
-    <!-- <n-card class="max-w-md m-3" v-if="joined">
-      <n-result status="success" title="Joined" :description="`Succesfully joined party: ${codeString}!`" />
-    </n-card> -->
+    <n-card class="max-w-md m-3" v-if="joined">
+      <n-result
+        status="success"
+        title="Joined"
+        :description="`Succesfully joined party: ${codeString}!`"
+      />
+    </n-card>
     <n-card class="max-w-md m-3" v-else>
       <n-h1 class="mb-6 text-center">Join a Party!</n-h1>
 
@@ -134,10 +143,11 @@ const join = () => {
           :autofocus="i === 1"
           :disabled="joining"
           class="text-center flex items-center !text-3xl font-extrabold aspect-square"
+          :theme-overrides="{ caretColor: 'transparent', color: 'transparent' }"
           v-model:value="code[i - 1]"
-          @input="onChange(i - 1, $event)"
           @keydown="keyDown(i - 1, $event)"
         />
+        <!-- @input="onChange(i - 1, $event)" -->
       </div>
 
       <!-- Name input -->
