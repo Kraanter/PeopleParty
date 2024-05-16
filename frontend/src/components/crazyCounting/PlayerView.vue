@@ -11,14 +11,18 @@ const { data } = toRefs(props)
 
 // TODO: Implement communication with confetti
 const submitAnswer = () => {
+  if (data.value.submitted) return
+  data.value.submitted = true
   console.log('Locking in answer')
 }
 
 const increment = () => {
+  if (data.value.submitted) return
   data.value.amount++
 }
 
 const decrement = () => {
+  if (data.value.submitted) return
   data.value.amount--
 }
 </script>
@@ -29,7 +33,14 @@ const decrement = () => {
         <span class="text-8xl font-bold">{{ data.amount }}</span>
       </div>
       <div class="grid grid-cols-2 row-span-2 w-full h-full rounded-3xl overflow-hidden">
+        <div
+          v-if="data.submitted"
+          class="bg-green-500 col-span-2 text-center my-auto text-white text-4xl font-bold grid p-4 rounded-lg"
+        >
+          <span>Submitted</span>
+        </div>
         <button
+          v-else
           class="active:bg-opacity-100 bg-opacity-50 bg-red-500 border-r-2 border-dashed"
           @click="decrement"
           :disabled="data.amount <= 0"
@@ -37,6 +48,7 @@ const decrement = () => {
           <span class="text-8xl font-bold">-</span>
         </button>
         <button
+          v-if="!data.submitted"
           class="active:bg-opacity-100 bg-opacity-50 bg-green-500 border-l-2 border-dashed"
           @click="increment"
         >

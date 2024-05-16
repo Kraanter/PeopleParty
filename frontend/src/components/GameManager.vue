@@ -36,7 +36,8 @@ for (let i = 0; i < 100; i++) {
 
 const gameData = ref({
   amount: 10,
-  time: 100
+  time: 100,
+  submitted: false
 })
 
 onMounted(() => {
