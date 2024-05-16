@@ -8,10 +8,10 @@
 
 #include "../../flatbuffer/messageClass_generated.h"
 #include "crazycounting_entity.h"
-#include "crazycounting_counting_register.h"
 #include "../minigame.h"
 #include "../../timer.h"
-#include "../../typedefs.h"
+#include "../../defines.h"
+#include "crazycounting_player.h"
 #include <vector>
 #include <map>
 
@@ -21,7 +21,7 @@ public:
     ~CrazyCounting_MiniGame() = default;
 private:
     std::vector<CrazyCounting_Entity> entities;
-    CrazyCounting_CountingRegister counting_register;
+    std::map<int, CrazyCounting_Player> players;
     Timer timer;
     const int delta_time = 16 MILLISECONDS;
     int remaining_time = 30 SECONDS;

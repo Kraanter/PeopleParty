@@ -3,11 +3,13 @@
 //
 
 #include "crazycounting_mini_game.h"
-#include "../../flatbuffer/messageClass_generated.h"
 #include "../../utils.h"
-#include <cmath>
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : MiniGame(game) {
+    for (Client* client : game->clients) {
+        players[client->client_id] = CrazyCounting_Player(client->client_id);
+    }
+
     for (int i = 0; i < entity_count; i++) {
         entities.emplace_back();
     }
@@ -44,8 +46,8 @@ void CrazyCounting_MiniGame::send_players_update() {
 
 void CrazyCounting_MiniGame::send_player_update(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
-    
-    auto payload = CreateCrazyCountingPlayerUpdatePayload(builder, counting_register.get_count(client_id), 1000);
+
+    auto payload = CreateCrazyCountingPlayerUpdatePayload(builder, players[client_id].get_count(), remaining_time);
     
     auto gameStatePayload = CreateMiniGamePayloadType(builder, GameStateType_CrazyCountingPlayerUpdate,
                                                       GameStatePayload_CrazyCountingPlayerInputPayload, payload.Union());
@@ -56,21 +58,28 @@ void CrazyCounting_MiniGame::send_player_update(int client_id) {
 void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, Client* from) {
     switch(payload->gamestatetype()) {
         case GameStateType_CrazyCountingPlayerInput: {
+            auto it = players.find(from->client_id);
+            if (it == players.end()) {
+                players[from->client_id] = CrazyCounting_Player(from->client_id);
+            }
+            CrazyCounting_Player* player = &players[from->client_id];
+
             auto input = payload->gamestatepayload_as_CrazyCountingPlayerInputPayload();
             switch (input->input_type())
             {
                 case Input_Increase: {
-                    counting_register.increase(from->client_id);
+                    player->increment_count();
                     send_player_update(from->client_id);
                     break;
                 }
                 case Input_Decrease: {
-                    counting_register.decrease(from->client_id);
+                    player->decrement_count();
                     send_player_update(from->client_id);
                     break;
                 }
                 case Input_Submit: {
-                    // TODO: stop a timer
+                    player->submit();
+                    send_player_update(from->client_id);
                     break;
                 }
             }
