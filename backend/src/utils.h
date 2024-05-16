@@ -22,7 +22,6 @@ void send_message(const std::function<bool(Client*)>& expression, const std::str
     }
 }
 
-// TODO: How do we get the game state here?
 void send_gamestate(const std::function<bool(Client*)>& expression, flatbuffers::FlatBufferBuilder& builder, flatbuffers::Offset<> gamestate = 0) {
     auto gameStatePayload = CreateMiniGamePayloadType(builder, GameStateType_CrazyCountingHostEntities,
                                                       GameStatePayload_CrazyCountingHostEntitiesPayload, gamestate.Union());

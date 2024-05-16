@@ -8,6 +8,5 @@
 
 auto main() -> int {
   srand(std::time(0));
-  // FIXME: Debug line
   WebSocket webSocket;
 }
