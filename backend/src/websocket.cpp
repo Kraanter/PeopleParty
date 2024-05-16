@@ -21,11 +21,20 @@ void send_join_message(WS *ws) {
 
 void WebSocket::init() {
   uWS::SSLApp()
+      // Catch all route
+      .any("/*", [](auto *res, auto *req) {
+        std::cout << "catch all route" << std::endl;
+        res->writeStatus("404");
+        res->write("Not Found");
+        res->end();
+      })
       .ws<SocketData>(
           "/join/:room/:name",
           {/* Handlers */
            .upgrade =
                [](auto *res, auto *req, auto *context) {
+                std::cout << "connection started with join" << std::endl;
+
                  int party_id =
                      std::stoi(std::string(req->getParameter("room")));
                  std::string client_name =
@@ -66,6 +75,7 @@ void WebSocket::init() {
           {/* Handlers */
            .open =
                [](auto *ws) {
+                 std::cout << "connection started with host" << std::endl;
                  Party *p = parties.CreateParty();
                  Client *c = clients.CreateClient("HOST", p, ws);
                  p->host = c;
@@ -81,7 +91,11 @@ void WebSocket::init() {
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
-                 parties.RemoveParty(ws->getUserData()->party_id);
+                // wait for 5 seconds before removing the party
+                std::thread([ws]() {
+                  std::this_thread::sleep_for(std::chrono::seconds(5));
+                    parties.RemoveParty(ws->getUserData()->party_id);
+                }).detach();
                }})
       .listen(7899,
               [](auto *listen_socket) {

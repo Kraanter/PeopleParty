@@ -1,33 +1,38 @@
 import { defineStore } from 'pinia'
 
 import * as flatbuffers from 'flatbuffers'
-import { MessageType, HostPayloadType, JoinPayloadType, Message } from './../flatbuffers/messageClass'
-import { ref } from 'vue';
+import {
+  MessageType,
+  HostPayloadType,
+  JoinPayloadType,
+  Message
+} from './../flatbuffers/messageClass'
+import { ref } from 'vue'
 
-const baseUrl = 'ws://localhost:7899';
+const baseUrl = `ws${window.location.protocol === 'https:' ? 's' : ''}:${window.location.host}/confetti`
 
 export const useWebSocketStore = defineStore('websocket', () => {
   const websocket = ref<WebSocket | null>(null)
   const listeners = ref<Function[]>([])
 
   function host() {
-    websocket.value = new WebSocket(baseUrl + '/host');
-    websocket.value.binaryType = 'arraybuffer';
-    setUpListeners();
+    websocket.value = new WebSocket(baseUrl + '/host')
+    websocket.value.binaryType = 'arraybuffer'
+    setUpListeners()
   }
 
   function join(roomId: string, name: string) {
-    websocket.value = new WebSocket(baseUrl + `/join/${roomId}/${name}`);
-    websocket.value.binaryType = 'arraybuffer';
-    setUpListeners();
+    websocket.value = new WebSocket(baseUrl + `/join/${roomId}/${name}`)
+    websocket.value.binaryType = 'arraybuffer'
+    setUpListeners()
   }
 
   function sendMessage(message: string) {
     if (websocket.value) {
       // TODO: flatbuffer stuff, not needed yet because no messages will be sent yet.
-      websocket.value.send(message);
+      websocket.value.send(message)
     } else {
-      console.error('WebSocket is not initialized.');
+      console.error('WebSocket is not initialized.')
     }
   }
 
@@ -44,7 +49,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
 
       websocket.value.onclose = (event) => {
         // set joining to false, maybe need a better error handling for when the connection is closed
-        listeners.value.forEach(listener => listener(false));
+        listeners.value.forEach((listener) => listener(false))
         console.log('WebSocket connection closed: ', event)
       }
     }
@@ -62,26 +67,26 @@ export const useWebSocketStore = defineStore('websocket', () => {
   }
 
   function handleMessage(data: Uint8Array) {
-    const buf = new flatbuffers.ByteBuffer(data);
-    const receivedMessage = Message.getRootAsMessage(buf);
+    const buf = new flatbuffers.ByteBuffer(data)
+    const receivedMessage = Message.getRootAsMessage(buf)
 
     switch (receivedMessage.type()) {
       case MessageType.Host: {
-        const hostPayload = receivedMessage.payload(new HostPayloadType());
-        listeners.value.forEach(listener => listener(hostPayload.roomId()));
-        break;
+        const hostPayload = receivedMessage.payload(new HostPayloadType())
+        listeners.value.forEach((listener) => listener(hostPayload.roomId()))
+        break
       }
       case MessageType.Join: {
-        const joinPayload = receivedMessage.payload(new JoinPayloadType());
-        listeners.value.forEach(listener => listener(joinPayload.success()));
-        break;
+        const joinPayload = receivedMessage.payload(new JoinPayloadType())
+        listeners.value.forEach((listener) => listener(joinPayload.success()))
+        break
       }
       default: {
-        console.log('Received Unknown Message Type');
-        break;
+        console.log('Received Unknown Message Type')
+        break
       }
     }
   }
 
   return { host, join, sendMessage, subscribe }
-});
+})

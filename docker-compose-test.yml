@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  nginx:
+    image: peoplepartyproxy
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - 7789:80
+    restart: always
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+  client:
+    image: peoplepartyportal
+    build:
+      context: ./frontend
+      dockerfile: dockerfile
+  api:
+    image: peoplepartyserver
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - 80:7899
+    restart: unless-stopped
+  cypress-tests:
+    build:
+      context: ./frontend
+      dockerfile: cypress.dockerfile
+    depends_on:
+      - client

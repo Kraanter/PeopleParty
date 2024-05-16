@@ -1,8 +1,5 @@
 name: Deploy staging GHCR to Skylab
 
-permissions:
-  contents: write
-
 on:
   workflow_dispatch:
 
@@ -32,6 +29,5 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          cd beta
-          docker compose pull
-          docker compose -f docker-compose.yml up --build -d --force-recreate
+          docker compose -f beta/docker-compose-staging.yml pull
+          docker compose -f beta/docker-compose-staging.yml up --build -d --force-recreate
