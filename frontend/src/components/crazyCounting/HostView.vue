@@ -32,13 +32,13 @@ const interpolatePosition = (entity: FBCrazyCountingEntity) => {
 }
 
 const proccessData = (data: MiniGamePayloadType) => {
+  if (!data) return
   switch (data.gamestatetype()) {
     case GameStateType.CrazyCountingHostEntities: {
       const hostEntitiesPayload: CrazyCountingHostEntitiesPayload = data.gamestatepayload(
-        new FBCrazyCountingEntity()
+        new CrazyCountingHostEntitiesPayload()
       )
       let localEntities: FBCrazyCountingEntity[] = []
-
       for (let i = 0; i < hostEntitiesPayload.entitiesLength(); i++) {
         const entity = hostEntitiesPayload.entities(i)
         localEntities.push(entity!)

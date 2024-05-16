@@ -98,6 +98,7 @@ void WebSocket::init() {
                  Client *c = clients.CreateClient("HOST", p, ws);
                  c->isHost = true;
                  p->host = c;
+                 p->add_client(c);
 
                  p->start_game();
 

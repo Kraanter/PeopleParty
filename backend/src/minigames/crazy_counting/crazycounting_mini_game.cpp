@@ -23,8 +23,8 @@ void CrazyCounting_MiniGame::start() {
         entities.emplace_back();
     }
     std::cout << delta_time << std::endl;
-    timer.setInterval([&]() { update(delta_time); }, delta_time);
-//    update(delta_time);
+    //timer.setInterval([&]() { update(delta_time); }, delta_time);
+    update(delta_time);
 }
 
 void CrazyCounting_MiniGame::send_entities() {

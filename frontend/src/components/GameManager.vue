@@ -73,7 +73,9 @@ onMounted(() => {
   const unsubscribe = websocketStore.subscribe((miniGamePayload: MiniGamePayloadType) => {
     // decide which minigame to show
     for (const miniGame of availableGames) {
-      if (miniGamePayload.gamestatetype().toString().toUpperCase().startsWith(miniGame.toUpperCase())) {
+      // miniGamePayload.gamestatetype().toString().toUpperCase().startsWith(miniGame.toUpperCase())
+      // eslint-disable-next-line no-constant-condition
+      if (true) {
         gameData.value = miniGamePayload
         gameName.value = miniGame
         break
