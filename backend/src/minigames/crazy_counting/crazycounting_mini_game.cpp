@@ -30,12 +30,11 @@ void CrazyCounting_MiniGame::send_entities() {
 }
 
 void CrazyCounting_MiniGame::send_count(int client_id) {
-    // todo: Create the flatbuffer payload
+    flatbuffers::FlatBufferBuilder builder;
 
+    auto payload = CreateCrazyCountingPlayerIntPayload(builder, counting_register.get_count(client_id));
 
-    // todo: Encode payload to binary
-
-    // todo: Send payload to client
+    send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, payload.Union());
 }
 
 void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, Client* from) {
