@@ -47,7 +47,7 @@ void CrazyCounting_MiniGame::send_player_update(int client_id) {
     auto gameStatePayload = CreateMiniGamePayloadType(builder, GameStateType_CrazyCountingPlayerUpdate,
                                                       GameStatePayload_CrazyCountingPlayerInputPayload, payload.Union());
 
-    send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, payload.Union());
+    send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 }
 
 void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, Client* from) {
