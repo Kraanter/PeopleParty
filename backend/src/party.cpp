@@ -6,7 +6,11 @@
 Party::Party() {
   party_id = generate_party_id();
   host = nullptr;
-  game = new Game(this);
+  game = nullptr;
+}
+
+void Party::start_game() {
+    game = new Game(this);
 }
 
 void Party::add_client(Client *client) { clients.push_back(client); }

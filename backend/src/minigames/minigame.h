@@ -13,6 +13,7 @@ class Game;
 class MiniGame : public GameState {
 public:
     MiniGame(Game *game);
+    virtual void start() = 0;
 protected:
     void finished() override;
 };

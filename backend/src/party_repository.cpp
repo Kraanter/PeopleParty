@@ -5,9 +5,9 @@
 PartyRepository::PartyRepository() {}
 
 Party* PartyRepository::CreateParty() {
-  Party p;
-  parties[p.party_id] = p;
-  return &parties[p.party_id];
+  Party* p = new Party();
+  parties[p->party_id] = *p;
+  return &parties[p->party_id];
 }
 
 void PartyRepository::RemoveParty(int party_id) {

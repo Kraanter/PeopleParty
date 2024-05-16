@@ -8,6 +8,7 @@
 
 #include "flatbuffer/messageClass_generated.h"
 #include "minigames/minigame.h"
+#include "party.h"
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
 #include <queue>
 #include <map>

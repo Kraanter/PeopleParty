@@ -18,7 +18,8 @@
 class CrazyCounting_MiniGame : public MiniGame {
 public:
     CrazyCounting_MiniGame(int entity_count, Game* game);
-    ~CrazyCounting_MiniGame() = default;
+    ~CrazyCounting_MiniGame();
+    void start() override;
 private:
     std::vector<CrazyCounting_Entity> entities;
     std::map<int, CrazyCounting_Player> players;
@@ -26,6 +27,7 @@ private:
     int delta_time;
     int remaining_time;
     int time_since_last_time_update;
+    int entity_count;
 private:
     void send_entities();
     void send_players_update();

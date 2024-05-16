@@ -9,6 +9,11 @@ CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : M
     delta_time = 16 MILLISECONDS;
     remaining_time = 30 SECONDS;
     time_since_last_time_update = 0 MILLISECONDS;
+    this->entity_count = entity_count;
+}
+
+void CrazyCounting_MiniGame::start() {
+    std::cout << "CrazyCounting_MiniGame started" << std::endl;
 
     for (Client* client : game->clients) {
         players[client->client_id] = CrazyCounting_Player(client->client_id);
@@ -17,8 +22,9 @@ CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : M
     for (int i = 0; i < entity_count; i++) {
         entities.emplace_back();
     }
-
+    std::cout << delta_time << std::endl;
     timer.setInterval([&]() { update(delta_time); }, delta_time);
+//    update(delta_time);
 }
 
 void CrazyCounting_MiniGame::send_entities() {
@@ -93,6 +99,10 @@ void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, C
 }
 
 void CrazyCounting_MiniGame::update(unsigned long delta_time) {
+    std::cout << "remaining time: " << remaining_time << std::endl;
+    std::cout << "delta time: " << delta_time << std::endl;
+    std::cout << "time since last time update: " << time_since_last_time_update << std::endl;
+
     remaining_time -= delta_time;
     time_since_last_time_update += delta_time;
 

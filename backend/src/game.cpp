@@ -7,8 +7,13 @@
 Game::Game(const Party* party) {
     this->party = party;
 
+    for (Client* client : party->clients) {
+        this->clients.push_back(client);
+    }
+
     // todo: initialize game on party preparation
     current_gamestate = new CrazyCounting_MiniGame(10, this);
+    ((MiniGame*)current_gamestate)->start();
 
     // For now adds all minigames
     miniGames.push(new CrazyCounting_MiniGame(10, this));

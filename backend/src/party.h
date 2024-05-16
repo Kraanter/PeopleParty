@@ -18,6 +18,7 @@ class Party {
 
  public:
   Party();
+  void start_game();
   void add_client(Client *client);
   void remove_client(Client *client);
   void promote_client(Client *client);

@@ -99,6 +99,8 @@ void WebSocket::init() {
                  c->isHost = true;
                  p->host = c;
 
+                 p->start_game();
+
                  ws->getUserData()->client = c;
                  ws->getUserData()->party_id = p->party_id;
 
