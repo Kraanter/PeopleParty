@@ -3,8 +3,10 @@
 #include <string>
 #include <vector>
 
+#include "game.h"
 #include "client.h"
 
+class Game;
 class Client;
 
 class Party {
@@ -12,6 +14,7 @@ class Party {
   int party_id;
   std::vector<Client *> clients;
   Client *host;
+  Game *game;
 
  public:
   Party();

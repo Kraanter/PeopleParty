@@ -1,0 +1,10 @@
+table CrazyCountingHostEntitiesPayload {
+    entities: [FBCrazyCountingEntity];
+}
+
+table FBCrazyCountingEntity {
+  x_pos: float;
+  y_pos: float;
+}
+
+root_type CrazyCountingHostEntitiesPayload;

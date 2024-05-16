@@ -26,6 +26,20 @@ bool ClientRepository::contains(Client client) {
   return clients.contains(client.client_id);
 }
 
+std::vector<Client*> ClientRepository::Find(const std::function<bool(Client*)>& expression) {
+  std::vector<Client*> result;
+  for (auto& [_, client] : clients) {
+    if (expression(&client)) {
+      result.push_back(&client);
+    }
+  }
+  return result;
+}
+
 Client* ClientRepository::operator[](int client_id) {
   return &clients[client_id];
+}
+
+int ClientRepository::size() {
+    return clients.size();
 }

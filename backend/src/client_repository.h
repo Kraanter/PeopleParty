@@ -14,7 +14,9 @@ class ClientRepository {
   void RemoveClient(int client_id);
   bool contains(int client_id);
   bool contains(Client client);
+  std::vector<Client*> Find(const std::function<bool(Client*)>& expression);
   Client* operator[](int client_id);
+  int size();
 };
 
 #endif  // CLIENT_REPOSITORY_H
