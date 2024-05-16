@@ -5,7 +5,8 @@ import {
   MessageType,
   HostPayloadType,
   JoinPayloadType,
-  Message
+  Message,
+  MiniGamePayloadType
 } from './../flatbuffers/messageClass'
 import { ref } from 'vue'
 
@@ -27,7 +28,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
     setUpListeners()
   }
 
-  function sendMessage(message: string) {
+  function sendMessage(message: Uint8Array) {
     if (websocket.value) {
       // TODO: flatbuffer stuff, not needed yet because no messages will be sent yet.
       websocket.value.send(message)
@@ -79,6 +80,12 @@ export const useWebSocketStore = defineStore('websocket', () => {
       case MessageType.Join: {
         const joinPayload = receivedMessage.payload(new JoinPayloadType())
         listeners.value.forEach((listener) => listener(joinPayload.success()))
+        break
+      }
+      case MessageType.MiniGame: {
+        const miniGamePayload = receivedMessage.payload(new MiniGamePayloadType())
+        listeners.value.forEach((listener) => listener(miniGamePayload))
+        // pass this message to the gamemanager
         break
       }
       default: {

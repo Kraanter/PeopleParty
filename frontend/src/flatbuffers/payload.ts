@@ -2,47 +2,41 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import { HostPayloadType } from './host-payload-type.js'
-import { JoinPayloadType } from './join-payload-type.js'
+import { HostPayloadType } from './host-payload-type.js';
+import { JoinPayloadType } from './join-payload-type.js';
+import { MiniGamePayloadType } from './mini-game-payload-type.js';
+
 
 export enum Payload {
   NONE = 0,
   HostPayloadType = 1,
-  JoinPayloadType = 2
+  JoinPayloadType = 2,
+  MiniGamePayloadType = 3
 }
 
 export function unionToPayload(
   type: Payload,
-  accessor: (obj: HostPayloadType | JoinPayloadType) => HostPayloadType | JoinPayloadType | null
-): HostPayloadType | JoinPayloadType | null {
-  switch (Payload[type]) {
-    case 'NONE':
-      return null
-    case 'HostPayloadType':
-      return accessor(new HostPayloadType())! as HostPayloadType
-    case 'JoinPayloadType':
-      return accessor(new JoinPayloadType())! as JoinPayloadType
-    default:
-      return null
+  accessor: (obj:HostPayloadType|JoinPayloadType|MiniGamePayloadType) => HostPayloadType|JoinPayloadType|MiniGamePayloadType|null
+): HostPayloadType|JoinPayloadType|MiniGamePayloadType|null {
+  switch(Payload[type]) {
+    case 'NONE': return null; 
+    case 'HostPayloadType': return accessor(new HostPayloadType())! as HostPayloadType;
+    case 'JoinPayloadType': return accessor(new JoinPayloadType())! as JoinPayloadType;
+    case 'MiniGamePayloadType': return accessor(new MiniGamePayloadType())! as MiniGamePayloadType;
+    default: return null;
   }
 }
 
 export function unionListToPayload(
-  type: Payload,
-  accessor: (
-    index: number,
-    obj: HostPayloadType | JoinPayloadType
-  ) => HostPayloadType | JoinPayloadType | null,
+  type: Payload, 
+  accessor: (index: number, obj:HostPayloadType|JoinPayloadType|MiniGamePayloadType) => HostPayloadType|JoinPayloadType|MiniGamePayloadType|null, 
   index: number
-): HostPayloadType | JoinPayloadType | null {
-  switch (Payload[type]) {
-    case 'NONE':
-      return null
-    case 'HostPayloadType':
-      return accessor(index, new HostPayloadType())! as HostPayloadType
-    case 'JoinPayloadType':
-      return accessor(index, new JoinPayloadType())! as JoinPayloadType
-    default:
-      return null
+): HostPayloadType|JoinPayloadType|MiniGamePayloadType|null {
+  switch(Payload[type]) {
+    case 'NONE': return null; 
+    case 'HostPayloadType': return accessor(index, new HostPayloadType())! as HostPayloadType;
+    case 'JoinPayloadType': return accessor(index, new JoinPayloadType())! as JoinPayloadType;
+    case 'MiniGamePayloadType': return accessor(index, new MiniGamePayloadType())! as MiniGamePayloadType;
+    default: return null;
   }
 }

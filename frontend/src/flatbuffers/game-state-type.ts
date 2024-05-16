@@ -2,8 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export enum MessageType {
-  Host = 0,
-  Join = 1,
-  MiniGame = 2
+export enum GameStateType {
+  CrazyCountingHostEntities = 0,
+  CrazyCountingPlayerInput = 1,
+  CrazyCountingPlayerUpdate = 2
 }
