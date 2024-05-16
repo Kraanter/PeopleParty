@@ -10,7 +10,7 @@
 
 class Game;
 
-class MiniGame : protected GameState {
+class MiniGame : public GameState {
 public:
     MiniGame(Game *game);
 protected:

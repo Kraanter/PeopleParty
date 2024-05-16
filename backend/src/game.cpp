@@ -8,7 +8,7 @@ Game::Game(const Party* party) {
     this->party = party;
 
     // todo: initialize game on party preparation
-    current_gamestate = nullptr;
+    current_gamestate = new CrazyCounting_MiniGame(10, this);
 
     // For now adds all minigames
     miniGames.push(new CrazyCounting_MiniGame(10, this));
