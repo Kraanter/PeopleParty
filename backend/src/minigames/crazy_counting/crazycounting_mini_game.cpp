@@ -11,6 +11,8 @@ CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : M
     for (int i = 0; i < entity_count; i++) {
         entities.emplace_back();
     }
+
+    timer.setInterval([&]() { update(delta_time); }, delta_time);
 }
 
 void CrazyCounting_MiniGame::send_entities() {
@@ -39,7 +41,7 @@ void CrazyCounting_MiniGame::send_players_update() {
 
 void CrazyCounting_MiniGame::send_player_update(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
-    auto payload = CreateCrazyCountingPlayerUpdatePayload(builder, counting_register.get_count(client_id), 1000);
+    auto payload = CreateCrazyCountingPlayerUpdatePayload(builder, counting_register.get_count(client_id), remaining_time);
 
     send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, payload.Union());
 }
@@ -71,6 +73,20 @@ void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, C
 }
 
 void CrazyCounting_MiniGame::update(unsigned long delta_time) {
+    remaining_time -= delta_time;
+    time_since_last_time_update += delta_time;
+
+    if(remaining_time <= 0) {
+        timer.stop();
+        MiniGame::finished();
+        return;
+    }
+
+    if (time_since_last_time_update >= 1000) {
+        time_since_last_time_update = 0;
+        send_players_update();
+    }
+
     for (CrazyCounting_Entity entity: entities) {
         entity.update(delta_time);
     }

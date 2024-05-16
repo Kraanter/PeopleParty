@@ -5,10 +5,13 @@
 #ifndef PEOPLEPARTY_BACKEND_CRAZYCOUNTING_MINI_GAME_H
 #define PEOPLEPARTY_BACKEND_CRAZYCOUNTING_MINI_GAME_H
 
+
 #include "../../flatbuffer/messageClass_generated.h"
 #include "crazycounting_entity.h"
 #include "crazycounting_counting_register.h"
 #include "../minigame.h"
+#include "../../timer.h"
+#include "../../typedefs.h"
 #include <vector>
 #include <map>
 
@@ -19,6 +22,10 @@ public:
 private:
     std::vector<CrazyCounting_Entity> entities;
     CrazyCounting_CountingRegister counting_register;
+    Timer timer;
+    const int delta_time = 16 MILLISECONDS;
+    int remaining_time = 30 SECONDS;
+    int time_since_last_time_update = 0;
 private:
     void send_entities();
     void send_players_update();
