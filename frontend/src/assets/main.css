@@ -2,9 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #dc267f;
+  --color-primary-light: #f9a8d4;
+  --color-primary-dark: #dc267f;
+  --color-secondary: #ffcb05;
+  --color-secondary-light: #fef478;
+  --color-secondary-dark: #f5a51a;
+  --color-text: #333333;
+}
+
 body {
-  @apply overflow-hidden w-dvw h-dvh text-white;
-  background-color: var(--secondary, lightblue);
+  @apply overflow-hidden w-dvw h-dvh text-text bg-secondary;
 }
 
 .text-body {

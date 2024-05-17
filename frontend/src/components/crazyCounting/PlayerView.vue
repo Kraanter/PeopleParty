@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { CrazyCountingPlayerInputPayload, GameStateType, type CrazyCountingPlayerUpdatePayload, MiniGamePayloadType, Input, GameStatePayload } from '@/flatbuffers/messageClass';
-import { useWebSocketStore } from '@/stores/confettiStore';
+import {
+  CrazyCountingPlayerInputPayload,
+  GameStateType,
+  type CrazyCountingPlayerUpdatePayload,
+  MiniGamePayloadType,
+  Input,
+  GameStatePayload
+} from '@/flatbuffers/messageClass'
+import { useWebSocketStore } from '@/stores/confettiStore'
 import { defineProps, ref, toRefs, watch } from 'vue'
-import { buildMessage } from '../../util/flatbufferMessageBuilder';
+import { buildMessage } from '../../util/flatbufferMessageBuilder'
 import * as flatbuffers from 'flatbuffers'
 
 const props = defineProps<{
@@ -18,7 +25,7 @@ const latestData = ref<CrazyCountingPlayerUpdatePayload>({} as CrazyCountingPlay
 const { data } = toRefs(props)
 
 const proccessData = (data: MiniGamePayloadType) => {
-  switch(data.gamestatetype()) {
+  switch (data.gamestatetype()) {
     case GameStateType.CrazyCountingPlayerUpdate: {
       latestData.value = data.gamestatepayload(new CrazyCountingPlayerInputPayload())
     }
@@ -34,11 +41,19 @@ watch(
 )
 
 const sendPlayerAction = (action: Input) => {
-  let builder = new flatbuffers.Builder();
+  let builder = new flatbuffers.Builder()
 
-  let playerInput = CrazyCountingPlayerInputPayload.createCrazyCountingPlayerInputPayload(builder, action);
+  let playerInput = CrazyCountingPlayerInputPayload.createCrazyCountingPlayerInputPayload(
+    builder,
+    action
+  )
 
-  let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(builder, GameStateType.CrazyCountingPlayerInput, GameStatePayload.CrazyCountingPlayerInputPayload, playerInput);
+  let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
+    builder,
+    GameStateType.CrazyCountingPlayerInput,
+    GameStatePayload.CrazyCountingPlayerInputPayload,
+    playerInput
+  )
 
   websocketStore.sendMessage(buildMessage(builder, miniGamePayload))
 }
