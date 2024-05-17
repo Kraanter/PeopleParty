@@ -31,12 +31,6 @@ void send_gamestate(const std::function<bool(Client*)>& expression, flatbuffers:
     uint8_t* buffer = builder.GetBufferPointer();
     std::string payload_as_string(reinterpret_cast<const char*>(builder.GetBufferPointer()), size);
 
-    std::cout << "Sending message: " << std::endl;
-    for (int i = 0; i < size; i++) {
-        std::cout << static_cast<int>(buffer[i]) << ", ";
-    }
-    std::cout << std::endl;
-
     send_message(expression, payload_as_string);
     //std::cout << payload_as_string << std::endl;
 }

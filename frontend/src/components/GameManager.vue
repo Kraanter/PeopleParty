@@ -39,26 +39,7 @@ const game = ref(getComponent(gameName.value))
 const height = ref(0)
 const width = ref(0)
 
-// const hostData = ref<{ x: number; y: number }[]>([])
-
-// for (let i = 0; i < 100; i++) {
-//   hostData.value.push({ x: Math.random() * 2 - 1, y: Math.random() * 2 - 1 })
-// }
-
-// const gameData = ref({
-//   amount: 10,
-//   time: 100,
-//   submitted: false
-// })
-
 onMounted(() => {
-  // const interval = setInterval(() => {
-  //   gameData.value.time--
-  //   if (gameData.value.time <= 0) {
-  //     gameData.value.time = 100
-  //   }
-  // }, 1000)
-
   const container = document.getElementById('container') as HTMLDivElement
 
   const resizeObserver = new ResizeObserver((entries) => {
@@ -69,16 +50,19 @@ onMounted(() => {
 
   resizeObserver.observe(container)
 
-  // Handle the message
   const unsubscribe = websocketStore.subscribe((miniGamePayload: MiniGamePayloadType) => {
     // decide which minigame to show
-    for (const miniGame of availableGames) {
-      // miniGamePayload.gamestatetype().toString().toUpperCase().startsWith(miniGame.toUpperCase())
-      // eslint-disable-next-line no-constant-condition
-      if (true) {
-        gameData.value = miniGamePayload
-        gameName.value = miniGame
-        break
+    if (miniGamePayload instanceof MiniGamePayloadType) {
+      console.log("inside game decider")
+      for (const miniGame of availableGames) {
+        // fixme: decide which game to show depening on a property in the payload
+        // miniGamePayload.gamestatetype().toString().toUpperCase().startsWith(miniGame.toUpperCase())
+        // eslint-disable-next-line no-constant-condition
+        if (true) {
+          gameData.value = miniGamePayload
+          gameName.value = miniGame
+          break
+        }
       }
     }
   })
