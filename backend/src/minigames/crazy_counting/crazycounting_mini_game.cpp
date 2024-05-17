@@ -23,7 +23,6 @@ void CrazyCounting_MiniGame::start() {
         entities.emplace_back();
     }
     timer.startUpdateTimer(this);
-//    update(delta_time);
 }
 
 void CrazyCounting_MiniGame::send_entities() {

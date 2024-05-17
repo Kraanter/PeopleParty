@@ -30,7 +30,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
 
   function sendMessage(message: Uint8Array) {
     if (websocket.value) {
-      // TODO: flatbuffer stuff, not needed yet because no messages will be sent yet.
       websocket.value.send(message)
     } else {
       console.error('WebSocket is not initialized.')
@@ -83,9 +82,13 @@ export const useWebSocketStore = defineStore('websocket', () => {
         break
       }
       case MessageType.MiniGame: {
+        console.log('Received MiniGame Message')
         const miniGamePayload = receivedMessage.payload(new MiniGamePayloadType())
+        console.log(listeners.value.length);
+        if (miniGamePayload instanceof MiniGamePayloadType) {
+          console.log('miniGamePayload is MiniGamePayloadType')
+        }
         listeners.value.forEach((listener) => listener(miniGamePayload))
-        // pass this message to the gamemanager
         break
       }
       default: {
