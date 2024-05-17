@@ -98,10 +98,6 @@ void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, C
 }
 
 void CrazyCounting_MiniGame::update(int delta_time) {
-    std::cout << "remaining time: " << remaining_time << std::endl;
-    std::cout << "delta time: " << delta_time << std::endl;
-    std::cout << "time since last time update: " << time_since_last_time_update << std::endl;
-
     remaining_time -= delta_time;
     time_since_last_time_update += delta_time;
 

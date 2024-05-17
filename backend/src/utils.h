@@ -30,6 +30,5 @@ void send_gamestate(const std::function<bool(Client*)>& expression, flatbuffers:
     std::string payload_as_string(reinterpret_cast<const char*>(builder.GetBufferPointer()), size);
 
     send_message(expression, payload_as_string);
-    std::cout << payload_as_string << std::endl;
 }
 #endif //PEOPLEPARTY_BACKEND_UTILS_H
