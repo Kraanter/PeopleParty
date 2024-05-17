@@ -6,7 +6,7 @@
 #include "../../utils.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : MiniGame(game) {
-    delta_time = 16 MILLISECONDS;
+    update_interval = 16 MILLISECONDS;
     remaining_time = 30 SECONDS;
     time_since_last_time_update = 0 MILLISECONDS;
     this->entity_count = entity_count;
@@ -22,8 +22,7 @@ void CrazyCounting_MiniGame::start() {
     for (int i = 0; i < entity_count; i++) {
         entities.emplace_back();
     }
-    std::cout << delta_time << std::endl;
-    timer.setInterval([&]() { update(delta_time); }, delta_time);
+    timer.startUpdateTimer(this);
 //    update(delta_time);
 }
 
@@ -98,7 +97,7 @@ void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, C
     }
 }
 
-void CrazyCounting_MiniGame::update(unsigned long delta_time) {
+void CrazyCounting_MiniGame::update(int delta_time) {
     std::cout << "remaining time: " << remaining_time << std::endl;
     std::cout << "delta time: " << delta_time << std::endl;
     std::cout << "time since last time update: " << time_since_last_time_update << std::endl;

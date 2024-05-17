@@ -20,11 +20,11 @@ public:
     CrazyCounting_MiniGame(int entity_count, Game* game);
     ~CrazyCounting_MiniGame();
     void start() override;
+    void update(int delta_time) override;
 private:
     std::vector<CrazyCounting_Entity> entities;
     std::map<int, CrazyCounting_Player> players;
     Timer timer;
-    int delta_time;
     int remaining_time;
     int time_since_last_time_update;
     int entity_count;
@@ -32,7 +32,6 @@ private:
     void send_entities();
     void send_players_update();
     void send_player_update(int client_id);
-    void update(unsigned long delta_time);
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
 };
 

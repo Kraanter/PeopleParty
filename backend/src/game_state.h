@@ -15,6 +15,8 @@ class GameState {
 public:
     GameState(Game* game);
     virtual void process_input(const MiniGamePayloadType* payload, Client* from) = 0;
+    virtual void update(int delta_time) = 0;
+    int update_interval;
 protected:
     virtual void finished() = 0;
     Game* game;
