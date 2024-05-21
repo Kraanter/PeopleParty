@@ -13,7 +13,6 @@ const size = ref(100)
 const props = defineProps<{
   width: number
   height: number
-  data: MiniGamePayloadType
 }>()
 
 interface PosData {
@@ -21,7 +20,7 @@ interface PosData {
   y: number
 }
 
-const { width, height, data } = toRefs(props)
+const { width, height } = toRefs(props)
 
 const appSize = computed(() => {
   return Math.min(width.value, height.value)
@@ -33,6 +32,8 @@ const interpolatePosition = (entity: FBCrazyCountingEntity): PosData => {
     y: entity.yPos() * (appSize.value - size.value)
   }
 }
+
+const gameState = ref<PosData[]>([])
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -46,13 +47,16 @@ const update = (data: MiniGamePayloadType) => {
         if (entity === null) continue
         localEntities.push(interpolatePosition(entity))
       }
+      gameState.value = localEntities
       return localEntities
     }
   }
   return []
 }
 
-const gameState = computed(() => update(data.value))
+defineExpose({
+  update
+})
 </script>
 <template>
   <Application key="gameview" :width="appSize" :height="appSize" background-color="white">

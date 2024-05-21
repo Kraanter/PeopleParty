@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { MiniGamePayloadType } from '@/flatbuffers/messageClass'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import { defineAsyncComponent, ref, watch, defineProps, onMounted } from 'vue'
+import { defineAsyncComponent, ref, watch, defineProps, onMounted, shallowRef } from 'vue'
+import HostView from './crazyCounting/HostView.vue'
 
 const props = defineProps<{
   isHost: boolean
@@ -9,7 +10,6 @@ const props = defineProps<{
 
 const websocketStore = useWebSocketStore()
 const gameName = ref('')
-const gameData = ref<MiniGamePayloadType>()
 
 const debounce = (func: Function, wait: number) => {
   let timeout: number | undefined
@@ -31,7 +31,8 @@ const getComponent = (name: string) => {
   }
 }
 
-const game = ref(getComponent(gameName.value))
+const gameViewComp = shallowRef(getComponent(gameName.value))
+const gameViewRef = ref<InstanceType<typeof HostView>>()
 
 const height = ref(0)
 const width = ref(0)
@@ -54,7 +55,8 @@ onMounted(() => {
       if (gameName.value === '') {
         gameName.value = 'crazyCounting'
       }
-      gameData.value = data
+
+      if (gameViewRef.value?.update) gameViewRef.value?.update(data)
     }
   })
 
@@ -67,7 +69,7 @@ onMounted(() => {
 watch(
   gameName,
   debounce((value: string) => {
-    game.value = getComponent(value)
+    gameViewComp.value = getComponent(value)
   }, 500)
 )
 </script>
@@ -77,7 +79,7 @@ watch(
     class="p-2 bg-black backdrop-blur-xl bg-opacity-50 shadow-lg rounded-md w-full h-[97dvh] m-3"
   >
     <div class="w-full flex justify-center">
-      <component v-if="width && height && gameData" :is="game" :data="gameData" :height :width />
+      <component :is="gameViewComp" ref="gameViewRef" v-if="width && height" :height :width />
     </div>
   </div>
 </template>
