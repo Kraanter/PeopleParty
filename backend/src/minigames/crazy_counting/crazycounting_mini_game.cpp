@@ -3,7 +3,7 @@
 //
 
 #include "crazycounting_mini_game.h"
-#include "../../utils.h"
+#include "../../game.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : MiniGame(game) {
     update_interval = 1000 MILLISECONDS;
@@ -15,7 +15,7 @@ CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : M
 void CrazyCounting_MiniGame::start() {
     std::cout << "CrazyCounting_MiniGame started" << std::endl;
 
-    for (Client* client : game->clients) {
+    for (Client* client : game->get_clients()) {
         players[client->client_id] = CrazyCounting_Player(client->client_id, entity_count);
     }
 
@@ -41,11 +41,11 @@ void CrazyCounting_MiniGame::send_entities() {
                                                       GameStatePayload_CrazyCountingHostEntitiesPayload, payload.Union());
 
     // Send payload to client
-    send_gamestate([](Client* client) { return client->party->host == client; }, builder, gameStatePayload.Union());
+    game->party->send_gamestate([](Client* client) { return client->party->host == client; }, builder, gameStatePayload.Union());
 }
 
 void CrazyCounting_MiniGame::send_players_update() {
-    for (Client* client: game->clients) {
+    for (Client* client: game->get_clients()) {
         if (!client->isHost) {
             send_player_update(client->client_id);
         }
@@ -60,7 +60,7 @@ void CrazyCounting_MiniGame::send_player_update(int client_id) {
     auto gameStatePayload = CreateMiniGamePayloadType(builder, GameStateType_CrazyCountingPlayerUpdate,
                                                       GameStatePayload_CrazyCountingPlayerInputPayload, payload.Union());
 
-    send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
+    game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 }
 
 void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, Client* from) {
@@ -127,7 +127,7 @@ std::vector<Client *> CrazyCounting_MiniGame::getMinigameResult() {
 
     std::vector<Client*> result;
     for (CrazyCounting_Player* player: sorted_players) {
-        result.push_back(game->clients[player->client_id]);
+        result.push_back(game->get_clients()[player->client_id]);
     }
 
     return result;

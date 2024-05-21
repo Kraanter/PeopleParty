@@ -1,18 +1,15 @@
 <script lang="ts" setup>
-import { MiniGamePayloadType } from '@/flatbuffers/messageClass';
-import { useWebSocketStore } from '@/stores/confettiStore';
-import { defineAsyncComponent, ref, watch, defineProps, onMounted } from 'vue'
+import { MiniGamePayloadType } from '@/flatbuffers/messageClass'
+import { useWebSocketStore } from '@/stores/confettiStore'
+import { defineAsyncComponent, ref, watch, defineProps, onMounted, shallowRef } from 'vue'
+import HostView from './crazyCounting/HostView.vue'
 
 const props = defineProps<{
   isHost: boolean
 }>()
 
-// Maybe get this list later from the backend
-const availableGames = ['crazyCounting']
-
 const websocketStore = useWebSocketStore()
 const gameName = ref('')
-const gameData = ref({} as MiniGamePayloadType)
 
 const debounce = (func: Function, wait: number) => {
   let timeout: number | undefined
@@ -34,7 +31,8 @@ const getComponent = (name: string) => {
   }
 }
 
-const game = ref(getComponent(gameName.value))
+const gameViewComp = shallowRef(getComponent(gameName.value))
+const gameViewRef = ref<InstanceType<typeof HostView>>()
 
 const height = ref(0)
 const width = ref(0)
@@ -50,25 +48,19 @@ onMounted(() => {
 
   resizeObserver.observe(container)
 
-  const unsubscribe = websocketStore.subscribe((miniGamePayload: MiniGamePayloadType) => {
+  const unsubscribe = websocketStore.subscribe((data: MiniGamePayloadType) => {
     // decide which minigame to show
-    if (miniGamePayload instanceof MiniGamePayloadType) {
-      console.log("inside game decider")
-      for (const miniGame of availableGames) {
-        // fixme: decide which game to show depening on a property in the payload
-        // miniGamePayload.gamestatetype().toString().toUpperCase().startsWith(miniGame.toUpperCase())
-        // eslint-disable-next-line no-constant-condition
-        if (true) {
-          gameData.value = miniGamePayload
-          gameName.value = miniGame
-          break
-        }
+    if (data instanceof MiniGamePayloadType) {
+      // TODO: Make this dynamic from the server
+      if (gameName.value === '') {
+        gameName.value = 'crazyCounting'
       }
+
+      if (gameViewRef.value?.update) gameViewRef.value?.update(data)
     }
   })
 
   return () => {
-    //clearInterval(interval)
     resizeObserver.disconnect()
     unsubscribe
   }
@@ -77,7 +69,7 @@ onMounted(() => {
 watch(
   gameName,
   debounce((value: string) => {
-    game.value = getComponent(value)
+    gameViewComp.value = getComponent(value)
   }, 500)
 )
 </script>
@@ -86,12 +78,8 @@ watch(
     id="container"
     class="p-2 bg-black backdrop-blur-xl bg-opacity-50 shadow-lg rounded-md w-full h-[97dvh] m-3"
   >
-    <component
-      v-if="width && height"
-      :is="game"
-      :data="gameData"
-      :height
-      :width
-    />
+    <div class="w-full flex justify-center">
+      <component :is="gameViewComp" ref="gameViewRef" v-if="width && height" :height :width />
+    </div>
   </div>
 </template>

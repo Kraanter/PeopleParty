@@ -119,15 +119,15 @@ const join = () => {
 </script>
 <template>
   <div class="flex justify-center items-center">
-    <!-- <GameManager :is-host="false" v-if="joined" /> -->
+    <GameManager :is-host="false" v-if="joined" />
     <!-- TODO: Put this back the way it was -->
-    <n-card class="max-w-md m-3" v-if="joined">
+    <!-- <n-card class="max-w-md m-3" v-if="joined">
       <n-result
         status="success"
         title="Joined"
         :description="`Succesfully joined party: ${codeString}!`"
       />
-    </n-card>
+    </n-card> -->
     <n-card class="max-w-md m-3" v-else>
       <n-h1 class="mb-6 text-center">Join a Party!</n-h1>
 

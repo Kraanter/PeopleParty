@@ -1,0 +1,39 @@
+table FBPlayer {
+    name: string;
+}
+
+table PartyPrepHostInformationPayload {
+    room_id: long;
+    players: [FBPlayer];
+}
+
+
+table PartyPrepHostStartGamePayload {
+    start_game: bool;
+}
+
+
+table PartyPrepPlayerInformationPayload {
+    room_id: long;
+}
+
+
+
+enum PartyPrepType: byte {
+    PartyPrepHostInformation,
+    PartyPrepHostStartGame,
+    PartyPrepPlayerInformation,
+}
+
+union PartyPrepPayload {
+    PartyPrepHostInformationPayload,
+    PartyPrepHostStartGamePayload,
+    PartyPrepPlayerInformationPayload,
+}
+
+table PartyPrepPayloadType {
+    partypreptype: PartyPrepType;
+    partypreppayload: PartyPrepPayload;
+}
+
+root_type PartyPrepPayloadType;

@@ -38,6 +38,6 @@ std::ostream& operator<<(std::ostream& stream, const Client& client) {
 
 int generate_client_id() {
   int id = 0;
-  while (clients.contains(id)) id++;
+  while (client_repository.contains(id)) id++;
   return id;
 }
