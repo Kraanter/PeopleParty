@@ -15,6 +15,9 @@ export default {
         'secondary-light': 'var(--color-secondary-light)',
         'text': 'var(--color-text)',
       },
+      fontFamily: {
+        'kanit': ['Kanit', 'sans-serif'],
+      },
       backgroundImage: {
         'logo': "url('/assets/logo.svg')",
       }
