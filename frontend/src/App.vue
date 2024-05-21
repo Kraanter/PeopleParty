@@ -29,7 +29,7 @@ const themeOverrides: GlobalThemeOverrides = {
 <template>
   <n-config-provider :theme-overrides="themeOverrides">
     <n-modal-provider>
-      <main class="relative w-screen min-h-screen h-screen">
+      <main class="relative w-screen min-h-screen h-screen select-none">
         <RouterView class="absolute z-10 w-full h-full p-2 sm:p-4" />
 
         <Background class="absolute w-full h-full top-0 left-0"></Background>
