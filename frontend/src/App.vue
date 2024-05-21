@@ -19,6 +19,10 @@ const themeOverrides: GlobalThemeOverrides = {
   Card: {
     boxShadow: '0.5rem 0.5rem 0 #000',
     borderRadius: '2rem'
+  },
+  Button: {
+    iconSizeLarge: '1.7rem',
+    borderRadiusLarge: '2rem'
   }
 }
 </script>
