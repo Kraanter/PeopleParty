@@ -82,12 +82,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
         break
       }
       case MessageType.MiniGame: {
-        console.log('Received MiniGame Message')
         const miniGamePayload = receivedMessage.payload(new MiniGamePayloadType())
-        console.log(listeners.value.length);
-        if (miniGamePayload instanceof MiniGamePayloadType) {
-          console.log('miniGamePayload is MiniGamePayloadType')
-        }
         listeners.value.forEach((listener) => listener(miniGamePayload))
         break
       }
