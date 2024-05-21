@@ -2,7 +2,7 @@
 import { useWebSocketStore } from '@/stores/confettiStore'
 import { storeToRefs } from 'pinia'
 import { defineProps, defineEmits, ref } from 'vue'
-import { NCard, NQrCode, NButton, NIcon } from 'naive-ui'
+import { NCard, NButton, NIcon } from 'naive-ui'
 import PartyQrCode from './PartyQrCode.vue'
 
 defineProps<{

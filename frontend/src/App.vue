@@ -17,7 +17,7 @@ const themeOverrides: GlobalThemeOverrides = {
     textColorBase: colorPalette.value.text.string
   },
   Card: {
-    boxShadow: '0.5rem 0.5rem 0 #000',
+    boxShadow: '0 0 0 0.1rem rgba(0, 0, 0, 1)',
     borderRadius: '2rem'
   },
   Button: {

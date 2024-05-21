@@ -21,14 +21,13 @@ const play = () => (isPlaying.value = true)
 </script>
 <template>
   <div v-if="isHost" class="w-full h-full">
-    <!-- <GameManager v-if="isPlaying" is-host /> -->
-
     <!-- <div class="w-full h-full p-4 my-auto"> -->
     <!-- <PeoplePartyLogo /> -->
     <!-- </div> -->
 
-    <div class="row-span-4 max-w-[95%] h-full py-12 m-auto">
-      <PartyPreperation />
+    <GameManager v-if="isPlaying" is-host />
+    <div v-else class="max-w-[95%] h-full py-12 m-auto">
+      <PartyPreperation @click="play" />
     </div>
   </div>
   <div v-else class="grid grid-rows-2 pt-12">

@@ -18,7 +18,7 @@ const error = ref('')
 const inputElements = ref<HTMLInputElement[]>([])
 const nameInput = ref<HTMLInputElement>()
 const joinPromise = ref<Promise<void>>()
-const joined = ref(false)
+const joined = ref(true)
 
 const route = useRoute()
 
@@ -127,8 +127,8 @@ const join = () => {
 }
 </script>
 <template>
-  <div class="grid grid-rows-3 grid-cols-1 justify-center">
-    <div class="w-full h-full">
+  <div class="grid grid-rows-1 grid-cols-1 justify-center">
+    <div v-if="!joined" class="w-full h-full">
       <PeoplePartyLogo />
     </div>
     <GameManager :is-host="false" v-if="joined" />

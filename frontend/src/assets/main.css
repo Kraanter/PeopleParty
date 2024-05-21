@@ -35,3 +35,11 @@ button:active {
   transform: translate(0.5rem, 0.5rem) !important;
   box-shadow: 0.1rem 0.1rem 0 #000 !important;
 }
+
+.cartoonShadow {
+  box-shadow: 0.5rem 0.5rem 0 #000;
+}
+
+.n-card {
+  box-shadow: 0.5rem 0.5rem 0 #000 !important;
+}

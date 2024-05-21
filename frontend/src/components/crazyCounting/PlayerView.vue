@@ -25,11 +25,11 @@ const latestData = ref<CrazyCountingPlayerUpdatePayload>({} as CrazyCountingPlay
 const { data } = toRefs(props)
 
 const proccessData = (data: MiniGamePayloadType) => {
-  switch (data.gamestatetype()) {
-    case GameStateType.CrazyCountingPlayerUpdate: {
-      latestData.value = data.gamestatepayload(new CrazyCountingPlayerInputPayload())
-    }
-  }
+  // switch (data.gamestatetype()) {
+  //   case GameStateType.CrazyCountingPlayerUpdate: {
+  //     latestData.value = data.gamestatepayload(new CrazyCountingPlayerInputPayload())
+  //   }
+  // }
 }
 
 watch(
@@ -41,28 +41,25 @@ watch(
 )
 
 const sendPlayerAction = (action: Input) => {
-  let builder = new flatbuffers.Builder()
-
-  let playerInput = CrazyCountingPlayerInputPayload.createCrazyCountingPlayerInputPayload(
-    builder,
-    action
-  )
-
-  let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
-    builder,
-    GameStateType.CrazyCountingPlayerInput,
-    GameStatePayload.CrazyCountingPlayerInputPayload,
-    playerInput
-  )
-
-  websocketStore.sendMessage(buildMessage(builder, miniGamePayload))
+  // let builder = new flatbuffers.Builder()
+  // let playerInput = CrazyCountingPlayerInputPayload.createCrazyCountingPlayerInputPayload(
+  //   builder,
+  //   action
+  // )
+  // let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
+  //   builder,
+  //   GameStateType.CrazyCountingPlayerInput,
+  //   GameStatePayload.CrazyCountingPlayerInputPayload,
+  //   playerInput
+  // )
+  // websocketStore.sendMessage(buildMessage(builder, miniGamePayload))
 }
 </script>
 <template>
   <div class="w-full h-full flex">
     <div class="grid grid-rows-4 text-center my-auto max-w-full h-full gap-y-12 max-h-[75%] w-full">
       <div class="my-auto">
-        <span class="text-8xl font-bold">{{ latestData.newInt() }}</span>
+        <span class="text-8xl font-bold">{{ latestData.newInt() ?? 'kaas' }}</span>
       </div>
       <div class="grid grid-cols-2 row-span-2 w-full h-full rounded-3xl overflow-hidden">
         <div

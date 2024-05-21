@@ -7,6 +7,8 @@ import PeoplePartyLogo from '../PeoplePartyLogo.vue'
 
 const confettiStore = useWebSocketStore()
 const { partyCode, playerCount, players } = storeToRefs(confettiStore)
+
+const emit = defineEmits(['click'])
 </script>
 <template>
   <div class="grid grid-cols-3 gap-12 grid-rows-1 h-full w-full">
@@ -56,7 +58,9 @@ const { partyCode, playerCount, players } = storeToRefs(confettiStore)
         <div class="col-span-4 w-full h-48">
           <PeoplePartyLogo />
         </div>
-        <n-button type="primary" class="w-full h-full"> Start Game </n-button>
+        <n-button type="primary" class="w-full h-full" @click="emit('click')">
+          Start Game
+        </n-button>
       </div>
       <div class="h-full bg-white p-4">
         <n-list>
