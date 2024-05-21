@@ -16,7 +16,7 @@ void CrazyCounting_MiniGame::start() {
     std::cout << "CrazyCounting_MiniGame started" << std::endl;
 
     for (Client* client : game->clients) {
-        players[client->client_id] = CrazyCounting_Player(client->client_id);
+        players[client->client_id] = CrazyCounting_Player(client->client_id, entity_count);
     }
 
     for (int i = 0; i < entity_count; i++) {
@@ -68,7 +68,7 @@ void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, C
         case GameStateType_CrazyCountingPlayerInput: {
             auto it = players.find(from->client_id);
             if (it == players.end()) {
-                players[from->client_id] = CrazyCounting_Player(from->client_id);
+                players[from->client_id] = CrazyCounting_Player(from->client_id, entity_count);
             }
             CrazyCounting_Player* player = &players[from->client_id];
 
@@ -115,4 +115,20 @@ void CrazyCounting_MiniGame::update(int delta_time) {
         entity.update(delta_time);
     }
     send_entities();
+}
+
+std::vector<Client *> CrazyCounting_MiniGame::getMinigameResult() {
+    // sort players by count, submitted and time
+    std::vector<CrazyCounting_Player*> sorted_players;
+    for (auto& [_, player] : players) {
+        sorted_players.push_back(&player);
+    }
+    std::sort(sorted_players.begin(), sorted_players.end());
+
+    std::vector<Client*> result;
+    for (CrazyCounting_Player* player: sorted_players) {
+        result.push_back(game->clients[player->client_id]);
+    }
+
+    return result;
 }

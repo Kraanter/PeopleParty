@@ -10,7 +10,7 @@ Wander::Wander() {
 }
 
 Vector2D Wander::Calculate() {
-    wander_target = wander_target + Vector2D((float)std::rand() / RAND_MAX, (float)std::rand() / RAND_MAX) * wander_jitter;
+    wander_target = wander_target + Vector2D((float)rand() / RAND_MAX, (float)rand() / RAND_MAX) * wander_jitter;
     wander_target = wander_target.normalize() * wander_radius;
 
     Vector2D target = wander_target.clone() + Vector2D(wander_distance, 0);
