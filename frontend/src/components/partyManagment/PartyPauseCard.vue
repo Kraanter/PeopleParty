@@ -3,6 +3,7 @@ import { useWebSocketStore } from '@/stores/confettiStore'
 import { storeToRefs } from 'pinia'
 import { defineProps, defineEmits, ref } from 'vue'
 import { NCard, NQrCode, NButton, NIcon } from 'naive-ui'
+import PartyQrCode from './PartyQrCode.vue'
 
 defineProps<{
   message: string
@@ -14,8 +15,6 @@ const playerAmount = ref(10)
 
 const confettiStore = useWebSocketStore()
 const { partyCode } = storeToRefs(confettiStore)
-
-const generateURL = () => `${window.location.origin}/join?code=${partyCode.value}`
 </script>
 <template>
   <n-card>
@@ -25,7 +24,7 @@ const generateURL = () => `${window.location.origin}/join?code=${partyCode.value
         <span class="text-6xl font-semibold">Party Code:</span>
         <span class="text-6xl font-mono mt-2">{{ partyCode }}</span>
         <div class="pt-4">
-          <n-qr-code :size="250" style="padding: 0" :value="generateURL()" />
+          <PartyQrCode />
         </div>
       </div>
       <div class="w-full h-full flex flex-col justify-between items-center col-span-2">

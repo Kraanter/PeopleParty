@@ -2,10 +2,11 @@
 import { useWebSocketStore } from '@/stores/confettiStore'
 import GameManager from '@/components/GameManager.vue'
 import PartyButton from '@/components/PartyButton.vue'
-import PartyPauseCard from '@/components/partyManagment/PartyPauseCard.vue'
+import PartyPreperation from '@/components/partyManagment/PartyPreperation.vue'
 import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
+import PartyPauseCard from '@/components/partyManagment/PartyPauseCard.vue'
 
 const isPlaying = ref(false)
 
@@ -19,15 +20,15 @@ const host = () => {
 const play = () => (isPlaying.value = true)
 </script>
 <template>
-  <div v-if="isHost" class="grid grid-rows-4 grid-cols-1 jusitfy-center">
+  <div v-if="isHost" class="w-full h-full">
     <!-- <GameManager v-if="isPlaying" is-host /> -->
 
-    <div class="w-full h-full p-4 my-auto">
-      <PeoplePartyLogo />
-    </div>
+    <!-- <div class="w-full h-full p-4 my-auto"> -->
+    <!-- <PeoplePartyLogo /> -->
+    <!-- </div> -->
 
-    <div class="lg:max-w-screen-lg row-span-2 max-w-[95%] m-auto">
-      <PartyPauseCard @click="play" message="Start Game" />
+    <div class="row-span-4 max-w-[95%] h-full py-12 m-auto">
+      <PartyPreperation />
     </div>
   </div>
   <div v-else class="grid grid-rows-2 pt-12">
