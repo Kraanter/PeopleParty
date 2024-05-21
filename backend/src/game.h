@@ -8,11 +8,13 @@
 
 #include "flatbuffer/messageClass_generated.h"
 #include "minigames/minigame.h"
+#include "partyprep/partyprep.h"
 #include "party.h"
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
 #include <queue>
 #include <map>
 
+class PartyPrep;
 class MiniGame;
 class Party;
 class GameState;
@@ -23,22 +25,30 @@ public:
     Game(Party* party);
     template <typename T>
     void nextGameState() {
-        if (std::is_base_of<MiniGame, T>::value) {
+        std::cout << "Next game state" << std::endl;
+        std::cout << typeid(T).name() << std::endl;
+        if (typeid(T) == typeid(MiniGame)) {
             // We just finished a minigame so we change to the leaderboard
             // todo: Create leaderboard
-            return;
+            // return;
         }
-        if (miniGames.empty()) {
-            // todo: Go to the podium
-            return;
+        // todo: remove from minigame and add from leaderboard
+        if (typeid(T) == typeid(PartyPrep) || typeid(T) == typeid(MiniGame)) {
+            if (miniGames.empty()) {
+                // todo: Go to the podium
+                std::cout << "No more minigames" << std::endl;
+                return;
+            } else {
+                current_gamestate = (GameState *)miniGames.front();
+                miniGames.pop();
+                ((MiniGame*)current_gamestate)->start();
+
+                // fixme: Infinite loop for now
+                miniGames.push(new CrazyCounting_MiniGame(10, this));
+            }
         }
-
-        current_gamestate = (GameState *)miniGames.front();
-        miniGames.pop();
-
-        // fixme: Infinite loop for now
-        miniGames.push(new CrazyCounting_MiniGame(10, this));
     }
+    int getPartyId();
     void process_input(const MiniGamePayloadType* payload, Client* from);
     const std::vector<Client*> get_clients();
 public:
@@ -48,6 +58,5 @@ private:
     GameState* current_gamestate;
     std::queue<MiniGame*> miniGames;
 };
-
 
 #endif //PEOPLEPARTY_BACKEND_GAME_H

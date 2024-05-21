@@ -7,18 +7,23 @@
 Game::Game(Party* party) {
     this->party = party;
 
-    // todo: initialize game on party preparation
-    current_gamestate = new CrazyCounting_MiniGame(10, this);
-    ((MiniGame*)current_gamestate)->start();
-
     // For now adds all minigames
     miniGames.push(new CrazyCounting_MiniGame(10, this));
+
+    // todo: initialize game on party preparation
+    //current_gamestate = new PartyPrep(this);
+    current_gamestate = new CrazyCounting_MiniGame(10, this);
+    ((MiniGame*)current_gamestate)->start();
 }
 
 void Game::process_input(const MiniGamePayloadType* payload, Client* from) {
     if (current_gamestate != nullptr) {
         current_gamestate->process_input(payload, from);
     }
+}
+
+int Game::getPartyId() {
+    return party->party_id;
 }
 
 const std::vector<Client *> Game::get_clients() {

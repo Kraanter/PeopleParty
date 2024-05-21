@@ -97,12 +97,11 @@ void WebSocket::init() {
                  c->isHost = true;
                  p->host = c;
 
-                 p->start_game();
-
                  ws->getUserData()->client = c;
                  ws->getUserData()->party_id = p->party_id;
 
                  send_host_message(ws);
+                 p->start_game();
                },
            .message =
                [](auto *ws, std::string_view message, uWS::OpCode opCode) {

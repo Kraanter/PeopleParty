@@ -16,6 +16,7 @@ const host = () => {
 onMounted(() => {
   const unsubscribe = websocketStore.subscribe((roomId: string) => {
     partyCode.value = roomId
+    console.log('Party code:', roomId)
   })
 
   // Unsubscribe when component is unmounted

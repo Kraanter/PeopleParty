@@ -34,6 +34,21 @@ struct CrazyCountingPlayerUpdatePayloadBuilder;
 struct MiniGamePayloadType;
 struct MiniGamePayloadTypeBuilder;
 
+struct FBPlayer;
+struct FBPlayerBuilder;
+
+struct PartyPrepHostInformationPayload;
+struct PartyPrepHostInformationPayloadBuilder;
+
+struct PartyPrepHostStartGamePayload;
+struct PartyPrepHostStartGamePayloadBuilder;
+
+struct PartyPrepPlayerInformationPayload;
+struct PartyPrepPlayerInformationPayloadBuilder;
+
+struct PartyPrepPayloadType;
+struct PartyPrepPayloadTypeBuilder;
+
 struct Message;
 struct MessageBuilder;
 
@@ -158,35 +173,126 @@ template<> struct GameStatePayloadTraits<CrazyCountingPlayerUpdatePayload> {
 bool VerifyGameStatePayload(::flatbuffers::Verifier &verifier, const void *obj, GameStatePayload type);
 bool VerifyGameStatePayloadVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
+enum PartyPrepType : int8_t {
+  PartyPrepType_PartyPrepHostInformation = 0,
+  PartyPrepType_PartyPrepHostStartGame = 1,
+  PartyPrepType_PartyPrepPlayerInformation = 2,
+  PartyPrepType_MIN = PartyPrepType_PartyPrepHostInformation,
+  PartyPrepType_MAX = PartyPrepType_PartyPrepPlayerInformation
+};
+
+inline const PartyPrepType (&EnumValuesPartyPrepType())[3] {
+  static const PartyPrepType values[] = {
+    PartyPrepType_PartyPrepHostInformation,
+    PartyPrepType_PartyPrepHostStartGame,
+    PartyPrepType_PartyPrepPlayerInformation
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesPartyPrepType() {
+  static const char * const names[4] = {
+    "PartyPrepHostInformation",
+    "PartyPrepHostStartGame",
+    "PartyPrepPlayerInformation",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNamePartyPrepType(PartyPrepType e) {
+  if (::flatbuffers::IsOutRange(e, PartyPrepType_PartyPrepHostInformation, PartyPrepType_PartyPrepPlayerInformation)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesPartyPrepType()[index];
+}
+
+enum PartyPrepPayload : uint8_t {
+  PartyPrepPayload_NONE = 0,
+  PartyPrepPayload_PartyPrepHostInformationPayload = 1,
+  PartyPrepPayload_PartyPrepHostStartGamePayload = 2,
+  PartyPrepPayload_PartyPrepPlayerInformationPayload = 3,
+  PartyPrepPayload_MIN = PartyPrepPayload_NONE,
+  PartyPrepPayload_MAX = PartyPrepPayload_PartyPrepPlayerInformationPayload
+};
+
+inline const PartyPrepPayload (&EnumValuesPartyPrepPayload())[4] {
+  static const PartyPrepPayload values[] = {
+    PartyPrepPayload_NONE,
+    PartyPrepPayload_PartyPrepHostInformationPayload,
+    PartyPrepPayload_PartyPrepHostStartGamePayload,
+    PartyPrepPayload_PartyPrepPlayerInformationPayload
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesPartyPrepPayload() {
+  static const char * const names[5] = {
+    "NONE",
+    "PartyPrepHostInformationPayload",
+    "PartyPrepHostStartGamePayload",
+    "PartyPrepPlayerInformationPayload",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNamePartyPrepPayload(PartyPrepPayload e) {
+  if (::flatbuffers::IsOutRange(e, PartyPrepPayload_NONE, PartyPrepPayload_PartyPrepPlayerInformationPayload)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesPartyPrepPayload()[index];
+}
+
+template<typename T> struct PartyPrepPayloadTraits {
+  static const PartyPrepPayload enum_value = PartyPrepPayload_NONE;
+};
+
+template<> struct PartyPrepPayloadTraits<PartyPrepHostInformationPayload> {
+  static const PartyPrepPayload enum_value = PartyPrepPayload_PartyPrepHostInformationPayload;
+};
+
+template<> struct PartyPrepPayloadTraits<PartyPrepHostStartGamePayload> {
+  static const PartyPrepPayload enum_value = PartyPrepPayload_PartyPrepHostStartGamePayload;
+};
+
+template<> struct PartyPrepPayloadTraits<PartyPrepPlayerInformationPayload> {
+  static const PartyPrepPayload enum_value = PartyPrepPayload_PartyPrepPlayerInformationPayload;
+};
+
+bool VerifyPartyPrepPayload(::flatbuffers::Verifier &verifier, const void *obj, PartyPrepPayload type);
+bool VerifyPartyPrepPayloadVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
+
 enum MessageType : int8_t {
   MessageType_Host = 0,
   MessageType_Join = 1,
   MessageType_MiniGame = 2,
+  MessageType_PartyPrep = 3,
   MessageType_MIN = MessageType_Host,
-  MessageType_MAX = MessageType_MiniGame
+  MessageType_MAX = MessageType_PartyPrep
 };
 
-inline const MessageType (&EnumValuesMessageType())[3] {
+inline const MessageType (&EnumValuesMessageType())[4] {
   static const MessageType values[] = {
     MessageType_Host,
     MessageType_Join,
-    MessageType_MiniGame
+    MessageType_MiniGame,
+    MessageType_PartyPrep
   };
   return values;
 }
 
 inline const char * const *EnumNamesMessageType() {
-  static const char * const names[4] = {
+  static const char * const names[5] = {
     "Host",
     "Join",
     "MiniGame",
+    "PartyPrep",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameMessageType(MessageType e) {
-  if (::flatbuffers::IsOutRange(e, MessageType_Host, MessageType_MiniGame)) return "";
+  if (::flatbuffers::IsOutRange(e, MessageType_Host, MessageType_PartyPrep)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesMessageType()[index];
 }
@@ -196,33 +302,36 @@ enum Payload : uint8_t {
   Payload_HostPayloadType = 1,
   Payload_JoinPayloadType = 2,
   Payload_MiniGamePayloadType = 3,
+  Payload_PartyPrepPayloadType = 4,
   Payload_MIN = Payload_NONE,
-  Payload_MAX = Payload_MiniGamePayloadType
+  Payload_MAX = Payload_PartyPrepPayloadType
 };
 
-inline const Payload (&EnumValuesPayload())[4] {
+inline const Payload (&EnumValuesPayload())[5] {
   static const Payload values[] = {
     Payload_NONE,
     Payload_HostPayloadType,
     Payload_JoinPayloadType,
-    Payload_MiniGamePayloadType
+    Payload_MiniGamePayloadType,
+    Payload_PartyPrepPayloadType
   };
   return values;
 }
 
 inline const char * const *EnumNamesPayload() {
-  static const char * const names[5] = {
+  static const char * const names[6] = {
     "NONE",
     "HostPayloadType",
     "JoinPayloadType",
     "MiniGamePayloadType",
+    "PartyPrepPayloadType",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNamePayload(Payload e) {
-  if (::flatbuffers::IsOutRange(e, Payload_NONE, Payload_MiniGamePayloadType)) return "";
+  if (::flatbuffers::IsOutRange(e, Payload_NONE, Payload_PartyPrepPayloadType)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesPayload()[index];
 }
@@ -241,6 +350,10 @@ template<> struct PayloadTraits<JoinPayloadType> {
 
 template<> struct PayloadTraits<MiniGamePayloadType> {
   static const Payload enum_value = Payload_MiniGamePayloadType;
+};
+
+template<> struct PayloadTraits<PartyPrepPayloadType> {
+  static const Payload enum_value = Payload_PartyPrepPayloadType;
 };
 
 bool VerifyPayload(::flatbuffers::Verifier &verifier, const void *obj, Payload type);
@@ -607,6 +720,287 @@ inline ::flatbuffers::Offset<MiniGamePayloadType> CreateMiniGamePayloadType(
   return builder_.Finish();
 }
 
+struct FBPlayer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FBPlayerBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           verifier.EndTable();
+  }
+};
+
+struct FBPlayerBuilder {
+  typedef FBPlayer Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(FBPlayer::VT_NAME, name);
+  }
+  explicit FBPlayerBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<FBPlayer> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<FBPlayer>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<FBPlayer> CreateFBPlayer(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0) {
+  FBPlayerBuilder builder_(_fbb);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<FBPlayer> CreateFBPlayerDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return CreateFBPlayer(
+      _fbb,
+      name__);
+}
+
+struct PartyPrepHostInformationPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PartyPrepHostInformationPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ROOM_ID = 4,
+    VT_PLAYERS = 6
+  };
+  int64_t room_id() const {
+    return GetField<int64_t>(VT_ROOM_ID, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<FBPlayer>> *players() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBPlayer>> *>(VT_PLAYERS);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int64_t>(verifier, VT_ROOM_ID, 8) &&
+           VerifyOffset(verifier, VT_PLAYERS) &&
+           verifier.VerifyVector(players()) &&
+           verifier.VerifyVectorOfTables(players()) &&
+           verifier.EndTable();
+  }
+};
+
+struct PartyPrepHostInformationPayloadBuilder {
+  typedef PartyPrepHostInformationPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_room_id(int64_t room_id) {
+    fbb_.AddElement<int64_t>(PartyPrepHostInformationPayload::VT_ROOM_ID, room_id, 0);
+  }
+  void add_players(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBPlayer>>> players) {
+    fbb_.AddOffset(PartyPrepHostInformationPayload::VT_PLAYERS, players);
+  }
+  explicit PartyPrepHostInformationPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<PartyPrepHostInformationPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<PartyPrepHostInformationPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<PartyPrepHostInformationPayload> CreatePartyPrepHostInformationPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int64_t room_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBPlayer>>> players = 0) {
+  PartyPrepHostInformationPayloadBuilder builder_(_fbb);
+  builder_.add_room_id(room_id);
+  builder_.add_players(players);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<PartyPrepHostInformationPayload> CreatePartyPrepHostInformationPayloadDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int64_t room_id = 0,
+    const std::vector<::flatbuffers::Offset<FBPlayer>> *players = nullptr) {
+  auto players__ = players ? _fbb.CreateVector<::flatbuffers::Offset<FBPlayer>>(*players) : 0;
+  return CreatePartyPrepHostInformationPayload(
+      _fbb,
+      room_id,
+      players__);
+}
+
+struct PartyPrepHostStartGamePayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PartyPrepHostStartGamePayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_START_GAME = 4
+  };
+  bool start_game() const {
+    return GetField<uint8_t>(VT_START_GAME, 0) != 0;
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_START_GAME, 1) &&
+           verifier.EndTable();
+  }
+};
+
+struct PartyPrepHostStartGamePayloadBuilder {
+  typedef PartyPrepHostStartGamePayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_start_game(bool start_game) {
+    fbb_.AddElement<uint8_t>(PartyPrepHostStartGamePayload::VT_START_GAME, static_cast<uint8_t>(start_game), 0);
+  }
+  explicit PartyPrepHostStartGamePayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<PartyPrepHostStartGamePayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<PartyPrepHostStartGamePayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<PartyPrepHostStartGamePayload> CreatePartyPrepHostStartGamePayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    bool start_game = false) {
+  PartyPrepHostStartGamePayloadBuilder builder_(_fbb);
+  builder_.add_start_game(start_game);
+  return builder_.Finish();
+}
+
+struct PartyPrepPlayerInformationPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PartyPrepPlayerInformationPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ROOM_ID = 4
+  };
+  int64_t room_id() const {
+    return GetField<int64_t>(VT_ROOM_ID, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int64_t>(verifier, VT_ROOM_ID, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct PartyPrepPlayerInformationPayloadBuilder {
+  typedef PartyPrepPlayerInformationPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_room_id(int64_t room_id) {
+    fbb_.AddElement<int64_t>(PartyPrepPlayerInformationPayload::VT_ROOM_ID, room_id, 0);
+  }
+  explicit PartyPrepPlayerInformationPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<PartyPrepPlayerInformationPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<PartyPrepPlayerInformationPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<PartyPrepPlayerInformationPayload> CreatePartyPrepPlayerInformationPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int64_t room_id = 0) {
+  PartyPrepPlayerInformationPayloadBuilder builder_(_fbb);
+  builder_.add_room_id(room_id);
+  return builder_.Finish();
+}
+
+struct PartyPrepPayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PartyPrepPayloadTypeBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PARTYPREPTYPE = 4,
+    VT_PARTYPREPPAYLOAD_TYPE = 6,
+    VT_PARTYPREPPAYLOAD = 8
+  };
+  PartyPrepType partypreptype() const {
+    return static_cast<PartyPrepType>(GetField<int8_t>(VT_PARTYPREPTYPE, 0));
+  }
+  PartyPrepPayload partypreppayload_type() const {
+    return static_cast<PartyPrepPayload>(GetField<uint8_t>(VT_PARTYPREPPAYLOAD_TYPE, 0));
+  }
+  const void *partypreppayload() const {
+    return GetPointer<const void *>(VT_PARTYPREPPAYLOAD);
+  }
+  template<typename T> const T *partypreppayload_as() const;
+  const PartyPrepHostInformationPayload *partypreppayload_as_PartyPrepHostInformationPayload() const {
+    return partypreppayload_type() == PartyPrepPayload_PartyPrepHostInformationPayload ? static_cast<const PartyPrepHostInformationPayload *>(partypreppayload()) : nullptr;
+  }
+  const PartyPrepHostStartGamePayload *partypreppayload_as_PartyPrepHostStartGamePayload() const {
+    return partypreppayload_type() == PartyPrepPayload_PartyPrepHostStartGamePayload ? static_cast<const PartyPrepHostStartGamePayload *>(partypreppayload()) : nullptr;
+  }
+  const PartyPrepPlayerInformationPayload *partypreppayload_as_PartyPrepPlayerInformationPayload() const {
+    return partypreppayload_type() == PartyPrepPayload_PartyPrepPlayerInformationPayload ? static_cast<const PartyPrepPlayerInformationPayload *>(partypreppayload()) : nullptr;
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int8_t>(verifier, VT_PARTYPREPTYPE, 1) &&
+           VerifyField<uint8_t>(verifier, VT_PARTYPREPPAYLOAD_TYPE, 1) &&
+           VerifyOffset(verifier, VT_PARTYPREPPAYLOAD) &&
+           VerifyPartyPrepPayload(verifier, partypreppayload(), partypreppayload_type()) &&
+           verifier.EndTable();
+  }
+};
+
+template<> inline const PartyPrepHostInformationPayload *PartyPrepPayloadType::partypreppayload_as<PartyPrepHostInformationPayload>() const {
+  return partypreppayload_as_PartyPrepHostInformationPayload();
+}
+
+template<> inline const PartyPrepHostStartGamePayload *PartyPrepPayloadType::partypreppayload_as<PartyPrepHostStartGamePayload>() const {
+  return partypreppayload_as_PartyPrepHostStartGamePayload();
+}
+
+template<> inline const PartyPrepPlayerInformationPayload *PartyPrepPayloadType::partypreppayload_as<PartyPrepPlayerInformationPayload>() const {
+  return partypreppayload_as_PartyPrepPlayerInformationPayload();
+}
+
+struct PartyPrepPayloadTypeBuilder {
+  typedef PartyPrepPayloadType Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_partypreptype(PartyPrepType partypreptype) {
+    fbb_.AddElement<int8_t>(PartyPrepPayloadType::VT_PARTYPREPTYPE, static_cast<int8_t>(partypreptype), 0);
+  }
+  void add_partypreppayload_type(PartyPrepPayload partypreppayload_type) {
+    fbb_.AddElement<uint8_t>(PartyPrepPayloadType::VT_PARTYPREPPAYLOAD_TYPE, static_cast<uint8_t>(partypreppayload_type), 0);
+  }
+  void add_partypreppayload(::flatbuffers::Offset<void> partypreppayload) {
+    fbb_.AddOffset(PartyPrepPayloadType::VT_PARTYPREPPAYLOAD, partypreppayload);
+  }
+  explicit PartyPrepPayloadTypeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<PartyPrepPayloadType> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<PartyPrepPayloadType>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<PartyPrepPayloadType> CreatePartyPrepPayloadType(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    PartyPrepType partypreptype = PartyPrepType_PartyPrepHostInformation,
+    PartyPrepPayload partypreppayload_type = PartyPrepPayload_NONE,
+    ::flatbuffers::Offset<void> partypreppayload = 0) {
+  PartyPrepPayloadTypeBuilder builder_(_fbb);
+  builder_.add_partypreppayload(partypreppayload);
+  builder_.add_partypreppayload_type(partypreppayload_type);
+  builder_.add_partypreptype(partypreptype);
+  return builder_.Finish();
+}
+
 struct Message FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MessageBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -633,6 +1027,9 @@ struct Message FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const MiniGamePayloadType *payload_as_MiniGamePayloadType() const {
     return payload_type() == Payload_MiniGamePayloadType ? static_cast<const MiniGamePayloadType *>(payload()) : nullptr;
   }
+  const PartyPrepPayloadType *payload_as_PartyPrepPayloadType() const {
+    return payload_type() == Payload_PartyPrepPayloadType ? static_cast<const PartyPrepPayloadType *>(payload()) : nullptr;
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_TYPE, 1) &&
@@ -653,6 +1050,10 @@ template<> inline const JoinPayloadType *Message::payload_as<JoinPayloadType>() 
 
 template<> inline const MiniGamePayloadType *Message::payload_as<MiniGamePayloadType>() const {
   return payload_as_MiniGamePayloadType();
+}
+
+template<> inline const PartyPrepPayloadType *Message::payload_as<PartyPrepPayloadType>() const {
+  return payload_as_PartyPrepPayloadType();
 }
 
 struct MessageBuilder {
@@ -724,6 +1125,39 @@ inline bool VerifyGameStatePayloadVector(::flatbuffers::Verifier &verifier, cons
   return true;
 }
 
+inline bool VerifyPartyPrepPayload(::flatbuffers::Verifier &verifier, const void *obj, PartyPrepPayload type) {
+  switch (type) {
+    case PartyPrepPayload_NONE: {
+      return true;
+    }
+    case PartyPrepPayload_PartyPrepHostInformationPayload: {
+      auto ptr = reinterpret_cast<const PartyPrepHostInformationPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case PartyPrepPayload_PartyPrepHostStartGamePayload: {
+      auto ptr = reinterpret_cast<const PartyPrepHostStartGamePayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case PartyPrepPayload_PartyPrepPlayerInformationPayload: {
+      auto ptr = reinterpret_cast<const PartyPrepPlayerInformationPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    default: return true;
+  }
+}
+
+inline bool VerifyPartyPrepPayloadVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
+  if (!values || !types) return !values && !types;
+  if (values->size() != types->size()) return false;
+  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
+    if (!VerifyPartyPrepPayload(
+        verifier,  values->Get(i), types->GetEnum<PartyPrepPayload>(i))) {
+      return false;
+    }
+  }
+  return true;
+}
+
 inline bool VerifyPayload(::flatbuffers::Verifier &verifier, const void *obj, Payload type) {
   switch (type) {
     case Payload_NONE: {
@@ -739,6 +1173,10 @@ inline bool VerifyPayload(::flatbuffers::Verifier &verifier, const void *obj, Pa
     }
     case Payload_MiniGamePayloadType: {
       auto ptr = reinterpret_cast<const MiniGamePayloadType *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Payload_PartyPrepPayloadType: {
+      auto ptr = reinterpret_cast<const PartyPrepPayloadType *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;
