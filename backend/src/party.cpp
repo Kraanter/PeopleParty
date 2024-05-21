@@ -13,32 +13,15 @@ void Party::start_game() {
     game = new Game(this);
 }
 
-void Party::add_client(Client *client) { clients.push_back(client); }
-
-void Party::remove_client(Client *client) {
-  for (int i = 0; i < clients.size(); ++i) {
-    if (clients[i] == client) {
-      clients.erase(clients.begin() + i);
-      return;
-    }
-  }
-  std::cerr << "Tried to remove " << *client
-            << " but it was not found in party " << party_id << "\n";
-}
-
-void Party::promote_client(Client *client) {
-  if (std::find(clients.begin(), clients.end(), client) != clients.end()) {
-      host->isHost = false;
-      client->isHost = true;
-      host = client;
-  } else {
-    std::cerr << "Tried to promote " << *client << " but it was found in party "
-              << party_id << "\n";
-  }
+const std::vector<Client *> Party::get_clients() {
+    return client_repository.Find([&] (Client* client) {
+        return client->party->party_id == this->party_id;
+    });
 }
 
 const void Party::send_message(const std::function<bool(Client *)> &expression, const std::string &message) {
     std::vector<Client*> filtered_clients;
+    std::vector<Client*> clients = get_clients();
     int client_count = clients.size();
     for (int i = 0; i < client_count; i++) {
         if (expression(clients[i])) {
@@ -65,17 +48,17 @@ const void Party::send_gamestate(const std::function<bool(Client *)> &expression
     send_message(expression, payload_as_string);
 }
 
-std::ostream &operator<<(std::ostream &stream, const Party &party) {
+std::ostream &operator<<(std::ostream &stream, Party &party) {
   std::string game_name = "Nothing";
   stream << party.party_id << ", playing " << game_name << ", "
-         << party.clients.size() << " clients connected";
+         << party.get_clients().size() << " client_repository connected";
   return stream;
 }
 
 int generate_party_id() {
   const int random = rand();
   int id = (random % 9000) + 1000;
-  while (parties.contains(id)) {
+  while (party_repository.contains(id)) {
     id++;
     if (id > 9999) {
       id = 1000;

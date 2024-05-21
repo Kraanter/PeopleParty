@@ -15,7 +15,7 @@ CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : M
 void CrazyCounting_MiniGame::start() {
     std::cout << "CrazyCounting_MiniGame started" << std::endl;
 
-    for (Client* client : game->clients) {
+    for (Client* client : game->get_clients()) {
         players[client->client_id] = CrazyCounting_Player(client->client_id);
     }
 
@@ -45,7 +45,7 @@ void CrazyCounting_MiniGame::send_entities() {
 }
 
 void CrazyCounting_MiniGame::send_players_update() {
-    for (Client* client: game->clients) {
+    for (Client* client: game->get_clients()) {
         if (!client->isHost) {
             send_player_update(client->client_id);
         }

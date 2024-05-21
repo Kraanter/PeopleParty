@@ -40,8 +40,8 @@ public:
         miniGames.push(new CrazyCounting_MiniGame(10, this));
     }
     void process_input(const MiniGamePayloadType* payload, Client* from);
+    const std::vector<Client*> get_clients();
 public:
-    std::vector<Client*> clients;
     std::map<const Client*, int> scores;
     Party *party;
 private:

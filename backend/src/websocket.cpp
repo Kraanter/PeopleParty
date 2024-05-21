@@ -31,7 +31,7 @@ void process_message(WS *ws, std::string_view message) {
   switch (parsedMessage->type()) {
     case MessageType::MessageType_MiniGame: {
       auto gameStatePayload = parsedMessage->payload_as_MiniGamePayloadType();
-      parties[ws->getUserData()->party_id]->game->process_input(gameStatePayload, ws->getUserData()->client);
+      party_repository[ws->getUserData()->party_id]->game->process_input(gameStatePayload, ws->getUserData()->client);
       break;
     }
   }
@@ -58,16 +58,14 @@ void WebSocket::init() {
                  std::string client_name =
                      std::string(req->getParameter("name"));
 
-                 if (!parties.contains(party_id)) {
+                 if (!party_repository.contains(party_id)) {
                    res->writeStatus("400");
                    res->write("Invalid room code");
                    res->end();
                    return;
                  };
 
-                 Client *c = clients.CreateClient(client_name, parties[party_id]);
-
-                 parties[party_id]->add_client(c);
+                 Client *c = client_repository.CreateClient(client_name, party_repository[party_id]);
 
                  res->template upgrade<SocketData>(
                      {.client = c, .party_id = party_id},
@@ -86,7 +84,7 @@ void WebSocket::init() {
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
-                 clients.RemoveClient(ws->getUserData()->client->client_id);
+                 client_repository.RemoveClient(ws->getUserData()->client->client_id);
                }})
       .ws<SocketData>(
           "/host",
@@ -94,11 +92,10 @@ void WebSocket::init() {
            .open =
                [](auto *ws) {
                  std::cout << "connection started with host" << std::endl;
-                 Party *p = parties.CreateParty();
-                 Client *c = clients.CreateClient("HOST", p, ws);
+                 Party *p = party_repository.CreateParty();
+                 Client *c = client_repository.CreateClient("HOST", p, ws);
                  c->isHost = true;
                  p->host = c;
-                 p->add_client(c);
 
                  p->start_game();
 
@@ -116,7 +113,7 @@ void WebSocket::init() {
                 // wait for 5 seconds before removing the party
                 std::thread([ws]() {
                   std::this_thread::sleep_for(std::chrono::seconds(5));
-                    parties.RemoveParty(ws->getUserData()->party_id);
+                    party_repository.RemoveParty(ws->getUserData()->party_id);
                 }).detach();
                }})
       .listen(7899,
