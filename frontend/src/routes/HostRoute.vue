@@ -15,10 +15,6 @@ const host = () => {
 
 onMounted(() => {
   const unsubscribe = websocketStore.subscribe((roomId: string) => {
-    // if (typeof roomId === 'string') {
-    //     partyCode.value = roomId
-    //     console.log('Party code:', roomId)
-    // }
     partyCode.value = roomId
     console.log('Party code:', roomId)
   })

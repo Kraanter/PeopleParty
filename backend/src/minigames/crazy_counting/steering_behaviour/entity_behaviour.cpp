@@ -9,14 +9,14 @@ EntityBehaviour::EntityBehaviour(CrazyCounting_Entity* entity) {
 void EntityBehaviour::update(float time_delta) {
     Vector2D SteeringForce = wander_behaviour->Calculate();
 
-    Vector2D acceleration = SteeringForce / 1000;
+    Vector2D acceleration = SteeringForce / 10000;
     
     // something is going wrong on the next line
     entity->velocity += (acceleration * time_delta);
 
-    entity->velocity.Truncate(0.1f);
+    entity->velocity.Truncate(0.001f);
 
-    entity->position += entity->velocity * time_delta;
+    entity->position += (entity->velocity * time_delta);
 
     std::cout << "Velocity: " << entity->velocity.x << ", " << entity->velocity.y << " Position: " << entity->position.x << ", " << entity->position.y << std::endl;
 
