@@ -15,8 +15,8 @@ const baseUrl = `ws${window.location.protocol === 'https:' ? 's' : ''}:${window.
 export const useWebSocketStore = defineStore('websocket', () => {
   const websocket = ref<WebSocket | null>(null)
   const listeners = ref<Function[]>([])
-  const partyCode = ref<string | null>('1234')
-  const players = ref<{ name: string }[]>([{ name: 'Player 1' }, { name: 'Player 2' }])
+  const partyCode = ref<string | null>('')
+  const players = ref<{ name: string }[]>([])
   const isHost = computed(() => !!partyCode.value)
   const playerCount = computed(() => players.value.length)
 
