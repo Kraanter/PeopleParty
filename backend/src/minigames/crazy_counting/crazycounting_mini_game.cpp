@@ -6,8 +6,8 @@
 #include "../../utils.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : MiniGame(game) {
-    update_interval = 16 MILLISECONDS;
-    remaining_time = 30 SECONDS;
+    update_interval = 1000 MILLISECONDS;
+    remaining_time = 10 SECONDS;
     time_since_last_time_update = 0 MILLISECONDS;
     this->entity_count = entity_count;
 }
@@ -30,7 +30,7 @@ void CrazyCounting_MiniGame::send_entities() {
     flatbuffers::FlatBufferBuilder builder;
     std::vector<flatbuffers::Offset<FBCrazyCountingEntity>> entities_buffer;
     for (CrazyCounting_Entity entity: entities) {
-        entities_buffer.push_back(CreateFBCrazyCountingEntity(builder, entity.position.first, entity.position.second));
+        entities_buffer.push_back(CreateFBCrazyCountingEntity(builder, entity.position.x, entity.position.y));
     }
     auto entities_vector = builder.CreateVector(entities_buffer);
 
@@ -111,7 +111,7 @@ void CrazyCounting_MiniGame::update(int delta_time) {
         send_players_update();
     }
 
-    for (CrazyCounting_Entity entity: entities) {
+    for (CrazyCounting_Entity& entity: entities) {
         entity.update(delta_time);
     }
     send_entities();
