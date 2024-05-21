@@ -6,5 +6,6 @@
 
 inline PartyRepository parties;
 inline ClientRepository clients;
+inline uWS::Loop* server_loop;
 
 #endif  // GLOBALS_H

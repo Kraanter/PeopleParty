@@ -121,6 +121,7 @@ void WebSocket::init() {
                }})
       .listen(7899,
               [](auto *listen_socket) {
+                server_loop = uWS::Loop::get();
                 if (listen_socket) {
                   std::cout << "Listening on port " << 7899 << std::endl;
                 }

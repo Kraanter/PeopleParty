@@ -8,6 +8,7 @@
 #include <flatbuffers/flatbuffer_builder.h>
 #include "flatbuffer/messageClass_generated.h"
 #include "globals.h"
+#include <uWebSockets/WebSocket.h>
 
 void send_message(const std::function<bool(Client*)>& expression, const std::string& message) {
     std::vector<Client*> filtered_clients;
@@ -18,7 +19,9 @@ void send_message(const std::function<bool(Client*)>& expression, const std::str
         }
     }
     for (Client* client : filtered_clients) {
-        client->send(message);
+        server_loop->defer([client, message]() {
+            client->send(message);
+        });
     }
 }
 
