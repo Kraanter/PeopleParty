@@ -62,13 +62,13 @@ const emit = defineEmits(['click'])
           Start Game
         </n-button>
       </div>
-      <div class="h-full bg-white p-4">
+      <n-card class="h-full">
         <n-list>
           <n-list-item v-for="(player, i) in players" :key="i">
             <p>{{ player }}</p>
           </n-list-item>
         </n-list>
-      </div>
+      </n-card>
     </div>
   </div>
 </template>
