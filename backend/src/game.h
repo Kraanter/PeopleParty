@@ -20,7 +20,7 @@ class Client;
 
 class Game {
 public:
-    Game(const Party* party);
+    Game(Party* party);
     template <typename T>
     void nextGameState() {
         if (std::is_base_of<MiniGame, T>::value) {
@@ -43,8 +43,8 @@ public:
 public:
     std::vector<Client*> clients;
     std::map<const Client*, int> scores;
+    Party *party;
 private:
-    const Party* party;
     GameState* current_gamestate;
     std::queue<MiniGame*> miniGames;
 };

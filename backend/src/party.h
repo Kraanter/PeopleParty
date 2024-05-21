@@ -22,9 +22,9 @@ class Party {
   void add_client(Client *client);
   void remove_client(Client *client);
   void promote_client(Client *client);
-  void send(const uint8_t *payload, size_t size,
-            uWS::OpCode opcode = uWS::BINARY);
-  void send(const std::string, uWS::OpCode opcode = uWS::BINARY);
+  const void send_message(const std::function<bool(Client*)>& expression, const std::string& message);
+  const void
+  send_gamestate(const std::function<bool(Client*)>& expression, flatbuffers::FlatBufferBuilder& builder, flatbuffers::Offset<> gamestate = 0);
 };
 std::ostream &operator<<(std::ostream &stream, const Party &party);
 int generate_party_id();

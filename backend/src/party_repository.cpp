@@ -12,13 +12,16 @@ Party* PartyRepository::CreateParty() {
 
 void PartyRepository::RemoveParty(int party_id) {
   // remove every client in the party
+  std::cout << "removing party " << party_id << "\n";
   Party* p = &parties[party_id];
 
   for (int i = 0; i < p->clients.size(); i++) {
     clients.RemoveClient(p->clients[i]->client_id);
   }
 
-  // TODO: maybe erase host as well?
+  clients.RemoveClient(p->host->client_id);
+
+  std::cout << "clients after removal: " << clients.size() << "\n";
 
   parties.erase(party_id);
 }

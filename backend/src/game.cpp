@@ -4,7 +4,7 @@
 
 #include "game.h"
 
-Game::Game(const Party* party) {
+Game::Game(Party* party) {
     this->party = party;
 
     for (Client* client : party->clients) {
