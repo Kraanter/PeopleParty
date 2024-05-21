@@ -6,8 +6,8 @@
 #include "../../game.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(int entity_count, Game* game) : MiniGame(game) {
-    update_interval = 1000 MILLISECONDS;
-    remaining_time = 10 SECONDS;
+    update_interval = 16 MILLISECONDS;
+    remaining_time = 30 SECONDS;
     time_since_last_time_update = 0 MILLISECONDS;
     this->entity_count = entity_count;
 }

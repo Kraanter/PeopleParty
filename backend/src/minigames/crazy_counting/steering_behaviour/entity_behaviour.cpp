@@ -1,4 +1,5 @@
 #include "entity_behaviour.h"
+#include <iostream>
 
 EntityBehaviour::EntityBehaviour(CrazyCounting_Entity* entity) {
     this->entity = entity;
@@ -8,33 +9,36 @@ EntityBehaviour::EntityBehaviour(CrazyCounting_Entity* entity) {
 void EntityBehaviour::update(float time_delta) {
     Vector2D SteeringForce = wander_behaviour->Calculate();
 
-    Vector2D acceleration = SteeringForce.clone();
-    entity->velocity = entity->velocity + acceleration * time_delta;
+    Vector2D acceleration = SteeringForce / 1000;
+    
+    // something is going wrong on the next line
+    entity->velocity += (acceleration * time_delta);
 
-    entity->velocity = entity->velocity.truncate(1.0f);
+    entity->velocity.Truncate(0.1f);
 
-    entity->position = entity->position + entity->velocity * time_delta;
+    entity->position += entity->velocity * time_delta;
 
-    if (entity->position.lengthSquared() > 0.00000001)
+    std::cout << "Velocity: " << entity->velocity.x << ", " << entity->velocity.y << " Position: " << entity->position.x << ", " << entity->position.y << std::endl;
+
+    if (entity->velocity.Length() > 0.00000001)
     {
-        entity->heading = entity->velocity.normalize();
-    } else {
-        entity->velocity = Vector2D();
+        Vector2D new_heading = entity->velocity;
+        entity->heading = new_heading.Normalize();
     }
 
     // for now
     if (entity->position.x > 1.0f) {
-        entity->velocity.x = 1.0f;
+        entity->position.x = 1.0f;
     }
     if (entity->position.x < 0.0f) {
-        entity->velocity.x = 0.0f;
+        entity->position.x = 0.0f;
     
     }
     if (entity->position.y > 1.0f) {
-        entity->velocity.y = 1.0f;
+        entity->position.y = 1.0f;
     }
     if (entity->position.y < 0.0f) {
-        entity->velocity.y = 0.0f;
+        entity->position.y = 0.0f;
     
     }
 }

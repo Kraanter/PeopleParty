@@ -2,13 +2,13 @@
 #define WANDER_H
 #include "vector2d.h"
 
-class Vector2D;
-
 class Wander {
 public:
     Wander();
     Vector2D Calculate();
 private:
+    float randomClamped();
+private: 
     float wander_radius;
     float wander_distance;
     float wander_jitter;
