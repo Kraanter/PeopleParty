@@ -13,10 +13,15 @@ const size = ref(100)
 const props = defineProps<{
   width: number
   height: number
-  data: MiniGamePayloadType
+  data: PosData[]
 }>()
 
-const entities = ref<FBCrazyCountingEntity[]>([])
+interface PosData {
+  x: number
+  y: number
+}
+
+const entities = ref<PosData[]>([])
 
 const { width, height, data } = toRefs(props)
 
@@ -24,55 +29,45 @@ const appSize = computed(() => {
   return Math.min(width.value, height.value)
 })
 
-const interpolatePosition = (entity: FBCrazyCountingEntity) => {
+const interpolatePosition = (entity: FBCrazyCountingEntity, appSize: number): PosData => {
   return {
-    x: Math.abs(entity.xPos()) * (appSize.value - size.value),
-    y: Math.abs(entity.yPos()) * (appSize.value - size.value)
+    x: Math.abs(entity.xPos()) * (appSize - size.value),
+    y: Math.abs(entity.yPos()) * (appSize - size.value)
   }
 }
 
 const proccessData = (data: MiniGamePayloadType) => {
   if (!data) return
+  const size = appSize.value
   switch (data.gamestatetype()) {
     case GameStateType.CrazyCountingHostEntities: {
       const hostEntitiesPayload: CrazyCountingHostEntitiesPayload = data.gamestatepayload(
         new CrazyCountingHostEntitiesPayload()
       )
-      let localEntities: FBCrazyCountingEntity[] = []
+      let localEntities: PosData[] = []
       for (let i = 0; i < hostEntitiesPayload.entitiesLength(); i++) {
         const entity = hostEntitiesPayload.entities(i)
-        localEntities.push(entity!)
+        if (entity === null) continue
+        localEntities.push(interpolatePosition(entity, size))
       }
       entities.value = localEntities
     }
   }
 }
 
-watch(
-  data,
-  (newData) => {
-    proccessData(newData)
-  },
-  { immediate: true }
-)
+// watch(
+//   data,
+//   (newData) => {
+//     proccessData(newData)
+//   },
+//   { immediate: true }
+// )
 </script>
 <template>
-  <div class="w-full flex justify-center">
-    <Loader :resources="['/assets/games/crazyCounting/circle.svg']">
-      <template #fallback="{ progress }">
-        <text :x="120" :y="120" :anchor="0.5">
-          <!-- TODO: Add a nice loading screen -->
-          {{ `Loading... ${progress}` }}
-        </text>
-      </template>
-      <Application :width="appSize" :height="appSize" background-color="white">
-        <sprite
-          v-for="(entity, i) in entities"
-          :position="interpolatePosition(entity as FBCrazyCountingEntity)"
-          :key="i"
-          texture="/assets/games/crazyCounting/circle.svg"
-        />
-      </Application>
-    </Loader>
-  </div>
+  <sprite
+    v-for="(entity, i) in data"
+    :position="entity"
+    :key="i"
+    texture="/assets/games/crazyCounting/circle.svg"
+  />
 </template>

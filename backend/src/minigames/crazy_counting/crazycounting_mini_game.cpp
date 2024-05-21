@@ -111,7 +111,7 @@ void CrazyCounting_MiniGame::update(int delta_time) {
         send_players_update();
     }
 
-    for (CrazyCounting_Entity entity: entities) {
+    for (CrazyCounting_Entity& entity: entities) {
         entity.update(delta_time);
     }
     send_entities();
