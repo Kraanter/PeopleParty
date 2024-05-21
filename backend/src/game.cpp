@@ -10,10 +10,7 @@ Game::Game(Party* party) {
     // For now adds all minigames
     miniGames.push(new CrazyCounting_MiniGame(10, this));
 
-    // todo: initialize game on party preparation
-    //current_gamestate = new PartyPrep(this);
-    current_gamestate = new CrazyCounting_MiniGame(10, this);
-    ((MiniGame*)current_gamestate)->start();
+    current_gamestate = new PartyPrep(this);
 }
 
 void Game::process_input(const MiniGamePayloadType* payload, Client* from) {

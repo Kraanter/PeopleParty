@@ -2,6 +2,7 @@
 #include "../game.h"
 
 PartyPrep::PartyPrep(Game *game) : GameState(game) {
+    // todo: remove this because it should be after the host has started the game
     finished();
 }
 
