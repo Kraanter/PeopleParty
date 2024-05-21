@@ -16,11 +16,11 @@ button {
   box-shadow: 0.5rem 0.5rem 0 #000;
   transition:
     transform 0.1s ease-in-out,
-    box-shadow 0.1s ease-in-out;
+    box-shadow 0.1s ease-in-out !important;
 }
 
 button:active {
-  transform: translate(0.5rem, 0.5rem);
-  box-shadow: 0.1rem 0.1rem 0 #000;
+  transform: translate(0.5rem, 0.5rem) !important;
+  box-shadow: 0.1rem 0.1rem 0 #000 !important;
 }
 </style>
