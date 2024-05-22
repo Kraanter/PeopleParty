@@ -10,13 +10,13 @@ import {
   Payload
 } from '@/flatbuffers/messageClass'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import { computed, defineProps, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { buildMessage } from '../../util/flatbufferMessageBuilder'
 import * as flatbuffers from 'flatbuffers'
 import PartyButton from '../PartyButton.vue'
 import PeoplePartyLogo from '../PeoplePartyLogo.vue'
 
-const props = defineProps<{
+defineProps<{
   width: number
   height: number
 }>()
@@ -31,20 +31,9 @@ interface latest {
 
 const latestData = ref<latest>({
   int: 0,
-  timeLeft: 13000,
-  submitted: false
+  timeLeft: 0,
+  submitted: true
 })
-
-// TODO: Remove this instead use the data from the server
-onMounted(() => {
-  setInterval(() => {
-    if (latestData.value.timeLeft > 0) {
-      latestData.value.timeLeft -= 1000
-    }
-  }, 1000)
-})
-
-// const latestData = ref<CrazyCountingPlayerUpdatePayload>({} as CrazyCountingPlayerUpdatePayload)
 
 const isDisabled = computed(() => latestData.value.submitted || latestData.value.timeLeft <= 0)
 
@@ -59,7 +48,6 @@ const update = (data: MiniGamePayloadType) => {
         timeLeft: Number(newData.timeLeft()),
         submitted: newData.submitted()
       }
-      console.log(latestData.value)
     }
   }
 }
@@ -69,11 +57,6 @@ defineExpose({
 })
 
 const sendPlayerAction = (action: Input) => {
-  // TODO: Remove this and use the data from the server
-  latestData.value.submitted = action === Input.Submit
-  latestData.value.int =
-    latestData.value.int + (action === Input.Increase ? 1 : action === Input.Decrease ? -1 : 0)
-
   let builder = new flatbuffers.Builder()
 
   let playerInput = CrazyCountingPlayerInputPayload.createCrazyCountingPlayerInputPayload(
@@ -100,7 +83,7 @@ function formatMiliseconds(miliseconds: number) {
 }
 </script>
 <template>
-  <div v-if="latestData" class="w-full h-full grid grid-cols-1 grid-rows-5">
+  <div v-if="latestData" class="w-full h-full grid grid-cols-1 grid-rows-5 max-w-screen-md mx-auto">
     <div class="w-full h-full flex justify-center items-center row-span-3 bg-black">
       <div
         style="box-shadow: inset 0.3em 0.3em var(--color-primary)"
