@@ -8,13 +8,17 @@ import {
   Message,
   MiniGamePayloadType
 } from './../flatbuffers/messageClass'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const baseUrl = `ws${window.location.protocol === 'https:' ? 's' : ''}:${window.location.host}/confetti`
 
 export const useWebSocketStore = defineStore('websocket', () => {
   const websocket = ref<WebSocket | null>(null)
   const listeners = ref<Function[]>([])
+  const partyCode = ref<string | null>('')
+  const players = ref<{ name: string }[]>([])
+  const isHost = computed(() => !!partyCode.value)
+  const playerCount = computed(() => players.value.length)
 
   function host() {
     websocket.value = new WebSocket(baseUrl + '/host')
@@ -73,6 +77,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
     switch (receivedMessage.type()) {
       case MessageType.Host: {
         const hostPayload = receivedMessage.payload(new HostPayloadType())
+        partyCode.value = hostPayload.roomId().toString()
         listeners.value.forEach((listener) => listener(hostPayload.roomId()))
         break
       }
@@ -93,5 +98,5 @@ export const useWebSocketStore = defineStore('websocket', () => {
     }
   }
 
-  return { host, join, sendMessage, subscribe }
+  return { host, join, sendMessage, subscribe, partyCode, isHost, players, playerCount }
 })

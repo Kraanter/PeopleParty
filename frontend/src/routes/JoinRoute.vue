@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, watchEffect } from 'vue'
+import { computed, onMounted, watch, watchEffect } from 'vue'
 import { NCard, NInput, NButton, NResult, NH1, NCollapseTransition } from 'naive-ui'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import GameManager from '@/components/GameManager.vue'
+import { debounce } from '@/util/funcs'
+import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
 
 const websocketStore = useWebSocketStore()
 
@@ -41,10 +43,17 @@ onMounted(() => {
   return unsubscribe
 })
 
-const codeString = computed(() => code.value.join('') ?? '')
+const getCodeString = () => code.value?.join('') ?? ''
+
+const debounceCodeString = debounce(() => (codeString.value = getCodeString()), 50)
+
+watch(() => getCodeString(), debounceCodeString)
+
+const codeString = ref(getCodeString())
 const joinable = computed(
   () => codeString.value?.length === partyCodeLength && username.value.length > 3
 )
+
 const joining = computed(() => !!joinPromise.value)
 const hasError = computed(() => !!error.value)
 
@@ -88,12 +97,12 @@ const onChange = (index: number, value: string) => {
 }
 
 const keyDown = (index: number, event: KeyboardEvent) => {
-  event.preventDefault()
   if (event.key === 'Backspace') {
     if (code.value[index]) {
       code.value[index] = ''
     } else {
       if (index > 0) {
+        code.value[index - 1] = ''
         changeSelected(index - 1)
       }
     }
@@ -101,8 +110,8 @@ const keyDown = (index: number, event: KeyboardEvent) => {
     changeSelected(index - 1)
   } else if (event.key === 'ArrowRight') {
     changeSelected(index + 1)
-  } else if (event.key.length === 1) {
-    onChange(index, event.key)
+  } else if (event.key.length === 1 && onlyAllowNumber(event.key)) {
+    code.value[index] = ''
   }
 }
 
@@ -118,8 +127,11 @@ const join = () => {
 }
 </script>
 <template>
-  <div class="flex justify-center items-center">
-    <GameManager :is-host="false" v-if="joined" />
+  <div class="grid grid-rows-3 grid-cols-1 justify-center">
+    <div v-if="!joined" class="w-full h-full">
+      <PeoplePartyLogo />
+    </div>
+    <GameManager :is-host="false" v-if="joined" class="row-span-3" />
     <!-- TODO: Put this back the way it was -->
     <!-- <n-card class="max-w-md m-3" v-if="joined">
       <n-result
@@ -128,7 +140,7 @@ const join = () => {
         :description="`Succesfully joined party: ${codeString}!`"
       />
     </n-card> -->
-    <n-card class="max-w-md m-3" v-else>
+    <n-card class="max-w-md m-auto" v-else>
       <n-h1 class="mb-6 text-center">Join a Party!</n-h1>
 
       <div class="flex justify-between gap-4">
@@ -136,18 +148,19 @@ const join = () => {
           v-bind:key="i"
           v-for="i in partyCodeLength"
           placeholder=""
-          :allow-input="onlyAllowNumber"
           ref="inputElements"
           id="partyCode"
           size="large"
           :autofocus="i === 1"
           :disabled="joining"
-          class="text-center flex items-center !text-3xl font-extrabold aspect-square"
-          :theme-overrides="{ caretColor: 'transparent', color: 'transparent' }"
-          v-model:value="code[i - 1]"
+          class="text-center flex items-center !text-3xl font-extrabold aspect-square bg-slate-300"
+          :theme-overrides="{ caretColor: 'transparent' }"
+          :value="code[i - 1]"
+          pattern="\d*"
+          :allow-input="onlyAllowNumber"
+          @input="onChange(i - 1, $event.trim())"
           @keydown="keyDown(i - 1, $event)"
         />
-        <!-- @input="onChange(i - 1, $event)" -->
       </div>
 
       <!-- Name input -->
@@ -178,7 +191,7 @@ const join = () => {
     </n-card>
 
     <!-- Redirect link to /host -->
-    <router-link v-if="!(joining || joined)" to="/host" class="fixed bottom-8 mt-6 underline">
+    <router-link v-if="!(joining || joined)" to="/host" class="bottom-0 m-auto mb-10 underline">
       Host your own party!
     </router-link>
   </div>

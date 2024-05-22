@@ -2,7 +2,7 @@
 import {
   CrazyCountingPlayerInputPayload,
   GameStateType,
-  CrazyCountingPlayerUpdatePayload,
+  type CrazyCountingPlayerUpdatePayload,
   MiniGamePayloadType,
   Input,
   GameStatePayload
