@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Application } from 'vue3-pixi'
-import { ref, toRefs, defineProps, computed } from 'vue'
+import { ref, toRefs, defineProps, computed, watch } from 'vue'
 import {
   CrazyCountingHostEntitiesPayload,
   FBCrazyCountingEntity,
@@ -8,7 +8,7 @@ import {
   MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
 
-const size = ref(100)
+const size = computed(() => appSize.value / 10)
 
 const props = defineProps<{
   width: number
@@ -54,6 +54,10 @@ const update = (data: MiniGamePayloadType) => {
   return []
 }
 
+watch(size, () => {
+  console.log('Size changed', size.value)
+})
+
 defineExpose({
   update
 })
@@ -63,6 +67,8 @@ defineExpose({
     <sprite
       v-for="(entity, i) in gameState"
       :position="entity"
+      :width="size"
+      :height="size"
       :key="i"
       texture="/assets/games/crazyCounting/circle.svg"
     />
