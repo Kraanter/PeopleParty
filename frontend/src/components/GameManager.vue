@@ -110,14 +110,7 @@ watch(
       id="container"
       class="bg-black backdrop-blur-xl bg-opacity-50 shadow-lg rounded-md w-full h-[97dvh]"
     >
-      <component
-        v-if="width && height"
-        :is="gameViewComp"
-        ref="gameViewRef"
-        :data="gameData"
-        :height
-        :width
-      />
+      <component v-if="width && height" :is="gameViewComp" ref="gameViewRef" :height :width />
     </div>
   </div>
 </template>
