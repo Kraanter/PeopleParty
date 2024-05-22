@@ -49,6 +49,7 @@ public:
     }
     int getPartyId();
     void process_input(const MiniGamePayloadType* payload, Client* from);
+    void process_partyprep_input(const PartyPrepPayloadType* payload, Client* from);
     void clients_changed();
     const std::vector<Client*> get_clients();
 public:

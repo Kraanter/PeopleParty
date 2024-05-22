@@ -17,7 +17,7 @@ Client* ClientRepository::CreateClient(const std::string name,
 
 void ClientRepository::RemoveClient(int client_id) {
     Party* p = clients[client_id].party;
-    if (p->get_clients().size() > 1) {
+    if (p != nullptr && p->get_clients().size() > 1) {
         clients.erase(client_id);
         p->clients_changed();
         return;

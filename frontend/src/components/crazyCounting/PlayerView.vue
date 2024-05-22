@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import {
   CrazyCountingPlayerInputPayload,
-  GameStateType,
   type CrazyCountingPlayerUpdatePayload,
-  MiniGamePayloadType,
+  GameStatePayload,
+  GameStateType,
   Input,
-  GameStatePayload
+  MessageType,
+  MiniGamePayloadType,
+  Payload
 } from '@/flatbuffers/messageClass'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import { defineProps, ref, toRefs, watch } from 'vue'
+import { defineProps, ref } from 'vue'
 import { buildMessage } from '../../util/flatbufferMessageBuilder'
 import * as flatbuffers from 'flatbuffers'
 
@@ -64,7 +66,7 @@ const sendPlayerAction = (action: Input) => {
     playerInput
   )
 
-  websocketStore.sendMessage(buildMessage(builder, miniGamePayload))
+  websocketStore.sendMessage(buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType))
 }
 </script>
 <template>

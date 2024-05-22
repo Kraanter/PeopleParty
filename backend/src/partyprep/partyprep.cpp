@@ -15,6 +15,7 @@ void PartyPrep::process_partyprep_input(const PartyPrepPayloadType *payload, Cli
         case PartyPrepType_PartyPrepHostStartGame: {
             auto input = payload->partypreppayload_as_PartyPrepHostStartGamePayload();
             if (input->start_game()) {
+                std::cout << "Starting game" << std::endl;
                 finished();
             }
         }

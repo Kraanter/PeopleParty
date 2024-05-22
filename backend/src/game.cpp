@@ -32,3 +32,9 @@ void Game::clients_changed() {
         current_gamestate->clients_changed();
     }
 }
+
+void Game::process_partyprep_input(const PartyPrepPayloadType *payload, Client *from) {
+    if (current_gamestate != nullptr) {
+        current_gamestate->process_partyprep_input(payload, from);
+    }
+}

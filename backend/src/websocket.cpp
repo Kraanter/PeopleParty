@@ -34,6 +34,11 @@ void process_message(WS *ws, std::string_view message) {
       party_repository[ws->getUserData()->party_id]->game->process_input(gameStatePayload, ws->getUserData()->client);
       break;
     }
+      case MessageType::MessageType_PartyPrep: {
+        auto partyPrepPayload = parsedMessage->payload_as_PartyPrepPayloadType();
+        party_repository[ws->getUserData()->party_id]->game->process_partyprep_input(partyPrepPayload, ws->getUserData()->client);
+        break;
+      }
   }
 }
 

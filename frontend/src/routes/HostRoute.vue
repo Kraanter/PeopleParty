@@ -5,8 +5,17 @@ import PartyButton from '@/components/PartyButton.vue'
 import PartyPreperation from '@/components/partyManagment/PartyPreperation.vue'
 import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
 import { storeToRefs } from 'pinia'
-import { ref, onMounted } from 'vue'
-import PartyPauseCard from '@/components/partyManagment/PartyPauseCard.vue'
+import { onMounted, ref } from 'vue'
+import * as flatbuffers from 'flatbuffers'
+import { buildMessage } from '@/util/flatbufferMessageBuilder'
+import {
+  MessageType,
+  PartyPrepHostStartGamePayload,
+  PartyPrepPayload,
+  PartyPrepPayloadType,
+  PartyPrepType,
+  Payload
+} from '@/flatbuffers/messageClass'
 
 const isPlaying = ref(false)
 
@@ -27,6 +36,16 @@ onMounted(() => {
   return unsubscribe
 })
 
+const startGame = () => {
+  let builder = new flatbuffers.Builder()
+
+  let startMessage = PartyPrepHostStartGamePayload.createPartyPrepHostStartGamePayload(builder, true);
+  let payload = PartyPrepPayloadType.createPartyPrepPayloadType(builder, PartyPrepType.PartyPrepHostStartGame, PartyPrepPayload.PartyPrepHostStartGamePayload, startMessage);
+
+  websocketStore.sendMessage(buildMessage(builder, payload, MessageType.PartyPrep, Payload.PartyPrepPayloadType))
+  isPlaying.value = true;
+}
+
 const generateURL = () => `${window.location.origin}/join?code=${partyCode.value}`
 </script>
 <template>
@@ -37,7 +56,7 @@ const generateURL = () => `${window.location.origin}/join?code=${partyCode.value
 
     <GameManager v-if="isPlaying" is-host />
     <div v-else class="max-w-[95%] h-full m-auto">
-      <PartyPreperation @click="play" />
+      <PartyPreperation @click="startGame()" />
     </div>
   </div>
   <div v-else class="grid grid-rows-2 pt-12">

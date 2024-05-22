@@ -1,11 +1,11 @@
 import { Message, MessageType, Payload } from '@/flatbuffers/messageClass'
 import * as flatbuffers from 'flatbuffers'
 
-export const buildMessage = (builder: flatbuffers.Builder, miniGamePayload: number) => {
+export const buildMessage = (builder: flatbuffers.Builder, miniGamePayload: number, messageType: MessageType, payloadType: Payload) => {
   const message = Message.createMessage(
     builder,
-    MessageType.MiniGame,
-    Payload.MiniGamePayloadType,
+    messageType,
+    payloadType,
     miniGamePayload
   )
   builder.finish(message)
