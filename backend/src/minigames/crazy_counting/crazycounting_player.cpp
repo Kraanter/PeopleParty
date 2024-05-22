@@ -8,8 +8,9 @@
 CrazyCounting_Player::CrazyCounting_Player() : CrazyCounting_Player(-1, -1){
 }
 
-CrazyCounting_Player::CrazyCounting_Player(int client_id) {
+CrazyCounting_Player::CrazyCounting_Player(int client_id, int target) {
     this->client_id = client_id;
+    this->target = target;
     submitted = false;
 }
 

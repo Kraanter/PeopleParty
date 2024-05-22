@@ -17,10 +17,7 @@ CrazyCounting_Entity::CrazyCounting_Entity(float x, float y) {
 }
 
 void CrazyCounting_Entity::update(unsigned long delta_time) {
-    // todo: change this to use steering behaviours
     if (behaviour != nullptr) {
         behaviour->update(delta_time);
     }
-    //position.x = (float)std::rand() / RAND_MAX;
-    //position.y = (float)std::rand() / RAND_MAX;
 }
