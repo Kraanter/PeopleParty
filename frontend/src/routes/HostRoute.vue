@@ -27,7 +27,9 @@ onMounted(() => {
   return unsubscribe
 })
 
-const generateURL = () => `${window.location.origin}/join?code=${partyCode.value}`
+const play = () => {
+  // TODO: Start the game
+}
 </script>
 <template>
   <div v-if="isHost" class="w-full h-full">
@@ -46,7 +48,9 @@ const generateURL = () => `${window.location.origin}/join?code=${partyCode.value
     </div>
 
     <div class="flex flex-col h-full justify-between p-8 items-center">
-      <PartyButton type="primary" @click="host()">Host a party!</PartyButton>
+      <div>
+        <PartyButton class="py-8 px-12" @click="host()">Host a party!</PartyButton>
+      </div>
 
       <router-link to="/join" class="underline">Join a party!</router-link>
     </div>

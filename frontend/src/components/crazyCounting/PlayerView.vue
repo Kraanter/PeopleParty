@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import {
   CrazyCountingPlayerInputPayload,
+  CrazyCountingPlayerUpdatePayload,
   GameStateType,
-  type CrazyCountingPlayerUpdatePayload,
   MiniGamePayloadType,
   Input,
   GameStatePayload
 } from '@/flatbuffers/messageClass'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import { defineProps, ref, toRefs, watch } from 'vue'
+import { NCard } from 'naive-ui'
+import { computed, defineProps, onMounted, ref, toRefs, watch } from 'vue'
 import { buildMessage } from '../../util/flatbufferMessageBuilder'
 import * as flatbuffers from 'flatbuffers'
+import PartyButton from '../PartyButton.vue'
+import PeoplePartyLogo from '../PeoplePartyLogo.vue'
 
 const props = defineProps<{
   width: number
@@ -25,9 +28,24 @@ interface latest {
   submitted: boolean
 }
 
-const latestData = ref<latest>()
+const latestData = ref<latest>({
+  int: 0,
+  timeLeft: 13000,
+  submitted: false
+})
+
+// TODO: Remove this instead use the data from the server
+onMounted(() => {
+  setInterval(() => {
+    if (latestData.value.timeLeft > 0) {
+      latestData.value.timeLeft -= 1000
+    }
+  }, 1000)
+})
 
 // const latestData = ref<CrazyCountingPlayerUpdatePayload>({} as CrazyCountingPlayerUpdatePayload)
+
+const isDisabled = computed(() => latestData.value.submitted || latestData.value.timeLeft <= 0)
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -50,80 +68,111 @@ defineExpose({
 })
 
 const sendPlayerAction = (action: Input) => {
-  let builder = new flatbuffers.Builder()
+  // TODO: Remove this and use the data from the server
+  latestData.value.submitted = action === Input.Submit
+  latestData.value.int =
+    latestData.value.int + (action === Input.Increase ? 1 : action === Input.Decrease ? -1 : 0)
 
-  let playerInput = CrazyCountingPlayerInputPayload.createCrazyCountingPlayerInputPayload(
-    builder,
-    action
-  )
+  // let builder = new flatbuffers.Builder()
 
-  let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
-    builder,
-    GameStateType.CrazyCountingPlayerInput,
-    GameStatePayload.CrazyCountingPlayerInputPayload,
-    playerInput
-  )
+  // let playerInput = CrazyCountingPlayerInputPayload.createCrazyCountingPlayerInputPayload(
+  //   builder,
+  //   action
+  // )
 
-  websocketStore.sendMessage(buildMessage(builder, miniGamePayload))
+  // let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
+  //   builder,
+  //   GameStateType.CrazyCountingPlayerInput,
+  //   GameStatePayload.CrazyCountingPlayerInputPayload,
+  //   playerInput
+  // )
+
+  // websocketStore.sendMessage(buildMessage(builder, miniGamePayload))
+}
+
+function formatMiliseconds(miliseconds: number) {
+  const minutes = Math.floor(miliseconds / 60000)
+  const seconds = ((miliseconds % 60000) / 1000).toFixed(0)
+  return `${minutes}:${Number(seconds) < 10 ? '0' : ''}${seconds}`
 }
 </script>
 <template>
-  <div class="w-full h-full flex">
-    <div
-      class="grid grid-rows-4 text-center my-auto max-w-full h-full gap-y-12 max-h-[95dvh] w-full"
-    >
-      <div class="my-auto">
-        <span class="text-8xl font-bold">{{ latestData?.int }}</span>
-      </div>
-      <div class="grid grid-cols-2 row-span-2 w-full h-full rounded-3xl overflow-hidden">
-        <div
-          v-if="latestData?.timeLeft! <= 0 || latestData?.submitted"
-          class="bg-green-500 col-span-2 text-center my-auto text-white text-4xl font-bold grid p-4 rounded-lg"
-        >
-          <span>Submitted</span>
-        </div>
-        <button
-          v-else
-          class="active:bg-opacity-100 bg-opacity-50 bg-red-500 border-r-2 border-dashed"
-          @click="sendPlayerAction(Input.Decrease)"
-          :disabled="latestData?.int! <= 0 || latestData?.submitted"
-        >
-          <span class="text-8xl font-bold">-</span>
-        </button>
-        <button
-          v-if="latestData?.timeLeft! > 0 && !latestData?.submitted"
-          class="active:bg-opacity-100 bg-opacity-50 bg-green-500 border-l-2 border-dashed"
-          @click="sendPlayerAction(Input.Increase)"
-          :disabled="latestData?.submitted"
-        >
-          <span class="text-8xl font-bold">+</span>
-        </button>
-      </div>
-      <button
-        class="bg-red-400 active:bg-red-500 disabled:bg-slate-400 rounded-full text-white grid p-4"
-        @click="sendPlayerAction(Input.Submit)"
-        :disabled="latestData?.timeLeft! <= 0 || latestData?.submitted"
+  <div v-if="latestData" class="w-full h-full grid grid-cols-1 grid-rows-5">
+    <div class="w-full h-full flex justify-center items-center row-span-3 bg-black">
+      <div
+        style="box-shadow: inset 0.3em 0.3em var(--color-primary)"
+        class="bg-slate-100 p-8 rounded-2xl h-3/4 w-full m-16"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-full h-full"
+        <div class="flex flex-col items-center h-full justify-between">
+          <div class="text-4xl flex text-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6 mt-2 mr-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+              />
+            </svg>
+            {{ formatMiliseconds(latestData.timeLeft) }}
+          </div>
+          <div class="text-8xl">{{ latestData.int }}</div>
+          <div class="text-8xl">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-16 h-16"
+            >
+              <path
+                v-if="latestData.submitted"
+                fill-rule="evenodd"
+                d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z"
+                clip-rule="evenodd"
+              />
+
+              <path
+                v-else
+                d="M18 1.5c2.9 0 5.25 2.35 5.25 5.25v3.75a.75.75 0 0 1-1.5 0V6.75a3.75 3.75 0 1 0-7.5 0v3a3 3 0 0 1 3 3v6.75a3 3 0 0 1-3 3H3.75a3 3 0 0 1-3-3v-6.75a3 3 0 0 1 3-3h9v-3c0-2.9 2.35-5.25 5.25-5.25Z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="w-full h-full row-span-2 bg-secondary rounded-lg grid-cols-2 grid-rows-2 grid gap-4 p-8 pt-[20%]"
+    >
+      <div class="relative">
+        <PartyButton
+          :disabled="isDisabled"
+          @click="sendPlayerAction(Input.Submit)"
+          class="bg-sky-400 absolute h-2/3 w-full"
+          >Lock</PartyButton
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
-          />
-        </svg>
-        <span class="text-2xl font-bold" v-if="latestData?.timeLeft! <= 0 || latestData?.submitted"
-          >Anwser locked</span
+      </div>
+      <div class="relative">
+        <PartyButton
+          :disabled="isDisabled"
+          @click="sendPlayerAction(Input.Increase)"
+          class="rounded-full absolute right-0 h-3/4 w-2/3 aspect-square"
+          >+</PartyButton
         >
-        <span class="text-2xl font-bold" v-else>Press to lock in</span>
-        <span class="text-lg">{{ latestData?.timeLeft }} seconds left</span>
-      </button>
+      </div>
+      <PeoplePartyLogo />
+      <div class="relative">
+        <PartyButton
+          :disabled="isDisabled"
+          @click="sendPlayerAction(Input.Decrease)"
+          class="rounded-full -mt-8 w-1/2 aspect-square"
+          >-</PartyButton
+        >
+      </div>
     </div>
   </div>
 </template>
