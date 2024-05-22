@@ -2,10 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export enum MessageType {
-  Host = 0,
-  Join = 1,
-  Leaderboard = 2,
-  MiniGame = 3,
-  PartyPrep = 4
+export enum LeaderboardType {
+  LeaderboardInformation = 0,
+  LeaderboardHostSkip = 1
 }

@@ -23,6 +23,7 @@ class Party {
   const void
   send_gamestate(const std::function<bool(Client*)>& expression, flatbuffers::FlatBufferBuilder& builder, flatbuffers::Offset<> gamestate = 0);
   const void send_party_prep(const std::function<bool(Client*)>& expression, flatbuffers::FlatBufferBuilder& builder, flatbuffers::Offset<> partyprep_payload = 0);
+  const void send_leaderboard(const std::function<bool(Client*)>& expression, flatbuffers::FlatBufferBuilder& builder, flatbuffers::Offset<> leaderboard_payload = 0);
   const void clients_changed();
 };
 std::ostream &operator<<(std::ostream &stream, Party &party);

@@ -38,3 +38,9 @@ void Game::process_partyprep_input(const PartyPrepPayloadType *payload, Client *
         current_gamestate->process_partyprep_input(payload, from);
     }
 }
+
+void Game::process_leaderboard_input(const LeaderboardPayloadType *payload, Client *from) {
+    if (current_gamestate != nullptr) {
+        current_gamestate->process_leaderboard_input(payload, from);
+    }
+}

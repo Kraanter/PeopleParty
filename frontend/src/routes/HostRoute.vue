@@ -3,6 +3,7 @@ import { useWebSocketStore, ViewState } from '@/stores/confettiStore'
 import GameManager from '@/components/GameManager.vue'
 import PartyButton from '@/components/PartyButton.vue'
 import PartyPreperation from '@/components/partyManagment/PartyPreperation.vue'
+import Leaderboard from '@/components/leaderboard/Leaderboard.vue'
 import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
 import { storeToRefs } from 'pinia'
 import { onMounted, ref } from 'vue'
@@ -42,10 +43,17 @@ const startGame = () => {
     buildMessage(builder, payload, MessageType.PartyPrep, Payload.PartyPrepPayloadType)
   )
 }
+
+const skipLeaderboard = () => {
+  // todo: send message to skip leaderboard
+}
 </script>
 <template>
   <div v-if="viewState !== ViewState.None" class="w-full h-full">
     <GameManager id="gameManager" v-if="viewState === ViewState.MiniGame" is-host />
+    <div v-else-if="viewState === ViewState.Leaderboard" class="max-w-[95%] h-full m-auto">
+      <Leaderboard @click="skipLeaderboard()" />
+    </div>
     <div v-else class="max-w-[95%] h-full m-auto">
       <PartyPreperation id="partyPrep" @click="startGame()" />
     </div>

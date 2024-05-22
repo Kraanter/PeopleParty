@@ -4,6 +4,9 @@ import * as flatbuffers from 'flatbuffers'
 import {
   HostPayloadType,
   JoinPayloadType,
+  LeaderboardInformationPayload,
+  LeaderboardPayloadType,
+  LeaderboardType,
   Message,
   MessageType,
   MiniGamePayloadType,
@@ -19,11 +22,17 @@ const baseUrl = `ws${window.location.protocol === 'https:' ? 's' : ''}:${window.
 export enum ViewState {
   None,
   PartyPrep,
-  MiniGame
+  MiniGame,
+  Leaderboard
 }
 
 export type Player = {
   name: string
+}
+
+export type LeaderboardPlayer = {
+  name: string
+  score: number
 }
 
 export const useWebSocketStore = defineStore('websocket', () => {
@@ -31,6 +40,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const listeners = ref<Function[]>([])
   const partyCode = ref<string | null>('')
   const players = ref<Player[]>([])
+  const leaderboard = ref<LeaderboardPlayer[]>([])
   const route = useRoute()
   const isHosting = computed(() => route.name?.toString().toLowerCase() === 'host')
   const playerCount = computed(() => players.value.length)
@@ -129,6 +139,25 @@ export const useWebSocketStore = defineStore('websocket', () => {
         }
         break
       }
+      case MessageType.Leaderboard: {
+        viewState.value = ViewState.Leaderboard
+        const leaderboardPayload: LeaderboardPayloadType = receivedMessage.payload(new LeaderboardPayloadType())
+        switch (leaderboardPayload.leaderboardtype()) {
+          case LeaderboardType.LeaderboardInformation: {
+            const payload: LeaderboardInformationPayload = leaderboardPayload.leaderboardpayload(new LeaderboardInformationPayload())
+            const newEntries: LeaderboardPlayer[] = []
+            for (let i = 0; i < payload.leaderboardLength(); i++) {
+              newEntries.push({
+                name: decodeURI(payload.leaderboard(i)?.name() ?? ''),
+                score: Number(payload.leaderboard(i)?.score()) ?? 0
+              })
+            }
+            leaderboard.value = newEntries.filter((p) => p && !!p.name)
+            break
+          }
+        }
+        break
+      }
       default: {
         console.log('Received Unknown Message Type')
         break
@@ -144,6 +173,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
     partyCode,
     isHosting,
     players,
+    leaderboard,
     playerCount,
     viewState
   }
