@@ -28,7 +28,7 @@ static getSizePrefixedRootAsMiniGamePayloadType(bb:flatbuffers.ByteBuffer, obj?:
 
 gamestatetype():GameStateType {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt8(this.bb_pos + offset) : GameStateType.CrazyCountingHostEntities;
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : GameStateType.CrazyCountingPlayerUpdate;
 }
 
 gamestatepayloadType():GameStatePayload {
@@ -46,7 +46,7 @@ static startMiniGamePayloadType(builder:flatbuffers.Builder) {
 }
 
 static addGamestatetype(builder:flatbuffers.Builder, gamestatetype:GameStateType) {
-  builder.addFieldInt8(0, gamestatetype, GameStateType.CrazyCountingHostEntities);
+  builder.addFieldInt8(0, gamestatetype, GameStateType.CrazyCountingPlayerUpdate);
 }
 
 static addGamestatepayloadType(builder:flatbuffers.Builder, gamestatepayloadType:GameStatePayload) {

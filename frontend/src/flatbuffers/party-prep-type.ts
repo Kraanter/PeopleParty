@@ -2,8 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export enum GameStateType {
-  CrazyCountingPlayerUpdate = 0,
-  CrazyCountingHostEntities = 1,
-  CrazyCountingPlayerInput = 2
+export enum PartyPrepType {
+  PartyPrepHostInformation = 0,
+  PartyPrepHostStartGame = 1,
+  PartyPrepPlayerInformation = 2
 }

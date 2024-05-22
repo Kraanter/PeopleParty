@@ -9,6 +9,7 @@ CrazyCounting_Player::CrazyCounting_Player() : CrazyCounting_Player(-1){
 
 CrazyCounting_Player::CrazyCounting_Player(int client_id) {
     this->client_id = client_id;
+    submitted = false;
 }
 
 int CrazyCounting_Player::increment_count() {

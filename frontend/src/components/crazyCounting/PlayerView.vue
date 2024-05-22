@@ -22,6 +22,7 @@ const websocketStore = useWebSocketStore()
 interface latest {
   int: number
   timeLeft: number
+  submitted: boolean
 }
 
 const latestData = ref<latest>()
@@ -34,8 +35,10 @@ const update = (data: MiniGamePayloadType) => {
       const newData: CrazyCountingPlayerUpdatePayload = data.gamestatepayload(new CrazyCountingPlayerUpdatePayload())
       latestData.value = {
         int: newData.newInt(),
-        timeLeft: Number(newData.timeLeft())
+        timeLeft: Number(newData.timeLeft()),
+        submitted: newData.submitted()
       }
+      console.log(latestData.value);
     }
   }
 }
@@ -64,13 +67,13 @@ const sendPlayerAction = (action: Input) => {
 </script>
 <template>
   <div class="w-full h-full flex">
-    <div class="grid grid-rows-4 text-center my-auto max-w-full h-full gap-y-12 max-h-[75%] w-full">
+    <div class="grid grid-rows-4 text-center my-auto max-w-full h-full gap-y-12 max-h-[95dvh] w-full">
       <div class="my-auto">
         <span class="text-8xl font-bold">{{ latestData?.int }}</span>
       </div>
       <div class="grid grid-cols-2 row-span-2 w-full h-full rounded-3xl overflow-hidden">
         <div
-          v-if="latestData?.timeLeft! <= 0"
+          v-if="latestData?.timeLeft! <= 0 || latestData?.submitted"
           class="bg-green-500 col-span-2 text-center my-auto text-white text-4xl font-bold grid p-4 rounded-lg"
         >
           <span>Submitted</span>
@@ -79,14 +82,15 @@ const sendPlayerAction = (action: Input) => {
           v-else
           class="active:bg-opacity-100 bg-opacity-50 bg-red-500 border-r-2 border-dashed"
           @click="sendPlayerAction(Input.Decrease)"
-          :disabled="latestData?.int! <= 0"
+          :disabled="latestData?.int! <= 0 || latestData?.submitted"
         >
           <span class="text-8xl font-bold">-</span>
         </button>
         <button
-          v-if="latestData?.timeLeft! > 0"
+          v-if="latestData?.timeLeft! > 0 && !latestData?.submitted"
           class="active:bg-opacity-100 bg-opacity-50 bg-green-500 border-l-2 border-dashed"
           @click="sendPlayerAction(Input.Increase)"
+          :disabled="latestData?.submitted"
         >
           <span class="text-8xl font-bold">+</span>
         </button>
@@ -94,7 +98,7 @@ const sendPlayerAction = (action: Input) => {
       <button
         class="bg-red-400 active:bg-red-500 disabled:bg-slate-400 rounded-full text-white grid p-4"
         @click="sendPlayerAction(Input.Submit)"
-        :disabled="latestData?.int! <= 0"
+        :disabled="latestData?.timeLeft! <= 0 || latestData?.submitted"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -110,7 +114,7 @@ const sendPlayerAction = (action: Input) => {
             d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
           />
         </svg>
-        <span class="text-2xl font-bold" v-if="latestData?.int! <= 0">Anwser locked</span>
+        <span class="text-2xl font-bold" v-if="latestData?.timeLeft! <= 0 || latestData?.submitted">Anwser locked</span>
         <span class="text-2xl font-bold" v-else>Press to lock in</span>
         <span class="text-lg">{{ latestData?.timeLeft }} seconds left</span>
       </button>

@@ -9,9 +9,9 @@ import { CrazyCountingPlayerUpdatePayload } from './crazy-counting-player-update
 
 export enum GameStatePayload {
   NONE = 0,
-  CrazyCountingHostEntitiesPayload = 1,
-  CrazyCountingPlayerInputPayload = 2,
-  CrazyCountingPlayerUpdatePayload = 3
+  CrazyCountingPlayerUpdatePayload = 1,
+  CrazyCountingHostEntitiesPayload = 2,
+  CrazyCountingPlayerInputPayload = 3
 }
 
 export function unionToGameStatePayload(
@@ -20,9 +20,9 @@ export function unionToGameStatePayload(
 ): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
+    case 'CrazyCountingPlayerUpdatePayload': return accessor(new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     case 'CrazyCountingHostEntitiesPayload': return accessor(new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
     case 'CrazyCountingPlayerInputPayload': return accessor(new CrazyCountingPlayerInputPayload())! as CrazyCountingPlayerInputPayload;
-    case 'CrazyCountingPlayerUpdatePayload': return accessor(new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     default: return null;
   }
 }
@@ -34,9 +34,9 @@ export function unionListToGameStatePayload(
 ): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
+    case 'CrazyCountingPlayerUpdatePayload': return accessor(index, new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     case 'CrazyCountingHostEntitiesPayload': return accessor(index, new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
     case 'CrazyCountingPlayerInputPayload': return accessor(index, new CrazyCountingPlayerInputPayload())! as CrazyCountingPlayerInputPayload;
-    case 'CrazyCountingPlayerUpdatePayload': return accessor(index, new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     default: return null;
   }
 }

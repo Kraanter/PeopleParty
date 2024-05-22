@@ -55,7 +55,7 @@ void CrazyCounting_MiniGame::send_players_update() {
 void CrazyCounting_MiniGame::send_player_update(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
-    auto payload = CreateCrazyCountingPlayerUpdatePayload(builder, players[client_id].get_count(), remaining_time);
+    auto payload = CreateCrazyCountingPlayerUpdatePayload(builder, players[client_id].get_count(), remaining_time, players[client_id].submitted);
     
     auto gameStatePayload = CreateMiniGamePayloadType(builder, GameStateType_CrazyCountingPlayerUpdate,
                                                       GameStatePayload_CrazyCountingPlayerInputPayload, payload.Union());
