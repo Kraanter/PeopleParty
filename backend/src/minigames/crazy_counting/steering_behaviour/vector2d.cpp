@@ -55,30 +55,30 @@ const Vector2D &Vector2D::Truncate(float max) {
 }
 
 
-const Vector2D &Vector2D::operator+(const Vector2D &rhs) {
+const Vector2D Vector2D::operator+(const Vector2D &rhs) {
     return Vector2D(x + rhs.x, y + rhs.y);
 }
 
-const Vector2D &Vector2D::operator-(const Vector2D &rhs) {
+const Vector2D Vector2D::operator-(const Vector2D &rhs) {
     return Vector2D(x - rhs.x, y - rhs.y);
 }
 
-const Vector2D &Vector2D::operator*(const float &rhs) {
+const Vector2D Vector2D::operator*(const float &rhs) {
     return Vector2D(x * rhs, y * rhs);
 }
 
-const Vector2D &Vector2D::operator/(const float &rhs) {
+const Vector2D Vector2D::operator/(const float &rhs) {
     return Vector2D(x / rhs, y / rhs);
 }
 
-const Vector2D &Vector2D::operator+=(const Vector2D &rhs) {
+const Vector2D& Vector2D::operator+=(const Vector2D &rhs) {
     x += rhs.x;
     y += rhs.y;
 
     return *this;
 }
 
-const Vector2D &Vector2D::operator-=(const Vector2D &rhs) {
+const Vector2D& Vector2D::operator-=(const Vector2D &rhs) {
     x -= rhs.x;
     y -= rhs.y;
 

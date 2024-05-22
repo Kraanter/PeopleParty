@@ -14,10 +14,10 @@ struct Vector2D
     inline float DistanceSq(const Vector2D &v2)const;
     const Vector2D& Normalize();
     const Vector2D& Truncate(float max);
-    const Vector2D& operator+(const Vector2D &rhs);
-    const Vector2D& operator-(const Vector2D &rhs);
-    const Vector2D& operator*(const float &rhs);
-    const Vector2D& operator/(const float &rhs);
+    const Vector2D operator+(const Vector2D &rhs);
+    const Vector2D operator-(const Vector2D &rhs);
+    const Vector2D operator*(const float &rhs);
+    const Vector2D operator/(const float &rhs);
     const Vector2D& operator+=(const Vector2D &rhs);
     const Vector2D& operator-=(const Vector2D &rhs);
     const Vector2D& operator*=(const float& rhs);
