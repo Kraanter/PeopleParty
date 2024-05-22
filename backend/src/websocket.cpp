@@ -19,6 +19,29 @@ void send_join_message(WS *ws) {
   ws->getUserData()->client->send(output);
 }
 
+void process_message(WS *ws, std::string_view message) {
+  const uint8_t *buffer = reinterpret_cast<const uint8_t *>(message.data());
+  auto parsedMessage = GetMessage(buffer);
+
+  // if (!VerifyMessageBuffer(flatbuffers::Verifier(buffer, message.size()))) {
+  //   std::cout << "Message verification failed" << std::endl;
+  //   return;
+  // }
+
+  switch (parsedMessage->type()) {
+    case MessageType::MessageType_MiniGame: {
+      auto gameStatePayload = parsedMessage->payload_as_MiniGamePayloadType();
+      party_repository[ws->getUserData()->party_id]->game->process_input(gameStatePayload, ws->getUserData()->client);
+      break;
+    }
+      case MessageType::MessageType_PartyPrep: {
+        auto partyPrepPayload = parsedMessage->payload_as_PartyPrepPayloadType();
+        party_repository[ws->getUserData()->party_id]->game->process_partyprep_input(partyPrepPayload, ws->getUserData()->client);
+        break;
+      }
+  }
+}
+
 void WebSocket::init() {
   uWS::SSLApp()
       // Catch all route
@@ -40,16 +63,14 @@ void WebSocket::init() {
                  std::string client_name =
                      std::string(req->getParameter("name"));
 
-                 if (!parties.contains(party_id)) {
+                 if (!party_repository.contains(party_id)) {
                    res->writeStatus("400");
                    res->write("Invalid room code");
                    res->end();
                    return;
                  };
 
-                 Client *c = clients.CreateClient(client_name, parties[party_id]);
-
-                 parties[party_id]->add_client(c);
+                 Client *c = client_repository.CreateClient(client_name, party_repository[party_id]);
 
                  res->template upgrade<SocketData>(
                      {.client = c, .party_id = party_id},
@@ -64,11 +85,11 @@ void WebSocket::init() {
                },
            .message =
                [](auto *ws, std::string_view message, uWS::OpCode opCode) {
-                 //  process_message(ws, message, opCode);
+                 process_message(ws, message);
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
-                 clients.RemoveClient(ws->getUserData()->client->client_id);
+                 client_repository.RemoveClient(ws->getUserData()->client->client_id);
                }})
       .ws<SocketData>(
           "/host",
@@ -76,29 +97,32 @@ void WebSocket::init() {
            .open =
                [](auto *ws) {
                  std::cout << "connection started with host" << std::endl;
-                 Party *p = parties.CreateParty();
-                 Client *c = clients.CreateClient("HOST", p, ws);
+                 Party *p = party_repository.CreateParty();
+                 Client *c = client_repository.CreateClient("HOST", p, ws);
+                 c->isHost = true;
                  p->host = c;
 
                  ws->getUserData()->client = c;
                  ws->getUserData()->party_id = p->party_id;
 
                  send_host_message(ws);
+                 p->start_game();
                },
            .message =
                [](auto *ws, std::string_view message, uWS::OpCode opCode) {
-                 // process_message(ws, message, opCode);
+                 process_message(ws, message);
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
                 // wait for 5 seconds before removing the party
                 std::thread([ws]() {
                   std::this_thread::sleep_for(std::chrono::seconds(5));
-                    parties.RemoveParty(ws->getUserData()->party_id);
+                    party_repository.RemoveParty(ws->getUserData()->party_id);
                 }).detach();
                }})
       .listen(7899,
               [](auto *listen_socket) {
+                server_loop = uWS::Loop::get();
                 if (listen_socket) {
                   std::cout << "Listening on port " << 7899 << std::endl;
                 }

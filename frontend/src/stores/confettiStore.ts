@@ -2,18 +2,39 @@ import { defineStore } from 'pinia'
 
 import * as flatbuffers from 'flatbuffers'
 import {
-  MessageType,
   HostPayloadType,
   JoinPayloadType,
-  Message
+  Message,
+  MessageType,
+  MiniGamePayloadType,
+  PartyPrepHostInformationPayload,
+  PartyPrepPayloadType,
+  PartyPrepType
 } from './../flatbuffers/messageClass'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 const baseUrl = `ws${window.location.protocol === 'https:' ? 's' : ''}:${window.location.host}/confetti`
+
+export enum ViewState {
+  None,
+  PartyPrep,
+  MiniGame
+}
+
+export type Player = {
+  name: string
+}
 
 export const useWebSocketStore = defineStore('websocket', () => {
   const websocket = ref<WebSocket | null>(null)
   const listeners = ref<Function[]>([])
+  const partyCode = ref<string | null>('')
+  const players = ref<Player[]>([])
+  const route = useRoute()
+  const isHosting = computed(() => route.name?.toString().toLowerCase() === 'host')
+  const playerCount = computed(() => players.value.length)
+  const viewState = ref<ViewState>(ViewState.None)
 
   function host() {
     websocket.value = new WebSocket(baseUrl + '/host')
@@ -27,9 +48,8 @@ export const useWebSocketStore = defineStore('websocket', () => {
     setUpListeners()
   }
 
-  function sendMessage(message: string) {
+  function sendMessage(message: Uint8Array) {
     if (websocket.value) {
-      // TODO: flatbuffer stuff, not needed yet because no messages will be sent yet.
       websocket.value.send(message)
     } else {
       console.error('WebSocket is not initialized.')
@@ -72,13 +92,41 @@ export const useWebSocketStore = defineStore('websocket', () => {
 
     switch (receivedMessage.type()) {
       case MessageType.Host: {
+        viewState.value = ViewState.PartyPrep
         const hostPayload = receivedMessage.payload(new HostPayloadType())
-        listeners.value.forEach((listener) => listener(hostPayload.roomId()))
+        partyCode.value = hostPayload.roomId().toString()
         break
       }
       case MessageType.Join: {
+        viewState.value = ViewState.PartyPrep
         const joinPayload = receivedMessage.payload(new JoinPayloadType())
         listeners.value.forEach((listener) => listener(joinPayload.success()))
+        break
+      }
+      case MessageType.MiniGame: {
+        viewState.value = ViewState.MiniGame
+        const miniGamePayload = receivedMessage.payload(new MiniGamePayloadType())
+        listeners.value.forEach((listener) => listener(miniGamePayload))
+        break
+      }
+      case MessageType.PartyPrep: {
+        viewState.value = ViewState.PartyPrep
+        const partyPrepPayload: PartyPrepPayloadType = receivedMessage.payload(
+          new PartyPrepPayloadType()
+        )
+        switch (partyPrepPayload.partypreptype()) {
+          case PartyPrepType.PartyPrepHostInformation: {
+            const payload: PartyPrepHostInformationPayload = partyPrepPayload.partypreppayload(
+              new PartyPrepHostInformationPayload()
+            )
+            const names = []
+            for (let i = 0; i < payload.playersLength(); i++) {
+              names.push({ name: decodeURI(payload.players(i)?.name() ?? '') })
+            }
+            players.value = names.filter((p) => p && !!p.name)
+            break
+          }
+        }
         break
       }
       default: {
@@ -88,5 +136,15 @@ export const useWebSocketStore = defineStore('websocket', () => {
     }
   }
 
-  return { host, join, sendMessage, subscribe }
+  return {
+    host,
+    join,
+    sendMessage,
+    subscribe,
+    partyCode,
+    isHosting,
+    players,
+    playerCount,
+    viewState
+  }
 })

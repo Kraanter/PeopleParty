@@ -5,20 +5,21 @@
 PartyRepository::PartyRepository() {}
 
 Party* PartyRepository::CreateParty() {
-  Party p;
-  parties[p.party_id] = p;
-  return &parties[p.party_id];
+  Party* p = new Party();
+  parties[p->party_id] = *p;
+  return &parties[p->party_id];
 }
 
 void PartyRepository::RemoveParty(int party_id) {
   // remove every client in the party
   Party* p = &parties[party_id];
 
-  for (int i = 0; i < p->clients.size(); i++) {
-    clients.RemoveClient(p->clients[i]->client_id);
+  std::vector<Client*> clients = p->get_clients();
+  for (int i = 0; i < clients.size(); i++) {
+    client_repository.RemoveClient(clients[i]->client_id);
   }
 
-  // TODO: maybe erase host as well?
+  client_repository.RemoveClient(p->host->client_id);
 
   parties.erase(party_id);
 }
