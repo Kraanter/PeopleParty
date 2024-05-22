@@ -26,7 +26,7 @@ const play = () => (isPlaying.value = true)
     <!-- </div> -->
 
     <GameManager v-if="isPlaying" is-host />
-    <div v-else class="max-w-[95%] h-full py-12 m-auto">
+    <div v-else class="max-w-[95%] h-full m-auto">
       <PartyPreperation @click="play" />
     </div>
   </div>
