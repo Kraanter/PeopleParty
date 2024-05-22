@@ -81,10 +81,16 @@ const sendPlayerAction = (action: Input) => {
     action
   )
 
-  let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(builder, GameStateType.CrazyCountingPlayerInput, GameStatePayload.CrazyCountingPlayerInputPayload, playerInput)
-  
-  websocketStore.sendMessage(buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType))
+  let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
+    builder,
+    GameStateType.CrazyCountingPlayerInput,
+    GameStatePayload.CrazyCountingPlayerInputPayload,
+    playerInput
+  )
 
+  websocketStore.sendMessage(
+    buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType)
+  )
 }
 
 function formatMiliseconds(miliseconds: number) {

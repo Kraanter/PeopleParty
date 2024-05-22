@@ -51,7 +51,7 @@ const emit = defineEmits(['click'])
       <n-card class="h-full col-span-2">
         <n-list>
           <n-list-item v-for="(player, i) in players" :key="i">
-            <p>{{ player }}</p>
+            <p>{{ player.name }}</p>
           </n-list-item>
         </n-list>
       </n-card>

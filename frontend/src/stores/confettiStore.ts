@@ -8,21 +8,33 @@ import {
   MessageType,
   MiniGamePayloadType,
   PartyPrepHostInformationPayload,
-  PartyPrepPayload,
   PartyPrepPayloadType,
   PartyPrepType
 } from './../flatbuffers/messageClass'
 import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 const baseUrl = `ws${window.location.protocol === 'https:' ? 's' : ''}:${window.location.host}/confetti`
+
+export enum ViewState {
+  None,
+  PartyPrep,
+  MiniGame
+}
+
+export type Player = {
+  name: string
+}
 
 export const useWebSocketStore = defineStore('websocket', () => {
   const websocket = ref<WebSocket | null>(null)
   const listeners = ref<Function[]>([])
   const partyCode = ref<string | null>('')
-  const players = ref<{ name: string }[]>([])
-  const isHost = computed(() => !!partyCode.value)
+  const players = ref<Player[]>([])
+  const route = useRoute()
+  const isHosting = computed(() => route.name?.toString().toLowerCase() === 'host')
   const playerCount = computed(() => players.value.length)
+  const viewState = ref<ViewState>(ViewState.None)
 
   function host() {
     websocket.value = new WebSocket(baseUrl + '/host')
@@ -80,23 +92,25 @@ export const useWebSocketStore = defineStore('websocket', () => {
 
     switch (receivedMessage.type()) {
       case MessageType.Host: {
+        viewState.value = ViewState.PartyPrep
         const hostPayload = receivedMessage.payload(new HostPayloadType())
         partyCode.value = hostPayload.roomId().toString()
-        listeners.value.forEach((listener) => listener(hostPayload.roomId()))
         break
       }
       case MessageType.Join: {
+        viewState.value = ViewState.PartyPrep
         const joinPayload = receivedMessage.payload(new JoinPayloadType())
         listeners.value.forEach((listener) => listener(joinPayload.success()))
         break
       }
       case MessageType.MiniGame: {
+        viewState.value = ViewState.MiniGame
         const miniGamePayload = receivedMessage.payload(new MiniGamePayloadType())
         listeners.value.forEach((listener) => listener(miniGamePayload))
         break
       }
       case MessageType.PartyPrep: {
-        console.log('party prep message')
+        viewState.value = ViewState.PartyPrep
         const partyPrepPayload: PartyPrepPayloadType = receivedMessage.payload(
           new PartyPrepPayloadType()
         )
@@ -107,9 +121,9 @@ export const useWebSocketStore = defineStore('websocket', () => {
             )
             const names = []
             for (let i = 0; i < payload.playersLength(); i++) {
-              names.push(payload.players(i)?.name())
+              names.push({ name: payload.players(i)?.name() ?? '' })
             }
-            players.value = names
+            players.value = names.filter((p) => p && !!p.name)
             break
           }
         }
@@ -122,5 +136,15 @@ export const useWebSocketStore = defineStore('websocket', () => {
     }
   }
 
-  return { host, join, sendMessage, subscribe, partyCode, isHost, players, playerCount }
+  return {
+    host,
+    join,
+    sendMessage,
+    subscribe,
+    partyCode,
+    isHosting,
+    players,
+    playerCount,
+    viewState
+  }
 })

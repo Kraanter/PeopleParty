@@ -3,12 +3,14 @@ import { computed, onMounted, watch, watchEffect } from 'vue'
 import { NCard, NInput, NButton, NResult, NH1, NCollapseTransition } from 'naive-ui'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useWebSocketStore } from '@/stores/confettiStore'
+import { useWebSocketStore, ViewState } from '@/stores/confettiStore'
 import GameManager from '@/components/GameManager.vue'
 import { debounce } from '@/util/funcs'
 import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
+import { storeToRefs } from 'pinia'
 
 const websocketStore = useWebSocketStore()
+const { partyCode, viewState } = storeToRefs(websocketStore)
 
 const onlyAllowNumber = (value: string) => !value || /^\d+$/.test(value)
 
@@ -29,7 +31,9 @@ onMounted(() => {
   }
 
   const unsubscribe = websocketStore.subscribe((success: boolean) => {
+    console.log('Joining party success: ', success)
     if (success) {
+      partyCode.value = codeString.value
       joinPromise.value = undefined
       joined.value = true
       error.value = ''
@@ -128,71 +132,77 @@ const join = () => {
 </script>
 <template>
   <div class="grid grid-rows-3 grid-cols-1 justify-center">
-    <div v-if="!joined" class="w-full h-full">
-      <PeoplePartyLogo />
-    </div>
-    <GameManager :is-host="false" v-if="joined" class="row-span-3" />
-    <!-- TODO: Put this back the way it was -->
-    <!-- <n-card class="max-w-md m-3" v-if="joined">
+    <!-- ViewState === MiniGame -->
+    <GameManager :is-host="false" v-if="viewState === ViewState.MiniGame" class="row-span-3" />
+
+    <!-- Joined message -->
+    <n-card class="max-w-md m-auto row-start-2" v-if="joined && viewState !== ViewState.MiniGame">
       <n-result
         status="success"
         title="Joined"
-        :description="`Succesfully joined party: ${codeString}!`"
+        :description="`Succesfully joined party: ${partyCode}!`"
       />
-    </n-card> -->
-    <n-card class="max-w-md m-auto" v-else>
-      <n-h1 class="mb-6 text-center">Join a Party!</n-h1>
-
-      <div class="flex justify-between gap-4">
-        <n-input
-          v-bind:key="i"
-          v-for="i in partyCodeLength"
-          placeholder=""
-          ref="inputElements"
-          id="partyCode"
-          size="large"
-          :autofocus="i === 1"
-          :disabled="joining"
-          class="text-center flex items-center !text-3xl font-extrabold aspect-square bg-slate-300"
-          :theme-overrides="{ caretColor: 'transparent' }"
-          :value="code[i - 1]"
-          pattern="\d*"
-          :allow-input="onlyAllowNumber"
-          @input="onChange(i - 1, $event.trim())"
-          @keydown="keyDown(i - 1, $event)"
-        />
-      </div>
-
-      <!-- Name input -->
-      <n-collapse-transition class="mt-6" :show="codeString?.length === partyCodeLength">
-        <n-input
-          ref="nameInput"
-          v-model:value="username"
-          placeholder="Username"
-          size="large"
-          class="w-full"
-          @keydown.enter="join"
-          :loading="joining"
-          :disabled="joining"
-        />
-      </n-collapse-transition>
-
-      <!-- Error message -->
-      <n-collapse-transition :show="hasError">
-        <p class="text-red-500 text-center mt-4">{{ error }}</p>
-      </n-collapse-transition>
-
-      <!-- Join button -->
-      <n-collapse-transition :show="joinable" class="flex justify-center mt-6">
-        <n-button :disabled="!joinable || joining" type="primary" size="large" @click="join">
-          Join Party
-        </n-button>
-      </n-collapse-transition>
     </n-card>
 
-    <!-- Redirect link to /host -->
-    <router-link v-if="!(joining || joined)" to="/host" class="bottom-0 m-auto mb-10 underline">
-      Host your own party!
-    </router-link>
+    <!-- ViewState === None -->
+    <template v-if="viewState === ViewState.None">
+      <div class="w-full h-full">
+        <PeoplePartyLogo />
+      </div>
+      <n-card class="max-w-md m-auto">
+        <n-h1 class="mb-6 text-center">Join a Party!</n-h1>
+
+        <div class="flex justify-between gap-4">
+          <n-input
+            v-bind:key="i"
+            v-for="i in partyCodeLength"
+            placeholder=""
+            ref="inputElements"
+            id="partyCode"
+            size="large"
+            :autofocus="i === 1"
+            :disabled="joining"
+            class="text-center flex items-center !text-3xl font-extrabold aspect-square bg-slate-300"
+            :theme-overrides="{ caretColor: 'transparent' }"
+            :value="code[i - 1]"
+            pattern="\d*"
+            :allow-input="onlyAllowNumber"
+            @input="onChange(i - 1, $event.trim())"
+            @keydown="keyDown(i - 1, $event)"
+          />
+        </div>
+
+        <!-- Name input -->
+        <n-collapse-transition class="mt-6" :show="codeString?.length === partyCodeLength">
+          <n-input
+            ref="nameInput"
+            v-model:value="username"
+            placeholder="Username"
+            size="large"
+            class="w-full"
+            @keydown.enter="join"
+            :loading="joining"
+            :disabled="joining"
+          />
+        </n-collapse-transition>
+
+        <!-- Error message -->
+        <n-collapse-transition :show="hasError">
+          <p class="text-red-500 text-center mt-4">{{ error }}</p>
+        </n-collapse-transition>
+
+        <!-- Join button -->
+        <n-collapse-transition :show="joinable" class="flex justify-center mt-6">
+          <n-button :disabled="!joinable || joining" type="primary" size="large" @click="join">
+            Join Party
+          </n-button>
+        </n-collapse-transition>
+      </n-card>
+
+      <!-- Redirect link to /host -->
+      <router-link v-if="!(joining || joined)" to="/host" class="bottom-0 m-auto mb-10 underline">
+        Host your own party!
+      </router-link>
+    </template>
   </div>
 </template>

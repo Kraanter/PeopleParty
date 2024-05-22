@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useWebSocketStore } from '@/stores/confettiStore'
+import { useWebSocketStore, ViewState } from '@/stores/confettiStore'
 import GameManager from '@/components/GameManager.vue'
 import PartyButton from '@/components/PartyButton.vue'
 import PartyPreperation from '@/components/partyManagment/PartyPreperation.vue'
@@ -17,45 +17,35 @@ import {
   Payload
 } from '@/flatbuffers/messageClass'
 
-const isPlaying = ref(false)
-
 const websocketStore = useWebSocketStore()
-const { isHost, partyCode } = storeToRefs(websocketStore)
+const { viewState } = storeToRefs(websocketStore)
 
 const host = () => {
   websocketStore.host()
 }
 
-onMounted(() => {
-  const unsubscribe = websocketStore.subscribe((roomId: string) => {
-    partyCode.value = roomId
-    console.log('Party code:', roomId)
-  })
-
-  // Unsubscribe when component is unmounted
-  return unsubscribe
-})
-
 const startGame = () => {
   let builder = new flatbuffers.Builder()
 
-  let startMessage = PartyPrepHostStartGamePayload.createPartyPrepHostStartGamePayload(builder, true);
-  let payload = PartyPrepPayloadType.createPartyPrepPayloadType(builder, PartyPrepType.PartyPrepHostStartGame, PartyPrepPayload.PartyPrepHostStartGamePayload, startMessage);
+  let startMessage = PartyPrepHostStartGamePayload.createPartyPrepHostStartGamePayload(
+    builder,
+    true
+  )
+  let payload = PartyPrepPayloadType.createPartyPrepPayloadType(
+    builder,
+    PartyPrepType.PartyPrepHostStartGame,
+    PartyPrepPayload.PartyPrepHostStartGamePayload,
+    startMessage
+  )
 
-  websocketStore.sendMessage(buildMessage(builder, payload, MessageType.PartyPrep, Payload.PartyPrepPayloadType))
-  isPlaying.value = true;
+  websocketStore.sendMessage(
+    buildMessage(builder, payload, MessageType.PartyPrep, Payload.PartyPrepPayloadType)
+  )
 }
-
-const generateURL = () => `${window.location.origin}/join?code=${partyCode.value}`
-
 </script>
 <template>
-  <div v-if="isHost" class="w-full h-full">
-    <!-- <div class="w-full h-full p-4 my-auto"> -->
-    <!-- <PeoplePartyLogo /> -->
-    <!-- </div> -->
-
-    <GameManager v-if="isPlaying" is-host />
+  <div v-if="viewState !== ViewState.None" class="w-full h-full">
+    <GameManager v-if="viewState === ViewState.MiniGame" is-host />
     <div v-else class="max-w-[95%] h-full m-auto">
       <PartyPreperation @click="startGame()" />
     </div>
