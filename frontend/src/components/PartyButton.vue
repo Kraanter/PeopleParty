@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { defineEmits } from 'vue'
+import { defineEmits, defineProps } from 'vue'
+
+defineProps<{
+  disabled?: boolean
+}>()
 
 const emits = defineEmits(['click'])
 </script>
 <template>
   <button
-    @click="emits('click')"
-    class="bg-primary text-4xl text-white font-bold px-12 py-6 rounded-2xl"
+    :disabled="disabled"
+    @click="disabled ? null : emits('click')"
+    class="bg-primary text-4xl text-white font-bold rounded-2xl w-full h-full disabled:bg-slate-400"
   >
     <slot></slot>
   </button>
