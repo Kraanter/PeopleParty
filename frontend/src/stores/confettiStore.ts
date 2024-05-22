@@ -2,11 +2,15 @@ import { defineStore } from 'pinia'
 
 import * as flatbuffers from 'flatbuffers'
 import {
-  MessageType,
   HostPayloadType,
   JoinPayloadType,
   Message,
-  MiniGamePayloadType
+  MessageType,
+  MiniGamePayloadType,
+  PartyPrepHostInformationPayload,
+  PartyPrepPayload,
+  PartyPrepPayloadType,
+  PartyPrepType
 } from './../flatbuffers/messageClass'
 import { computed, ref } from 'vue'
 
@@ -89,6 +93,26 @@ export const useWebSocketStore = defineStore('websocket', () => {
       case MessageType.MiniGame: {
         const miniGamePayload = receivedMessage.payload(new MiniGamePayloadType())
         listeners.value.forEach((listener) => listener(miniGamePayload))
+        break
+      }
+      case MessageType.PartyPrep: {
+        console.log('party prep message')
+        const partyPrepPayload: PartyPrepPayloadType = receivedMessage.payload(
+          new PartyPrepPayloadType()
+        )
+        switch (partyPrepPayload.partypreptype()) {
+          case PartyPrepType.PartyPrepHostInformation: {
+            const payload: PartyPrepHostInformationPayload = partyPrepPayload.partypreppayload(
+              new PartyPrepHostInformationPayload()
+            )
+            const names = []
+            for (let i = 0; i < payload.playersLength(); i++) {
+              names.push(payload.players(i)?.name())
+            }
+            players.value = names
+            break
+          }
+        }
         break
       }
       default: {

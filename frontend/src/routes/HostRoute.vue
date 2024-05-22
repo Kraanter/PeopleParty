@@ -28,7 +28,6 @@ onMounted(() => {
 })
 
 const generateURL = () => `${window.location.origin}/join?code=${partyCode.value}`
-
 </script>
 <template>
   <div v-if="isHost" class="w-full h-full">

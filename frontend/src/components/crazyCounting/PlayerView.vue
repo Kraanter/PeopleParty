@@ -32,13 +32,15 @@ const latestData = ref<latest>()
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
     case GameStateType.CrazyCountingPlayerUpdate: {
-      const newData: CrazyCountingPlayerUpdatePayload = data.gamestatepayload(new CrazyCountingPlayerUpdatePayload())
+      const newData: CrazyCountingPlayerUpdatePayload = data.gamestatepayload(
+        new CrazyCountingPlayerUpdatePayload()
+      )
       latestData.value = {
         int: newData.newInt(),
         timeLeft: Number(newData.timeLeft()),
         submitted: newData.submitted()
       }
-      console.log(latestData.value);
+      console.log(latestData.value)
     }
   }
 }
@@ -67,7 +69,9 @@ const sendPlayerAction = (action: Input) => {
 </script>
 <template>
   <div class="w-full h-full flex">
-    <div class="grid grid-rows-4 text-center my-auto max-w-full h-full gap-y-12 max-h-[95dvh] w-full">
+    <div
+      class="grid grid-rows-4 text-center my-auto max-w-full h-full gap-y-12 max-h-[95dvh] w-full"
+    >
       <div class="my-auto">
         <span class="text-8xl font-bold">{{ latestData?.int }}</span>
       </div>
@@ -114,7 +118,9 @@ const sendPlayerAction = (action: Input) => {
             d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
           />
         </svg>
-        <span class="text-2xl font-bold" v-if="latestData?.timeLeft! <= 0 || latestData?.submitted">Anwser locked</span>
+        <span class="text-2xl font-bold" v-if="latestData?.timeLeft! <= 0 || latestData?.submitted"
+          >Anwser locked</span
+        >
         <span class="text-2xl font-bold" v-else>Press to lock in</span>
         <span class="text-lg">{{ latestData?.timeLeft }} seconds left</span>
       </button>
