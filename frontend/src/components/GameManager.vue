@@ -87,10 +87,10 @@ watch(
   <div class="flex flex-col h-full w-full">
     <div
       v-if="isHost"
-      class="w-full bg-white grid grid-cols-3 grid-rows-1 rounded-lg my-16 px-4 max-h-20 h-full text-2xl justify-center items-center cartoonShadow"
+      class="w-full bg-white grid grid-cols-3 grid-rows-1 rounded-lg mt-2 mb-8 px-4 max-h-20 h-full text-2xl justify-center items-center cartoonShadow"
     >
       <p>Join now at <span class="font-bold">peopleparty.nl</span></p>
-      <div class="w-full row-span-3 -mt-16 h-48 my-auto">
+      <div class="w-full row-span-3 -mt-4 h-28 my-auto">
         <PeoplePartyLogo />
       </div>
       <p class="text-right mr-4">
