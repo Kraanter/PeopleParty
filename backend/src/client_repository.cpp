@@ -3,14 +3,12 @@
 ClientRepository::ClientRepository() {}
 
 Client* ClientRepository::CreateClient(const std::string name,
-                                       const Party* party) {
-  Client client = Client(name, party);
-  clients[client.client_id] = client;
-  return &clients[client.client_id];
+                                       Party* party) {
+    return CreateClient(name, party, nullptr);
 }
 
 Client* ClientRepository::CreateClient(const std::string name,
-                                       const Party* party, WS* ws) {
+                                       Party* party, WS* ws) {
   Client client = Client(name, party, ws);
   clients[client.client_id] = client;
   return &clients[client.client_id];

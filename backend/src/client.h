@@ -11,15 +11,15 @@ class Client {
  public:
   int client_id;
   std::string name;
-  const Party* party;
+  Party *party;
   bool isHost = false;
   bool isSpectating = true;
   WS* ws;
 
  public:
   Client();
-  Client(const std::string name, const Party* party);
-  Client(const std::string name, const Party* party, WS* ws);
+  Client(const std::string name, Party* party);
+  Client(const std::string name, Party* party, WS* ws);
   void send(const uint8_t* payload, const size_t size,
             uWS::OpCode opcode = uWS::BINARY) const;
   void send(const std::string& payload, uWS::OpCode opcode = uWS::BINARY) const;

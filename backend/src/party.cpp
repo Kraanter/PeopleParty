@@ -48,6 +48,25 @@ const void Party::send_gamestate(const std::function<bool(Client *)> &expression
     send_message(expression, payload_as_string);
 }
 
+const void
+Party::send_party_prep(const std::function<bool(Client *)> &expression, flatbuffers::FlatBufferBuilder &builder,
+                       flatbuffers::Offset<> partyprep_payload) {
+    auto message = CreateMessage(builder, MessageType_PartyPrep, Payload_PartyPrepPayloadType, partyprep_payload.Union());
+    builder.Finish(message);
+    int size = builder.GetSize();
+
+    std::string payload_as_string(reinterpret_cast<const char*>(builder.GetBufferPointer()), size);
+
+    send_message(expression, payload_as_string);
+    return;
+}
+
+const void Party::clients_changed() {
+    if (game != nullptr) {
+        game->clients_changed();
+    }
+}
+
 std::ostream &operator<<(std::ostream &stream, Party &party) {
   std::string game_name = "Nothing";
   stream << party.party_id << ", playing " << game_name << ", "

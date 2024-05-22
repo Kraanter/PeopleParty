@@ -6,14 +6,17 @@
 Client::Client() : Client("", nullptr) {
 }
 
-Client::Client(const std::string name, const Party* party) : Client(name, party, nullptr) {
+Client::Client(const std::string name, Party* party) : Client(name, party, nullptr) {
 }
 
-Client::Client(const std::string name, const Party* party, WS* ws) {
+Client::Client(const std::string name, Party* party, WS* ws) {
   this->client_id = generate_client_id();
   this->name = name;
   this->party = party;
   this->ws = ws;
+  if (party != nullptr) {
+    party->clients_changed();
+  }
 }
 
 void Client::send(const uint8_t* payload, const size_t size,

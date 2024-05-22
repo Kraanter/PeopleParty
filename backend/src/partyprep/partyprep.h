@@ -8,6 +8,7 @@ class Game;
 class PartyPrep: public GameState {
 public:
     PartyPrep(Game *game);
+    void clients_changed() override;
 protected:
     void finished() override;
 private:

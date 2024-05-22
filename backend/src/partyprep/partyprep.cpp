@@ -2,7 +2,7 @@
 #include "../game.h"
 
 PartyPrep::PartyPrep(Game *game) : GameState(game) {
-    finished();
+
 }
 
 void PartyPrep::finished() {
@@ -38,7 +38,7 @@ void PartyPrep::send_host_information() {
                                                       PartyPrepPayload_PartyPrepHostInformationPayload, payload.Union());
 
     // Send payload to host
-    //send_party_prep([](Client* client) { return client->party->host == client; }, builder, partyPrepPayload.Union());
+    game->party->send_party_prep([](Client* client) { return client->party->host == client; }, builder, partyPrepPayload.Union());
 }
 
 void PartyPrep::send_player_information(int client_id) {
@@ -51,12 +51,17 @@ void PartyPrep::send_player_information(int client_id) {
                                                       PartyPrepPayload_PartyPrepPlayerInformationPayload, payload.Union());
 
     // Send payload to host
-    //send_party_prep([](Client* client) { return client->party->host == client; }, builder, partyPrepPayload.Union());
+    game->party->send_party_prep([client_id](Client* client) { return client->client_id == client_id; }, builder, partyPrepPayload.Union());
 }
 
 void PartyPrep::update(int delta_time) {
-    // send_host_information();
-    // for (Client* client: game->get_clients()) {
-    //     send_player_information(client->client_id);
-    // }
+     send_host_information();
+     for (Client* client: game->get_clients()) {
+         send_player_information(client->client_id);
+     }
+}
+
+void PartyPrep::clients_changed() {
+    std::cout << "players changed" << std::endl;
+    update(0);
 }

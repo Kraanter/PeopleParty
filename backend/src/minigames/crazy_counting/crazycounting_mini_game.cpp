@@ -116,3 +116,7 @@ void CrazyCounting_MiniGame::update(int delta_time) {
     }
     send_entities();
 }
+
+void CrazyCounting_MiniGame::clients_changed() {
+
+}
