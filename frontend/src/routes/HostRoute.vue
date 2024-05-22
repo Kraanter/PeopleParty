@@ -1,59 +1,66 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue'
-import { NCard, NButton, NQrCode, NResult } from 'naive-ui'
-import { useWebSocketStore } from '@/stores/confettiStore'
+import { useWebSocketStore, ViewState } from '@/stores/confettiStore'
 import GameManager from '@/components/GameManager.vue'
+import PartyButton from '@/components/PartyButton.vue'
+import PartyPreperation from '@/components/partyManagment/PartyPreperation.vue'
+import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
+import { storeToRefs } from 'pinia'
+import { onMounted, ref } from 'vue'
+import * as flatbuffers from 'flatbuffers'
+import { buildMessage } from '@/util/flatbufferMessageBuilder'
+import {
+  MessageType,
+  PartyPrepHostStartGamePayload,
+  PartyPrepPayload,
+  PartyPrepPayloadType,
+  PartyPrepType,
+  Payload
+} from '@/flatbuffers/messageClass'
 
 const websocketStore = useWebSocketStore()
-
-const joined = computed(() => partyCode.value !== '')
-const partyCode = ref('')
+const { viewState } = storeToRefs(websocketStore)
 
 const host = () => {
   websocketStore.host()
 }
 
-onMounted(() => {
-  const unsubscribe = websocketStore.subscribe((roomId: string) => {
-    partyCode.value = roomId
-    console.log('Party code:', roomId)
-  })
+const startGame = () => {
+  let builder = new flatbuffers.Builder()
 
-  // Unsubscribe when component is unmounted
-  return unsubscribe
-})
+  let startMessage = PartyPrepHostStartGamePayload.createPartyPrepHostStartGamePayload(
+    builder,
+    true
+  )
+  let payload = PartyPrepPayloadType.createPartyPrepPayloadType(
+    builder,
+    PartyPrepType.PartyPrepHostStartGame,
+    PartyPrepPayload.PartyPrepHostStartGamePayload,
+    startMessage
+  )
 
-const generateURL = () => `${window.location.origin}/join?code=${partyCode.value}`
+  websocketStore.sendMessage(
+    buildMessage(builder, payload, MessageType.PartyPrep, Payload.PartyPrepPayloadType)
+  )
+}
 </script>
 <template>
-  <div class="flex justify-center items-center">
-    <GameManager is-host v-if="joined" />
-    <!-- TODO: Set this back to what it was -->
-    <!-- <n-card class="lg:mx-44 md:max-w-2/3 2xl:mx-96 m-3" v-if="joined">
-      <div class="flex flex-col sm:flex-row">
-        <div class="m-auto">
-          <n-qr-code :size="250" style="padding: 0" :value="generateURL()" />
-        </div>
-        <div class="flex flex-col justify-between my-4 mx-8 gap-4">
-          <p class="text-title text-center">Party code: {{ partyCode }}</p>
-          <p class="text-body text-balance text-center">
-            Share this QR code with your friends to join the game
-          </p>
-          <n-button type="primary" size="large" block round>Start game</n-button>
-        </div>
-      </div>
-    </n-card> -->
-    <n-card class="max-w-md m-3" v-else>
-      <n-result status="404" title="Host a Party!" size="huge">
-        <template #footer>
-          <n-button type="primary" size="large" block round @click="host()">Host</n-button>
-        </template>
-      </n-result>
-    </n-card>
+  <div v-if="viewState !== ViewState.None" class="w-full h-full">
+    <GameManager v-if="viewState === ViewState.MiniGame" is-host />
+    <div v-else class="max-w-[95%] h-full m-auto">
+      <PartyPreperation @click="startGame()" />
+    </div>
+  </div>
+  <div v-else class="grid grid-rows-2 pt-12">
+    <div class="w-full max-w-screen-md h-full p-4 m-auto">
+      <PeoplePartyLogo />
+    </div>
 
-    <!-- Redirect link to /host -->
-    <router-link to="/join" v-if="!joined" class="fixed bottom-8 mt-6 underline">
-      Join a party!
-    </router-link>
+    <div class="flex flex-col h-full justify-between p-8 items-center">
+      <div>
+        <PartyButton class="py-8 px-12" @click="host()">Host a party!</PartyButton>
+      </div>
+
+      <router-link to="/join" class="underline">Join a party!</router-link>
+    </div>
   </div>
 </template>

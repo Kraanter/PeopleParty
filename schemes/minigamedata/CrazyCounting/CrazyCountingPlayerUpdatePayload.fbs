@@ -1,6 +1,7 @@
 table CrazyCountingPlayerUpdatePayload {
     new_int: short;
     time_left: ulong;
+    submitted: bool;
 }
 
 root_type CrazyCountingPlayerUpdatePayload;

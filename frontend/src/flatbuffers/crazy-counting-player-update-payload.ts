@@ -32,8 +32,13 @@ timeLeft():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
+submitted():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
 static startCrazyCountingPlayerUpdatePayload(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 }
 
 static addNewInt(builder:flatbuffers.Builder, newInt:number) {
@@ -44,15 +49,20 @@ static addTimeLeft(builder:flatbuffers.Builder, timeLeft:bigint) {
   builder.addFieldInt64(1, timeLeft, BigInt('0'));
 }
 
+static addSubmitted(builder:flatbuffers.Builder, submitted:boolean) {
+  builder.addFieldInt8(2, +submitted, +false);
+}
+
 static endCrazyCountingPlayerUpdatePayload(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createCrazyCountingPlayerUpdatePayload(builder:flatbuffers.Builder, newInt:number, timeLeft:bigint):flatbuffers.Offset {
+static createCrazyCountingPlayerUpdatePayload(builder:flatbuffers.Builder, newInt:number, timeLeft:bigint, submitted:boolean):flatbuffers.Offset {
   CrazyCountingPlayerUpdatePayload.startCrazyCountingPlayerUpdatePayload(builder);
   CrazyCountingPlayerUpdatePayload.addNewInt(builder, newInt);
   CrazyCountingPlayerUpdatePayload.addTimeLeft(builder, timeLeft);
+  CrazyCountingPlayerUpdatePayload.addSubmitted(builder, submitted);
   return CrazyCountingPlayerUpdatePayload.endCrazyCountingPlayerUpdatePayload(builder);
 }
 }

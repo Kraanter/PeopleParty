@@ -55,7 +55,7 @@ void CrazyCounting_MiniGame::send_players_update() {
 void CrazyCounting_MiniGame::send_player_update(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
-    auto payload = CreateCrazyCountingPlayerUpdatePayload(builder, players[client_id].get_count(), remaining_time);
+    auto payload = CreateCrazyCountingPlayerUpdatePayload(builder, players[client_id].get_count(), remaining_time, players[client_id].submitted);
     
     auto gameStatePayload = CreateMiniGamePayloadType(builder, GameStateType_CrazyCountingPlayerUpdate,
                                                       GameStatePayload_CrazyCountingPlayerInputPayload, payload.Union());
@@ -117,18 +117,27 @@ void CrazyCounting_MiniGame::update(int delta_time) {
     send_entities();
 }
 
-std::vector<Client *> CrazyCounting_MiniGame::getMinigameResult() {
-    // sort players by count, submitted and time
-    std::vector<CrazyCounting_Player*> sorted_players;
-    for (auto& [_, player] : players) {
-        sorted_players.push_back(&player);
-    }
-    std::sort(sorted_players.begin(), sorted_players.end());
+void CrazyCounting_MiniGame::update(int delta_time) {
+    remaining_time -= delta_time;
+    time_since_last_time_update += delta_time;
 
-    std::vector<Client*> result;
-    for (CrazyCounting_Player* player: sorted_players) {
-        result.push_back(game->get_clients()[player->client_id]);
+    if(remaining_time <= 0) {
+        timer.stop();
+        MiniGame::finished();
+        return;
     }
 
-    return result;
+    if (time_since_last_time_update >= 1000) {
+        time_since_last_time_update = 0;
+        send_players_update();
+    }
+
+    for (CrazyCounting_Entity& entity: entities) {
+        entity.update(delta_time);
+    }
+    send_entities();
+}
+
+void CrazyCounting_MiniGame::clients_changed() {
+
 }

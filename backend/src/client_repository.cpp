@@ -3,20 +3,27 @@
 ClientRepository::ClientRepository() {}
 
 Client* ClientRepository::CreateClient(const std::string name,
-                                       const Party* party) {
-  Client client = Client(name, party);
-  clients[client.client_id] = client;
-  return &clients[client.client_id];
+                                       Party* party) {
+    return CreateClient(name, party, nullptr);
 }
 
 Client* ClientRepository::CreateClient(const std::string name,
-                                       const Party* party, WS* ws) {
+                                       Party* party, WS* ws) {
   Client client = Client(name, party, ws);
   clients[client.client_id] = client;
+  party->clients_changed();
   return &clients[client.client_id];
 }
 
-void ClientRepository::RemoveClient(int client_id) { clients.erase(client_id); }
+void ClientRepository::RemoveClient(int client_id) {
+    Party* p = clients[client_id].party;
+    if (p != nullptr && p->get_clients().size() > 1) {
+        clients.erase(client_id);
+        p->clients_changed();
+        return;
+    }
+    clients.erase(client_id);
+}
 
 bool ClientRepository::contains(int client_id) {
   return clients.contains(client_id);

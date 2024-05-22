@@ -5,5 +5,6 @@
 export enum MessageType {
   Host = 0,
   Join = 1,
-  MiniGame = 2
+  MiniGame = 2,
+  PartyPrep = 3
 }
