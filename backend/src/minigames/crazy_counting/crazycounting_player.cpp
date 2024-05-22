@@ -22,7 +22,7 @@ int CrazyCounting_Player::increment_count() {
 }
 
 int CrazyCounting_Player::decrement_count() {
-    if (submitted) return count;
+    if (submitted || count < 1) return count;
     count--;
     last_changed = std::chrono::system_clock::now().time_since_epoch().count();
     return count;
