@@ -43,7 +43,7 @@ public:
                 ((MiniGame*)current_gamestate)->start();
 
                 // fixme: Infinite loop for now
-                miniGames.push(new CrazyCounting_MiniGame(10, this));
+                miniGames.push(new CrazyCounting_MiniGame(this));
             }
         }
     }

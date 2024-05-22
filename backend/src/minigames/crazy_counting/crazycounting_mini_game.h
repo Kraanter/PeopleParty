@@ -17,7 +17,7 @@
 
 class CrazyCounting_MiniGame : public MiniGame {
 public:
-    CrazyCounting_MiniGame(int entity_count, Game* game);
+    CrazyCounting_MiniGame(Game* game);
     ~CrazyCounting_MiniGame();
     void start() override;
     void update(int delta_time) override;
