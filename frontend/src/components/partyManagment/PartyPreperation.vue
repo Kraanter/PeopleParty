@@ -46,7 +46,7 @@ const emit = defineEmits(['click'])
             </div>
           </div>
         </n-card>
-        <PartyButton @click="emit('click')">Start Game </PartyButton>
+        <PartyButton @click="emit('click')" class="mt-8">Start Game </PartyButton>
       </div>
       <n-card class="h-full col-span-2">
         <n-list>
