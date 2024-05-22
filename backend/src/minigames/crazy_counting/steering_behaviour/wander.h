@@ -6,6 +6,8 @@ class Wander {
 public:
     Wander();
     Vector2D Calculate();
+    void FlipX();
+    void FlipY();
 private:
     float randomClamped();
 private: 

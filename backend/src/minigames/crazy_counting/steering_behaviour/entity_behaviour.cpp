@@ -1,44 +1,53 @@
 #include "entity_behaviour.h"
 #include <iostream>
 
+EntityBehaviour::EntityBehaviour() {
+    entity = nullptr;
+}
+
 EntityBehaviour::EntityBehaviour(CrazyCounting_Entity* entity) {
     this->entity = entity;
-    wander_behaviour = new Wander();
+    wander_behaviour = Wander();
+    wall_avoidance = new WallAvoidance(entity);
 }
 
 void EntityBehaviour::update(float time_delta) {
-    Vector2D SteeringForce = wander_behaviour->Calculate();
+    if (entity == nullptr) {
+        return;
+    }
+    Vector2D SteeringForce = wander_behaviour.Calculate();
+    //Vector2D forceWallAvoidance = wall_avoidance->Calculate() * 10.0f;
 
-    Vector2D acceleration = SteeringForce / 10000;
+    Vector2D acceleration = SteeringForce / 1000000;
     
-    // something is going wrong on the next line
     entity->velocity += (acceleration * time_delta);
 
-    entity->velocity.Truncate(0.001f);
+    entity->velocity.Truncate(0.0005f);
 
     entity->position += (entity->velocity * time_delta);
 
-    std::cout << "Velocity: " << entity->velocity.x << ", " << entity->velocity.y << " Position: " << entity->position.x << ", " << entity->position.y << std::endl;
-
-    if (entity->velocity.Length() > 0.00000001)
+    if (entity->velocity.LengthSq() > 0.00000001)
     {
-        Vector2D new_heading = entity->velocity;
-        entity->heading = new_heading.Normalize();
+        entity->heading = entity->velocity;
+        entity->heading.Normalize();
     }
 
     // for now
     if (entity->position.x > 1.0f) {
         entity->position.x = 1.0f;
-    }
-    if (entity->position.x < 0.0f) {
+        entity->velocity.x = 0.0f;
+        wander_behaviour.FlipX();
+    } else if (entity->position.x < 0.0f) {
         entity->position.x = 0.0f;
-    
-    }
-    if (entity->position.y > 1.0f) {
+        entity->velocity.x = 0.0f;
+        wander_behaviour.FlipX();
+    } else if (entity->position.y > 1.0f) {
         entity->position.y = 1.0f;
-    }
-    if (entity->position.y < 0.0f) {
+        entity->velocity.y = 0.0f;
+        wander_behaviour.FlipY();
+    } else if (entity->position.y < 0.0f) {
         entity->position.y = 0.0f;
-    
+        entity->velocity.y = 0.0f;
+        wander_behaviour.FlipY();
     }
 }

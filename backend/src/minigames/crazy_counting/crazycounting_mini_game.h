@@ -23,7 +23,7 @@ public:
     void update(int delta_time) override;
     std::vector<Client*> getMinigameResult() override;
 private:
-    std::vector<CrazyCounting_Entity> entities;
+    std::vector<CrazyCounting_Entity*> entities;
     std::map<int, CrazyCounting_Player> players;
     Timer timer;
     int remaining_time;

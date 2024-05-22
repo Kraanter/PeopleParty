@@ -18,6 +18,14 @@ Vector2D Wander::Calculate() {
     return wander_target;
 }
 
+void Wander::FlipX() {
+    wander_target.x = -wander_target.x;
+}
+
+void Wander::FlipY() {
+    wander_target.y = -wander_target.y;
+}
+
 float Wander::randomClamped() {
     return ((float)rand() / RAND_MAX) - ((float)rand() / RAND_MAX);
 }

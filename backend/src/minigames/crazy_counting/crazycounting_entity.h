@@ -20,7 +20,7 @@ public:
     Vector2D velocity;
     Vector2D heading;
 private:
-    EntityBehaviour *behaviour;
+    EntityBehaviour* behaviour;
 };
 
 

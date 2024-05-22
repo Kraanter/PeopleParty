@@ -20,7 +20,7 @@ void CrazyCounting_MiniGame::start() {
     }
 
     for (int i = 0; i < entity_count; i++) {
-        entities.emplace_back();
+        entities.push_back(new CrazyCounting_Entity());
     }
     timer.startUpdateTimer(this);
 }
@@ -29,8 +29,8 @@ void CrazyCounting_MiniGame::send_entities() {
     // Create the flatbuffer object
     flatbuffers::FlatBufferBuilder builder;
     std::vector<flatbuffers::Offset<FBCrazyCountingEntity>> entities_buffer;
-    for (CrazyCounting_Entity entity: entities) {
-        entities_buffer.push_back(CreateFBCrazyCountingEntity(builder, entity.position.x, entity.position.y));
+    for (CrazyCounting_Entity* entity: entities) {
+        entities_buffer.push_back(CreateFBCrazyCountingEntity(builder, entity->position.x, entity->position.y));
     }
     auto entities_vector = builder.CreateVector(entities_buffer);
 
@@ -111,8 +111,8 @@ void CrazyCounting_MiniGame::update(int delta_time) {
         send_players_update();
     }
 
-    for (CrazyCounting_Entity& entity: entities) {
-        entity.update(delta_time);
+    for (CrazyCounting_Entity* entity: entities) {
+        entity->update(delta_time);
     }
     send_entities();
 }
