@@ -121,7 +121,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
             )
             const names = []
             for (let i = 0; i < payload.playersLength(); i++) {
-              names.push({ name: payload.players(i)?.name() ?? '' })
+              names.push({ name: decodeURI(payload.players(i)?.name() ?? '') })
             }
             players.value = names.filter((p) => p && !!p.name)
             break

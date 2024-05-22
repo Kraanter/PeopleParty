@@ -36,7 +36,7 @@ const getComponent = (name: string) => {
 }
 
 const gameViewComp = shallowRef(getComponent(gameName.value))
-const gameViewRef = ref<InstanceType<typeof HostView>>()
+const gameViewRef = ref()
 
 const height = ref(0)
 const width = ref(0)
