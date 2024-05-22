@@ -26,6 +26,9 @@ void PartyPrep::send_host_information() {
     std::vector<flatbuffers::Offset<FBPlayer>> players_buffer;
 
     for (Client* client: game->get_clients()) {
+        if (client->party->host == client) {
+            continue;
+        }
         auto name = builder.CreateString(client->name.c_str());
         players_buffer.push_back(CreateFBPlayer(builder, name));
     }

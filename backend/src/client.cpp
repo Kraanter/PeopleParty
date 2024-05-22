@@ -14,9 +14,6 @@ Client::Client(const std::string name, Party* party, WS* ws) {
   this->name = name;
   this->party = party;
   this->ws = ws;
-  if (party != nullptr) {
-    party->clients_changed();
-  }
 }
 
 void Client::send(const uint8_t* payload, const size_t size,

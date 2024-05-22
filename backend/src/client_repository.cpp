@@ -11,10 +11,19 @@ Client* ClientRepository::CreateClient(const std::string name,
                                        Party* party, WS* ws) {
   Client client = Client(name, party, ws);
   clients[client.client_id] = client;
+  party->clients_changed();
   return &clients[client.client_id];
 }
 
-void ClientRepository::RemoveClient(int client_id) { clients.erase(client_id); }
+void ClientRepository::RemoveClient(int client_id) {
+    Party* p = clients[client_id].party;
+    if (p->get_clients().size() > 1) {
+        clients.erase(client_id);
+        p->clients_changed();
+        return;
+    }
+    clients.erase(client_id);
+}
 
 bool ClientRepository::contains(int client_id) {
   return clients.contains(client_id);
