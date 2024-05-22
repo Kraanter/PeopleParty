@@ -64,8 +64,11 @@ const sendPlayerAction = (action: Input) => {
     action
   )
 
+  let miniGame = builder.createString('crazyCounting');
+
   let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
     builder,
+    miniGame,
     GameStateType.CrazyCountingPlayerInput,
     GameStatePayload.CrazyCountingPlayerInputPayload,
     playerInput

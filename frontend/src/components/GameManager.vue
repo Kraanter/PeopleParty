@@ -27,7 +27,6 @@ const debounce = (func: Function, wait: number) => {
 const componentName = props.isHost ? 'Host' : 'Player'
 
 const getComponent = (name: string) => {
-  name = 'crazyCounting'
   if (name === '') {
     return defineAsyncComponent(() => import('./LoadingView.vue'))
   } else {
@@ -55,9 +54,8 @@ onMounted(() => {
   const unsubscribe = websocketStore.subscribe((data: MiniGamePayloadType) => {
     // decide which minigame to show
     if (data instanceof MiniGamePayloadType) {
-      // TODO: Make this dynamic from the server
-      if (gameName.value === '') {
-        gameName.value = 'crazyCounting'
+      if (gameName.value === '' || gameName.value !== data.minigame()) {
+        gameName.value = data.minigame() || ''
       }
 
       if (gameViewRef.value?.update) gameViewRef.value?.update(data)

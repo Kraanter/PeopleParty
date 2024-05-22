@@ -44,6 +44,7 @@ echo "}" >> "$GameStateTypeOutputFile"
 # Write the root type definition to the main schema
 echo "" >> "$GameStateTypeOutputFile"
 echo "table MiniGamePayloadType {" >> "$GameStateTypeOutputFile"
+echo "    minigame: string;" >> "$GameStateTypeOutputFile"
 echo "    gamestatetype: GameStateType;" >> "$GameStateTypeOutputFile"
 echo "    gamestatepayload: GameStatePayload;" >> "$GameStateTypeOutputFile"
 echo "}" >> "$GameStateTypeOutputFile"
