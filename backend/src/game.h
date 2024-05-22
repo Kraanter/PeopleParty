@@ -26,7 +26,6 @@ public:
     template <typename T>
     void nextGameState() {
         std::cout << "Next game state" << std::endl;
-        std::cout << typeid(T).name() << std::endl;
         if (typeid(T) == typeid(MiniGame)) {
             // We just finished a minigame so we change to the leaderboard
             // todo: Create leaderboard
