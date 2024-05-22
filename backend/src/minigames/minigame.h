@@ -14,6 +14,7 @@ class MiniGame : public GameState {
 public:
     MiniGame(Game *game);
     virtual void start() = 0;
+    virtual std::vector<Client*> getMinigameResult() = 0;
 protected:
     void finished() override;
     void process_partyprep_input(const PartyPrepPayloadType *payload, Client *from) override {};

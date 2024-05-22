@@ -6,6 +6,9 @@
 #define PEOPLEPARTY_BACKEND_CRAZYCOUNTING_ENTITY_H
 
 #include <utility>
+#include "steering_behaviour/entity_behaviour.h"
+
+class EntityBehaviour;
 
 class CrazyCounting_Entity {
 public:
@@ -13,8 +16,11 @@ public:
     CrazyCounting_Entity(float x, float y);
     void update(unsigned long delta_time);
 public:
-    std::pair<float, float> position;
-    std::pair<float, float> velocity;
+    Vector2D position;
+    Vector2D velocity;
+    Vector2D heading;
+private:
+    EntityBehaviour* behaviour;
 };
 
 

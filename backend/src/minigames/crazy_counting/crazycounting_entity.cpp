@@ -5,18 +5,19 @@
 #include <cstdlib>
 #include "crazycounting_entity.h"
 
-CrazyCounting_Entity::CrazyCounting_Entity() {
-    position.first = (float)std::rand() / RAND_MAX;
-    position.second = (float)std::rand() / RAND_MAX;
+CrazyCounting_Entity::CrazyCounting_Entity() : CrazyCounting_Entity((float)std::rand() / RAND_MAX, (float)std::rand() / RAND_MAX) {
 }
 
 CrazyCounting_Entity::CrazyCounting_Entity(float x, float y) {
-    position.first = x;
-    position.second = y;
+    position = Vector2D(x, y);
+    velocity = Vector2D(0, 0);
+    heading = Vector2D(0, 0);
+
+    behaviour = new EntityBehaviour(this);
 }
 
 void CrazyCounting_Entity::update(unsigned long delta_time) {
-    // todo: steering behaviours
-    position.first = (float)std::rand() / RAND_MAX;
-    position.second = (float)std::rand() / RAND_MAX;
+    if (behaviour != nullptr) {
+        behaviour->update(delta_time);
+    }
 }
