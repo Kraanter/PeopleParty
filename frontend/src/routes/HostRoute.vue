@@ -45,9 +45,9 @@ const startGame = () => {
 </script>
 <template>
   <div v-if="viewState !== ViewState.None" class="w-full h-full">
-    <GameManager v-if="viewState === ViewState.MiniGame" is-host />
+    <GameManager id="gameManager" v-if="viewState === ViewState.MiniGame" is-host />
     <div v-else class="max-w-[95%] h-full m-auto">
-      <PartyPreperation @click="startGame()" />
+      <PartyPreperation id="partyPrep" @click="startGame()" />
     </div>
   </div>
   <div v-else class="grid grid-rows-2 pt-12">
@@ -56,7 +56,7 @@ const startGame = () => {
     </div>
 
     <div class="flex flex-col h-full justify-between p-8 items-center">
-      <div>
+      <div id="partyButton">
         <PartyButton class="py-8 px-12" @click="host()">Host a party!</PartyButton>
       </div>
 

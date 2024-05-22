@@ -176,6 +176,7 @@ const join = () => {
         <n-collapse-transition class="mt-6" :show="codeString?.length === partyCodeLength">
           <n-input
             ref="nameInput"
+            id="inputName"
             v-model:value="username"
             placeholder="Username"
             size="large"
@@ -193,7 +194,7 @@ const join = () => {
 
         <!-- Join button -->
         <n-collapse-transition :show="joinable" class="flex justify-center mt-6">
-          <n-button :disabled="!joinable || joining" type="primary" size="large" @click="join">
+          <n-button id="joinButton" :disabled="!joinable || joining" type="primary" size="large" @click="join">
             Join Party
           </n-button>
         </n-collapse-transition>
