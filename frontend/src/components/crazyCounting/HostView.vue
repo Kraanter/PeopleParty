@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Application } from 'vue3-pixi'
-import { ref, toRefs, defineProps, computed, watch } from 'vue'
+import { ref, toRefs, defineProps, computed } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 import {
   CrazyCountingHostEntitiesPayload,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, watch, watchEffect } from 'vue'
-import { NCard, NInput, NButton, NResult, NH1, NCollapseTransition } from 'naive-ui'
+import { NCard, NInput, NButton, NH1, NCollapseTransition } from 'naive-ui'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useWebSocketStore } from '@/stores/confettiStore'

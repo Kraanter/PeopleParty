@@ -31,8 +31,6 @@ const formatOrdinals = (n: number) => {
   const suffix = suffixes.get(rule)
   return `${n}${suffix}`
 }
-
-const onClick = () => console.log('TEST')
 </script>
 <template>
   <div class="flex flex-col gap-4 w-full h-full">

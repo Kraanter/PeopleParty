@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
-import { NButton } from 'naive-ui'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import { storeToRefs } from 'pinia'
 

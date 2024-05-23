@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { NCard, NList, NListItem } from 'naive-ui'
+import { NCard } from 'naive-ui'
 import PartyQrCode from './PartyQrCode.vue'
 import PeoplePartyLogo from '../PeoplePartyLogo.vue'
 import PartyButton from '../PartyButton.vue'
-import { computed, toRefs, watch } from 'vue'
+import { computed, toRefs } from 'vue'
 import type { Player } from '@/stores/confettiStore'
 
 const props = defineProps<{
