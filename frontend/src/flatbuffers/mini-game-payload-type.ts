@@ -26,35 +26,46 @@ static getSizePrefixedRootAsMiniGamePayloadType(bb:flatbuffers.ByteBuffer, obj?:
   return (obj || new MiniGamePayloadType()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-gamestatetype():GameStateType {
+minigame():string|null
+minigame(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+minigame(optionalEncoding?:any):string|Uint8Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt8(this.bb_pos + offset) : GameStateType.CrazyCountingPlayerUpdate;
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+gamestatetype():GameStateType {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : GameStateType.CrazyCountingHostEntities;
 }
 
 gamestatepayloadType():GameStatePayload {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readUint8(this.bb_pos + offset) : GameStatePayload.NONE;
 }
 
 gamestatepayload<T extends flatbuffers.Table>(obj:any):any|null {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.__union(obj, this.bb_pos + offset) : null;
 }
 
 static startMiniGamePayloadType(builder:flatbuffers.Builder) {
-  builder.startObject(3);
+  builder.startObject(4);
+}
+
+static addMinigame(builder:flatbuffers.Builder, minigameOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, minigameOffset, 0);
 }
 
 static addGamestatetype(builder:flatbuffers.Builder, gamestatetype:GameStateType) {
-  builder.addFieldInt8(0, gamestatetype, GameStateType.CrazyCountingPlayerUpdate);
+  builder.addFieldInt8(1, gamestatetype, GameStateType.CrazyCountingHostEntities);
 }
 
 static addGamestatepayloadType(builder:flatbuffers.Builder, gamestatepayloadType:GameStatePayload) {
-  builder.addFieldInt8(1, gamestatepayloadType, GameStatePayload.NONE);
+  builder.addFieldInt8(2, gamestatepayloadType, GameStatePayload.NONE);
 }
 
 static addGamestatepayload(builder:flatbuffers.Builder, gamestatepayloadOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, gamestatepayloadOffset, 0);
+  builder.addFieldOffset(3, gamestatepayloadOffset, 0);
 }
 
 static endMiniGamePayloadType(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -62,8 +73,9 @@ static endMiniGamePayloadType(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createMiniGamePayloadType(builder:flatbuffers.Builder, gamestatetype:GameStateType, gamestatepayloadType:GameStatePayload, gamestatepayloadOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createMiniGamePayloadType(builder:flatbuffers.Builder, minigameOffset:flatbuffers.Offset, gamestatetype:GameStateType, gamestatepayloadType:GameStatePayload, gamestatepayloadOffset:flatbuffers.Offset):flatbuffers.Offset {
   MiniGamePayloadType.startMiniGamePayloadType(builder);
+  MiniGamePayloadType.addMinigame(builder, minigameOffset);
   MiniGamePayloadType.addGamestatetype(builder, gamestatetype);
   MiniGamePayloadType.addGamestatepayloadType(builder, gamestatepayloadType);
   MiniGamePayloadType.addGamestatepayload(builder, gamestatepayloadOffset);

@@ -37,7 +37,9 @@ void CrazyCounting_MiniGame::send_entities() {
     // Encode payload to binary
     auto payload = CreateCrazyCountingHostEntitiesPayload(builder, entities_vector);
 
-    auto gameStatePayload = CreateMiniGamePayloadType(builder, GameStateType_CrazyCountingHostEntities,
+    auto miniGame = builder.CreateString("crazyCounting");
+
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_CrazyCountingHostEntities,
                                                       GameStatePayload_CrazyCountingHostEntitiesPayload, payload.Union());
 
     // Send payload to client
@@ -56,8 +58,10 @@ void CrazyCounting_MiniGame::send_player_update(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
     auto payload = CreateCrazyCountingPlayerUpdatePayload(builder, players[client_id].get_count(), remaining_time, players[client_id].submitted);
+
+    auto miniGame = builder.CreateString("crazyCounting");
     
-    auto gameStatePayload = CreateMiniGamePayloadType(builder, GameStateType_CrazyCountingPlayerUpdate,
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_CrazyCountingPlayerUpdate,
                                                       GameStatePayload_CrazyCountingPlayerInputPayload, payload.Union());
 
     game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
