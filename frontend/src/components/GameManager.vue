@@ -2,13 +2,15 @@
 import { NButton } from 'naive-ui'
 import { MiniGamePayloadType } from '@/flatbuffers/messageClass'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import { defineAsyncComponent, ref, watch, defineProps, onMounted, shallowRef } from 'vue'
+import { defineAsyncComponent, ref, watch, defineProps, onMounted, shallowRef, toRefs } from 'vue'
 import PeoplePartyLogo from './PeoplePartyLogo.vue'
 import { storeToRefs } from 'pinia'
 
 const props = defineProps<{
+  data: MiniGamePayloadType
   isHost: boolean
 }>()
+const { data } = toRefs(props)
 
 const websocketStore = useWebSocketStore()
 const { partyCode } = storeToRefs(websocketStore)
@@ -51,20 +53,19 @@ onMounted(() => {
 
   resizeObserver.observe(container)
 
-  const unsubscribe = websocketStore.subscribe((data: MiniGamePayloadType) => {
-    // decide which minigame to show
-    if (data instanceof MiniGamePayloadType) {
-      if (gameName.value === '' || gameName.value !== data.minigame()) {
-        gameName.value = data.minigame() || ''
-      }
-
-      if (gameViewRef.value?.update) gameViewRef.value?.update(data)
-    }
-  })
-
   return () => {
     resizeObserver.disconnect()
-    unsubscribe
+  }
+})
+
+watch(data, (data: MiniGamePayloadType) => {
+  // decide which minigame to show
+  if (data instanceof MiniGamePayloadType) {
+    if (gameName.value === '' || gameName.value !== data.minigame()) {
+      gameName.value = data.minigame() || ''
+    }
+
+    if (gameViewRef.value?.update) gameViewRef.value?.update(data)
   }
 })
 

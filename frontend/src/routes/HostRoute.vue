@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { useWebSocketStore, ViewState } from '@/stores/confettiStore'
+import { useWebSocketStore } from '@/stores/confettiStore'
+import { useViewStore, ViewState } from '@/stores/viewStore'
 import GameManager from '@/components/GameManager.vue'
 import PartyButton from '@/components/PartyButton.vue'
 import PartyPreperation from '@/components/partyManagment/PartyPreperation.vue'
 import Leaderboard from '@/components/leaderboard/Leaderboard.vue'
 import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
 import { storeToRefs } from 'pinia'
-import { onMounted, ref } from 'vue'
 import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import {
@@ -19,7 +19,10 @@ import {
 } from '@/flatbuffers/messageClass'
 
 const websocketStore = useWebSocketStore()
-const { viewState } = storeToRefs(websocketStore)
+const { partyCode } = storeToRefs(websocketStore)
+
+const viewStore = useViewStore()
+const { viewState, viewData } = storeToRefs(viewStore)
 
 const host = () => {
   websocketStore.host()
@@ -50,12 +53,23 @@ const skipLeaderboard = () => {
 </script>
 <template>
   <div v-if="viewState !== ViewState.None" class="w-full h-full">
-    <GameManager id="gameManager" v-if="viewState === ViewState.MiniGame" is-host />
+    <GameManager
+      :data="viewData"
+      id="gameManager"
+      v-if="viewState === ViewState.MiniGame"
+      is-host
+    />
     <div v-else-if="viewState === ViewState.Leaderboard" class="max-w-[95%] h-full m-auto">
       <Leaderboard @click="skipLeaderboard()" />
     </div>
-    <div v-else class="max-w-[95%] h-full m-auto">
-      <PartyPreperation id="partyPrep" @click="startGame()" />
+    <div v-else-if="viewState == ViewState.PartyPrep" class="max-w-[95%] h-full m-auto">
+      <PartyPreperation
+        v-if="partyCode"
+        :data="viewData"
+        :partyCode
+        id="partyPrep"
+        @click="startGame()"
+      />
     </div>
   </div>
   <div v-else class="grid grid-rows-2 pt-12">

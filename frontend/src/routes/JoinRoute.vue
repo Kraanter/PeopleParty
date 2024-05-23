@@ -3,14 +3,18 @@ import { computed, onMounted, watch, watchEffect } from 'vue'
 import { NCard, NInput, NButton, NResult, NH1, NCollapseTransition } from 'naive-ui'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useWebSocketStore, ViewState } from '@/stores/confettiStore'
+import { useWebSocketStore } from '@/stores/confettiStore'
 import GameManager from '@/components/GameManager.vue'
 import { debounce } from '@/util/funcs'
 import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
 import { storeToRefs } from 'pinia'
+import { useViewStore, ViewState } from '@/stores/viewStore'
 
 const websocketStore = useWebSocketStore()
-const { partyCode, viewState } = storeToRefs(websocketStore)
+const { partyCode } = storeToRefs(websocketStore)
+
+const viewStore = useViewStore()
+const { viewState, viewData } = storeToRefs(viewStore)
 
 const onlyAllowNumber = (value: string) => !value || /^\d+$/.test(value)
 
@@ -133,10 +137,15 @@ const join = () => {
 <template>
   <div class="grid grid-rows-3 grid-cols-1 justify-center">
     <!-- ViewState === MiniGame -->
-    <GameManager :is-host="false" v-if="viewState === ViewState.MiniGame" class="row-span-3" />
+    <GameManager
+      :data="viewData"
+      :is-host="false"
+      v-if="viewState === ViewState.MiniGame"
+      class="row-span-3"
+    />
 
     <!-- Joined message -->
-    <n-card class="max-w-md m-auto row-start-2" v-if="joined && viewState !== ViewState.MiniGame">
+    <n-card class="max-w-md m-auto row-start-2" v-if="viewState === ViewState.PartyPrep">
       <n-result
         status="success"
         title="Joined"
@@ -194,7 +203,13 @@ const join = () => {
 
         <!-- Join button -->
         <n-collapse-transition :show="joinable" class="flex justify-center mt-6">
-          <n-button id="joinButton" :disabled="!joinable || joining" type="primary" size="large" @click="join">
+          <n-button
+            id="joinButton"
+            :disabled="!joinable || joining"
+            type="primary"
+            size="large"
+            @click="join"
+          >
             Join Party
           </n-button>
         </n-collapse-transition>
