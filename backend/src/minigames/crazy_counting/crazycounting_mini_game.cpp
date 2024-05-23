@@ -7,7 +7,7 @@
 #include "../../globals.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
-    update_interval = 16 MILLISECONDS;
+    update_interval = 32 MILLISECONDS;
     remaining_time = 30 SECONDS;
     time_since_last_time_update = 0 MILLISECONDS;
     this->entity_count = rand() % (40 - 20 + 1) + 20;
