@@ -46,7 +46,7 @@ void Leaderboard::send_leaderboard_information() {
                                                       LeaderboardPayload_LeaderboardInformationPayload, payload.Union());
 
     // Send payload to host
-    game->party->send_leaderboard([](Client* client) { return client->party->host == client; }, builder, leaderboardPayload.Union());
+    game->party->send_leaderboard([](Client* client) { return true; }, builder, leaderboardPayload.Union());
 }
 
 void Leaderboard::update(int delta_time) {
