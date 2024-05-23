@@ -1,5 +1,6 @@
 table CrazyCountingHostEntitiesPayload {
-    entities: [FBCrazyCountingEntity];
+  time_left: ulong;
+  entities: [FBCrazyCountingEntity];
 }
 
 table FBCrazyCountingEntity {

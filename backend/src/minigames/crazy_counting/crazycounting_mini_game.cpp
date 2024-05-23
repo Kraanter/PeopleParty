@@ -39,7 +39,7 @@ void CrazyCounting_MiniGame::send_entities() {
     auto entities_vector = builder.CreateVector(entities_buffer);
 
     // Encode payload to binary
-    auto payload = CreateCrazyCountingHostEntitiesPayload(builder, entities_vector);
+    auto payload = CreateCrazyCountingHostEntitiesPayload(builder, remaining_time, entities_vector);
 
     auto miniGame = builder.CreateString("crazyCounting");
 
