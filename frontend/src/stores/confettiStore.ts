@@ -42,6 +42,9 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const viewStore = useViewStore()
 
   function host() {
+    if (websocket.value) {
+      websocket.value.close()
+    }
     websocket.value = new WebSocket(baseUrl + '/host')
     websocket.value.binaryType = 'arraybuffer'
     setUpListeners()
