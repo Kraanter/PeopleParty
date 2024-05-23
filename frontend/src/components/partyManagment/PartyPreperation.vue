@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { NCard, NButton, NList, NListItem } from 'naive-ui'
+import { NCard, NList, NListItem } from 'naive-ui'
 import PartyQrCode from './PartyQrCode.vue'
-import { useWebSocketStore } from '@/stores/confettiStore'
-import { storeToRefs } from 'pinia'
 import PeoplePartyLogo from '../PeoplePartyLogo.vue'
 import PartyButton from '../PartyButton.vue'
+import { computed, toRefs, watch } from 'vue'
+import type { Player } from '@/stores/confettiStore'
 
-const confettiStore = useWebSocketStore()
-const { partyCode, playerCount, players } = storeToRefs(confettiStore)
+const props = defineProps<{
+  partyCode: string
+  data: Player[]
+}>()
+const { data, partyCode } = toRefs(props)
+
+const playerCount = computed(() => data.value?.length ?? 0)
 
 const emit = defineEmits(['click'])
 </script>
