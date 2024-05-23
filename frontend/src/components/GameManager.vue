@@ -1,9 +1,6 @@
 <script lang="ts" setup>
-import { NButton } from 'naive-ui'
 import { MiniGamePayloadType } from '@/flatbuffers/messageClass'
-import { useWebSocketStore } from '@/stores/confettiStore'
 import { defineAsyncComponent, ref, watch, defineProps, onMounted, shallowRef, toRefs } from 'vue'
-import { storeToRefs } from 'pinia'
 import PeoplePartyHeader from './PeoplePartyHeader.vue'
 
 const props = defineProps<{
@@ -12,8 +9,6 @@ const props = defineProps<{
 }>()
 const { data } = toRefs(props)
 
-const websocketStore = useWebSocketStore()
-const { partyCode } = storeToRefs(websocketStore)
 const gameName = ref('')
 
 const debounce = (func: Function, wait: number) => {

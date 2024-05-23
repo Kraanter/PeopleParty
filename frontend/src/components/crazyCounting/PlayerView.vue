@@ -146,19 +146,18 @@ const sendPlayerAction = (action: Input) => {
             :disabled="isDisabled"
             @click="sendPlayerAction(Input.Increase)"
             class="rounded-full col-start-2 aspect-square"
-          >+</PartyButton>
+            >+</PartyButton
+          >
           <PartyButton
             :disabled="isDisabled"
             @click="sendPlayerAction(Input.Decrease)"
             class="rounded-full"
-          >-</PartyButton>
+            >-</PartyButton
+          >
         </div>
-
       </div>
       <PeoplePartyLogo />
-      <div class="relative">
-
-      </div>
+      <div class="relative"></div>
     </div>
   </div>
 </template>
