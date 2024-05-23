@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { useWebSocketStore, ViewState } from '@/stores/confettiStore'
+import { useWebSocketStore } from '@/stores/confettiStore'
+import { useViewStore, ViewState } from '@/stores/viewStore'
 import GameManager from '@/components/GameManager.vue'
 import PartyButton from '@/components/PartyButton.vue'
 import PartyPreperation from '@/components/partyManagment/PartyPreperation.vue'
 import Leaderboard from '@/components/leaderboard/Leaderboard.vue'
 import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
 import { storeToRefs } from 'pinia'
-import { onMounted, ref } from 'vue'
 import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import {
@@ -19,7 +19,9 @@ import {
 } from '@/flatbuffers/messageClass'
 
 const websocketStore = useWebSocketStore()
-const { viewState } = storeToRefs(websocketStore)
+
+const viewStore = useViewStore()
+const { viewState } = storeToRefs(viewStore)
 
 const host = () => {
   websocketStore.host()
