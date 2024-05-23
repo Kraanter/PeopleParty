@@ -12,12 +12,12 @@ const { partyCode, playerCount, players } = storeToRefs(confettiStore)
 const emit = defineEmits(['click'])
 </script>
 <template>
-  <div class="flex flex-col gap-4 w-full h-full">
-    <div class="col-span-4 w-full h-52">
-      <PeoplePartyLogo />
-    </div>
-    <div class="grid grid-cols-3 gap-12 grid-rows-1 mb-8 h-full w-full">
-      <div class="w-full h-full flex flex-col justify-between">
+  <div class="w-full h-full max-h-full">
+    <div class="grid max-h-full grid-cols-3 gap-x-12 gap-y-4 grid-rows-5 mb-4 pb-8 h-full w-full">
+      <div class="col-span-3 w-full h-full">
+        <PeoplePartyLogo />
+      </div>
+      <div class="row-span-4 w-full h-full flex flex-col justify-between max-h-full">
         <n-card>
           <div class="w-full h-full flex flex-col justify-center items-center">
             <span class="text-2xl mb-2"
@@ -48,13 +48,15 @@ const emit = defineEmits(['click'])
         </n-card>
         <PartyButton id="startGame" @click="emit('click')" class="mt-8">Start Game </PartyButton>
       </div>
-      <n-card class="h-full col-span-2">
-        <n-list>
-          <n-list-item v-for="(player, i) in players" :key="i">
-            <p>{{ player.name }}</p>
-          </n-list-item>
-        </n-list>
-      </n-card>
+        <div class="col-span-2 row-span-4 max-h-full h-full overflow-scroll backdrop-blur-xl p-4 rounded-3xl">
+          <div class="grid grid-cols-2 gap-4">
+            <n-card v-for=" (player, i) in players" :key="i" class="font-bold  text-center">
+              <span class="text-2xl">
+              {{ player.name }}
+              </span>
+            </n-card>
+          </div>
+        </div>
     </div>
   </div>
 </template>
