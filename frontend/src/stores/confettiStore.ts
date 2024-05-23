@@ -38,11 +38,8 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const websocket = ref<WebSocket | null>(null)
   const listeners = ref<Function[]>([])
   const partyCode = ref<string | null>('')
-  const players = ref<Player[]>([])
-  const leaderboard = ref<Leaderboard>({ time_left: 0, players: [] })
   const route = useRoute()
   const isHosting = computed(() => route.name?.toString().toLowerCase() === 'host')
-  const playerCount = computed(() => players.value.length)
   const viewStore = useViewStore()
 
   function host() {
@@ -104,7 +101,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
         const hostPayload = receivedMessage.payload(new HostPayloadType())
         partyCode.value = hostPayload.roomId().toString()
         if (isHosting.value) {
-          viewStore.setViewState(ViewState.PartyPrep)
+          viewStore.setViewState(ViewState.PartyPrep, [])
         }
         break
       }
@@ -116,6 +113,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
       case MessageType.MiniGame: {
         viewStore.setViewState(ViewState.MiniGame)
         const miniGamePayload = receivedMessage.payload(new MiniGamePayloadType())
+        viewStore.setViewData(miniGamePayload)
         listeners.value.forEach((listener) => listener(miniGamePayload))
         break
       }
@@ -135,7 +133,8 @@ export const useWebSocketStore = defineStore('websocket', () => {
             for (let i = 0; i < payload.playersLength(); i++) {
               names.push({ name: decodeURI(payload.players(i)?.name() ?? '') })
             }
-            players.value = names.filter((p) => p && !!p.name)
+
+            viewStore.setViewData(names.filter((p) => p && !!p.name))
             break
           }
         }
@@ -146,7 +145,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
           new LeaderboardPayloadType()
         )
         if (leaderboardPayload.leaderboardpayloadType())
-          viewStore.setViewState(ViewState.Leaderboard)
+          viewStore.setViewState(ViewState.Leaderboard, [])
 
         switch (leaderboardPayload.leaderboardtype()) {
           case LeaderboardType.LeaderboardInformation: {
@@ -160,10 +159,10 @@ export const useWebSocketStore = defineStore('websocket', () => {
                 score: Number(payload.leaderboard(i)?.score()) ?? 0
               })
             }
-            leaderboard.value = {
+            viewStore.setViewData({
               time_left: Number(payload.leaderboardTimeLeft()),
               players: newEntries.filter((p) => p && !!p.name)
-            }
+            })
             break
           }
         }
@@ -182,9 +181,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
     sendMessage,
     subscribe,
     partyCode,
-    isHosting,
-    players,
-    leaderboard,
-    playerCount
+    isHosting
   }
 })

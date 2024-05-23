@@ -19,9 +19,10 @@ import {
 } from '@/flatbuffers/messageClass'
 
 const websocketStore = useWebSocketStore()
+const { partyCode } = storeToRefs(websocketStore)
 
 const viewStore = useViewStore()
-const { viewState } = storeToRefs(viewStore)
+const { viewState, viewData } = storeToRefs(viewStore)
 
 const host = () => {
   websocketStore.host()
@@ -52,12 +53,23 @@ const skipLeaderboard = () => {
 </script>
 <template>
   <div v-if="viewState !== ViewState.None" class="w-full h-full">
-    <GameManager id="gameManager" v-if="viewState === ViewState.MiniGame" is-host />
+    <GameManager
+      :data="viewData"
+      id="gameManager"
+      v-if="viewState === ViewState.MiniGame"
+      is-host
+    />
     <div v-else-if="viewState === ViewState.Leaderboard" class="max-w-[95%] h-full m-auto">
       <Leaderboard @click="skipLeaderboard()" />
     </div>
-    <div v-else class="max-w-[95%] h-full m-auto">
-      <PartyPreperation id="partyPrep" @click="startGame()" />
+    <div v-else-if="viewState == ViewState.PartyPrep" class="max-w-[95%] h-full m-auto">
+      <PartyPreperation
+        v-if="partyCode"
+        :data="viewData"
+        :partyCode
+        id="partyPrep"
+        @click="startGame()"
+      />
     </div>
   </div>
   <div v-else class="grid grid-rows-2 pt-12">
