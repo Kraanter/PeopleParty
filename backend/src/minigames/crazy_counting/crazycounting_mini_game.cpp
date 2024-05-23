@@ -16,6 +16,9 @@ void CrazyCounting_MiniGame::start() {
     std::cout << "CrazyCounting_MiniGame started" << std::endl;
 
     for (Client* client : game->get_clients()) {
+        if (client->isHost) {
+            continue;
+        }
         players[client->client_id] = CrazyCounting_Player(client->client_id, entity_count);
     }
 
@@ -123,15 +126,15 @@ void CrazyCounting_MiniGame::update(int delta_time) {
 
 std::vector<Client *> CrazyCounting_MiniGame::getMinigameResult() {
     // sort players by count, submitted and time
-    std::vector<CrazyCounting_Player*> sorted_players;
+    std::vector<CrazyCounting_Player> sorted_players;
     for (auto& [_, player] : players) {
-        sorted_players.push_back(&player);
+        sorted_players.push_back(player);
     }
     std::sort(sorted_players.begin(), sorted_players.end());
 
     std::vector<Client*> result;
-    for (CrazyCounting_Player* player: sorted_players) {
-        result.push_back(game->get_clients()[player->client_id]);
+    for (CrazyCounting_Player player: sorted_players) {
+        result.push_back(game->get_clients()[player.client_id]);
     }
 
     return result;

@@ -9,5 +9,6 @@ MiniGame::MiniGame(Game *game) : GameState(game) {
 }
 
 void MiniGame::finished() {
+    game->update_leaderboard(getMinigameResult());
     game->nextGameState<decltype(*this)>();
 }

@@ -34,7 +34,7 @@ void Leaderboard::send_leaderboard_information() {
 
     for (Client* client: game->get_clients()) {
         auto name = builder.CreateString(client->name.c_str());
-        players_buffer.push_back(CreateFBLeaderboardPlayer(builder, name, game->scores[client]));
+        players_buffer.push_back(CreateFBLeaderboardPlayer(builder, name, game->leaderboard[client]));
     }
     auto entities_vector = builder.CreateVector(players_buffer);
 

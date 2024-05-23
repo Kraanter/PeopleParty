@@ -57,8 +57,9 @@ public:
     void process_leaderboard_input(const LeaderboardPayloadType* payload, Client* from);
     void clients_changed();
     const std::vector<Client*> get_clients();
+    void update_leaderboard(std::vector<Client*> minigame_result);
 public:
-    std::map<const Client*, int> scores;
+    std::map<const Client*, int> leaderboard;
     Party *party;
 private:
     GameState* current_gamestate;

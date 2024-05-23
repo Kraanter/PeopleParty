@@ -26,5 +26,12 @@ public:
     bool operator<(const CrazyCounting_Player& other) const;
 };
 
+template <class T>
+struct less {
+    constexpr bool operator()(const T& lhs, const T& rhs) const {
+        return lhs < rhs;
+    }
+};
+
 
 #endif //PEOPLEPARTY_BACKEND_CRAZYCOUNTING_PLAYER_H
