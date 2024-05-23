@@ -146,21 +146,23 @@ function formatMiliseconds(miliseconds: number) {
         >
       </div>
       <div class="relative">
-        <PartyButton
-          :disabled="isDisabled"
-          @click="sendPlayerAction(Input.Increase)"
-          class="rounded-full absolute right-0 h-3/4 w-2/3 aspect-square"
-          >+</PartyButton
-        >
+        <div class="grid grid-cols-2 grid-rows-2">
+          <PartyButton
+            :disabled="isDisabled"
+            @click="sendPlayerAction(Input.Increase)"
+            class="rounded-full col-start-2 aspect-square"
+          >+</PartyButton>
+          <PartyButton
+            :disabled="isDisabled"
+            @click="sendPlayerAction(Input.Decrease)"
+            class="rounded-full"
+          >-</PartyButton>
+        </div>
+
       </div>
       <PeoplePartyLogo />
       <div class="relative">
-        <PartyButton
-          :disabled="isDisabled"
-          @click="sendPlayerAction(Input.Decrease)"
-          class="rounded-full -mt-8 w-1/2 aspect-square"
-          >-</PartyButton
-        >
+
       </div>
     </div>
   </div>
