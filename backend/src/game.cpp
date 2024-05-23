@@ -46,6 +46,7 @@ void Game::process_leaderboard_input(const LeaderboardPayloadType *payload, Clie
 }
 
 int score(int place, int max_score, int players) {
+    if (players == 1) return max_score;
     return (max_score / (players - 1)) * (players - place);
 }
 

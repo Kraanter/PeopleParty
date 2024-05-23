@@ -4,6 +4,7 @@
 
 #include "crazycounting_mini_game.h"
 #include "../../game.h"
+#include "../../globals.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
     update_interval = 16 MILLISECONDS;
@@ -50,10 +51,8 @@ void CrazyCounting_MiniGame::send_entities() {
 }
 
 void CrazyCounting_MiniGame::send_players_update() {
-    for (Client* client: game->get_clients()) {
-        if (!client->isHost) {
-            send_player_update(client->client_id);
-        }
+    for (auto player : players) {
+        send_player_update(player.first);
     }
 }
 
@@ -134,7 +133,7 @@ std::vector<Client *> CrazyCounting_MiniGame::getMinigameResult() {
 
     std::vector<Client*> result;
     for (CrazyCounting_Player player: sorted_players) {
-        result.push_back(game->get_clients()[player.client_id]);
+        result.push_back(client_repository[player.client_id]);
     }
 
     return result;
