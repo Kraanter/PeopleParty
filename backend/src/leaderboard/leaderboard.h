@@ -9,7 +9,7 @@ class Game;
 class Leaderboard: public GameState {
 public:
     Leaderboard(Game *game);
-    void clients_changed() override {};
+    void clients_changed(int client_id, bool joined) override {};
     void start();
 protected:
     void finished() override;

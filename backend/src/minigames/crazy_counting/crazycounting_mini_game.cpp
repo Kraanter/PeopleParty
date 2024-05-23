@@ -139,6 +139,8 @@ std::vector<Client *> CrazyCounting_MiniGame::getMinigameResult() {
     return result;
 }
 
-void CrazyCounting_MiniGame::clients_changed() {
-
+void CrazyCounting_MiniGame::clients_changed(int client_id, bool joined) {
+    if (!joined && players.find(client_id) != players.end()) {
+        players.erase(client_id);
+    }
 }

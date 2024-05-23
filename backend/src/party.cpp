@@ -73,9 +73,9 @@ const void Party::send_leaderboard(const std::function<bool(Client *)> &expressi
     return;
 }
 
-const void Party::clients_changed() {
+const void Party::clients_changed(int client_id, bool joined) {
     if (game != nullptr) {
-        game->clients_changed();
+        game->clients_changed(client_id, joined);
     }
 }
 

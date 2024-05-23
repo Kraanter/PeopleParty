@@ -27,9 +27,9 @@ const std::vector<Client *> Game::get_clients() {
     return party->get_clients();
 }
 
-void Game::clients_changed() {
+void Game::clients_changed(int client_id, bool joined) {
     if (current_gamestate != nullptr) {
-        current_gamestate->clients_changed();
+        current_gamestate->clients_changed(client_id, joined);
     }
 }
 
