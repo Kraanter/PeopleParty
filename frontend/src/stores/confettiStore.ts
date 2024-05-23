@@ -77,6 +77,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
         // set joining to false, maybe need a better error handling for when the connection is closed
         listeners.value.forEach((listener) => listener(false))
         console.log('WebSocket connection closed: ', event)
+        if (partyCode.value) location.reload()
       }
     }
   }
