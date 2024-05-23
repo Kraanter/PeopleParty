@@ -74,7 +74,7 @@ defineExpose({
         :width="size"
         :height="size"
         :key="i"
-        texture="/assets/games/crazyCounting/circle.svg"
+        texture="/assets/games/crazyCounting/partyhat.svg"
       />
     </Application>
   </div>

@@ -1,28 +1,32 @@
 <script setup lang="ts">
 import { formatMilliseconds } from '@/util/funcs'
 import { NCard } from 'naive-ui'
-import { defineProps } from 'vue'
+import { computed, defineProps, toRefs } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   timeLeft: number
 }>()
+const { timeLeft } = toRefs(props)
+
+const timeIsLow = computed(() => timeLeft.value < 15 * 1000)
 </script>
 <template>
   <n-card :theme-overrides="{ paddingMedium: '1em' }">
     <div class="flex items-center">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        class="size-16 -m-4 mr-2"
+      <img
+        src="/assets/clock.svg"
+        class="size-24 -m-8 mr-2"
+        :class="{
+          'animate-wiggle-fast': timeIsLow,
+          'animate-wiggle-slow': !timeIsLow
+        }"
+      />
+      <span
+        class="text-4xl font-bold"
+        :class="{ 'animate-pulse': timeLeft < 5 * 1000, 'text-primary': timeIsLow }"
       >
-        <path
-          fill-rule="evenodd"
-          d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z"
-          clip-rule="evenodd"
-        />
-      </svg>
-      <span class="text-2xl font-bold"> {{ formatMilliseconds(timeLeft) }}</span>
+        {{ formatMilliseconds(timeLeft) }}</span
+      >
     </div>
   </n-card>
 </template>

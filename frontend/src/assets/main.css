@@ -43,3 +43,21 @@ button:active {
 .n-card {
   box-shadow: 0.5rem 0.5rem 0 #000 !important;
 }
+
+@keyframes wiggle {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5deg);
+  }
+  50% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}

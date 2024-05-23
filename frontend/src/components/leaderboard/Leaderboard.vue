@@ -13,8 +13,13 @@ const props = defineProps<{
 const { data: leaderboard } = toRefs(props)
 
 const sortedLeaderboard = computed(() => {
-  const players = leaderboard.value.players
+  const players = leaderboard?.value?.players ?? []
   return players.sort((a, b) => b.score - a.score)
+})
+
+const timeLeft = computed(() => {
+  const time = leaderboard?.value?.time_left ?? 0
+  return time
 })
 
 const pr = new Intl.PluralRules('en-US', { type: 'ordinal' })
@@ -38,7 +43,7 @@ const formatOrdinals = (n: number) => {
     <!-- TODO: Make this justify-between and uncomment the skip component -->
     <div class="w-full flex justify-center px-8">
       <div>
-        <TimeComponent :timeLeft="data.time_left" />
+        <TimeComponent :timeLeft="timeLeft" />
       </div>
       <!-- <div>
         <PartyButton class="w-24" @click="onClick">
