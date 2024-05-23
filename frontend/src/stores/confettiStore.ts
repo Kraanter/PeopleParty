@@ -30,6 +30,11 @@ export type Player = {
   name: string
 }
 
+export type Leaderboard = {
+  time_left: number
+  players: LeaderboardPlayer[]
+}
+
 export type LeaderboardPlayer = {
   name: string
   score: number
@@ -40,7 +45,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const listeners = ref<Function[]>([])
   const partyCode = ref<string | null>('')
   const players = ref<Player[]>([])
-  const leaderboard = ref<LeaderboardPlayer[]>([])
+  const leaderboard = ref<Leaderboard>({ time_left: 0, players: [] })
   const route = useRoute()
   const isHosting = computed(() => route.name?.toString().toLowerCase() === 'host')
   const playerCount = computed(() => players.value.length)
@@ -152,7 +157,10 @@ export const useWebSocketStore = defineStore('websocket', () => {
                 score: Number(payload.leaderboard(i)?.score()) ?? 0
               })
             }
-            leaderboard.value = newEntries.filter((p) => p && !!p.name)
+            leaderboard.value =  {
+              time_left: Number(payload.leaderboardTimeLeft()),
+              players: newEntries.filter((p) => p && !!p.name)
+            }
             break
           }
         }

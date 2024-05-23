@@ -13,8 +13,9 @@ const emit = defineEmits(['click'])
   <div class="flex flex-col gap-4 w-full h-full">
     <div class="grid grid-cols-3 gap-12 grid-rows-1 mb-8 h-full w-full">
       <div class="w-full h-full flex flex-col justify-between">
+        time left {{ leaderboard.time_left }}
         <n-list>
-          <n-list-item v-for="(player, i) in leaderboard" :key="i">
+          <n-list-item v-for="(player, i) in leaderboard.players" :key="i">
             <p>{{ player.name }}</p>
             <p>{{ player.score }}</p>
           </n-list-item>
