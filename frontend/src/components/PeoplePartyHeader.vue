@@ -14,8 +14,8 @@ const { partyCode } = storeToRefs(useWebSocketStore())
     <div class="w-full row-span-3 -mt-4 h-28 my-auto">
       <PeoplePartyLogo />
     </div>
-    <p class="text-right mr-4">
-      Party Code: <span class="font-extrabold mr-4">{{ partyCode }}</span>
+    <p class="text-right">
+      Party Code: <span class="font-extrabold">{{ partyCode }}</span>
       <!--      TODO: Put this button back when we have pausing figured out-->
       <!--      <n-button type="primary" class="w-full h-full" circle>-->
       <!--        <svg-->

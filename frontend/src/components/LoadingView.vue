@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NSpin } from 'naive-ui'
+import { NSpin, NSpace } from 'naive-ui'
 </script>
 
 <template>

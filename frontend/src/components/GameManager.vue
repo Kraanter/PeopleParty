@@ -77,7 +77,7 @@ watch(
 
     <div
       id="container"
-      class="bg-black backdrop-blur-xl bg-opacity-50 shadow-lg rounded-md w-full h-[97dvh]"
+      class="bg-black backdrop-blur-xl bg-opacity-50 shadow-lg rounded-xl w-full h-[97dvh] overflow-hidden"
     >
       <component v-if="width && height" :is="gameViewComp" ref="gameViewRef" :height :width />
     </div>

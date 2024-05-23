@@ -1,11 +1,10 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { formatMilliseconds } from '@/util/funcs'
 import { NScrollbar, NCard } from 'naive-ui'
 import { defineProps, toRefs, computed } from 'vue'
 import { type Leaderboard } from '@/stores/confettiStore'
 import PeoplePartyHeader from '@/components/PeoplePartyHeader.vue'
-import PartyButton from '../PartyButton.vue'
+import TimeComponent from '../TimeComponent.vue'
 
 const props = defineProps<{
   data: Leaderboard
@@ -26,7 +25,8 @@ const suffixes = new Map([
   ['few', 'rd'],
   ['other', 'th']
 ])
-const formatOrdinals = (n) => {
+
+const formatOrdinals = (n: number) => {
   const rule = pr.select(n)
   const suffix = suffixes.get(rule)
   return `${n}${suffix}`
@@ -40,23 +40,7 @@ const onClick = () => console.log('TEST')
     <!-- TODO: Make this justify-between and uncomment the skip component -->
     <div class="w-full flex justify-center px-8">
       <div>
-        <n-card :theme-overrides="{ paddingMedium: '1em' }">
-          <div class="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="size-16 -m-4 mr-2"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span class="text-2xl font-bold"> {{ formatMilliseconds(data.time_left) }}</span>
-          </div>
-        </n-card>
+        <TimeComponent :timeLeft="data.time_left" />
       </div>
       <!-- <div>
         <PartyButton class="w-24" @click="onClick">

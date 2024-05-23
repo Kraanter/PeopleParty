@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Application } from 'vue3-pixi'
 import { ref, toRefs, defineProps, computed, watch } from 'vue'
+import TimeComponent from '../TimeComponent.vue'
 import {
   CrazyCountingHostEntitiesPayload,
   FBCrazyCountingEntity,
@@ -20,11 +21,6 @@ interface PosData {
   y: number
 }
 
-interface HostData {
-  timeLeft: number
-  entities: PosData[]
-}
-
 const { width, height } = toRefs(props)
 
 const appSize = computed(() => {
@@ -38,7 +34,8 @@ const interpolatePosition = (entity: FBCrazyCountingEntity): PosData => {
   }
 }
 
-const gameState = ref<HostData>({ timeLeft: 0, entities: [] })
+const entities = ref<PosData[]>([])
+const timeLeft = ref<number>(0)
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -49,34 +46,36 @@ const update = (data: MiniGamePayloadType) => {
       let localEntities: PosData[] = []
       for (let i = 0; i < hostEntitiesPayload.entitiesLength(); i++) {
         const entity = hostEntitiesPayload.entities(i)
+        console.log(entity?.xPos(), entity?.yPos())
         if (entity === null) continue
         localEntities.push(interpolatePosition(entity))
       }
-      gameState.value.entities = localEntities
-      gameState.value.timeLeft = Number(hostEntitiesPayload.timeLeft())
+      entities.value = localEntities
+      timeLeft.value = Number(hostEntitiesPayload.timeLeft())
       return localEntities
     }
   }
   return []
 }
 
-watch(size, () => {
-  console.log('Size changed', size.value)
-})
-
 defineExpose({
   update
 })
 </script>
 <template>
-  <Application key="gameview" :width="appSize" :height="appSize" background-color="white">
-    <sprite
-      v-for="(entity, i) in gameState.entities"
-      :position="entity"
-      :width="size"
-      :height="size"
-      :key="i"
-      texture="/assets/games/crazyCounting/circle.svg"
-    />
-  </Application>
+  <div class="flex justify-stretch">
+    <div class="mx-auto mt-4">
+      <TimeComponent :timeLeft />
+    </div>
+    <Application key="gameview" :width="appSize" :height="appSize" background-color="white">
+      <sprite
+        v-for="(entity, i) in entities"
+        :position="entity"
+        :width="size"
+        :height="size"
+        :key="i"
+        texture="/assets/games/crazyCounting/circle.svg"
+      />
+    </Application>
+  </div>
 </template>
