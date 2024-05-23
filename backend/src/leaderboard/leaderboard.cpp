@@ -33,6 +33,7 @@ void Leaderboard::send_leaderboard_information() {
     std::vector<flatbuffers::Offset<FBLeaderboardPlayer>> players_buffer;
 
     for (Client* client: game->get_clients()) {
+        if (client->isHost) continue;
         auto name = builder.CreateString(client->name.c_str());
         players_buffer.push_back(CreateFBLeaderboardPlayer(builder, name, game->leaderboard[client]));
     }
