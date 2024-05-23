@@ -20,6 +20,11 @@ interface PosData {
   y: number
 }
 
+interface HostData {
+  timeLeft: number
+  entities: PosData[]
+}
+
 const { width, height } = toRefs(props)
 
 const appSize = computed(() => {
@@ -33,7 +38,7 @@ const interpolatePosition = (entity: FBCrazyCountingEntity): PosData => {
   }
 }
 
-const gameState = ref<PosData[]>([])
+const gameState = ref<HostData>({ timeLeft: 0, entities: [] })
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -47,7 +52,8 @@ const update = (data: MiniGamePayloadType) => {
         if (entity === null) continue
         localEntities.push(interpolatePosition(entity))
       }
-      gameState.value = localEntities
+      gameState.value.entities = localEntities
+      gameState.value.timeLeft = Number(hostEntitiesPayload.timeLeft())
       return localEntities
     }
   }
@@ -65,7 +71,7 @@ defineExpose({
 <template>
   <Application key="gameview" :width="appSize" :height="appSize" background-color="white">
     <sprite
-      v-for="(entity, i) in gameState"
+      v-for="(entity, i) in gameState.entities"
       :position="entity"
       :width="size"
       :height="size"

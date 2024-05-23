@@ -25,22 +25,31 @@ static getSizePrefixedRootAsCrazyCountingHostEntitiesPayload(bb:flatbuffers.Byte
   return (obj || new CrazyCountingHostEntitiesPayload()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-entities(index: number, obj?:FBCrazyCountingEntity):FBCrazyCountingEntity|null {
+timeLeft():bigint {
   const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+entities(index: number, obj?:FBCrazyCountingEntity):FBCrazyCountingEntity|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? (obj || new FBCrazyCountingEntity()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 entitiesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 4);
+  const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startCrazyCountingHostEntitiesPayload(builder:flatbuffers.Builder) {
-  builder.startObject(1);
+  builder.startObject(2);
+}
+
+static addTimeLeft(builder:flatbuffers.Builder, timeLeft:bigint) {
+  builder.addFieldInt64(0, timeLeft, BigInt('0'));
 }
 
 static addEntities(builder:flatbuffers.Builder, entitiesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(0, entitiesOffset, 0);
+  builder.addFieldOffset(1, entitiesOffset, 0);
 }
 
 static createEntitiesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -60,8 +69,9 @@ static endCrazyCountingHostEntitiesPayload(builder:flatbuffers.Builder):flatbuff
   return offset;
 }
 
-static createCrazyCountingHostEntitiesPayload(builder:flatbuffers.Builder, entitiesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createCrazyCountingHostEntitiesPayload(builder:flatbuffers.Builder, timeLeft:bigint, entitiesOffset:flatbuffers.Offset):flatbuffers.Offset {
   CrazyCountingHostEntitiesPayload.startCrazyCountingHostEntitiesPayload(builder);
+  CrazyCountingHostEntitiesPayload.addTimeLeft(builder, timeLeft);
   CrazyCountingHostEntitiesPayload.addEntities(builder, entitiesOffset);
   return CrazyCountingHostEntitiesPayload.endCrazyCountingHostEntitiesPayload(builder);
 }
