@@ -60,7 +60,7 @@ const skipLeaderboard = () => {
       is-host
     />
     <div v-else-if="viewState === ViewState.Leaderboard" class="max-w-[95%] h-full m-auto">
-      <Leaderboard @click="skipLeaderboard()" />
+      <Leaderboard :data="viewData" @click="skipLeaderboard()" />
     </div>
     <div v-else-if="viewState == ViewState.PartyPrep" class="max-w-[95%] h-full m-auto">
       <PartyPreperation

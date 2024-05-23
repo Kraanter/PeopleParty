@@ -53,15 +53,17 @@ const emit = defineEmits(['click'])
         </n-card>
         <PartyButton id="startGame" @click="emit('click')" class="mt-8">Start Game </PartyButton>
       </div>
-        <div class="col-span-2 row-span-4 max-h-full h-full overflow-scroll backdrop-blur-xl p-4 rounded-3xl">
-          <div class="grid grid-cols-2 gap-4">
-            <n-card v-for=" (player, i) in players" :key="i" class="font-bold  text-center">
-              <span class="text-2xl">
+      <div
+        class="col-span-2 row-span-4 max-h-full h-full overflow-scroll backdrop-blur-xl p-4 rounded-3xl"
+      >
+        <div class="grid grid-cols-2 gap-4">
+          <n-card v-for="(player, i) in players" :key="i" class="font-bold text-center">
+            <span class="text-2xl">
               {{ player.name }}
-              </span>
-            </n-card>
-          </div>
+            </span>
+          </n-card>
         </div>
+      </div>
     </div>
   </div>
 </template>
