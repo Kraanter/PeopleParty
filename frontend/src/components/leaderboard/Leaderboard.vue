@@ -62,7 +62,7 @@ const formatOrdinals = (n: number) => {
     <n-scrollbar class="-mb-4">
       <div class="mx-auto mb-4 w-4/5" v-for="(player, i) in sortedLeaderboard" :key="i">
         <n-card>
-          <div class="w-full inline-flex justify-between text-2xl font-thin px-4">
+          <div class="w-full inline-flex justify-between text-2xl px-4">
             <p class="inline-flex">
               <span class="w-20">{{ formatOrdinals(i + 1) }}.</span
               ><span class="font-bold ml-4 col-span-5">{{ player.name }}</span>
