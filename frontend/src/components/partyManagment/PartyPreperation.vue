@@ -57,7 +57,7 @@ const emit = defineEmits(['click'])
         class="col-span-2 row-span-4 max-h-full h-full overflow-scroll backdrop-blur-xl p-4 rounded-3xl"
       >
         <div class="grid grid-cols-2 gap-4">
-          <n-card v-for="(player, i) in players" :key="i" class="font-bold text-center">
+          <n-card v-for="(player, i) in data" :key="i" class="font-bold text-center">
             <span class="text-2xl">
               {{ player.name }}
             </span>
