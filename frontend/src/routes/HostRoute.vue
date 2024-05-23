@@ -60,16 +60,10 @@ const skipLeaderboard = () => {
       is-host
     />
     <div v-else-if="viewState === ViewState.Leaderboard" class="max-w-[95%] h-full m-auto">
-      <Leaderboard @click="skipLeaderboard()" />
+      <Leaderboard :data="viewData" @click="skipLeaderboard()" />
     </div>
     <div v-else-if="viewState == ViewState.PartyPrep" class="max-w-[95%] h-full m-auto">
-      <PartyPreperation
-        v-if="partyCode"
-        :data="viewData"
-        :partyCode
-        id="partyPrep"
-        @click="startGame()"
-      />
+      <PartyPreperation :data="viewData" :partyCode id="partyPrep" @click="startGame()" />
     </div>
   </div>
   <div v-else class="grid grid-rows-2 pt-12">

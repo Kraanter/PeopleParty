@@ -9,6 +9,7 @@ import {
   MiniGamePayloadType,
   Payload
 } from '@/flatbuffers/messageClass'
+import { formatMilliseconds } from '@/util/funcs'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import { computed, ref } from 'vue'
 import { buildMessage } from '../../util/flatbufferMessageBuilder'
@@ -78,12 +79,6 @@ const sendPlayerAction = (action: Input) => {
     buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType)
   )
 }
-
-function formatMiliseconds(miliseconds: number) {
-  const minutes = Math.floor(miliseconds / 60000)
-  const seconds = ((miliseconds % 60000) / 1000).toFixed(0)
-  return `${minutes}:${Number(seconds) < 10 ? '0' : ''}${seconds}`
-}
 </script>
 <template>
   <div v-if="latestData" class="w-full h-full grid grid-cols-1 grid-rows-5 max-w-screen-md mx-auto">
@@ -108,7 +103,7 @@ function formatMiliseconds(miliseconds: number) {
                 d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
               />
             </svg>
-            {{ formatMiliseconds(latestData.timeLeft) }}
+            {{ formatMilliseconds(latestData.timeLeft) }}
           </div>
           <div class="text-8xl">{{ latestData.int }}</div>
           <div class="text-8xl">

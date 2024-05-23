@@ -37,7 +37,7 @@ export type LeaderboardPlayer = {
 export const useWebSocketStore = defineStore('websocket', () => {
   const websocket = ref<WebSocket | null>(null)
   const listeners = ref<Function[]>([])
-  const partyCode = ref<string | null>('')
+  const partyCode = ref<string>('')
   const route = useRoute()
   const isHosting = computed(() => route.name?.toString().toLowerCase() === 'host')
   const viewStore = useViewStore()
@@ -98,7 +98,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
 
     switch (receivedMessage.type()) {
       case MessageType.Host: {
-        const hostPayload = receivedMessage.payload(new HostPayloadType())
+        const hostPayload: HostPayloadType = receivedMessage.payload(new HostPayloadType())
         partyCode.value = hostPayload.roomId().toString()
         if (isHosting.value) {
           viewStore.setViewState(ViewState.PartyPrep, [])
