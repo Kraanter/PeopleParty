@@ -54,14 +54,19 @@ const emit = defineEmits(['click'])
         <PartyButton id="startGame" @click="emit('click')" class="mt-8">Start Game </PartyButton>
       </div>
       <div
-        class="col-span-2 row-span-4 max-h-full h-full overflow-scroll backdrop-blur-xl p-4 rounded-3xl"
+        class="col-span-2 row-span-4 max-h-full h-full overflow-y-auto backdrop-blur-xl p-4 rounded-3xl"
       >
-        <div class="grid grid-cols-2 gap-4">
+        <div v-if="data.length > 0" class="grid grid-cols-2 gap-4">
           <n-card v-for="(player, i) in data" :key="i" class="font-bold text-center">
             <span class="text-2xl">
               {{ player.name }}
             </span>
           </n-card>
+        </div>
+        <div v-else class="flex items-center justify-center h-full">
+          <span class="text-4xl font-semibold">
+            Join using the party code on the left!
+          </span>
         </div>
       </div>
     </div>
