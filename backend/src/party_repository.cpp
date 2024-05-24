@@ -19,8 +19,6 @@ void PartyRepository::RemoveParty(int party_id) {
     client_repository.RemoveClient(clients[i]->client_id);
   }
 
-  client_repository.RemoveClient(p->host->client_id);
-
   parties.erase(party_id);
 }
 
