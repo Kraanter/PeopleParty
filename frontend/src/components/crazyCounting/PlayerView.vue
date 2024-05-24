@@ -158,7 +158,6 @@ const sendPlayerAction = (action: Input) => {
         </div>
       </div>
       <PeoplePartyLogo />
-      <div class="relative"></div>
     </div>
   </div>
 </template>
