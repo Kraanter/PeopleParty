@@ -19,17 +19,17 @@ const emit = defineEmits(['click'])
 <template>
   <div class="w-full h-full max-h-full">
     <div class="grid max-h-full grid-cols-3 gap-x-12 gap-y-4 grid-rows-5 mb-4 pb-8 h-full w-full">
-      <div class="col-span-3 w-full h-full">
+      <div class="col-start-2 col-span-2 w-full h-full">
         <PeoplePartyLogo />
       </div>
-      <div class="row-span-4 w-full h-full flex flex-col justify-between max-h-full">
+      <div class="row-span-5 row-start-1 w-full h-full flex flex-col justify-end gap-4 max-h-full">
         <n-card>
           <div class="w-full h-full flex flex-col justify-center items-center">
-            <span class="text-2xl mb-2"
+            <span class="text-lg xl:text-xl mb-2"
               >Join now at <span class="font-bold">peopleparty.nl</span></span
             >
-            <span class="text-6xl text-center font-semibold">Party Code:</span>
-            <span class="text-8xl text-center font-extrabold my-4">{{ partyCode }}</span>
+            <span class="text-4xl text-center font-semibold">Party Code:</span>
+            <span class="text-6xl text-center font-extrabold my-4">{{ partyCode }}</span>
             <PartyQrCode />
             <div class="mx-auto mt-4 text-2xl flex gap-4">
               <svg
@@ -51,7 +51,11 @@ const emit = defineEmits(['click'])
             </div>
           </div>
         </n-card>
-        <PartyButton id="startGame" @click="emit('click')" class="mt-8">Start Game </PartyButton>
+        <div>
+          <PartyButton id="startGame" @click="emit('click')" class="xl:py-12 py-4 md:py-8"
+            >Start Game
+          </PartyButton>
+        </div>
       </div>
       <div
         class="col-span-2 row-span-4 max-h-full h-full overflow-y-auto backdrop-blur-xl p-4 rounded-3xl"
