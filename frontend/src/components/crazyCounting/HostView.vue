@@ -88,15 +88,22 @@ defineExpose({
         </div>
       </n-scrollbar>
     </div>
-    <Application key="gameview" :width="appSize" :height="appSize" background-color="white">
-      <sprite
-        v-for="(entity, i) in entities"
-        :position="entity"
-        :width="size"
-        :height="size"
-        :key="i"
-        texture="/assets/games/crazyCounting/partyhat.svg"
-      />
-    </Application>
+    <div class="relative">
+      <Application key="gameview" :width="appSize" :height="appSize" background-color="white">
+        <sprite
+          v-for="(entity, i) in entities"
+          :position="entity"
+          :width="size"
+          :height="size"
+          :key="i"
+          texture="/assets/games/crazyCounting/partyhat.svg"
+        />
+      </Application>
+      <div v-if="timeLeft <= 0" class="absolute w-full h-full top-0 left-0 flex backdrop-blur-xl">
+        <p class="text-9xl w-full text-center m-auto text-primary">
+          {{ entities.length }}
+        </p>
+      </div>
+    </div>
   </div>
 </template>
