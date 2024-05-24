@@ -40,11 +40,11 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const route = useRoute()
   const isHosting = computed(() => route.name?.toString().toLowerCase() === 'host')
   const viewStore = useViewStore()
+  const isConnecting = ref(false)
 
   function host() {
-    if (websocket.value) {
-      websocket.value.close()
-    }
+    if (isConnecting.value) return
+    isConnecting.value = true
     websocket.value = new WebSocket(baseUrl + '/host')
     websocket.value.binaryType = 'arraybuffer'
     setUpListeners()
@@ -67,7 +67,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
   function setUpListeners() {
     if (websocket.value) {
       websocket.value.onopen = () => {
-        console.log('WebSocket connection established.')
+        isConnecting.value = false
       }
 
       websocket.value.onmessage = (event) => {
@@ -76,6 +76,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
       }
 
       websocket.value.onclose = (event) => {
+        isConnecting.value = false
         // set joining to false, maybe need a better error handling for when the connection is closed
         listeners.value.forEach((listener) => listener(false))
         console.log('WebSocket connection closed: ', event)
@@ -109,6 +110,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
         break
       }
       case MessageType.Join: {
+        viewStore.setViewState(ViewState.PartyPrep)
         const joinPayload = receivedMessage.payload(new JoinPayloadType())
         listeners.value.forEach((listener) => listener(joinPayload.success()))
         break

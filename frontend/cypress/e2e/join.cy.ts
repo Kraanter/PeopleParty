@@ -12,7 +12,7 @@ describe('join test', () => {
     // check if qr code is made and a room code is displayed
     cy.get('#partyPrep').should('exist')
 
-    cy.get('.text-8xl').then(($el) => {
+    cy.get('#partyCode').then(($el) => {
       const roomCode = $el.text()
       cy.visit('/join')
       cy.get('#partyCode').first().type(roomCode)

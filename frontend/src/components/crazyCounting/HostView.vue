@@ -81,7 +81,7 @@ defineExpose({
       <div class="mx-auto mb-4">
         <TimeComponent :timeLeft />
       </div>
-      <p class="text-4xl w-full text-center text-white">Awnsers locked:</p>
+      <p class="text-4xl w-full text-center text-white">Answers locked:</p>
       <n-scrollbar class="mt-4">
         <div
           class="mx-auto mb-4 w-4/5"
