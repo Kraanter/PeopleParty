@@ -29,7 +29,7 @@ const emit = defineEmits(['click'])
               >Join now at <span class="font-bold">peopleparty.nl</span></span
             >
             <span class="text-4xl text-center font-semibold">Party Code:</span>
-            <span class="text-6xl text-center font-extrabold my-4">{{ partyCode }}</span>
+            <span id="partyCode" class="text-6xl text-center font-extrabold my-4">{{ partyCode }}</span>
             <PartyQrCode />
             <div class="mx-auto mt-4 text-2xl flex gap-4">
               <svg
