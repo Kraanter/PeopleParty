@@ -4,18 +4,22 @@
 
 #include "crazycounting_mini_game.h"
 #include "../../game.h"
+#include "../../globals.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
-    update_interval = 16 MILLISECONDS;
+    update_interval = 32 MILLISECONDS;
     remaining_time = 30 SECONDS;
     time_since_last_time_update = 0 MILLISECONDS;
-    this->entity_count = rand() % (40 - 20 + 1) + 20;
+    this->entity_count = rand() % (30 - 15 + 1) + 15;
 }
 
 void CrazyCounting_MiniGame::start() {
     std::cout << "CrazyCounting_MiniGame started" << std::endl;
 
     for (Client* client : game->get_clients()) {
+        if (client->isHost) {
+            continue;
+        }
         players[client->client_id] = CrazyCounting_Player(client->client_id, entity_count);
     }
 
@@ -34,8 +38,16 @@ void CrazyCounting_MiniGame::send_entities() {
     }
     auto entities_vector = builder.CreateVector(entities_buffer);
 
+    std::vector<flatbuffers::Offset<flatbuffers::String>> submitted_players;
+    for (auto& [_, player] : players) {
+        if (player.submitted) {
+            submitted_players.push_back(builder.CreateString(client_repository[player.client_id]->name));
+        }
+    }
+    auto submitted_players_vector = builder.CreateVector(submitted_players);
+
     // Encode payload to binary
-    auto payload = CreateCrazyCountingHostEntitiesPayload(builder, entities_vector);
+    auto payload = CreateCrazyCountingHostEntitiesPayload(builder, remaining_time, entities_vector, submitted_players_vector);
 
     auto miniGame = builder.CreateString("crazyCounting");
 
@@ -47,10 +59,8 @@ void CrazyCounting_MiniGame::send_entities() {
 }
 
 void CrazyCounting_MiniGame::send_players_update() {
-    for (Client* client: game->get_clients()) {
-        if (!client->isHost) {
-            send_player_update(client->client_id);
-        }
+    for (auto player : players) {
+        send_player_update(player.first);
     }
 }
 
@@ -123,20 +133,22 @@ void CrazyCounting_MiniGame::update(int delta_time) {
 
 std::vector<Client *> CrazyCounting_MiniGame::getMinigameResult() {
     // sort players by count, submitted and time
-    std::vector<CrazyCounting_Player*> sorted_players;
+    std::vector<CrazyCounting_Player> sorted_players;
     for (auto& [_, player] : players) {
-        sorted_players.push_back(&player);
+        sorted_players.push_back(player);
     }
     std::sort(sorted_players.begin(), sorted_players.end());
 
     std::vector<Client*> result;
-    for (CrazyCounting_Player* player: sorted_players) {
-        result.push_back(game->get_clients()[player->client_id]);
+    for (CrazyCounting_Player player: sorted_players) {
+        result.push_back(client_repository[player.client_id]);
     }
 
     return result;
 }
 
-void CrazyCounting_MiniGame::clients_changed() {
-
+void CrazyCounting_MiniGame::clients_changed(int client_id, bool joined) {
+    if (!joined && players.find(client_id) != players.end()) {
+        players.erase(client_id);
+    }
 }

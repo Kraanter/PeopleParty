@@ -65,7 +65,6 @@ void PartyPrep::update(int delta_time) {
      }
 }
 
-void PartyPrep::clients_changed() {
-    std::cout << "players changed" << std::endl;
+void PartyPrep::clients_changed(int client_id, bool joined) {
     update(0);
 }

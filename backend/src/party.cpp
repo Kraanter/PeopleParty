@@ -61,9 +61,21 @@ Party::send_party_prep(const std::function<bool(Client *)> &expression, flatbuff
     return;
 }
 
-const void Party::clients_changed() {
+const void Party::send_leaderboard(const std::function<bool(Client *)> &expression, flatbuffers::FlatBufferBuilder &builder,
+                            flatbuffers::Offset<> leaderboard_payload) {
+    auto message = CreateMessage(builder, MessageType_Leaderboard, Payload_LeaderboardPayloadType, leaderboard_payload.Union());
+    builder.Finish(message);
+    int size = builder.GetSize();
+
+    std::string payload_as_string(reinterpret_cast<const char*>(builder.GetBufferPointer()), size);
+
+    send_message(expression, payload_as_string);
+    return;
+}
+
+const void Party::clients_changed(int client_id, bool joined) {
     if (game != nullptr) {
-        game->clients_changed();
+        game->clients_changed(client_id, joined);
     }
 }
 

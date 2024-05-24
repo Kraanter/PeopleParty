@@ -9,6 +9,7 @@ import {
   MiniGamePayloadType,
   Payload
 } from '@/flatbuffers/messageClass'
+import { formatMilliseconds } from '@/util/funcs'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import { computed, ref } from 'vue'
 import { buildMessage } from '../../util/flatbufferMessageBuilder'
@@ -35,7 +36,8 @@ const latestData = ref<latest>({
   submitted: true
 })
 
-const isDisabled = computed(() => latestData.value.submitted || latestData.value.timeLeft <= 0)
+// fixme: until propper endminigame screen is there
+const isDisabled = computed(() => latestData.value.submitted || latestData.value.timeLeft <= 100)
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -64,7 +66,7 @@ const sendPlayerAction = (action: Input) => {
     action
   )
 
-  let miniGame = builder.createString('crazyCounting');
+  let miniGame = builder.createString('crazyCounting')
 
   let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
     builder,
@@ -77,12 +79,6 @@ const sendPlayerAction = (action: Input) => {
   websocketStore.sendMessage(
     buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType)
   )
-}
-
-function formatMiliseconds(miliseconds: number) {
-  const minutes = Math.floor(miliseconds / 60000)
-  const seconds = ((miliseconds % 60000) / 1000).toFixed(0)
-  return `${minutes}:${Number(seconds) < 10 ? '0' : ''}${seconds}`
 }
 </script>
 <template>
@@ -108,7 +104,7 @@ function formatMiliseconds(miliseconds: number) {
                 d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
               />
             </svg>
-            {{ formatMiliseconds(latestData.timeLeft) }}
+            {{ formatMilliseconds(latestData.timeLeft) }}
           </div>
           <div class="text-8xl">{{ latestData.int }}</div>
           <div class="text-8xl">
@@ -146,22 +142,22 @@ function formatMiliseconds(miliseconds: number) {
         >
       </div>
       <div class="relative">
-        <PartyButton
-          :disabled="isDisabled"
-          @click="sendPlayerAction(Input.Increase)"
-          class="rounded-full absolute right-0 h-3/4 w-2/3 aspect-square"
-          >+</PartyButton
-        >
+        <div class="grid grid-cols-2 grid-rows-2">
+          <PartyButton
+            :disabled="isDisabled"
+            @click="sendPlayerAction(Input.Increase)"
+            class="rounded-full col-start-2 aspect-square"
+            >+</PartyButton
+          >
+          <PartyButton
+            :disabled="isDisabled"
+            @click="sendPlayerAction(Input.Decrease)"
+            class="rounded-full"
+            >-</PartyButton
+          >
+        </div>
       </div>
       <PeoplePartyLogo />
-      <div class="relative">
-        <PartyButton
-          :disabled="isDisabled"
-          @click="sendPlayerAction(Input.Decrease)"
-          class="rounded-full -mt-8 w-1/2 aspect-square"
-          >-</PartyButton
-        >
-      </div>
     </div>
   </div>
 </template>

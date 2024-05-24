@@ -3,12 +3,14 @@
 
 include "payloadtypes/HostPayloadType.fbs";
 include "payloadtypes/JoinPayloadType.fbs";
+include "payloadtypes/LeaderboardPayloadType.fbs";
 include "payloadtypes/MiniGamePayloadType.fbs";
 include "payloadtypes/PartyPrepPayloadType.fbs";
 
 enum MessageType: byte {
     Host,
     Join,
+    Leaderboard,
     MiniGame,
     PartyPrep,
 }
@@ -16,6 +18,7 @@ enum MessageType: byte {
 union Payload {
     HostPayloadType,
     JoinPayloadType,
+    LeaderboardPayloadType,
     MiniGamePayloadType,
     PartyPrepPayloadType,
 }

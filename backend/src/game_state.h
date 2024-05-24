@@ -18,7 +18,8 @@ public:
     virtual void update(int delta_time) = 0;
     int update_interval;
     virtual void process_partyprep_input(const PartyPrepPayloadType* payload, Client* from) = 0;
-    virtual void clients_changed() = 0;
+    virtual void process_leaderboard_input(const LeaderboardPayloadType* payload, Client* from) = 0;
+    virtual void clients_changed(int client_id, bool joined) = 0;
 protected:
     virtual void finished() = 0;
     Game* game;

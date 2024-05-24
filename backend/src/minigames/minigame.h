@@ -18,6 +18,7 @@ public:
 protected:
     void finished() override;
     void process_partyprep_input(const PartyPrepPayloadType *payload, Client *from) override {};
+    void process_leaderboard_input(const LeaderboardPayloadType *payload, Client *from) override {};
 };
 
 #endif //PEOPLEPARTY_BACKEND_MINIGAME_H

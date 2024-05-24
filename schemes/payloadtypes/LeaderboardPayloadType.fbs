@@ -1,0 +1,32 @@
+table FBLeaderboardPlayer {
+    name: string;
+    score: ulong;
+}
+
+table LeaderboardInformationPayload {
+    leaderboard_time_left: ulong;
+    leaderboard: [FBLeaderboardPlayer];
+}
+
+
+table LeaderboardHostSkipPayload {
+    skip: bool;
+}
+
+
+enum LeaderboardType: byte {
+    LeaderboardInformation,
+    LeaderboardHostSkip,
+}
+
+union LeaderboardPayload {
+    LeaderboardInformationPayload,
+    LeaderboardHostSkipPayload,
+}
+
+table LeaderboardPayloadType {
+    leaderboardtype: LeaderboardType;
+    leaderboardpayload: LeaderboardPayload;
+}
+
+root_type LeaderboardPayloadType;

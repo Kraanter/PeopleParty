@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia'
-
 import * as flatbuffers from 'flatbuffers'
 import {
   HostPayloadType,
   JoinPayloadType,
+  LeaderboardInformationPayload,
+  LeaderboardPayloadType,
+  LeaderboardType,
   Message,
   MessageType,
   MiniGamePayloadType,
@@ -13,30 +15,36 @@ import {
 } from './../flatbuffers/messageClass'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { ViewState, useViewStore } from './viewStore'
 
 const baseUrl = `ws${window.location.protocol === 'https:' ? 's' : ''}:${window.location.host}/confetti`
-
-export enum ViewState {
-  None,
-  PartyPrep,
-  MiniGame
-}
 
 export type Player = {
   name: string
 }
 
+export type Leaderboard = {
+  time_left: number
+  players: LeaderboardPlayer[]
+}
+
+export type LeaderboardPlayer = {
+  name: string
+  score: number
+}
+
 export const useWebSocketStore = defineStore('websocket', () => {
   const websocket = ref<WebSocket | null>(null)
   const listeners = ref<Function[]>([])
-  const partyCode = ref<string | null>('')
-  const players = ref<Player[]>([])
+  const partyCode = ref<string>('')
   const route = useRoute()
   const isHosting = computed(() => route.name?.toString().toLowerCase() === 'host')
-  const playerCount = computed(() => players.value.length)
-  const viewState = ref<ViewState>(ViewState.None)
+  const viewStore = useViewStore()
 
   function host() {
+    if (websocket.value) {
+      websocket.value.close()
+    }
     websocket.value = new WebSocket(baseUrl + '/host')
     websocket.value.binaryType = 'arraybuffer'
     setUpListeners()
@@ -71,6 +79,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
         // set joining to false, maybe need a better error handling for when the connection is closed
         listeners.value.forEach((listener) => listener(false))
         console.log('WebSocket connection closed: ', event)
+        if (partyCode.value) location.reload()
       }
     }
   }
@@ -92,28 +101,32 @@ export const useWebSocketStore = defineStore('websocket', () => {
 
     switch (receivedMessage.type()) {
       case MessageType.Host: {
-        viewState.value = ViewState.PartyPrep
-        const hostPayload = receivedMessage.payload(new HostPayloadType())
+        const hostPayload: HostPayloadType = receivedMessage.payload(new HostPayloadType())
         partyCode.value = hostPayload.roomId().toString()
+        if (isHosting.value) {
+          viewStore.setViewState(ViewState.PartyPrep, [])
+        }
         break
       }
       case MessageType.Join: {
-        viewState.value = ViewState.PartyPrep
         const joinPayload = receivedMessage.payload(new JoinPayloadType())
         listeners.value.forEach((listener) => listener(joinPayload.success()))
         break
       }
       case MessageType.MiniGame: {
-        viewState.value = ViewState.MiniGame
+        viewStore.setViewState(ViewState.MiniGame)
         const miniGamePayload = receivedMessage.payload(new MiniGamePayloadType())
+        viewStore.setViewData(miniGamePayload)
         listeners.value.forEach((listener) => listener(miniGamePayload))
         break
       }
       case MessageType.PartyPrep: {
-        viewState.value = ViewState.PartyPrep
         const partyPrepPayload: PartyPrepPayloadType = receivedMessage.payload(
           new PartyPrepPayloadType()
         )
+
+        if (partyPrepPayload.partypreppayloadType()) viewStore.setViewState(ViewState.PartyPrep)
+
         switch (partyPrepPayload.partypreptype()) {
           case PartyPrepType.PartyPrepHostInformation: {
             const payload: PartyPrepHostInformationPayload = partyPrepPayload.partypreppayload(
@@ -123,7 +136,36 @@ export const useWebSocketStore = defineStore('websocket', () => {
             for (let i = 0; i < payload.playersLength(); i++) {
               names.push({ name: decodeURI(payload.players(i)?.name() ?? '') })
             }
-            players.value = names.filter((p) => p && !!p.name)
+
+            viewStore.setViewData(names.filter((p) => p && !!p.name))
+            break
+          }
+        }
+        break
+      }
+      case MessageType.Leaderboard: {
+        const leaderboardPayload: LeaderboardPayloadType = receivedMessage.payload(
+          new LeaderboardPayloadType()
+        )
+        if (leaderboardPayload.leaderboardpayloadType())
+          viewStore.setViewState(ViewState.Leaderboard, [])
+
+        switch (leaderboardPayload.leaderboardtype()) {
+          case LeaderboardType.LeaderboardInformation: {
+            const payload: LeaderboardInformationPayload = leaderboardPayload.leaderboardpayload(
+              new LeaderboardInformationPayload()
+            )
+            const newEntries: LeaderboardPlayer[] = []
+            for (let i = 0; i < payload.leaderboardLength(); i++) {
+              newEntries.push({
+                name: decodeURI(payload.leaderboard(i)?.name() ?? ''),
+                score: Number(payload.leaderboard(i)?.score()) ?? 0
+              })
+            }
+            viewStore.setViewData({
+              time_left: Number(payload.leaderboardTimeLeft()),
+              players: newEntries.filter((p) => p && !!p.name)
+            })
             break
           }
         }
@@ -142,9 +184,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
     sendMessage,
     subscribe,
     partyCode,
-    isHosting,
-    players,
-    playerCount,
-    viewState
+    isHosting
   }
 })

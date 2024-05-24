@@ -44,5 +44,10 @@ bool CrazyCounting_Player::operator<(const CrazyCounting_Player &other) const {
     if (submitted != other.submitted) {
         return submitted;
     }
-    return last_changed < other.last_changed;
+    if (last_changed != other.last_changed) {
+        return last_changed < other.last_changed;
+    }
+    return rand() % 2 == 0;
 }
+
+
