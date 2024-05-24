@@ -7,7 +7,7 @@ const { partyCode } = storeToRefs(useWebSocketStore())
 </script>
 <template>
   <div
-    class="w-full bg-white grid grid-cols-3 grid-rows-1 rounded-lg mt-2 mb-8 px-4 max-h-20 h-full text-2xl justify-center items-center cartoonShadow"
+    class="w-[95%] mx-auto bg-white grid grid-cols-3 grid-rows-1 rounded-lg mt-2 mb-8 px-4 max-h-20 h-full text-2xl justify-center items-center cartoonShadow"
   >
     <p>Join now at <span class="font-bold">peopleparty.nl</span></p>
     <div class="w-full row-span-3 -mt-4 h-28 my-auto">
