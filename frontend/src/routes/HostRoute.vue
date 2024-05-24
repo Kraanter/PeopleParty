@@ -59,12 +59,18 @@ const skipLeaderboard = () => {
       v-if="viewState === ViewState.MiniGame"
       is-host
     />
-    <div v-else-if="viewState === ViewState.Leaderboard" class="max-w-[95%] h-full m-auto">
-      <Leaderboard :data="viewData" @click="skipLeaderboard()" />
-    </div>
-    <div v-else-if="viewState == ViewState.PartyPrep" class="max-w-[95%] h-full m-auto">
-      <PartyPreperation :data="viewData" :partyCode id="partyPrep" @click="startGame()" />
-    </div>
+    <Leaderboard
+      v-if="viewState == ViewState.Leaderboard"
+      :data="viewData"
+      @click="skipLeaderboard()"
+    />
+    <PartyPreperation
+      v-else-if="viewState == ViewState.PartyPrep"
+      :data="viewData"
+      :partyCode
+      id="partyPrep"
+      @click="startGame()"
+    />
   </div>
   <div v-else class="grid grid-rows-2 pt-12">
     <div class="w-full max-w-screen-md h-full p-4 m-auto">
