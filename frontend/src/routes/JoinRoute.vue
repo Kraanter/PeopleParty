@@ -216,22 +216,23 @@ const join = () => {
       <n-card class="max-w-md m-auto">
         <n-h1 class="mb-6 text-center">Join a Party!</n-h1>
 
-        <div class="flex justify-between gap-4">
-          <n-input
+        <div class="grid grid-rows-1 h-full grid-cols-4 justify-between gap-4 w-full">
+          <input
             v-bind:key="i"
             v-for="i in partyCodeLength"
+            type="number"
+            :show-button="false"
             placeholder=""
             ref="inputElements"
             id="partyCode"
-            size="large"
             :autofocus="i === 1"
             :disabled="joining"
-            class="text-center flex items-center !text-3xl font-extrabold aspect-square bg-slate-300"
-            :theme-overrides="{ caretColor: 'transparent' }"
+            class="text-center text-3xl font-extrabold aspect-square bg-slate-300 cartoonShadow focus:bg-slate-100 rounded-md"
             :value="code[i - 1]"
             pattern="\d*"
             :allow-input="onlyAllowNumber"
-            @input="onChange(i - 1, $event.trim())"
+            @wheel.prevent
+            @input="onChange(i - 1, ($event as InputEvent).data?.trim() ?? '')"
             @keydown="keyDown(i - 1, $event)"
           />
         </div>
@@ -245,6 +246,7 @@ const join = () => {
             placeholder="Username"
             size="large"
             class="w-full"
+            :builtin-theme-overrides="{ fontSizeLarge: '16px' }"
             @keydown.enter="join"
             :loading="joining"
             :disabled="joining"

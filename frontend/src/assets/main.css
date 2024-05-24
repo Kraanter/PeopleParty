@@ -61,3 +61,17 @@ button:active {
     transform: rotate(0deg);
   }
 }
+
+@layer base {
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+*,
+div,
+body .n-card {
+  touch-action: manipulation !important;
+}

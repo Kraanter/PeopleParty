@@ -64,9 +64,7 @@ const emit = defineEmits(['click'])
           </n-card>
         </div>
         <div v-else class="flex items-center justify-center h-full">
-          <span class="text-4xl font-semibold">
-            Join using the party code on the left!
-          </span>
+          <span class="text-4xl font-semibold"> Join using the party code on the left! </span>
         </div>
       </div>
     </div>
