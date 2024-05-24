@@ -11,7 +11,14 @@
       "move:flatbuffer": "npm run move:flatbuffer:prepare && npm run move:flatbuffer:move && npm run move:flatbuffer:cleanup",
       "move:flatbuffer:prepare": "mkdir backend\\src\\flatbuffer\\ || mkdir frontend\\src\\flatbuffers\\ || exit 0",
       "move:flatbuffer:move": "move fbsout\\messageClass_generated.h backend\\src\\flatbuffer\\ && move fbsout\\*.ts frontend\\src\\flatbuffers\\",
-      "move:flatbuffer:cleanup": "rmdir /s /q fbsout"
+      "move:flatbuffer:cleanup": "rmdir /s /q fbsout",
+
+      "linux:flatbuffers:all": "npm run linux:build:flatbuffer && npm run linux:move:flatbuffer",
+      "linux:build:flatbuffer": "bash schemes/builder.sh && flatc --cpp --ts -o fbsout/ schemes/messageClass.fbs --gen-all",
+      "linux:move:flatbuffer": "npm run linux:move:flatbuffer:prepare && npm run linux:move:flatbuffer:move && npm run linux:move:flatbuffer:cleanup",
+      "linux:move:flatbuffer:prepare": "mkdir -p backend/src/flatbuffer frontend/src/flatbuffers",
+      "linux:move:flatbuffer:move": "mv fbsout/messageClass_generated.h backend/src/flatbuffer/ && mv fbsout/*.ts frontend/src/flatbuffers/",
+      "linux:move:flatbuffer:cleanup": "rm -rf fbsout"
     },
     "private": true
   }

@@ -1,6 +1,57 @@
 echo "Building the main schema file..."
 
 # ======================================================
+# First build the MiniGamePayloadType according to the different minigame GameStates
+# ======================================================
+
+GameStatesTypesDir="schemes/minigamedata"
+GameStateTypeOutputFile="schemes/payloadtypes/MiniGamePayloadType.fbs"
+GameStatePayloadTypes=()
+
+rm -f "$GameStateTypeOutputFile"
+
+# Write the header of the main schema file
+echo "// Automatically generated main schema file" >> "$GameStateTypeOutputFile"
+echo "// Include all gamestate types to build the MiniGamePayloadType scheme" >> "$GameStateTypeOutputFile"
+echo "" >> "$GameStateTypeOutputFile"
+
+# Loop through all files in the GameStates directory and include them in the main schema
+# also loop recursively through the subdirectories
+while IFS= read -r -d '' fbs_file; do
+    payload_type=$(basename "$fbs_file" .fbs)
+    folder_name=$(basename "$(dirname "$fbs_file")")
+    GameStatePayloadTypes+=( "$payload_type" )
+    echo "include \"minigamedata/$folder_name/$payload_type.fbs\";" >> "$GameStateTypeOutputFile"
+done < <(find "$GameStatesTypesDir" -type f -name '*.fbs' -print0)
+
+# Write GameStateType enum
+echo "" >> "$GameStateTypeOutputFile"
+echo "enum GameStateType: byte {" >> "$GameStateTypeOutputFile"
+for type in ${GameStatePayloadTypes[@]}; do
+	gamestateType=${type//"Payload"/""}
+	echo "    $gamestateType," >> "$GameStateTypeOutputFile"
+done
+echo "}" >> "$GameStateTypeOutputFile"
+
+# Write the union
+echo "" >> "$GameStateTypeOutputFile"
+echo "union GameStatePayload {" >> "$GameStateTypeOutputFile"
+for type in ${GameStatePayloadTypes[@]}; do
+	echo "    $type," >> "$GameStateTypeOutputFile"
+done
+echo "}" >> "$GameStateTypeOutputFile"
+
+# Write the root type definition to the main schema
+echo "" >> "$GameStateTypeOutputFile"
+echo "table MiniGamePayloadType {" >> "$GameStateTypeOutputFile"
+echo "    minigame: string;" >> "$GameStateTypeOutputFile"
+echo "    gamestatetype: GameStateType;" >> "$GameStateTypeOutputFile"
+echo "    gamestatepayload: GameStatePayload;" >> "$GameStateTypeOutputFile"
+echo "}" >> "$GameStateTypeOutputFile"
+echo "" >> "$GameStateTypeOutputFile"
+echo "root_type MiniGamePayloadType;" >> "$GameStateTypeOutputFile"
+
+# ======================================================
 # build the main scheme file
 # ======================================================
 

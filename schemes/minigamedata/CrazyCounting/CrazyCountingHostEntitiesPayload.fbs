@@ -1,0 +1,12 @@
+table CrazyCountingHostEntitiesPayload {
+  time_left: ulong;
+  entities: [FBCrazyCountingEntity];
+  submitted: [string];
+}
+
+table FBCrazyCountingEntity {
+  x_pos: float;
+  y_pos: float;
+}
+
+root_type CrazyCountingHostEntitiesPayload;

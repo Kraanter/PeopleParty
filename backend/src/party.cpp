@@ -1,57 +1,95 @@
 #include "party.h"
 
 #include "globals.h"
+#include "game.h"
 
 Party::Party() {
   party_id = generate_party_id();
   host = nullptr;
+  game = nullptr;
 }
 
-void Party::add_client(Client *client) { clients.push_back(client); }
+void Party::start_game() {
+    game = new Game(this);
+}
 
-void Party::remove_client(Client *client) {
-  for (int i = 0; i < clients.size(); ++i) {
-    if (clients[i] == client) {
-      clients.erase(clients.begin() + i);
-      return;
+const std::vector<Client *> Party::get_clients() {
+    return client_repository.Find([&] (Client* client) {
+        return client->party->party_id == this->party_id;
+    });
+}
+
+const void Party::send_message(const std::function<bool(Client *)> &expression, const std::string &message) {
+    std::vector<Client*> filtered_clients;
+    std::vector<Client*> clients = get_clients();
+    int client_count = clients.size();
+    for (int i = 0; i < client_count; i++) {
+        if (expression(clients[i])) {
+            filtered_clients.push_back(clients[i]);
+        }
     }
-  }
-  std::cerr << "Tried to remove " << *client
-            << " but it was not found in party " << party_id << "\n";
+    for (Client* client : filtered_clients) {
+        server_loop->defer([client, message]() {
+            client->send(message);
+        });
+    }
 }
 
-void Party::promote_client(Client *client) {
-  if (std::find(clients.begin(), clients.end(), client) != clients.end()) {
-    host = client;
-  } else {
-    std::cerr << "Tried to promote " << *client << " but it was found in party "
-              << party_id << "\n";
-  }
+const void Party::send_gamestate(const std::function<bool(Client *)> &expression, flatbuffers::FlatBufferBuilder &builder,
+                           flatbuffers::Offset<> gamestate) {
+    auto message = CreateMessage(builder, MessageType_MiniGame, Payload_MiniGamePayloadType, gamestate.Union());
+
+    builder.Finish(message);
+    int size = builder.GetSize();
+
+    uint8_t* buffer = builder.GetBufferPointer();
+    std::string payload_as_string(reinterpret_cast<const char*>(builder.GetBufferPointer()), size);
+
+    send_message(expression, payload_as_string);
 }
 
-void Party::send(const uint8_t *payload, size_t size, uWS::OpCode opcode) {
-  for (Client *client : clients) {
-    client->send(payload, size, opcode);
-  }
+const void
+Party::send_party_prep(const std::function<bool(Client *)> &expression, flatbuffers::FlatBufferBuilder &builder,
+                       flatbuffers::Offset<> partyprep_payload) {
+    auto message = CreateMessage(builder, MessageType_PartyPrep, Payload_PartyPrepPayloadType, partyprep_payload.Union());
+    builder.Finish(message);
+    int size = builder.GetSize();
+
+    std::string payload_as_string(reinterpret_cast<const char*>(builder.GetBufferPointer()), size);
+
+    send_message(expression, payload_as_string);
+    return;
 }
 
-void Party::send(std::string payload, uWS::OpCode opcode) {
-  for (Client *client : clients) {
-    client->send(payload, opcode);
-  }
+const void Party::send_leaderboard(const std::function<bool(Client *)> &expression, flatbuffers::FlatBufferBuilder &builder,
+                            flatbuffers::Offset<> leaderboard_payload) {
+    auto message = CreateMessage(builder, MessageType_Leaderboard, Payload_LeaderboardPayloadType, leaderboard_payload.Union());
+    builder.Finish(message);
+    int size = builder.GetSize();
+
+    std::string payload_as_string(reinterpret_cast<const char*>(builder.GetBufferPointer()), size);
+
+    send_message(expression, payload_as_string);
+    return;
 }
 
-std::ostream &operator<<(std::ostream &stream, const Party &party) {
+const void Party::clients_changed(int client_id, bool joined) {
+    if (game != nullptr) {
+        game->clients_changed(client_id, joined);
+    }
+}
+
+std::ostream &operator<<(std::ostream &stream, Party &party) {
   std::string game_name = "Nothing";
   stream << party.party_id << ", playing " << game_name << ", "
-         << party.clients.size() << " clients connected";
+         << party.get_clients().size() << " client_repository connected";
   return stream;
 }
 
 int generate_party_id() {
   const int random = rand();
   int id = (random % 9000) + 1000;
-  while (parties.contains(id)) {
+  while (party_repository.contains(id)) {
     id++;
     if (id > 9999) {
       id = 1000;

@@ -2,9 +2,8 @@
 #define TYPEDEFS_H
 
 #include <uWebSockets/App.h>
-
 #include "socketdata.h"
 
-typedef uWS::WebSocket<true, true, SocketData> WS;
+using WS = uWS::WebSocket<true, true, SocketData>;
 
 #endif  // TYPEDEFS_H

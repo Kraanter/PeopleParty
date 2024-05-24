@@ -34,10 +34,4 @@ std::string buildJoinMessage() {
   return dataAsString;
 }
 
-std::string buildGameStateMessage() {
-  // TODO: when we have minigames a interface Minigame will be provided as
-  // parameter, It will call minigame.buildGameStateMessage() or something than.
-
-  return "";
-}
-};  // namespace FlatbufferMessageBuilder
+};

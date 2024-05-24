@@ -21,12 +21,12 @@ const router = createRouter({
     {
       path: '/host',
       name: 'host',
-      component: () => import('../views/HostView.vue')
+      component: () => import('../routes/HostRoute.vue')
     },
     {
       path: '/join',
       name: 'join',
-      component: () => import('../views/JoinView.vue')
+      component: () => import('../routes/JoinRoute.vue')
     }
   ]
 })
