@@ -30,6 +30,8 @@ public:
         std::cout << "Next game state" << std::endl;
         if (typeid(T) == typeid(MiniGame)) {
             // We just finished a minigame so we change to the leaderboard
+            // fixme: remove this abomination
+            std::this_thread::sleep_for(std::chrono::seconds(5));
             current_gamestate = new Leaderboard(this);
             ((Leaderboard*)current_gamestate)->start();
             return;

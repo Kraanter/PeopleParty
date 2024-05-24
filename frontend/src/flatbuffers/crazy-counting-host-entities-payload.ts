@@ -40,8 +40,20 @@ entitiesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+submitted(index: number):string
+submitted(index: number,optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+submitted(index: number,optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__string(this.bb!.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+}
+
+submittedLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startCrazyCountingHostEntitiesPayload(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 }
 
 static addTimeLeft(builder:flatbuffers.Builder, timeLeft:bigint) {
@@ -64,15 +76,32 @@ static startEntitiesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
+static addSubmitted(builder:flatbuffers.Builder, submittedOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, submittedOffset, 0);
+}
+
+static createSubmittedVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startSubmittedVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endCrazyCountingHostEntitiesPayload(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createCrazyCountingHostEntitiesPayload(builder:flatbuffers.Builder, timeLeft:bigint, entitiesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createCrazyCountingHostEntitiesPayload(builder:flatbuffers.Builder, timeLeft:bigint, entitiesOffset:flatbuffers.Offset, submittedOffset:flatbuffers.Offset):flatbuffers.Offset {
   CrazyCountingHostEntitiesPayload.startCrazyCountingHostEntitiesPayload(builder);
   CrazyCountingHostEntitiesPayload.addTimeLeft(builder, timeLeft);
   CrazyCountingHostEntitiesPayload.addEntities(builder, entitiesOffset);
+  CrazyCountingHostEntitiesPayload.addSubmitted(builder, submittedOffset);
   return CrazyCountingHostEntitiesPayload.endCrazyCountingHostEntitiesPayload(builder);
 }
 }

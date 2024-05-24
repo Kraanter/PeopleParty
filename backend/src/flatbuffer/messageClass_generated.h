@@ -790,7 +790,8 @@ struct CrazyCountingHostEntitiesPayload FLATBUFFERS_FINAL_CLASS : private ::flat
   typedef CrazyCountingHostEntitiesPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIME_LEFT = 4,
-    VT_ENTITIES = 6
+    VT_ENTITIES = 6,
+    VT_SUBMITTED = 8
   };
   uint64_t time_left() const {
     return GetField<uint64_t>(VT_TIME_LEFT, 0);
@@ -798,12 +799,18 @@ struct CrazyCountingHostEntitiesPayload FLATBUFFERS_FINAL_CLASS : private ::flat
   const ::flatbuffers::Vector<::flatbuffers::Offset<FBCrazyCountingEntity>> *entities() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBCrazyCountingEntity>> *>(VT_ENTITIES);
   }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *submitted() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_SUBMITTED);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TIME_LEFT, 8) &&
            VerifyOffset(verifier, VT_ENTITIES) &&
            verifier.VerifyVector(entities()) &&
            verifier.VerifyVectorOfTables(entities()) &&
+           VerifyOffset(verifier, VT_SUBMITTED) &&
+           verifier.VerifyVector(submitted()) &&
+           verifier.VerifyVectorOfStrings(submitted()) &&
            verifier.EndTable();
   }
 };
@@ -817,6 +824,9 @@ struct CrazyCountingHostEntitiesPayloadBuilder {
   }
   void add_entities(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBCrazyCountingEntity>>> entities) {
     fbb_.AddOffset(CrazyCountingHostEntitiesPayload::VT_ENTITIES, entities);
+  }
+  void add_submitted(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> submitted) {
+    fbb_.AddOffset(CrazyCountingHostEntitiesPayload::VT_SUBMITTED, submitted);
   }
   explicit CrazyCountingHostEntitiesPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -832,9 +842,11 @@ struct CrazyCountingHostEntitiesPayloadBuilder {
 inline ::flatbuffers::Offset<CrazyCountingHostEntitiesPayload> CreateCrazyCountingHostEntitiesPayload(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t time_left = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBCrazyCountingEntity>>> entities = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBCrazyCountingEntity>>> entities = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> submitted = 0) {
   CrazyCountingHostEntitiesPayloadBuilder builder_(_fbb);
   builder_.add_time_left(time_left);
+  builder_.add_submitted(submitted);
   builder_.add_entities(entities);
   return builder_.Finish();
 }
@@ -842,12 +854,15 @@ inline ::flatbuffers::Offset<CrazyCountingHostEntitiesPayload> CreateCrazyCounti
 inline ::flatbuffers::Offset<CrazyCountingHostEntitiesPayload> CreateCrazyCountingHostEntitiesPayloadDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t time_left = 0,
-    const std::vector<::flatbuffers::Offset<FBCrazyCountingEntity>> *entities = nullptr) {
+    const std::vector<::flatbuffers::Offset<FBCrazyCountingEntity>> *entities = nullptr,
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *submitted = nullptr) {
   auto entities__ = entities ? _fbb.CreateVector<::flatbuffers::Offset<FBCrazyCountingEntity>>(*entities) : 0;
+  auto submitted__ = submitted ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*submitted) : 0;
   return CreateCrazyCountingHostEntitiesPayload(
       _fbb,
       time_left,
-      entities__);
+      entities__,
+      submitted__);
 }
 
 struct FBCrazyCountingEntity FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {

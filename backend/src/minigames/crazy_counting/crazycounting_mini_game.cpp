@@ -10,7 +10,7 @@ CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
     update_interval = 32 MILLISECONDS;
     remaining_time = 30 SECONDS;
     time_since_last_time_update = 0 MILLISECONDS;
-    this->entity_count = rand() % (40 - 20 + 1) + 20;
+    this->entity_count = rand() % (30 - 15 + 1) + 15;
 }
 
 void CrazyCounting_MiniGame::start() {
@@ -38,8 +38,16 @@ void CrazyCounting_MiniGame::send_entities() {
     }
     auto entities_vector = builder.CreateVector(entities_buffer);
 
+    std::vector<flatbuffers::Offset<flatbuffers::String>> submitted_players;
+    for (auto& [_, player] : players) {
+        if (player.submitted) {
+            submitted_players.push_back(builder.CreateString(client_repository[player.client_id]->name));
+        }
+    }
+    auto submitted_players_vector = builder.CreateVector(submitted_players);
+
     // Encode payload to binary
-    auto payload = CreateCrazyCountingHostEntitiesPayload(builder, remaining_time, entities_vector);
+    auto payload = CreateCrazyCountingHostEntitiesPayload(builder, remaining_time, entities_vector, submitted_players_vector);
 
     auto miniGame = builder.CreateString("crazyCounting");
 
