@@ -5,7 +5,9 @@
 export { CrazyCountingHostEntitiesPayload } from './crazy-counting-host-entities-payload.js';
 export { CrazyCountingPlayerInputPayload } from './crazy-counting-player-input-payload.js';
 export { CrazyCountingPlayerUpdatePayload } from './crazy-counting-player-update-payload.js';
+export { CrazyCountingResultPayload } from './crazy-counting-result-payload.js';
 export { FBCrazyCountingEntity } from './fbcrazy-counting-entity.js';
+export { FBCrazyCountingResultPair } from './fbcrazy-counting-result-pair.js';
 export { FBLeaderboardPlayer } from './fbleaderboard-player.js';
 export { FBPlayer } from './fbplayer.js';
 export { GameStatePayload } from './game-state-payload.js';
@@ -20,6 +22,7 @@ export { LeaderboardPayloadType } from './leaderboard-payload-type.js';
 export { LeaderboardType } from './leaderboard-type.js';
 export { Message } from './message.js';
 export { MessageType } from './message-type.js';
+export { MiniGameIntroductionPayload } from './mini-game-introduction-payload.js';
 export { MiniGamePayloadType } from './mini-game-payload-type.js';
 export { PartyPrepHostInformationPayload } from './party-prep-host-information-payload.js';
 export { PartyPrepHostStartGamePayload } from './party-prep-host-start-game-payload.js';

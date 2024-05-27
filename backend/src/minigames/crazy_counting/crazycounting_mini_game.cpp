@@ -13,7 +13,31 @@ CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
     this->entity_count = rand() % (30 - 15 + 1) + 15;
 }
 
-void CrazyCounting_MiniGame::start() {
+void CrazyCounting_MiniGame::start_introduction() {
+    std::cout << "CrazyCounting_MiniGame introduction" << std::endl;
+    send_minigame_introduction("crazyCounting", "Crazy Counting",
+        "Count the entities as fast as you can and fill in the number on your phone!");
+    
+    // fixme: need to send multiple messages because frontend cannot handle it
+    timer.add_timeout([this]() {
+        send_minigame_introduction("crazyCounting", "Crazy Counting",
+        "Count the entities as fast as you can and fill in the number on your phone!");
+    }, 500);
+    timer.add_timeout([this]() {
+        send_minigame_introduction("crazyCounting", "Crazy Counting",
+        "Count the entities as fast as you can and fill in the number on your phone!");
+    }, 1000);
+    timer.add_timeout([this]() {
+        send_minigame_introduction("crazyCounting", "Crazy Counting",
+        "Count the entities as fast as you can and fill in the number on your phone!");
+    }, 1500);
+    timer.add_timeout([this]() {
+        send_minigame_introduction("crazyCounting", "Crazy Counting",
+        "Count the entities as fast as you can and fill in the number on your phone!");
+    }, 2000);
+}
+
+void CrazyCounting_MiniGame::start_minigame() {
     std::cout << "CrazyCounting_MiniGame started" << std::endl;
 
     for (Client* client : game->get_clients()) {
@@ -27,6 +51,29 @@ void CrazyCounting_MiniGame::start() {
         entities.push_back(new CrazyCounting_Entity());
     }
     timer.startUpdateTimer(this);
+}
+
+void CrazyCounting_MiniGame::start_result() {
+    std::cout << "CrazyCounting_MiniGame result" << std::endl;
+    flatbuffers::FlatBufferBuilder builder;
+
+    std::vector<flatbuffers::Offset<FBCrazyCountingResultPair>> results_buffer;
+    for (auto& [_, player] : players) {
+        auto result = CreateFBCrazyCountingResultPair(builder, 
+            builder.CreateString(client_repository[player.client_id]->name), 
+            player.get_count());
+        
+        results_buffer.push_back(result);
+    }
+    auto results_vector = builder.CreateVector(results_buffer);
+
+    auto payload = CreateCrazyCountingResultPayload(builder, entity_count, results_vector);
+
+    auto miniGame = builder.CreateString("crazyCounting");
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_CrazyCountingResult,
+                                                      GameStatePayload_CrazyCountingResultPayload, payload.Union());
+
+    game->party->send_gamestate([](Client* client) { return client->party->host == client; }, builder, gameStatePayload.Union());
 }
 
 void CrazyCounting_MiniGame::send_entities() {
@@ -116,7 +163,11 @@ void CrazyCounting_MiniGame::update(int delta_time) {
 
     if(remaining_time <= 0) {
         timer.stop();
-        MiniGame::finished();
+        start_result();
+
+        timer.add_timeout([this]() {
+            MiniGame::finished();;
+        }, 5 SECONDS);
         return;
     }
 

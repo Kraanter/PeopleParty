@@ -37,7 +37,7 @@ const latestData = ref<latest>({
 })
 
 // fixme: until propper endminigame screen is there
-const isDisabled = computed(() => latestData.value.submitted || latestData.value.timeLeft <= 100)
+const isDisabled = computed(() => latestData.value.submitted)
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {

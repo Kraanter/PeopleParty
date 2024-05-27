@@ -5,5 +5,7 @@
 export enum GameStateType {
   CrazyCountingHostEntities = 0,
   CrazyCountingPlayerInput = 1,
-  CrazyCountingPlayerUpdate = 2
+  CrazyCountingPlayerUpdate = 2,
+  CrazyCountingResult = 3,
+  MiniGameIntroduction = 4
 }

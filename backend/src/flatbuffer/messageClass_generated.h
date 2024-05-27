@@ -43,6 +43,15 @@ struct CrazyCountingPlayerInputPayloadBuilder;
 struct CrazyCountingPlayerUpdatePayload;
 struct CrazyCountingPlayerUpdatePayloadBuilder;
 
+struct CrazyCountingResultPayload;
+struct CrazyCountingResultPayloadBuilder;
+
+struct FBCrazyCountingResultPair;
+struct FBCrazyCountingResultPairBuilder;
+
+struct MiniGameIntroductionPayload;
+struct MiniGameIntroductionPayloadBuilder;
+
 struct MiniGamePayloadType;
 struct MiniGamePayloadTypeBuilder;
 
@@ -179,31 +188,37 @@ enum GameStateType : int8_t {
   GameStateType_CrazyCountingHostEntities = 0,
   GameStateType_CrazyCountingPlayerInput = 1,
   GameStateType_CrazyCountingPlayerUpdate = 2,
+  GameStateType_CrazyCountingResult = 3,
+  GameStateType_MiniGameIntroduction = 4,
   GameStateType_MIN = GameStateType_CrazyCountingHostEntities,
-  GameStateType_MAX = GameStateType_CrazyCountingPlayerUpdate
+  GameStateType_MAX = GameStateType_MiniGameIntroduction
 };
 
-inline const GameStateType (&EnumValuesGameStateType())[3] {
+inline const GameStateType (&EnumValuesGameStateType())[5] {
   static const GameStateType values[] = {
     GameStateType_CrazyCountingHostEntities,
     GameStateType_CrazyCountingPlayerInput,
-    GameStateType_CrazyCountingPlayerUpdate
+    GameStateType_CrazyCountingPlayerUpdate,
+    GameStateType_CrazyCountingResult,
+    GameStateType_MiniGameIntroduction
   };
   return values;
 }
 
 inline const char * const *EnumNamesGameStateType() {
-  static const char * const names[4] = {
+  static const char * const names[6] = {
     "CrazyCountingHostEntities",
     "CrazyCountingPlayerInput",
     "CrazyCountingPlayerUpdate",
+    "CrazyCountingResult",
+    "MiniGameIntroduction",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameGameStateType(GameStateType e) {
-  if (::flatbuffers::IsOutRange(e, GameStateType_CrazyCountingHostEntities, GameStateType_CrazyCountingPlayerUpdate)) return "";
+  if (::flatbuffers::IsOutRange(e, GameStateType_CrazyCountingHostEntities, GameStateType_MiniGameIntroduction)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesGameStateType()[index];
 }
@@ -213,33 +228,39 @@ enum GameStatePayload : uint8_t {
   GameStatePayload_CrazyCountingHostEntitiesPayload = 1,
   GameStatePayload_CrazyCountingPlayerInputPayload = 2,
   GameStatePayload_CrazyCountingPlayerUpdatePayload = 3,
+  GameStatePayload_CrazyCountingResultPayload = 4,
+  GameStatePayload_MiniGameIntroductionPayload = 5,
   GameStatePayload_MIN = GameStatePayload_NONE,
-  GameStatePayload_MAX = GameStatePayload_CrazyCountingPlayerUpdatePayload
+  GameStatePayload_MAX = GameStatePayload_MiniGameIntroductionPayload
 };
 
-inline const GameStatePayload (&EnumValuesGameStatePayload())[4] {
+inline const GameStatePayload (&EnumValuesGameStatePayload())[6] {
   static const GameStatePayload values[] = {
     GameStatePayload_NONE,
     GameStatePayload_CrazyCountingHostEntitiesPayload,
     GameStatePayload_CrazyCountingPlayerInputPayload,
-    GameStatePayload_CrazyCountingPlayerUpdatePayload
+    GameStatePayload_CrazyCountingPlayerUpdatePayload,
+    GameStatePayload_CrazyCountingResultPayload,
+    GameStatePayload_MiniGameIntroductionPayload
   };
   return values;
 }
 
 inline const char * const *EnumNamesGameStatePayload() {
-  static const char * const names[5] = {
+  static const char * const names[7] = {
     "NONE",
     "CrazyCountingHostEntitiesPayload",
     "CrazyCountingPlayerInputPayload",
     "CrazyCountingPlayerUpdatePayload",
+    "CrazyCountingResultPayload",
+    "MiniGameIntroductionPayload",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameGameStatePayload(GameStatePayload e) {
-  if (::flatbuffers::IsOutRange(e, GameStatePayload_NONE, GameStatePayload_CrazyCountingPlayerUpdatePayload)) return "";
+  if (::flatbuffers::IsOutRange(e, GameStatePayload_NONE, GameStatePayload_MiniGameIntroductionPayload)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesGameStatePayload()[index];
 }
@@ -258,6 +279,14 @@ template<> struct GameStatePayloadTraits<CrazyCountingPlayerInputPayload> {
 
 template<> struct GameStatePayloadTraits<CrazyCountingPlayerUpdatePayload> {
   static const GameStatePayload enum_value = GameStatePayload_CrazyCountingPlayerUpdatePayload;
+};
+
+template<> struct GameStatePayloadTraits<CrazyCountingResultPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_CrazyCountingResultPayload;
+};
+
+template<> struct GameStatePayloadTraits<MiniGameIntroductionPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_MiniGameIntroductionPayload;
 };
 
 bool VerifyGameStatePayload(::flatbuffers::Verifier &verifier, const void *obj, GameStatePayload type);
@@ -1018,6 +1047,198 @@ inline ::flatbuffers::Offset<CrazyCountingPlayerUpdatePayload> CreateCrazyCounti
   return builder_.Finish();
 }
 
+struct CrazyCountingResultPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CrazyCountingResultPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CORRECT_ANSWER = 4,
+    VT_RESULTS = 6
+  };
+  int16_t correct_answer() const {
+    return GetField<int16_t>(VT_CORRECT_ANSWER, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<FBCrazyCountingResultPair>> *results() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBCrazyCountingResultPair>> *>(VT_RESULTS);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int16_t>(verifier, VT_CORRECT_ANSWER, 2) &&
+           VerifyOffset(verifier, VT_RESULTS) &&
+           verifier.VerifyVector(results()) &&
+           verifier.VerifyVectorOfTables(results()) &&
+           verifier.EndTable();
+  }
+};
+
+struct CrazyCountingResultPayloadBuilder {
+  typedef CrazyCountingResultPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_correct_answer(int16_t correct_answer) {
+    fbb_.AddElement<int16_t>(CrazyCountingResultPayload::VT_CORRECT_ANSWER, correct_answer, 0);
+  }
+  void add_results(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBCrazyCountingResultPair>>> results) {
+    fbb_.AddOffset(CrazyCountingResultPayload::VT_RESULTS, results);
+  }
+  explicit CrazyCountingResultPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CrazyCountingResultPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CrazyCountingResultPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CrazyCountingResultPayload> CreateCrazyCountingResultPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int16_t correct_answer = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBCrazyCountingResultPair>>> results = 0) {
+  CrazyCountingResultPayloadBuilder builder_(_fbb);
+  builder_.add_results(results);
+  builder_.add_correct_answer(correct_answer);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<CrazyCountingResultPayload> CreateCrazyCountingResultPayloadDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int16_t correct_answer = 0,
+    const std::vector<::flatbuffers::Offset<FBCrazyCountingResultPair>> *results = nullptr) {
+  auto results__ = results ? _fbb.CreateVector<::flatbuffers::Offset<FBCrazyCountingResultPair>>(*results) : 0;
+  return CreateCrazyCountingResultPayload(
+      _fbb,
+      correct_answer,
+      results__);
+}
+
+struct FBCrazyCountingResultPair FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FBCrazyCountingResultPairBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_GUESS = 6
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  int16_t guess() const {
+    return GetField<int16_t>(VT_GUESS, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyField<int16_t>(verifier, VT_GUESS, 2) &&
+           verifier.EndTable();
+  }
+};
+
+struct FBCrazyCountingResultPairBuilder {
+  typedef FBCrazyCountingResultPair Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(FBCrazyCountingResultPair::VT_NAME, name);
+  }
+  void add_guess(int16_t guess) {
+    fbb_.AddElement<int16_t>(FBCrazyCountingResultPair::VT_GUESS, guess, 0);
+  }
+  explicit FBCrazyCountingResultPairBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<FBCrazyCountingResultPair> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<FBCrazyCountingResultPair>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<FBCrazyCountingResultPair> CreateFBCrazyCountingResultPair(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    int16_t guess = 0) {
+  FBCrazyCountingResultPairBuilder builder_(_fbb);
+  builder_.add_name(name);
+  builder_.add_guess(guess);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<FBCrazyCountingResultPair> CreateFBCrazyCountingResultPairDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    int16_t guess = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return CreateFBCrazyCountingResultPair(
+      _fbb,
+      name__,
+      guess);
+}
+
+struct MiniGameIntroductionPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MiniGameIntroductionPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_INSTRUCTION = 6
+  };
+  const ::flatbuffers::String *Name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  const ::flatbuffers::String *Instruction() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_INSTRUCTION);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(Name()) &&
+           VerifyOffset(verifier, VT_INSTRUCTION) &&
+           verifier.VerifyString(Instruction()) &&
+           verifier.EndTable();
+  }
+};
+
+struct MiniGameIntroductionPayloadBuilder {
+  typedef MiniGameIntroductionPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_Name(::flatbuffers::Offset<::flatbuffers::String> Name) {
+    fbb_.AddOffset(MiniGameIntroductionPayload::VT_NAME, Name);
+  }
+  void add_Instruction(::flatbuffers::Offset<::flatbuffers::String> Instruction) {
+    fbb_.AddOffset(MiniGameIntroductionPayload::VT_INSTRUCTION, Instruction);
+  }
+  explicit MiniGameIntroductionPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<MiniGameIntroductionPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<MiniGameIntroductionPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<MiniGameIntroductionPayload> CreateMiniGameIntroductionPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> Name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> Instruction = 0) {
+  MiniGameIntroductionPayloadBuilder builder_(_fbb);
+  builder_.add_Instruction(Instruction);
+  builder_.add_Name(Name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<MiniGameIntroductionPayload> CreateMiniGameIntroductionPayloadDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *Name = nullptr,
+    const char *Instruction = nullptr) {
+  auto Name__ = Name ? _fbb.CreateString(Name) : 0;
+  auto Instruction__ = Instruction ? _fbb.CreateString(Instruction) : 0;
+  return CreateMiniGameIntroductionPayload(
+      _fbb,
+      Name__,
+      Instruction__);
+}
+
 struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MiniGamePayloadTypeBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -1048,6 +1269,12 @@ struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   const CrazyCountingPlayerUpdatePayload *gamestatepayload_as_CrazyCountingPlayerUpdatePayload() const {
     return gamestatepayload_type() == GameStatePayload_CrazyCountingPlayerUpdatePayload ? static_cast<const CrazyCountingPlayerUpdatePayload *>(gamestatepayload()) : nullptr;
   }
+  const CrazyCountingResultPayload *gamestatepayload_as_CrazyCountingResultPayload() const {
+    return gamestatepayload_type() == GameStatePayload_CrazyCountingResultPayload ? static_cast<const CrazyCountingResultPayload *>(gamestatepayload()) : nullptr;
+  }
+  const MiniGameIntroductionPayload *gamestatepayload_as_MiniGameIntroductionPayload() const {
+    return gamestatepayload_type() == GameStatePayload_MiniGameIntroductionPayload ? static_cast<const MiniGameIntroductionPayload *>(gamestatepayload()) : nullptr;
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_MINIGAME) &&
@@ -1070,6 +1297,14 @@ template<> inline const CrazyCountingPlayerInputPayload *MiniGamePayloadType::ga
 
 template<> inline const CrazyCountingPlayerUpdatePayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingPlayerUpdatePayload>() const {
   return gamestatepayload_as_CrazyCountingPlayerUpdatePayload();
+}
+
+template<> inline const CrazyCountingResultPayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingResultPayload>() const {
+  return gamestatepayload_as_CrazyCountingResultPayload();
+}
+
+template<> inline const MiniGameIntroductionPayload *MiniGamePayloadType::gamestatepayload_as<MiniGameIntroductionPayload>() const {
+  return gamestatepayload_as_MiniGameIntroductionPayload();
 }
 
 struct MiniGamePayloadTypeBuilder {
@@ -1551,6 +1786,14 @@ inline bool VerifyGameStatePayload(::flatbuffers::Verifier &verifier, const void
     }
     case GameStatePayload_CrazyCountingPlayerUpdatePayload: {
       auto ptr = reinterpret_cast<const CrazyCountingPlayerUpdatePayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_CrazyCountingResultPayload: {
+      auto ptr = reinterpret_cast<const CrazyCountingResultPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_MiniGameIntroductionPayload: {
+      auto ptr = reinterpret_cast<const MiniGameIntroductionPayload *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;

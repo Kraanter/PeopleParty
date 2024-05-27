@@ -22,6 +22,12 @@ public:
     ~Timer() {
         stop();
     }
+    void add_timeout(std::function<void()> callback, int timeout) {
+        std::thread([callback, timeout]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(timeout));
+            callback();
+        }).detach();
+    }
 };
 
 inline void Timer::startUpdateTimer(GameState* gameState) {

@@ -1,0 +1,6 @@
+table MiniGameIntroductionPayload {
+    Name: string;
+    Instruction: string;
+}
+
+root_type MiniGameIntroductionPayload;
