@@ -17,7 +17,7 @@ class Timer {
 public:
     Timer() : active(false) {}
 
-    void startUpdateTimer(GameState* gameState);
+    void startUpdateTimer(std::function<void(int)> callback, int interval);
     void stop();
     ~Timer() {
         stop();
@@ -30,18 +30,18 @@ public:
     }
 };
 
-inline void Timer::startUpdateTimer(GameState* gameState) {
+inline void Timer::startUpdateTimer(std::function<void(int)> callback, int interval) {
     active = true;
-    timerThread = std::thread([this, gameState]() {
+    timerThread = std::thread([this, callback, interval]() {
         while (active) {
             auto start_time = std::chrono::steady_clock::now();
             
             // Call update
-            gameState->update(gameState->update_interval);
+            callback(interval);
 
             // Calculate how much time to sleep to maintain the interval
             auto elapsed = std::chrono::steady_clock::now() - start_time;
-            auto sleep_duration = std::chrono::milliseconds(gameState->update_interval) - elapsed;
+            auto sleep_duration = std::chrono::milliseconds(interval) - elapsed;
             
             if (sleep_duration > std::chrono::milliseconds(0)) {
                 std::this_thread::sleep_for(sleep_duration);

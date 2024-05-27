@@ -7,38 +7,33 @@
 #include "../../globals.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
-    update_interval = 32 MILLISECONDS;
-    remaining_time = 30 SECONDS;
     time_since_last_time_update = 0 MILLISECONDS;
     this->entity_count = rand() % (30 - 15 + 1) + 15;
 }
 
-void CrazyCounting_MiniGame::start_introduction() {
-    std::cout << "CrazyCounting_MiniGame introduction" << std::endl;
+void CrazyCounting_MiniGame::introduction_update(int delta_time) {
+    remaining_time -= delta_time;
+
+    if(remaining_time <= 0) {
+        introduction_timer.stop();
+        start_minigame();
+        return;
+    }
+
     send_minigame_introduction("crazyCounting", "Crazy Counting",
         "Count the entities as fast as you can and fill in the number on your phone!");
-    
-    // fixme: need to send multiple messages because frontend cannot handle it
-    timer.add_timeout([this]() {
-        send_minigame_introduction("crazyCounting", "Crazy Counting",
-        "Count the entities as fast as you can and fill in the number on your phone!");
-    }, 500);
-    timer.add_timeout([this]() {
-        send_minigame_introduction("crazyCounting", "Crazy Counting",
-        "Count the entities as fast as you can and fill in the number on your phone!");
-    }, 1000);
-    timer.add_timeout([this]() {
-        send_minigame_introduction("crazyCounting", "Crazy Counting",
-        "Count the entities as fast as you can and fill in the number on your phone!");
-    }, 1500);
-    timer.add_timeout([this]() {
-        send_minigame_introduction("crazyCounting", "Crazy Counting",
-        "Count the entities as fast as you can and fill in the number on your phone!");
-    }, 2000);
+}
+
+void CrazyCounting_MiniGame::start_introduction() {
+    update_interval = 500 MILLISECONDS;
+    remaining_time = 7 SECONDS;
+
+    introduction_timer.startUpdateTimer([this](int delta_time) { introduction_update(delta_time); }, update_interval);
 }
 
 void CrazyCounting_MiniGame::start_minigame() {
-    std::cout << "CrazyCounting_MiniGame started" << std::endl;
+    update_interval = 32 MILLISECONDS;
+    remaining_time = 30 SECONDS;
 
     for (Client* client : game->get_clients()) {
         if (client->isHost) {
@@ -50,11 +45,11 @@ void CrazyCounting_MiniGame::start_minigame() {
     for (int i = 0; i < entity_count; i++) {
         entities.push_back(new CrazyCounting_Entity());
     }
-    timer.startUpdateTimer(this);
+
+    timer.startUpdateTimer([this](int delta_time) { update(delta_time); }, update_interval);
 }
 
 void CrazyCounting_MiniGame::start_result() {
-    std::cout << "CrazyCounting_MiniGame result" << std::endl;
     flatbuffers::FlatBufferBuilder builder;
 
     std::vector<flatbuffers::Offset<FBCrazyCountingResultPair>> results_buffer;

@@ -21,11 +21,13 @@ public:
     void start_minigame() override;
     void start_result() override;
     void update(int delta_time) override;
+    void introduction_update(int delta_time);
     std::vector<Client*> getMinigameResult() override;
     void clients_changed(int client_id, bool joined) override;
 private:
     std::vector<CrazyCounting_Entity*> entities;
     std::map<int, CrazyCounting_Player> players;
+    Timer introduction_timer;
     int remaining_time;
     int time_since_last_time_update;
     int entity_count;

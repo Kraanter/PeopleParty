@@ -9,7 +9,7 @@ Leaderboard::Leaderboard(Game *game) : GameState(game) {
 void Leaderboard::start() {
     send_leaderboard_information();
 
-    timer.startUpdateTimer(this);
+    timer.startUpdateTimer([this](int delta_time) { update(delta_time); }, update_interval);
 }
 
 void Leaderboard::finished() {
