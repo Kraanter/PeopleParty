@@ -9,6 +9,7 @@ export type IntroductionData = {
 }
 
 const props = defineProps<{
+  logoSVG: string;
   data: IntroductionData
 }>()
 
@@ -16,8 +17,12 @@ const { data: introduction } = toRefs(props)
 
 </script>
 <template>
+  <div class="flex justify-stretch mt-4 flex flex-col justify-center">
+    <img :src="props.logoSVG" alt="logo" class="w-1/2 h-1/2 mx-auto" />
+  </div>
+
   <div class="flex justify-stretch mt-4 w-full h-full flex flex-col justify-center">
-    <p class="text-8xl w-full text-center text-white">title: {{ introduction.title }}</p>
-    <p class="text-4xl w-full text-center text-white">description: {{ introduction.description }}</p>
+    <p class="text-8xl w-full text-center text-white">{{ introduction.title }}</p>
+    <p class="text-4xl w-full text-center text-white">{{ introduction.description }}</p>
   </div>
 </template>

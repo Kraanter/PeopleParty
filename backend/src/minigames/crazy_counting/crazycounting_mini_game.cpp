@@ -26,7 +26,7 @@ void CrazyCounting_MiniGame::introduction_update(int delta_time) {
 
 void CrazyCounting_MiniGame::start_introduction() {
     update_interval = 500 MILLISECONDS;
-    remaining_time = 7 SECONDS;
+    remaining_time = introduction_time;
 
     introduction_timer.startUpdateTimer([this](int delta_time) { introduction_update(delta_time); }, update_interval);
 }
@@ -155,6 +155,18 @@ void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, C
 void CrazyCounting_MiniGame::update(int delta_time) {
     remaining_time -= delta_time;
     time_since_last_time_update += delta_time;
+    
+    // If all the players submitted, end the game
+    bool all_submitted = true;
+    for (auto& [_, player] : players) {
+        if (!player.submitted) {
+            all_submitted = false;
+            break;
+        }
+    }
+    if (all_submitted) {
+        remaining_time = 0;
+    }
 
     if(remaining_time <= 0) {
         timer.stop();

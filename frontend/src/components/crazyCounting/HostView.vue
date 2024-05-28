@@ -138,7 +138,7 @@ defineExpose({
 </script>
 <template>
   <div v-if="viewState == ViewState.Introduction">
-    <Introduction :data="intro" />
+    <Introduction :data="intro" logoSVG="/assets/games/crazyCounting/crazyCountingLogo.svg" />
   </div>
   <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
     <div class="mt-4 w-full h-full flex flex-col justify-center">
