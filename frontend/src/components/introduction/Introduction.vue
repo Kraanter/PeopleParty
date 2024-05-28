@@ -3,7 +3,6 @@
 import { defineProps, toRefs } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 
-// todo: maybe add logo url or something
 export type IntroductionData = {
   title: string;
   description: string;

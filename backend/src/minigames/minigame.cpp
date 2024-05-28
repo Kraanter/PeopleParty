@@ -33,6 +33,5 @@ void MiniGame::send_minigame_introduction(const std::string &minigame_name_camel
         GameStatePayload_MiniGameIntroductionPayload, 
         payload.Union());
 
-    // todo: also send to normal clients
     game->party->send_gamestate([](Client* client) { return client == client; }, builder, gameStatePayload.Union());
 }
