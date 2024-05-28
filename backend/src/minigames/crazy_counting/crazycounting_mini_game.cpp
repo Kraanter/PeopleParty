@@ -20,7 +20,7 @@ void CrazyCounting_MiniGame::introduction_update(int delta_time) {
         return;
     }
 
-    send_minigame_introduction("crazyCounting", "Crazy Counting",
+    send_minigame_introduction("crazyCounting", remaining_time, "Crazy Counting",
         "Count the entities as fast as you can and fill in the number on your phone!");
 }
 
@@ -68,7 +68,7 @@ void CrazyCounting_MiniGame::start_result() {
     auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_CrazyCountingResult,
                                                       GameStatePayload_CrazyCountingResultPayload, payload.Union());
 
-    game->party->send_gamestate([](Client* client) { return client->party->host == client; }, builder, gameStatePayload.Union());
+    game->party->send_gamestate([](Client* client) { return client == client; }, builder, gameStatePayload.Union());
 }
 
 void CrazyCounting_MiniGame::send_entities() {

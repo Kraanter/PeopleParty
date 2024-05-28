@@ -62,7 +62,8 @@ const interpolatePosition = (entity: FBCrazyCountingEntity): PosData => {
 // introduction
 const intro = ref<IntroductionData>({
   title: '',
-  description: ''
+  description: '',
+  time_left: 0
 })
 // game data
 const entities = ref<PosData[]>([])
@@ -124,7 +125,8 @@ const update = (data: MiniGamePayloadType) => {
       const introPayload: MiniGameIntroductionPayload = data.gamestatepayload(new MiniGameIntroductionPayload())
       intro.value = {
         title: introPayload.name() || '',
-        description: introPayload.instruction() || ''
+        description: introPayload.instruction() || '',
+        time_left: Number(introPayload.timeLeft()),
       }
       return intro.value
     }

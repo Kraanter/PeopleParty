@@ -1,11 +1,13 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { defineProps, toRefs } from 'vue'
+import TimeComponent from '../TimeComponent.vue'
 
 // todo: maybe add logo url or something
 export type IntroductionData = {
   title: string;
   description: string;
+  time_left: number;
 }
 
 const props = defineProps<{
@@ -17,6 +19,9 @@ const { data: introduction } = toRefs(props)
 
 </script>
 <template>
+  <div>
+    <TimeComponent :timeLeft="introduction.time_left" />
+  </div>
   <div class="flex justify-stretch mt-4 flex flex-col justify-center">
     <img :src="props.logoSVG" alt="logo" class="w-1/2 h-1/2 mx-auto" />
   </div>

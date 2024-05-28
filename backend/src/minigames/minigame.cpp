@@ -17,13 +17,13 @@ void MiniGame::start() {
     start_introduction();
 }
 
-void MiniGame::send_minigame_introduction(const std::string &minigame_name_camel_case, const std::string &minigame_name, const std::string &minigame_description) {
+void MiniGame::send_minigame_introduction(const std::string &minigame_name_camel_case, int time_left, const std::string &minigame_name, const std::string &minigame_description) {
     flatbuffers::FlatBufferBuilder builder;
 
     auto name = builder.CreateString(minigame_name);
     auto description = builder.CreateString(minigame_description);
 
-    auto payload = CreateMiniGameIntroductionPayload(builder, name, description);
+    auto payload = CreateMiniGameIntroductionPayload(builder, name, description, time_left);
 
     auto name_camel_case = builder.CreateString(minigame_name_camel_case);
     auto gameStatePayload = CreateMiniGamePayloadType(
@@ -34,5 +34,5 @@ void MiniGame::send_minigame_introduction(const std::string &minigame_name_camel
         payload.Union());
 
     // todo: also send to normal clients
-    game->party->send_gamestate([](Client* client) { return client->party->host == client; }, builder, gameStatePayload.Union());
+    game->party->send_gamestate([](Client* client) { return client == client; }, builder, gameStatePayload.Union());
 }

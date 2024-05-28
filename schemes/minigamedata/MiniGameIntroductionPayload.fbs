@@ -1,6 +1,7 @@
 table MiniGameIntroductionPayload {
     Name: string;
     Instruction: string;
+    time_left: ulong;
 }
 
 root_type MiniGameIntroductionPayload;

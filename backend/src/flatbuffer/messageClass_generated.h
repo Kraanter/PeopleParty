@@ -1178,7 +1178,8 @@ struct MiniGameIntroductionPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffe
   typedef MiniGameIntroductionPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
-    VT_INSTRUCTION = 6
+    VT_INSTRUCTION = 6,
+    VT_TIME_LEFT = 8
   };
   const ::flatbuffers::String *Name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
@@ -1186,12 +1187,16 @@ struct MiniGameIntroductionPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffe
   const ::flatbuffers::String *Instruction() const {
     return GetPointer<const ::flatbuffers::String *>(VT_INSTRUCTION);
   }
+  uint64_t time_left() const {
+    return GetField<uint64_t>(VT_TIME_LEFT, 0);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
            verifier.VerifyString(Name()) &&
            VerifyOffset(verifier, VT_INSTRUCTION) &&
            verifier.VerifyString(Instruction()) &&
+           VerifyField<uint64_t>(verifier, VT_TIME_LEFT, 8) &&
            verifier.EndTable();
   }
 };
@@ -1205,6 +1210,9 @@ struct MiniGameIntroductionPayloadBuilder {
   }
   void add_Instruction(::flatbuffers::Offset<::flatbuffers::String> Instruction) {
     fbb_.AddOffset(MiniGameIntroductionPayload::VT_INSTRUCTION, Instruction);
+  }
+  void add_time_left(uint64_t time_left) {
+    fbb_.AddElement<uint64_t>(MiniGameIntroductionPayload::VT_TIME_LEFT, time_left, 0);
   }
   explicit MiniGameIntroductionPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1220,8 +1228,10 @@ struct MiniGameIntroductionPayloadBuilder {
 inline ::flatbuffers::Offset<MiniGameIntroductionPayload> CreateMiniGameIntroductionPayload(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> Name = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> Instruction = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> Instruction = 0,
+    uint64_t time_left = 0) {
   MiniGameIntroductionPayloadBuilder builder_(_fbb);
+  builder_.add_time_left(time_left);
   builder_.add_Instruction(Instruction);
   builder_.add_Name(Name);
   return builder_.Finish();
@@ -1230,13 +1240,15 @@ inline ::flatbuffers::Offset<MiniGameIntroductionPayload> CreateMiniGameIntroduc
 inline ::flatbuffers::Offset<MiniGameIntroductionPayload> CreateMiniGameIntroductionPayloadDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *Name = nullptr,
-    const char *Instruction = nullptr) {
+    const char *Instruction = nullptr,
+    uint64_t time_left = 0) {
   auto Name__ = Name ? _fbb.CreateString(Name) : 0;
   auto Instruction__ = Instruction ? _fbb.CreateString(Instruction) : 0;
   return CreateMiniGameIntroductionPayload(
       _fbb,
       Name__,
-      Instruction__);
+      Instruction__,
+      time_left);
 }
 
 struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {

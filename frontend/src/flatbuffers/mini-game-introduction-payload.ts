@@ -36,8 +36,13 @@ instruction(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
+timeLeft():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
 static startMiniGameIntroductionPayload(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 }
 
 static addName(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset) {
@@ -48,15 +53,20 @@ static addInstruction(builder:flatbuffers.Builder, instructionOffset:flatbuffers
   builder.addFieldOffset(1, instructionOffset, 0);
 }
 
+static addTimeLeft(builder:flatbuffers.Builder, timeLeft:bigint) {
+  builder.addFieldInt64(2, timeLeft, BigInt('0'));
+}
+
 static endMiniGameIntroductionPayload(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createMiniGameIntroductionPayload(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, instructionOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createMiniGameIntroductionPayload(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, instructionOffset:flatbuffers.Offset, timeLeft:bigint):flatbuffers.Offset {
   MiniGameIntroductionPayload.startMiniGameIntroductionPayload(builder);
   MiniGameIntroductionPayload.addName(builder, nameOffset);
   MiniGameIntroductionPayload.addInstruction(builder, instructionOffset);
+  MiniGameIntroductionPayload.addTimeLeft(builder, timeLeft);
   return MiniGameIntroductionPayload.endMiniGameIntroductionPayload(builder);
 }
 }

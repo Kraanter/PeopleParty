@@ -24,7 +24,7 @@ protected:
     void finished() override;
     void process_partyprep_input(const PartyPrepPayloadType *payload, Client *from) override {};
     void process_leaderboard_input(const LeaderboardPayloadType *payload, Client *from) override {};
-    void send_minigame_introduction(const std::string &minigame_name_camel_case, const std::string &minigame_name, const std::string &minigame_description);
+    void send_minigame_introduction(const std::string &minigame_name_camel_case, int time_left, const std::string &minigame_name, const std::string &minigame_description);
 protected:
     Timer timer;
     int introduction_time = 7 SECONDS;
