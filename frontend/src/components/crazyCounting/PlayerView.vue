@@ -122,12 +122,14 @@ const sendPlayerAction = (action: Input) => {
 }
 </script>
 <template>
-  <div v-if="viewState == ViewState.Introduction" class="flex items-center h-full text-center">
-    <div>
-      <TimeComponent :timeLeft="intro.time_left" />
-    </div>
-    <div>
-      <p class="text-4xl text-white">{{ intro.description }}</p>
+  <div v-if="viewState == ViewState.Introduction" class="flex m-2 h-full text-center">
+    <div class="flex flex-col justify-center px-8">
+      <div class="mt-16">
+        <TimeComponent :timeLeft="intro.time_left" />
+      </div>
+      <div class="w-full h-full mt-16">
+        <p class="text-4xl text-white">{{ intro.description }}</p>
+      </div>
     </div>
   </div>
   <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results" class="w-full h-full grid grid-cols-1 grid-rows-5 max-w-screen-md mx-auto">

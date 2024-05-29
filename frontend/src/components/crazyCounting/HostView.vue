@@ -184,17 +184,19 @@ defineExpose({
       </div>
       <p class="text-4xl w-full text-center text-white">Players guesses:</p>
       <n-scrollbar class="-mb-4">
-        <div class="mx-auto mb-4 w-4/5" v-for="(player, i) in results.results" :key="i">
-          <n-card>
-            <div class="w-full inline-flex justify-between text-2xl px-4">
-              <p class="inline-flex">
-                <span class="font-bold ml-4 col-span-5">{{ player.name }}</span>
-              </p>
-              <p>
-                <span class="font-bold">{{ player.guess }}</span>
-              </p>
-            </div>
-          </n-card>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in results.results" :key="i">
+            <n-card>
+              <div class="w-full inline-flex justify-between text-2xl">
+                <p class="inline-flex">
+                  <span class="font-bold ml-4 col-span-5">{{ player.name }}</span>
+                </p>
+                <p>
+                  <span class="font-bold">{{ player.guess }}</span>
+                </p>
+              </div>
+            </n-card>
+          </div>
         </div>
       </n-scrollbar>
     </div>
