@@ -9,7 +9,7 @@ Leaderboard::Leaderboard(Game *game) : GameState(game) {
 void Leaderboard::start() {
     send_leaderboard_information();
 
-    timer.startUpdateTimer([this](int delta_time) { update(delta_time); }, update_interval);
+    timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
 
 void Leaderboard::finished() {
@@ -55,7 +55,7 @@ void Leaderboard::update(int delta_time) {
     send_leaderboard_information();
 
     if(remaining_time <= 0) {
-        timer.stop();
+        timer.clear();
         Leaderboard::finished();
         return;
     }

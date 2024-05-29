@@ -28,17 +28,22 @@ void process_message(WS *ws, std::string_view message) {
   //   return;
   // }
 
+  Game* targetGame = party_repository[ws->getUserData()->party_id]->game;
+  if (targetGame == nullptr) {
+    return;
+  }
+
   switch (parsedMessage->type()) {
     case MessageType::MessageType_MiniGame: {
       auto gameStatePayload = parsedMessage->payload_as_MiniGamePayloadType();
-      party_repository[ws->getUserData()->party_id]->game->process_input(gameStatePayload, ws->getUserData()->client);
+      targetGame->process_input(gameStatePayload, ws->getUserData()->client);
       break;
     }
-      case MessageType::MessageType_PartyPrep: {
-        auto partyPrepPayload = parsedMessage->payload_as_PartyPrepPayloadType();
-        party_repository[ws->getUserData()->party_id]->game->process_partyprep_input(partyPrepPayload, ws->getUserData()->client);
-        break;
-      }
+    case MessageType::MessageType_PartyPrep: {
+      auto partyPrepPayload = parsedMessage->payload_as_PartyPrepPayloadType();
+      targetGame->process_partyprep_input(partyPrepPayload, ws->getUserData()->client);
+      break;
+    }
   }
 }
 
@@ -89,6 +94,7 @@ void WebSocket::init() {
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
+                 ws->getUserData()->client->ws == nullptr;
                  client_repository.RemoveClient(ws->getUserData()->client->client_id);
                }})
       .ws<SocketData>(
@@ -114,11 +120,8 @@ void WebSocket::init() {
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
-                // wait for 5 seconds before removing the party
-                std::thread([ws]() {
-                  std::this_thread::sleep_for(std::chrono::seconds(5));
-                    party_repository.RemoveParty(ws->getUserData()->party_id);
-                }).detach();
+                ws->getUserData()->client->party->stop_game();
+                party_repository.RemoveParty(ws->getUserData()->party_id);
                }})
       .listen(7899,
               [](auto *listen_socket) {

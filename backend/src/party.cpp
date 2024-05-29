@@ -9,8 +9,22 @@ Party::Party() {
   game = nullptr;
 }
 
+Party::~Party() {
+    if (game != nullptr) {
+        delete game;
+        game = nullptr;
+    }
+}
+
 void Party::start_game() {
     game = new Game(this);
+}
+
+void Party::stop_game() {
+    if (game != nullptr) {
+        delete game;
+        game = nullptr;
+    }
 }
 
 const std::vector<Client *> Party::get_clients() {

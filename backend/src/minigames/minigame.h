@@ -7,7 +7,7 @@
 
 
 #include "../game_state.h"
-#include "../timer.h"
+#include "../thread_timer.h"
 #include "../defines.h"
 
 class Game;
@@ -26,7 +26,7 @@ protected:
     void process_leaderboard_input(const LeaderboardPayloadType *payload, Client *from) override {};
     void send_minigame_introduction(const std::string &minigame_name_camel_case, int time_left, const std::string &minigame_name, const std::string &minigame_description);
 protected:
-    Timer timer;
+    ThreadTimer timer;
     int introduction_time = 7 SECONDS;
 };
 

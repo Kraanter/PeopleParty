@@ -11,11 +11,19 @@ CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
     this->entity_count = rand() % (30 - 15 + 1) + 15;
 }
 
+CrazyCounting_MiniGame::~CrazyCounting_MiniGame() {
+    introduction_timer.clear();
+    timer.clear();
+    for (CrazyCounting_Entity* entity: entities) {
+        delete entity;
+    }
+}
+
 void CrazyCounting_MiniGame::introduction_update(int delta_time) {
     remaining_time -= delta_time;
 
     if(remaining_time <= 0) {
-        introduction_timer.stop();
+        introduction_timer.clear();
         start_minigame();
         return;
     }
@@ -28,7 +36,7 @@ void CrazyCounting_MiniGame::start_introduction() {
     update_interval = 500 MILLISECONDS;
     remaining_time = introduction_time;
 
-    introduction_timer.startUpdateTimer([this](int delta_time) { introduction_update(delta_time); }, update_interval);
+    introduction_timer.setInterval([this]() { introduction_update(update_interval); }, update_interval);
 }
 
 void CrazyCounting_MiniGame::start_minigame() {
@@ -46,7 +54,7 @@ void CrazyCounting_MiniGame::start_minigame() {
         entities.push_back(new CrazyCounting_Entity());
     }
 
-    timer.startUpdateTimer([this](int delta_time) { update(delta_time); }, update_interval);
+    timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
 
 void CrazyCounting_MiniGame::start_result() {
@@ -169,11 +177,11 @@ void CrazyCounting_MiniGame::update(int delta_time) {
     }
 
     if(remaining_time <= 0) {
-        timer.stop();
+        timer.clear();
         start_result();
 
-        timer.add_timeout([this]() {
-            MiniGame::finished();;
+        results_timer.setTimeout([this]() {
+            finished();
         }, 5 SECONDS);
         return;
     }

@@ -13,6 +13,15 @@ Game::Game(Party* party) {
         current_gamestate = new PartyPrep(this);
 }
 
+Game::~Game() {
+    delete current_gamestate;
+    while (!miniGames.empty()) {
+        delete miniGames.front();
+        miniGames.pop();
+    }
+    current_gamestate = nullptr;
+}
+
 void Game::process_input(const MiniGamePayloadType* payload, Client* from) {
     if (current_gamestate != nullptr) {
         current_gamestate->process_input(payload, from);

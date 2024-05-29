@@ -25,6 +25,7 @@ class Client;
 class Game {
 public:
     Game(Party* party);
+    ~Game();
     template <typename T>
     void nextGameState() {
         std::cout << "Next game state" << std::endl;

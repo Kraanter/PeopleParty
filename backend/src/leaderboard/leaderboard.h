@@ -2,7 +2,7 @@
 #define LEADERBOARD_H
 
 #include "../game_state.h"
-#include "../timer.h"
+#include "../thread_timer.h"
 
 class Game;
 
@@ -20,7 +20,7 @@ private:
     void process_input(const MiniGamePayloadType* payload, Client* from) override { };
     void update(int delta_time) override;
 private:
-    Timer timer;
+    ThreadTimer timer;
     int remaining_time;
 };
 

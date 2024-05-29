@@ -27,7 +27,8 @@ public:
 private:
     std::vector<CrazyCounting_Entity*> entities;
     std::map<int, CrazyCounting_Player> players;
-    Timer introduction_timer;
+    ThreadTimer introduction_timer;
+    ThreadTimer results_timer;
     int remaining_time;
     int time_since_last_time_update;
     int entity_count;
