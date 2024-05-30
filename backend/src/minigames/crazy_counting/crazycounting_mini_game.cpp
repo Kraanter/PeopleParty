@@ -14,6 +14,7 @@ CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
 CrazyCounting_MiniGame::~CrazyCounting_MiniGame() {
     introduction_timer.clear();
     timer.clear();
+    results_timer.clear();
     for (CrazyCounting_Entity* entity: entities) {
         delete entity;
     }
