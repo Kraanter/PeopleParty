@@ -33,18 +33,7 @@ void process_message(WS *ws, std::string_view message) {
     return;
   }
 
-  switch (parsedMessage->type()) {
-    case MessageType::MessageType_MiniGame: {
-      auto gameStatePayload = parsedMessage->payload_as_MiniGamePayloadType();
-      targetGame->process_input(gameStatePayload, ws->getUserData()->client);
-      break;
-    }
-    case MessageType::MessageType_PartyPrep: {
-      auto partyPrepPayload = parsedMessage->payload_as_PartyPrepPayloadType();
-      targetGame->process_partyprep_input(partyPrepPayload, ws->getUserData()->client);
-      break;
-    }
-  }
+  targetGame->process_input(parsedMessage, ws->getUserData()->client);
 }
 
 void WebSocket::init() {

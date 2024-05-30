@@ -52,9 +52,7 @@ public:
         }
     }
     int getPartyId();
-    void process_input(const MiniGamePayloadType* payload, Client* from);
-    void process_partyprep_input(const PartyPrepPayloadType* payload, Client* from);
-    void process_leaderboard_input(const LeaderboardPayloadType* payload, Client* from);
+    void process_input(const Message* payload, Client* from);
     void clients_changed(int client_id, bool joined);
     const std::vector<Client*> get_clients();
     void update_leaderboard(std::vector<Client*> minigame_result);

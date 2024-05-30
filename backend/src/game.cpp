@@ -10,7 +10,7 @@ Game::Game(Party* party) {
     // For now adds all minigames
     miniGames.push(new CrazyCounting_MiniGame(this));
 
-        current_gamestate = new PartyPrep(this);
+    current_gamestate = new PartyPrep(this);
 }
 
 Game::~Game() {
@@ -22,7 +22,7 @@ Game::~Game() {
     current_gamestate = nullptr;
 }
 
-void Game::process_input(const MiniGamePayloadType* payload, Client* from) {
+void Game::process_input(const Message* payload, Client* from) {
     if (current_gamestate != nullptr) {
         current_gamestate->process_input(payload, from);
     }
@@ -39,18 +39,6 @@ const std::vector<Client *> Game::get_clients() {
 void Game::clients_changed(int client_id, bool joined) {
     if (current_gamestate != nullptr) {
         current_gamestate->clients_changed(client_id, joined);
-    }
-}
-
-void Game::process_partyprep_input(const PartyPrepPayloadType *payload, Client *from) {
-    if (current_gamestate != nullptr) {
-        current_gamestate->process_partyprep_input(payload, from);
-    }
-}
-
-void Game::process_leaderboard_input(const LeaderboardPayloadType *payload, Client *from) {
-    if (current_gamestate != nullptr) {
-        current_gamestate->process_leaderboard_input(payload, from);
     }
 }
 

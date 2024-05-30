@@ -21,9 +21,9 @@ public:
     virtual std::vector<Client*> getMinigameResult() = 0;
     void start();
 protected:
+    virtual void process_input(const MiniGamePayloadType* payload, Client* from) = 0;
     void finished() override;
-    void process_partyprep_input(const PartyPrepPayloadType *payload, Client *from) override {};
-    void process_leaderboard_input(const LeaderboardPayloadType *payload, Client *from) override {};
+    void process_input(const Message *payload, Client *from) override;
     void send_minigame_introduction(const std::string &minigame_name_camel_case, int time_left, const std::string &minigame_name, const std::string &minigame_description);
 protected:
     ThreadTimer timer;

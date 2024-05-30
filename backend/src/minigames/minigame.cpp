@@ -17,6 +17,15 @@ void MiniGame::start() {
     start_introduction();
 }
 
+void MiniGame::process_input(const Message *payload, Client *from) {
+    switch(payload->type()) {
+        case MessageType::MessageType_MiniGame: {
+            auto miniGamePayload = payload->payload_as_MiniGamePayloadType();
+            process_input(miniGamePayload, from);
+        }
+    }
+}
+
 void MiniGame::send_minigame_introduction(const std::string &minigame_name_camel_case, int time_left, const std::string &minigame_name, const std::string &minigame_description) {
     flatbuffers::FlatBufferBuilder builder;
 

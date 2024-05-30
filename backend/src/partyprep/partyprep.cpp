@@ -9,15 +9,21 @@ void PartyPrep::finished() {
     game->nextGameState<decltype(*this)>();
 }
 
-void PartyPrep::process_partyprep_input(const PartyPrepPayloadType *payload, Client *from)
-{
-    switch(payload->partypreptype()) {
-        case PartyPrepType_PartyPrepHostStartGame: {
-            auto input = payload->partypreppayload_as_PartyPrepHostStartGamePayload();
-            if (input->start_game()) {
-                std::cout << "Starting game" << std::endl;
-                finished();
+void PartyPrep::process_input(const Message* payload, Client* from) {
+    switch(payload->type()) {
+        case MessageType::MessageType_PartyPrep: {
+            auto partyPrepPayload = payload->payload_as_PartyPrepPayloadType();
+            switch(partyPrepPayload->partypreptype()) {
+                case PartyPrepType_PartyPrepHostStartGame: {
+                    auto input = partyPrepPayload->partypreppayload_as_PartyPrepHostStartGamePayload();
+                    if (input->start_game()) {
+                        std::cout << "Starting game" << std::endl;
+                        finished();
+                    }
+                    break;
+                }
             }
+            break;
         }
     }
 }
