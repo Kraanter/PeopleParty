@@ -25,18 +25,16 @@ class Client;
 class Game {
 public:
     Game(Party* party);
+    ~Game();
     template <typename T>
     void nextGameState() {
         std::cout << "Next game state" << std::endl;
         if (typeid(T) == typeid(MiniGame)) {
             // We just finished a minigame so we change to the leaderboard
-            // fixme: remove this abomination
-            std::this_thread::sleep_for(std::chrono::seconds(5));
             current_gamestate = new Leaderboard(this);
             ((Leaderboard*)current_gamestate)->start();
             return;
         }
-        // todo: remove from minigame and add from leaderboard
         if (typeid(T) == typeid(PartyPrep) || typeid(T) == typeid(Leaderboard)) {
             if (miniGames.empty()) {
                 // todo: Go to the podium
@@ -54,9 +52,7 @@ public:
         }
     }
     int getPartyId();
-    void process_input(const MiniGamePayloadType* payload, Client* from);
-    void process_partyprep_input(const PartyPrepPayloadType* payload, Client* from);
-    void process_leaderboard_input(const LeaderboardPayloadType* payload, Client* from);
+    void process_input(const Message* payload, Client* from);
     void clients_changed(int client_id, bool joined);
     const std::vector<Client*> get_clients();
     void update_leaderboard(std::vector<Client*> minigame_result);

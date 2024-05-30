@@ -35,19 +35,19 @@ void EntityBehaviour::update(float time_delta) {
     // for now
     if (entity->position.x > 1.0f) {
         entity->position.x = 1.0f;
-        entity->velocity.x = 0.0f;
+        entity->velocity.x = -entity->velocity.x / 5;
         wander_behaviour.FlipX();
     } else if (entity->position.x < 0.0f) {
         entity->position.x = 0.0f;
-        entity->velocity.x = 0.0f;
+        entity->velocity.x = -entity->velocity.x / 5;
         wander_behaviour.FlipX();
     } else if (entity->position.y > 1.0f) {
         entity->position.y = 1.0f;
-        entity->velocity.y = 0.0f;
+        entity->velocity.y = -entity->velocity.y / 5;
         wander_behaviour.FlipY();
     } else if (entity->position.y < 0.0f) {
         entity->position.y = 0.0f;
-        entity->velocity.y = 0.0f;
+        entity->velocity.y = -entity->velocity.y / 5;
         wander_behaviour.FlipY();
     }
 }

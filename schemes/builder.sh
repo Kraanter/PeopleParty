@@ -21,7 +21,12 @@ while IFS= read -r -d '' fbs_file; do
     payload_type=$(basename "$fbs_file" .fbs)
     folder_name=$(basename "$(dirname "$fbs_file")")
     GameStatePayloadTypes+=( "$payload_type" )
-    echo "include \"minigamedata/$folder_name/$payload_type.fbs\";" >> "$GameStateTypeOutputFile"
+	if [ $folder_name == "minigamedata" ]; then
+		folder_name=""
+	else
+		folder_name=$folder_name"/"
+	fi
+    echo "include \"minigamedata/$folder_name$payload_type.fbs\";" >> "$GameStateTypeOutputFile"
 done < <(find "$GameStatesTypesDir" -type f -name '*.fbs' -print0)
 
 # Write GameStateType enum

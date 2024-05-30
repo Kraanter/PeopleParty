@@ -117,7 +117,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
       }
       case MessageType.MiniGame: {
         viewStore.setViewState(ViewState.MiniGame)
-        const miniGamePayload = receivedMessage.payload(new MiniGamePayloadType())
+        const miniGamePayload: MiniGamePayloadType = receivedMessage.payload(new MiniGamePayloadType())
         viewStore.setViewData(miniGamePayload)
         listeners.value.forEach((listener) => listener(miniGamePayload))
         break

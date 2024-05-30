@@ -7,14 +7,52 @@
 #include "../../globals.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
-    update_interval = 32 MILLISECONDS;
-    remaining_time = 30 SECONDS;
     time_since_last_time_update = 0 MILLISECONDS;
     this->entity_count = rand() % (30 - 15 + 1) + 15;
 }
 
-void CrazyCounting_MiniGame::start() {
-    std::cout << "CrazyCounting_MiniGame started" << std::endl;
+CrazyCounting_MiniGame::~CrazyCounting_MiniGame() {
+    introduction_timer.clear();
+    timer.clear();
+    for (CrazyCounting_Entity* entity: entities) {
+        delete entity;
+    }
+}
+
+std::string CrazyCounting_MiniGame::get_display_name() {
+    return "Crazy Counting";
+}
+
+std::string CrazyCounting_MiniGame::get_camel_case_name() {
+    return "crazyCounting";
+}
+
+std::string CrazyCounting_MiniGame::get_description() {
+    return "Count the entities as fast as you can and fill in the number on your phone!";
+}
+
+void CrazyCounting_MiniGame::introduction_update(int delta_time) {
+    remaining_time -= delta_time;
+
+    if(remaining_time <= 0) {
+        introduction_timer.clear();
+        start_minigame();
+        return;
+    }
+
+    send_minigame_introduction(get_camel_case_name(), remaining_time, get_display_name(), get_description());
+}
+
+void CrazyCounting_MiniGame::start_introduction() {
+    update_interval = 500 MILLISECONDS;
+    remaining_time = introduction_time;
+
+    introduction_timer.setInterval([this]() { introduction_update(update_interval); }, update_interval);
+}
+
+void CrazyCounting_MiniGame::start_minigame() {
+    update_interval = 32 MILLISECONDS;
+    remaining_time = 30 SECONDS;
 
     for (Client* client : game->get_clients()) {
         if (client->isHost) {
@@ -26,7 +64,30 @@ void CrazyCounting_MiniGame::start() {
     for (int i = 0; i < entity_count; i++) {
         entities.push_back(new CrazyCounting_Entity());
     }
-    timer.startUpdateTimer(this);
+
+    timer.setInterval([this]() { update(update_interval); }, update_interval);
+}
+
+void CrazyCounting_MiniGame::start_result() {
+    flatbuffers::FlatBufferBuilder builder;
+
+    std::vector<flatbuffers::Offset<FBCrazyCountingResultPair>> results_buffer;
+    for (auto& [_, player] : players) {
+        auto result = CreateFBCrazyCountingResultPair(builder, 
+            builder.CreateString(client_repository[player.client_id]->name), 
+            player.get_count());
+        
+        results_buffer.push_back(result);
+    }
+    auto results_vector = builder.CreateVector(results_buffer);
+
+    auto payload = CreateCrazyCountingResultPayload(builder, entity_count, results_vector);
+
+    auto miniGame = builder.CreateString("crazyCounting");
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_CrazyCountingResult,
+                                                      GameStatePayload_CrazyCountingResultPayload, payload.Union());
+
+    game->party->send_gamestate([](Client* client) { return client == client; }, builder, gameStatePayload.Union());
 }
 
 void CrazyCounting_MiniGame::send_entities() {
@@ -113,10 +174,26 @@ void CrazyCounting_MiniGame::process_input(const MiniGamePayloadType* payload, C
 void CrazyCounting_MiniGame::update(int delta_time) {
     remaining_time -= delta_time;
     time_since_last_time_update += delta_time;
+    
+    // If all the players submitted, end the game
+    bool all_submitted = true;
+    for (auto& [_, player] : players) {
+        if (!player.submitted) {
+            all_submitted = false;
+            break;
+        }
+    }
+    if (all_submitted) {
+        remaining_time = 0;
+    }
 
     if(remaining_time <= 0) {
-        timer.stop();
-        MiniGame::finished();
+        timer.clear();
+        start_result();
+
+        results_timer.setTimeout([this]() {
+            finished();
+        }, 5 SECONDS);
         return;
     }
 
