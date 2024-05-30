@@ -24,6 +24,8 @@ public:
     std::vector<Client*> getMinigameResult() override;
     void clients_changed(int client_id, bool joined) override;
 private:
+    const int distribution_mean = 20;
+    const int distribution_variance = 4;
     std::vector<CrazyCounting_Entity*> entities;
     std::map<int, CrazyCounting_Player> players;
     Timer timer;
