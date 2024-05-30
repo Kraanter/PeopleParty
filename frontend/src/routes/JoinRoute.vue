@@ -35,7 +35,6 @@ onMounted(() => {
   }
 
   const unsubscribe = websocketStore.subscribe((success: boolean) => {
-    console.log('Joining party success: ', success)
     if (success) {
       partyCode.value = codeString.value
       joinPromise.value = undefined

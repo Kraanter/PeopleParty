@@ -24,6 +24,7 @@ void Leaderboard::process_input(const Message *payload, Client *from) {
                 case LeaderboardType_LeaderboardHostSkip: {
                     auto input = leaderboardPayload->leaderboardpayload_as_LeaderboardHostSkipPayload();
                     if (input->skip()) {
+                        timer.clear();
                         finished();
                     }
                     break;

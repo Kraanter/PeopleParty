@@ -2,13 +2,25 @@
 <script setup lang="ts">
 import { NScrollbar, NCard } from 'naive-ui'
 import { defineProps, toRefs, computed } from 'vue'
-import { type Leaderboard } from '@/stores/confettiStore'
+import { useWebSocketStore, type Leaderboard } from '@/stores/confettiStore'
 import PeoplePartyHeader from '@/components/PeoplePartyHeader.vue'
 import TimeComponent from '../TimeComponent.vue'
+import PartyButton from '../PartyButton.vue'
+
+import * as flatbuffers from 'flatbuffers'
+import { LeaderboardHostSkipPayload,
+  LeaderboardPayload,
+  LeaderboardPayloadType,
+  LeaderboardType,
+  MessageType,
+  Payload } from '@/flatbuffers/messageClass'
+import { buildMessage } from '@/util/flatbufferMessageBuilder'
 
 const props = defineProps<{
   data: Leaderboard
 }>()
+
+const websocketStore = useWebSocketStore()
 
 const { data: leaderboard } = toRefs(props)
 
@@ -36,6 +48,27 @@ const formatOrdinals = (n: number) => {
   const suffix = suffixes.get(rule)
   return `${n}${suffix}`
 }
+
+const skipLeaderboard = () => {
+  let builder = new flatbuffers.Builder()
+
+  let leaderboardMessage = LeaderboardHostSkipPayload.createLeaderboardHostSkipPayload (
+    builder,
+    true
+  )
+
+  let message = LeaderboardPayloadType.createLeaderboardPayloadType(
+    builder,
+    LeaderboardType.LeaderboardHostSkip,
+    LeaderboardPayload.LeaderboardHostSkipPayload,
+    leaderboardMessage
+  )
+
+  websocketStore.sendMessage(
+    buildMessage(builder, message, MessageType.Leaderboard, Payload.LeaderboardPayloadType)
+  )
+}
+
 </script>
 <template>
   <div class="flex flex-col gap-4 w-full h-full">
@@ -44,6 +77,11 @@ const formatOrdinals = (n: number) => {
     <div class="w-full flex justify-center px-8">
       <div>
         <TimeComponent :timeLeft="timeLeft" />
+      </div>
+      <div>
+        <PartyButton @click="skipLeaderboard" class="ml-16">
+          skip
+        </PartyButton>
       </div>
       <!-- <div>
         <PartyButton class="w-24" @click="onClick">

@@ -232,12 +232,13 @@ const sendPlayerAction = (action: Input) => {
 .diagonal-strike::after {
   content: '';
   position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 130%;
-  height: 130%;
-  border-top: 5px solid red;
-  transform: rotate(-45deg);
-  transform-origin: right top;
+  top: 50%;
+  left: 50%;
+  width: 125%;
+  min-width: 90px;
+  height: 5px;
+  background-color: red;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  transform-origin: center center;
 }
 </style>
