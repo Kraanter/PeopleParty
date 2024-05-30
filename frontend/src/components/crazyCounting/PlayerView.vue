@@ -122,11 +122,13 @@ const sendPlayerAction = (action: Input) => {
 }
 </script>
 <template>
-  <div v-if="viewState == ViewState.Introduction" class="flex m-2 h-full text-center">
-    <div class="flex flex-col justify-center px-8">
-      <div class="mt-16">
+  <div v-if="viewState == ViewState.Introduction" class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
+    <div class="w-full flex justify-center px-8">
+      <div>
         <TimeComponent :timeLeft="intro.time_left" />
       </div>
+    </div>
+    <div>
       <div class="w-full h-full mt-16">
         <p class="text-4xl text-white">{{ intro.description }}</p>
       </div>
@@ -156,14 +158,14 @@ const sendPlayerAction = (action: Input) => {
             </svg>
             {{ formatMilliseconds(latestData.timeLeft) }}
           </div>
-          <div class="text-8xl">{{ latestData.int }}</div>
+          <div class="text-8xl" :class="{ 'diagonal-strike': viewState == ViewState.Results && Math.abs(result - latestData.int) != 0 }">{{ latestData.int }}</div>
           <div v-if="viewState == ViewState.Results">
             <div v-if="Math.abs(result - latestData.int) == 0">
-              Good job, you were spot on!
+              <p class="text-2xl">Good job, you are spot on!</p>
             </div>
             <div v-else>
-              Correct answer was {{ result }} <br>
-              You were {{ Math.abs(result - latestData.int) }} off
+              <p class="text-6xl text-primary" style="position: relative; top: -25px; left: 70px"> {{ result }} </p>
+              <p class="text-2xl"> You were <span class="text-primary text-3xl">{{ Math.abs(result - latestData.int) }}</span> off </p>
             </div>
           </div>
           <div class="text-8xl">
@@ -220,3 +222,22 @@ const sendPlayerAction = (action: Input) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.diagonal-strike {
+  position: relative;
+  display: inline-block;
+}
+
+.diagonal-strike::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 130%;
+  height: 130%;
+  border-top: 5px solid red;
+  transform: rotate(-45deg);
+  transform-origin: right top;
+}
+</style>
