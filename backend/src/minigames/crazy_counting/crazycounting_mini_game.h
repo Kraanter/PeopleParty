@@ -24,6 +24,9 @@ public:
     void introduction_update(int delta_time);
     std::vector<Client*> getMinigameResult() override;
     void clients_changed(int client_id, bool joined) override;
+    std::string get_display_name() override;
+    std::string get_camel_case_name() override;
+    std::string get_description() override;
 private:
     std::vector<CrazyCounting_Entity*> entities;
     std::map<int, CrazyCounting_Player> players;

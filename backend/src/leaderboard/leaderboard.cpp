@@ -63,7 +63,7 @@ void Leaderboard::update(int delta_time) {
 
     if(remaining_time <= 0) {
         timer.clear();
-        Leaderboard::finished();
+        finished();
         return;
     }
 }

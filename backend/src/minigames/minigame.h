@@ -20,6 +20,10 @@ public:
     virtual void start_result() = 0;
     virtual std::vector<Client*> getMinigameResult() = 0;
     void start();
+public:
+    virtual std::string get_display_name() = 0;
+    virtual std::string get_camel_case_name() = 0;
+    virtual std::string get_description() = 0;
 protected:
     virtual void process_input(const MiniGamePayloadType* payload, Client* from) = 0;
     void finished() override;

@@ -19,6 +19,18 @@ CrazyCounting_MiniGame::~CrazyCounting_MiniGame() {
     }
 }
 
+std::string CrazyCounting_MiniGame::get_display_name() {
+    return "Crazy Counting";
+}
+
+std::string CrazyCounting_MiniGame::get_camel_case_name() {
+    return "crazyCounting";
+}
+
+std::string CrazyCounting_MiniGame::get_description() {
+    return "Count the entities as fast as you can and fill in the number on your phone!";
+}
+
 void CrazyCounting_MiniGame::introduction_update(int delta_time) {
     remaining_time -= delta_time;
 
@@ -28,8 +40,7 @@ void CrazyCounting_MiniGame::introduction_update(int delta_time) {
         return;
     }
 
-    send_minigame_introduction("crazyCounting", remaining_time, "Crazy Counting",
-        "Count the entities as fast as you can and fill in the number on your phone!");
+    send_minigame_introduction(get_camel_case_name(), remaining_time, get_display_name(), get_description());
 }
 
 void CrazyCounting_MiniGame::start_introduction() {
