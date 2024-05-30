@@ -28,6 +28,8 @@ public:
     std::string get_camel_case_name() override;
     std::string get_description() override;
 private:
+    const int distribution_mean = 20;
+    const int distribution_variance = 4;
     std::vector<CrazyCounting_Entity*> entities;
     std::map<int, CrazyCounting_Player> players;
     ThreadTimer introduction_timer;

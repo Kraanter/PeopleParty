@@ -2,13 +2,20 @@
 // Created by itssiem on 5/14/24.
 //
 
+#include <random>
 #include "crazycounting_mini_game.h"
 #include "../../game.h"
 #include "../../globals.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
     time_since_last_time_update = 0 MILLISECONDS;
-    this->entity_count = rand() % (30 - 15 + 1) + 15;
+
+    std::mt19937 generator(std::random_device{}());
+    std::normal_distribution<double> distribution(distribution_mean, distribution_variance);
+    this->entity_count = round(distribution(generator));
+    if (entity_count < 1) {
+        entity_count = 1;
+    }
 }
 
 CrazyCounting_MiniGame::~CrazyCounting_MiniGame() {
