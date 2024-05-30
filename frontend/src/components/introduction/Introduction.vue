@@ -25,7 +25,7 @@ const { data: introduction } = toRefs(props)
       </div>
     </div>
     <div class="flex justify-stretch mt-4 flex flex-col justify-center">
-      <img :src="props.logoSVG" alt="logo" class="w-1/2 h-1/2 mx-auto" />
+      <img :src="props.logoSVG" alt="logo" class="h-1/5 mx-auto" />
     </div>
 
     <div class="flex justify-stretch mt-4 w-full h-full flex flex-col justify-center">

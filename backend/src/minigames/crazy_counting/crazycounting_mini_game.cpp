@@ -21,6 +21,7 @@ CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
 CrazyCounting_MiniGame::~CrazyCounting_MiniGame() {
     introduction_timer.clear();
     timer.clear();
+    results_timer.clear();
     for (CrazyCounting_Entity* entity: entities) {
         delete entity;
     }
@@ -35,7 +36,7 @@ std::string CrazyCounting_MiniGame::get_camel_case_name() {
 }
 
 std::string CrazyCounting_MiniGame::get_description() {
-    return "Count the entities as fast as you can and fill in the number on your phone!";
+    return "Count the party hats as fast as you can and fill in the number on your phone!";
 }
 
 void CrazyCounting_MiniGame::introduction_update(int delta_time) {
