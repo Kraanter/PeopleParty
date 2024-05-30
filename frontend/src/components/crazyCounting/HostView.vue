@@ -97,7 +97,7 @@ const update = (data: MiniGamePayloadType) => {
       for (let i = 0; i < hostEntitiesPayload.submittedLength(); i++) {
         const submittedString = hostEntitiesPayload.submitted(i)
         if (submittedString === null) continue
-        newSubmittedPlayers.push(submittedString)
+        newSubmittedPlayers.push(decodeURI(submittedString))
       }
       submittedPlayers.value = newSubmittedPlayers
 
@@ -111,7 +111,7 @@ const update = (data: MiniGamePayloadType) => {
       for (let i = 0; i < resultsPayload.resultsLength(); i++) {
         const submittedString = resultsPayload.results(i)
         if (submittedString === null) continue
-        newSubmittedPlayers.push({ name: submittedString.name() || '', guess: submittedString.guess()})
+        newSubmittedPlayers.push({ name: decodeURI(submittedString.name() || ''), guess: submittedString.guess()})
       }
       
       results.value = {
