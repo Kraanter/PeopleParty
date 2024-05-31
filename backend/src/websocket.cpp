@@ -9,7 +9,7 @@ WebSocket::WebSocket() { this->init(); }
 
 void send_host_message(WS *ws) {
   std::string output = FlatbufferMessageBuilder::buildHostMessage(ws->getUserData()->party_id);
-  
+
   ws->getUserData()->client->send(output);
 }
 
@@ -36,7 +36,7 @@ void process_message(WS *ws, std::string_view message) {
   targetGame->process_input(parsedMessage, ws->getUserData()->client);
 }
 
-bool is_numaric(const std::string &s) {
+bool is_numeric(const std::string &s) {
   return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
 }
 
@@ -59,7 +59,7 @@ void WebSocket::init() {
                 std::string room = std::string(req->getParameter("room"));
                 std::string name = std::string(req->getParameter("name"));
 
-                if (room == "" || !is_numaric(room) || name == "" ) {
+                if (room == "" || !is_numeric(room) || name == "" ) {
                   res->writeStatus("400");
                   res->write("Invalid parameters");
                   res->end();
