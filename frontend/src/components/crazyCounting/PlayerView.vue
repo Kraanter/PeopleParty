@@ -57,7 +57,9 @@ const intro = ref<IntroductionData>({
 
 const result = ref<number>(0)
 
-const isDisabled = computed(() => latestData.value.submitted || viewState.value == ViewState.Results)
+const isDisabled = computed(
+  () => latestData.value.submitted || viewState.value == ViewState.Results
+)
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -71,25 +73,27 @@ const update = (data: MiniGamePayloadType) => {
         timeLeft: Number(newData.timeLeft()),
         submitted: newData.submitted()
       }
-      break;
+      break
     }
     case GameStateType.MiniGameIntroduction: {
       viewState.value = ViewState.Introduction
-      const newData: MiniGameIntroductionPayload = data.gamestatepayload(new MiniGameIntroductionPayload())
+      const newData: MiniGameIntroductionPayload = data.gamestatepayload(
+        new MiniGameIntroductionPayload()
+      )
       intro.value = {
         title: newData.name() || '',
         description: newData.instruction() || '',
         time_left: Number(newData.timeLeft())
       }
-      break;
+      break
     }
     case GameStateType.CrazyCountingResult: {
       viewState.value = ViewState.Results
       const newData: CrazyCountingResultPayload = data.gamestatepayload(
         new CrazyCountingResultPayload()
       )
-      result.value = newData.correctAnswer();
-      break;
+      result.value = newData.correctAnswer()
+      break
     }
   }
 }
@@ -122,7 +126,10 @@ const sendPlayerAction = (action: Input) => {
 }
 </script>
 <template>
-  <div v-if="viewState == ViewState.Introduction" class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
+  <div
+    v-if="viewState == ViewState.Introduction"
+    class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center"
+  >
     <div class="w-full flex justify-center px-8">
       <div>
         <TimeComponent :timeLeft="intro.time_left" />
@@ -134,7 +141,10 @@ const sendPlayerAction = (action: Input) => {
       </div>
     </div>
   </div>
-  <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results" class="w-full h-full grid grid-cols-1 grid-rows-5 max-w-screen-md mx-auto">
+  <div
+    v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results"
+    class="w-full h-full grid grid-cols-1 grid-rows-5 max-w-screen-md mx-auto"
+  >
     <div class="w-full h-full flex justify-center items-center row-span-3 bg-black">
       <div
         style="box-shadow: inset 0.3em 0.3em var(--color-primary)"
@@ -158,14 +168,28 @@ const sendPlayerAction = (action: Input) => {
             </svg>
             {{ formatMilliseconds(latestData.timeLeft) }}
           </div>
-          <div class="text-8xl" :class="{ 'diagonal-strike': viewState == ViewState.Results && Math.abs(result - latestData.int) != 0 }">{{ latestData.int }}</div>
+          <div
+            class="text-8xl"
+            :class="{
+              'diagonal-strike':
+                viewState == ViewState.Results && Math.abs(result - latestData.int) != 0
+            }"
+          >
+            {{ latestData.int }}
+          </div>
           <div v-if="viewState == ViewState.Results">
             <div v-if="Math.abs(result - latestData.int) == 0">
               <p class="text-2xl">Good job, you are spot on!</p>
             </div>
             <div v-else>
-              <p class="text-6xl text-primary" style="position: relative; top: -25px; left: 70px"> {{ result }} </p>
-              <p class="text-2xl"> You were <span class="text-primary text-3xl">{{ Math.abs(result - latestData.int) }}</span> off </p>
+              <p class="text-6xl text-primary" style="position: relative; top: -25px; left: 70px">
+                {{ result }}
+              </p>
+              <p class="text-2xl">
+                You were
+                <span class="text-primary text-3xl">{{ Math.abs(result - latestData.int) }}</span>
+                off
+              </p>
             </div>
           </div>
           <div class="text-8xl">

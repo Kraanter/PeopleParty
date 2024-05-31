@@ -105,15 +105,20 @@ const update = (data: MiniGamePayloadType) => {
     }
     case GameStateType.CrazyCountingResult: {
       viewState.value = ViewState.Results
-      const resultsPayload: CrazyCountingResultPayload = data.gamestatepayload(new CrazyCountingResultPayload())
+      const resultsPayload: CrazyCountingResultPayload = data.gamestatepayload(
+        new CrazyCountingResultPayload()
+      )
 
       let newSubmittedPlayers: ResultsPair[] = []
       for (let i = 0; i < resultsPayload.resultsLength(); i++) {
         const submittedString = resultsPayload.results(i)
         if (submittedString === null) continue
-        newSubmittedPlayers.push({ name: decodeURI(submittedString.name() || ''), guess: submittedString.guess()})
+        newSubmittedPlayers.push({
+          name: decodeURI(submittedString.name() || ''),
+          guess: submittedString.guess()
+        })
       }
-      
+
       results.value = {
         correct: resultsPayload.correctAnswer(),
         results: newSubmittedPlayers
@@ -122,11 +127,13 @@ const update = (data: MiniGamePayloadType) => {
     }
     case GameStateType.MiniGameIntroduction: {
       viewState.value = ViewState.Introduction
-      const introPayload: MiniGameIntroductionPayload = data.gamestatepayload(new MiniGameIntroductionPayload())
+      const introPayload: MiniGameIntroductionPayload = data.gamestatepayload(
+        new MiniGameIntroductionPayload()
+      )
       intro.value = {
         title: introPayload.name() || '',
         description: introPayload.instruction() || '',
-        time_left: Number(introPayload.timeLeft()),
+        time_left: Number(introPayload.timeLeft())
       }
       return intro.value
     }

@@ -39,6 +39,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const partyCode = ref<string>('')
   const route = useRoute()
   const isHosting = computed(() => route.name?.toString().toLowerCase() === 'host')
+  const clientName = ref<string>('')
   const viewStore = useViewStore()
   const isConnecting = ref(false)
 
@@ -53,6 +54,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
   function join(roomId: string, name: string) {
     websocket.value = new WebSocket(baseUrl + `/join/${roomId}/${name}`)
     websocket.value.binaryType = 'arraybuffer'
+    clientName.value = name
     setUpListeners()
   }
 
@@ -104,6 +106,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
       case MessageType.Host: {
         const hostPayload: HostPayloadType = receivedMessage.payload(new HostPayloadType())
         partyCode.value = hostPayload.roomId().toString()
+        clientName.value = 'Host'
         if (isHosting.value) {
           viewStore.setViewState(ViewState.PartyPrep, [])
         }
@@ -117,7 +120,9 @@ export const useWebSocketStore = defineStore('websocket', () => {
       }
       case MessageType.MiniGame: {
         viewStore.setViewState(ViewState.MiniGame)
-        const miniGamePayload: MiniGamePayloadType = receivedMessage.payload(new MiniGamePayloadType())
+        const miniGamePayload: MiniGamePayloadType = receivedMessage.payload(
+          new MiniGamePayloadType()
+        )
         viewStore.setViewData(miniGamePayload)
         listeners.value.forEach((listener) => listener(miniGamePayload))
         break
@@ -186,6 +191,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
     sendMessage,
     subscribe,
     partyCode,
+    clientName,
     isHosting
   }
 })

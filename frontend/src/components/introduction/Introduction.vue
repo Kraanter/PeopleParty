@@ -4,18 +4,17 @@ import { defineProps, toRefs } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 
 export type IntroductionData = {
-  title: string;
-  description: string;
-  time_left: number;
+  title: string
+  description: string
+  time_left: number
 }
 
 const props = defineProps<{
-  logoSVG: string;
+  logoSVG: string
   data: IntroductionData
 }>()
 
 const { data: introduction } = toRefs(props)
-
 </script>
 <template>
   <div class="flex flex-col gap-4 w-full h-full">
