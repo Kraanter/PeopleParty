@@ -137,11 +137,9 @@ const join = () => {
 <template>
   <div class="grid grid-rows-3 grid-cols-1 justify-center">
     <div class="row-span-3" v-if="viewState == ViewState.Leaderboard">
-      <Leaderboard
-        :data="viewData"
-      />
+      <Leaderboard :data="viewData" />
     </div>
-    
+
     <!-- ViewState === MiniGame -->
     <GameManager
       :data="viewData"
