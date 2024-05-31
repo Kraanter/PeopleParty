@@ -52,8 +52,8 @@ const emit = defineEmits(['click'])
           </div>
         </n-card>
         <div>
-          <PartyButton id="startGame" @click="emit('click')" class="xl:py-12 py-4 md:py-8"
-            >Start Game
+          <PartyButton id="startGame" @click="emit('click')" class="xl:py-12 py-4 md:py-8" :disabled="playerCount < 1"
+            >{{ playerCount < 1 ? 'Waiting for players...' : 'Start Game' }}
           </PartyButton>
         </div>
       </div>
