@@ -6,6 +6,8 @@ import { CrazyCountingHostEntitiesPayload } from './crazy-counting-host-entities
 import { CrazyCountingPlayerInputPayload } from './crazy-counting-player-input-payload.js';
 import { CrazyCountingPlayerUpdatePayload } from './crazy-counting-player-update-payload.js';
 import { CrazyCountingResultPayload } from './crazy-counting-result-payload.js';
+import { MemoryMixerGridPayload } from './memory-mixer-grid-payload.js';
+import { MemoryMixerPlayerInputPayload } from './memory-mixer-player-input-payload.js';
 import { MiniGameIntroductionPayload } from './mini-game-introduction-payload.js';
 
 
@@ -15,19 +17,23 @@ export enum GameStatePayload {
   CrazyCountingPlayerInputPayload = 2,
   CrazyCountingPlayerUpdatePayload = 3,
   CrazyCountingResultPayload = 4,
-  MiniGameIntroductionPayload = 5
+  MemoryMixerGridPayload = 5,
+  MemoryMixerPlayerInputPayload = 6,
+  MiniGameIntroductionPayload = 7
 }
 
 export function unionToGameStatePayload(
   type: GameStatePayload,
-  accessor: (obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null
-): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null {
+  accessor: (obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MiniGameIntroductionPayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MiniGameIntroductionPayload|null
+): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MiniGameIntroductionPayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
     case 'CrazyCountingHostEntitiesPayload': return accessor(new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
     case 'CrazyCountingPlayerInputPayload': return accessor(new CrazyCountingPlayerInputPayload())! as CrazyCountingPlayerInputPayload;
     case 'CrazyCountingPlayerUpdatePayload': return accessor(new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     case 'CrazyCountingResultPayload': return accessor(new CrazyCountingResultPayload())! as CrazyCountingResultPayload;
+    case 'MemoryMixerGridPayload': return accessor(new MemoryMixerGridPayload())! as MemoryMixerGridPayload;
+    case 'MemoryMixerPlayerInputPayload': return accessor(new MemoryMixerPlayerInputPayload())! as MemoryMixerPlayerInputPayload;
     case 'MiniGameIntroductionPayload': return accessor(new MiniGameIntroductionPayload())! as MiniGameIntroductionPayload;
     default: return null;
   }
@@ -35,15 +41,17 @@ export function unionToGameStatePayload(
 
 export function unionListToGameStatePayload(
   type: GameStatePayload, 
-  accessor: (index: number, obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null, 
+  accessor: (index: number, obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MiniGameIntroductionPayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MiniGameIntroductionPayload|null, 
   index: number
-): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null {
+): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MiniGameIntroductionPayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
     case 'CrazyCountingHostEntitiesPayload': return accessor(index, new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
     case 'CrazyCountingPlayerInputPayload': return accessor(index, new CrazyCountingPlayerInputPayload())! as CrazyCountingPlayerInputPayload;
     case 'CrazyCountingPlayerUpdatePayload': return accessor(index, new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     case 'CrazyCountingResultPayload': return accessor(index, new CrazyCountingResultPayload())! as CrazyCountingResultPayload;
+    case 'MemoryMixerGridPayload': return accessor(index, new MemoryMixerGridPayload())! as MemoryMixerGridPayload;
+    case 'MemoryMixerPlayerInputPayload': return accessor(index, new MemoryMixerPlayerInputPayload())! as MemoryMixerPlayerInputPayload;
     case 'MiniGameIntroductionPayload': return accessor(index, new MiniGameIntroductionPayload())! as MiniGameIntroductionPayload;
     default: return null;
   }

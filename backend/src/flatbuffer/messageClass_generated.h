@@ -49,6 +49,18 @@ struct CrazyCountingResultPayloadBuilder;
 struct FBCrazyCountingResultPair;
 struct FBCrazyCountingResultPairBuilder;
 
+struct MemoryMixerGridRow;
+struct MemoryMixerGridRowBuilder;
+
+struct MemoryMixerGridCell;
+struct MemoryMixerGridCellBuilder;
+
+struct MemoryMixerGridPayload;
+struct MemoryMixerGridPayloadBuilder;
+
+struct MemoryMixerPlayerInputPayload;
+struct MemoryMixerPlayerInputPayloadBuilder;
+
 struct MiniGameIntroductionPayload;
 struct MiniGameIntroductionPayloadBuilder;
 
@@ -184,33 +196,81 @@ inline const char *EnumNameInput(Input e) {
   return EnumNamesInput()[index];
 }
 
+enum MemoryMixerIconType : int8_t {
+  MemoryMixerIconType_BALLOON = 0,
+  MemoryMixerIconType_CAKE = 1,
+  MemoryMixerIconType_CONFETTI = 2,
+  MemoryMixerIconType_CONFETTI2 = 3,
+  MemoryMixerIconType_SMILEY = 4,
+  MemoryMixerIconType_EMPTY = 5,
+  MemoryMixerIconType_MIN = MemoryMixerIconType_BALLOON,
+  MemoryMixerIconType_MAX = MemoryMixerIconType_EMPTY
+};
+
+inline const MemoryMixerIconType (&EnumValuesMemoryMixerIconType())[6] {
+  static const MemoryMixerIconType values[] = {
+    MemoryMixerIconType_BALLOON,
+    MemoryMixerIconType_CAKE,
+    MemoryMixerIconType_CONFETTI,
+    MemoryMixerIconType_CONFETTI2,
+    MemoryMixerIconType_SMILEY,
+    MemoryMixerIconType_EMPTY
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesMemoryMixerIconType() {
+  static const char * const names[7] = {
+    "BALLOON",
+    "CAKE",
+    "CONFETTI",
+    "CONFETTI2",
+    "SMILEY",
+    "EMPTY",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameMemoryMixerIconType(MemoryMixerIconType e) {
+  if (::flatbuffers::IsOutRange(e, MemoryMixerIconType_BALLOON, MemoryMixerIconType_EMPTY)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesMemoryMixerIconType()[index];
+}
+
 enum GameStateType : int8_t {
   GameStateType_CrazyCountingHostEntities = 0,
   GameStateType_CrazyCountingPlayerInput = 1,
   GameStateType_CrazyCountingPlayerUpdate = 2,
   GameStateType_CrazyCountingResult = 3,
-  GameStateType_MiniGameIntroduction = 4,
+  GameStateType_MemoryMixerGrid = 4,
+  GameStateType_MemoryMixerPlayerInput = 5,
+  GameStateType_MiniGameIntroduction = 6,
   GameStateType_MIN = GameStateType_CrazyCountingHostEntities,
   GameStateType_MAX = GameStateType_MiniGameIntroduction
 };
 
-inline const GameStateType (&EnumValuesGameStateType())[5] {
+inline const GameStateType (&EnumValuesGameStateType())[7] {
   static const GameStateType values[] = {
     GameStateType_CrazyCountingHostEntities,
     GameStateType_CrazyCountingPlayerInput,
     GameStateType_CrazyCountingPlayerUpdate,
     GameStateType_CrazyCountingResult,
+    GameStateType_MemoryMixerGrid,
+    GameStateType_MemoryMixerPlayerInput,
     GameStateType_MiniGameIntroduction
   };
   return values;
 }
 
 inline const char * const *EnumNamesGameStateType() {
-  static const char * const names[6] = {
+  static const char * const names[8] = {
     "CrazyCountingHostEntities",
     "CrazyCountingPlayerInput",
     "CrazyCountingPlayerUpdate",
     "CrazyCountingResult",
+    "MemoryMixerGrid",
+    "MemoryMixerPlayerInput",
     "MiniGameIntroduction",
     nullptr
   };
@@ -229,30 +289,36 @@ enum GameStatePayload : uint8_t {
   GameStatePayload_CrazyCountingPlayerInputPayload = 2,
   GameStatePayload_CrazyCountingPlayerUpdatePayload = 3,
   GameStatePayload_CrazyCountingResultPayload = 4,
-  GameStatePayload_MiniGameIntroductionPayload = 5,
+  GameStatePayload_MemoryMixerGridPayload = 5,
+  GameStatePayload_MemoryMixerPlayerInputPayload = 6,
+  GameStatePayload_MiniGameIntroductionPayload = 7,
   GameStatePayload_MIN = GameStatePayload_NONE,
   GameStatePayload_MAX = GameStatePayload_MiniGameIntroductionPayload
 };
 
-inline const GameStatePayload (&EnumValuesGameStatePayload())[6] {
+inline const GameStatePayload (&EnumValuesGameStatePayload())[8] {
   static const GameStatePayload values[] = {
     GameStatePayload_NONE,
     GameStatePayload_CrazyCountingHostEntitiesPayload,
     GameStatePayload_CrazyCountingPlayerInputPayload,
     GameStatePayload_CrazyCountingPlayerUpdatePayload,
     GameStatePayload_CrazyCountingResultPayload,
+    GameStatePayload_MemoryMixerGridPayload,
+    GameStatePayload_MemoryMixerPlayerInputPayload,
     GameStatePayload_MiniGameIntroductionPayload
   };
   return values;
 }
 
 inline const char * const *EnumNamesGameStatePayload() {
-  static const char * const names[7] = {
+  static const char * const names[9] = {
     "NONE",
     "CrazyCountingHostEntitiesPayload",
     "CrazyCountingPlayerInputPayload",
     "CrazyCountingPlayerUpdatePayload",
     "CrazyCountingResultPayload",
+    "MemoryMixerGridPayload",
+    "MemoryMixerPlayerInputPayload",
     "MiniGameIntroductionPayload",
     nullptr
   };
@@ -283,6 +349,14 @@ template<> struct GameStatePayloadTraits<CrazyCountingPlayerUpdatePayload> {
 
 template<> struct GameStatePayloadTraits<CrazyCountingResultPayload> {
   static const GameStatePayload enum_value = GameStatePayload_CrazyCountingResultPayload;
+};
+
+template<> struct GameStatePayloadTraits<MemoryMixerGridPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_MemoryMixerGridPayload;
+};
+
+template<> struct GameStatePayloadTraits<MemoryMixerPlayerInputPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_MemoryMixerPlayerInputPayload;
 };
 
 template<> struct GameStatePayloadTraits<MiniGameIntroductionPayload> {
@@ -1174,6 +1248,224 @@ inline ::flatbuffers::Offset<FBCrazyCountingResultPair> CreateFBCrazyCountingRes
       guess);
 }
 
+struct MemoryMixerGridRow FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MemoryMixerGridRowBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ROW = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridCell>> *row() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridCell>> *>(VT_ROW);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_ROW) &&
+           verifier.VerifyVector(row()) &&
+           verifier.VerifyVectorOfTables(row()) &&
+           verifier.EndTable();
+  }
+};
+
+struct MemoryMixerGridRowBuilder {
+  typedef MemoryMixerGridRow Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_row(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridCell>>> row) {
+    fbb_.AddOffset(MemoryMixerGridRow::VT_ROW, row);
+  }
+  explicit MemoryMixerGridRowBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<MemoryMixerGridRow> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<MemoryMixerGridRow>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<MemoryMixerGridRow> CreateMemoryMixerGridRow(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridCell>>> row = 0) {
+  MemoryMixerGridRowBuilder builder_(_fbb);
+  builder_.add_row(row);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<MemoryMixerGridRow> CreateMemoryMixerGridRowDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<MemoryMixerGridCell>> *row = nullptr) {
+  auto row__ = row ? _fbb.CreateVector<::flatbuffers::Offset<MemoryMixerGridCell>>(*row) : 0;
+  return CreateMemoryMixerGridRow(
+      _fbb,
+      row__);
+}
+
+struct MemoryMixerGridCell FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MemoryMixerGridCellBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ICON = 4,
+    VT_PLAYERS_ON_CARD = 6
+  };
+  MemoryMixerIconType icon() const {
+    return static_cast<MemoryMixerIconType>(GetField<int8_t>(VT_ICON, 0));
+  }
+  int16_t players_on_card() const {
+    return GetField<int16_t>(VT_PLAYERS_ON_CARD, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int8_t>(verifier, VT_ICON, 1) &&
+           VerifyField<int16_t>(verifier, VT_PLAYERS_ON_CARD, 2) &&
+           verifier.EndTable();
+  }
+};
+
+struct MemoryMixerGridCellBuilder {
+  typedef MemoryMixerGridCell Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_icon(MemoryMixerIconType icon) {
+    fbb_.AddElement<int8_t>(MemoryMixerGridCell::VT_ICON, static_cast<int8_t>(icon), 0);
+  }
+  void add_players_on_card(int16_t players_on_card) {
+    fbb_.AddElement<int16_t>(MemoryMixerGridCell::VT_PLAYERS_ON_CARD, players_on_card, 0);
+  }
+  explicit MemoryMixerGridCellBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<MemoryMixerGridCell> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<MemoryMixerGridCell>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<MemoryMixerGridCell> CreateMemoryMixerGridCell(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    MemoryMixerIconType icon = MemoryMixerIconType_BALLOON,
+    int16_t players_on_card = 0) {
+  MemoryMixerGridCellBuilder builder_(_fbb);
+  builder_.add_players_on_card(players_on_card);
+  builder_.add_icon(icon);
+  return builder_.Finish();
+}
+
+struct MemoryMixerGridPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MemoryMixerGridPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TIME_LEFT = 4,
+    VT_GRID = 6
+  };
+  uint64_t time_left() const {
+    return GetField<uint64_t>(VT_TIME_LEFT, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>> *grid() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>> *>(VT_GRID);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_TIME_LEFT, 8) &&
+           VerifyOffset(verifier, VT_GRID) &&
+           verifier.VerifyVector(grid()) &&
+           verifier.VerifyVectorOfTables(grid()) &&
+           verifier.EndTable();
+  }
+};
+
+struct MemoryMixerGridPayloadBuilder {
+  typedef MemoryMixerGridPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_time_left(uint64_t time_left) {
+    fbb_.AddElement<uint64_t>(MemoryMixerGridPayload::VT_TIME_LEFT, time_left, 0);
+  }
+  void add_grid(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>>> grid) {
+    fbb_.AddOffset(MemoryMixerGridPayload::VT_GRID, grid);
+  }
+  explicit MemoryMixerGridPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<MemoryMixerGridPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<MemoryMixerGridPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t time_left = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>>> grid = 0) {
+  MemoryMixerGridPayloadBuilder builder_(_fbb);
+  builder_.add_time_left(time_left);
+  builder_.add_grid(grid);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayloadDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t time_left = 0,
+    const std::vector<::flatbuffers::Offset<MemoryMixerGridRow>> *grid = nullptr) {
+  auto grid__ = grid ? _fbb.CreateVector<::flatbuffers::Offset<MemoryMixerGridRow>>(*grid) : 0;
+  return CreateMemoryMixerGridPayload(
+      _fbb,
+      time_left,
+      grid__);
+}
+
+struct MemoryMixerPlayerInputPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MemoryMixerPlayerInputPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6
+  };
+  int16_t x() const {
+    return GetField<int16_t>(VT_X, 0);
+  }
+  int16_t y() const {
+    return GetField<int16_t>(VT_Y, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int16_t>(verifier, VT_X, 2) &&
+           VerifyField<int16_t>(verifier, VT_Y, 2) &&
+           verifier.EndTable();
+  }
+};
+
+struct MemoryMixerPlayerInputPayloadBuilder {
+  typedef MemoryMixerPlayerInputPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(int16_t x) {
+    fbb_.AddElement<int16_t>(MemoryMixerPlayerInputPayload::VT_X, x, 0);
+  }
+  void add_y(int16_t y) {
+    fbb_.AddElement<int16_t>(MemoryMixerPlayerInputPayload::VT_Y, y, 0);
+  }
+  explicit MemoryMixerPlayerInputPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<MemoryMixerPlayerInputPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<MemoryMixerPlayerInputPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<MemoryMixerPlayerInputPayload> CreateMemoryMixerPlayerInputPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int16_t x = 0,
+    int16_t y = 0) {
+  MemoryMixerPlayerInputPayloadBuilder builder_(_fbb);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  return builder_.Finish();
+}
+
 struct MiniGameIntroductionPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MiniGameIntroductionPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -1284,6 +1576,12 @@ struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   const CrazyCountingResultPayload *gamestatepayload_as_CrazyCountingResultPayload() const {
     return gamestatepayload_type() == GameStatePayload_CrazyCountingResultPayload ? static_cast<const CrazyCountingResultPayload *>(gamestatepayload()) : nullptr;
   }
+  const MemoryMixerGridPayload *gamestatepayload_as_MemoryMixerGridPayload() const {
+    return gamestatepayload_type() == GameStatePayload_MemoryMixerGridPayload ? static_cast<const MemoryMixerGridPayload *>(gamestatepayload()) : nullptr;
+  }
+  const MemoryMixerPlayerInputPayload *gamestatepayload_as_MemoryMixerPlayerInputPayload() const {
+    return gamestatepayload_type() == GameStatePayload_MemoryMixerPlayerInputPayload ? static_cast<const MemoryMixerPlayerInputPayload *>(gamestatepayload()) : nullptr;
+  }
   const MiniGameIntroductionPayload *gamestatepayload_as_MiniGameIntroductionPayload() const {
     return gamestatepayload_type() == GameStatePayload_MiniGameIntroductionPayload ? static_cast<const MiniGameIntroductionPayload *>(gamestatepayload()) : nullptr;
   }
@@ -1313,6 +1611,14 @@ template<> inline const CrazyCountingPlayerUpdatePayload *MiniGamePayloadType::g
 
 template<> inline const CrazyCountingResultPayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingResultPayload>() const {
   return gamestatepayload_as_CrazyCountingResultPayload();
+}
+
+template<> inline const MemoryMixerGridPayload *MiniGamePayloadType::gamestatepayload_as<MemoryMixerGridPayload>() const {
+  return gamestatepayload_as_MemoryMixerGridPayload();
+}
+
+template<> inline const MemoryMixerPlayerInputPayload *MiniGamePayloadType::gamestatepayload_as<MemoryMixerPlayerInputPayload>() const {
+  return gamestatepayload_as_MemoryMixerPlayerInputPayload();
 }
 
 template<> inline const MiniGameIntroductionPayload *MiniGamePayloadType::gamestatepayload_as<MiniGameIntroductionPayload>() const {
@@ -1802,6 +2108,14 @@ inline bool VerifyGameStatePayload(::flatbuffers::Verifier &verifier, const void
     }
     case GameStatePayload_CrazyCountingResultPayload: {
       auto ptr = reinterpret_cast<const CrazyCountingResultPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_MemoryMixerGridPayload: {
+      auto ptr = reinterpret_cast<const MemoryMixerGridPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_MemoryMixerPlayerInputPayload: {
+      auto ptr = reinterpret_cast<const MemoryMixerPlayerInputPayload *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case GameStatePayload_MiniGameIntroductionPayload: {

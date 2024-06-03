@@ -12,6 +12,7 @@
 #include "leaderboard/leaderboard.h"
 #include "party.h"
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
+#include "minigames/memory_mixer/memorymixer_mini_game.h"
 #include <queue>
 #include <map>
 
@@ -46,7 +47,7 @@ public:
                 ((MiniGame*)current_gamestate)->start();
 
                 // fixme: Infinite loop for now
-                miniGames.push(new CrazyCounting_MiniGame(this));
+                miniGames.push(new MemoryMixer_MiniGame(this));
                 return;
             }
         }

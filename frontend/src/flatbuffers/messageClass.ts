@@ -20,6 +20,11 @@ export { LeaderboardInformationPayload } from './leaderboard-information-payload
 export { LeaderboardPayload } from './leaderboard-payload.js';
 export { LeaderboardPayloadType } from './leaderboard-payload-type.js';
 export { LeaderboardType } from './leaderboard-type.js';
+export { MemoryMixerGridCell } from './memory-mixer-grid-cell.js';
+export { MemoryMixerGridPayload } from './memory-mixer-grid-payload.js';
+export { MemoryMixerGridRow } from './memory-mixer-grid-row.js';
+export { MemoryMixerIconType } from './memory-mixer-icon-type.js';
+export { MemoryMixerPlayerInputPayload } from './memory-mixer-player-input-payload.js';
 export { Message } from './message.js';
 export { MessageType } from './message-type.js';
 export { MiniGameIntroductionPayload } from './mini-game-introduction-payload.js';
