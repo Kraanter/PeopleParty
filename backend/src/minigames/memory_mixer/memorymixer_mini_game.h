@@ -28,6 +28,7 @@ private:
     int remaining_time;
     int max_on_card;
     int grid_size;
+    MemoryMixer_card target_card;
     int mini_game_phase = 0; // 0 = show all symbols, 1 = show searching symbol, 2 = show hidden grid
     std::vector<std::vector<MemoryMixer_card>> grid;
 private:

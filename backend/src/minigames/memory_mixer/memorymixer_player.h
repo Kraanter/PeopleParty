@@ -16,6 +16,7 @@ public:
 private:
 public:
     void submit(int x, int y);
+    bool operator<(const MemoryMixer_Player& other) const;
 };
 
 #endif //MEMORYMIXER_PLAYER_H

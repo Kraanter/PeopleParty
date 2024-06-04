@@ -12,6 +12,8 @@ MemoryMixer_MiniGame::MemoryMixer_MiniGame(Game* game) : MiniGame(game) {
             grid[i][j] = MemoryMixer_card(rnd);
         }
     }
+
+    target_card = MemoryMixer_card(rand() % (4 + 1));
 }
 
 MemoryMixer_MiniGame::~MemoryMixer_MiniGame() {
@@ -118,8 +120,7 @@ void MemoryMixer_MiniGame::send_grid() {
                 icon = MemoryMixerIconType(grid[i][j]);
                 amount = -1;
             } else if (mini_game_phase == 1) {
-                int rnd = rand() % (4 + 1);
-                icon = MemoryMixerIconType(rnd);
+                icon = MemoryMixerIconType(target_card);
                 amount = -1;
             } else if (mini_game_phase == 2) {
                 icon = MemoryMixerIconType::MemoryMixerIconType_EMPTY;
@@ -163,6 +164,10 @@ void MemoryMixer_MiniGame::send_player_submitted(int client_id) {
 }
 
 void MemoryMixer_MiniGame::process_input(const MiniGamePayloadType* payload, Client* from) {
+    if (mini_game_phase != 2) {
+        return;
+    }
+
     switch(payload->gamestatetype()) {
         case GameStateType_MemoryMixerPlayerInput: {
             auto input = payload->gamestatepayload_as_MemoryMixerPlayerInputPayload();
@@ -201,8 +206,24 @@ std::vector<Client*> MemoryMixer_MiniGame::getMinigameResult() {
         sorted_players.push_back(player);
     }
 
-    std::vector<Client*> result;
+    std::vector<MemoryMixer_Player> correct_players;
+    std::vector<MemoryMixer_Player> wrong_players;
     for (MemoryMixer_Player player: sorted_players) {
+        if (grid[player.submitted_x][player.submitted_y] == target_card) {
+            correct_players.push_back(player);
+        } else {
+            wrong_players.push_back(player);
+        }
+    }
+
+    std::sort(correct_players.begin(), correct_players.end());
+    std::sort(wrong_players.begin(), wrong_players.end());
+
+    std::vector<Client*> result;
+    for (MemoryMixer_Player player: correct_players) {
+        result.push_back(client_repository[player.client_id]);
+    }
+    for (MemoryMixer_Player player: wrong_players) {
         result.push_back(client_repository[player.client_id]);
     }
 

@@ -14,3 +14,10 @@ void MemoryMixer_Player::submit(int x, int y) {
     submitted_y = y;
     submitted_time = std::chrono::system_clock::now().time_since_epoch().count();
 }
+
+bool MemoryMixer_Player::operator<(const MemoryMixer_Player &other) const {
+    if (submitted_time != other.submitted_time) {
+        return submitted_time < other.submitted_time;
+    }
+    return rand() % 2 == 0;
+}
