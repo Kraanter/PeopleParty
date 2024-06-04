@@ -77,19 +77,24 @@ void BusinessBailout_Minigame::send_host_data() {
         player_bailout_buffer.push_back(CreatePlayerBailout(builder, name, bail_time));
     }
     auto player_bailouts = builder.CreateVector(player_bailout_buffer);
-
     auto payload = CreateBusinessBailoutHostPayload(builder, value, time, player_bailouts);
+
+    auto miniGame = builder.CreateString(get_camel_case_name());
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_BusinessBailoutHost,
+                                                      GameStatePayload_BusinessBailoutHostPayload, payload.Union());
     game->party->send_gamestate([&](Client *client) {
         return client->isHost;
-    }, builder, payload.Union());
+    }, builder, gameStatePayload.Union());
 }
 
 void BusinessBailout_Minigame::send_player_data(Client* player) {
     flatbuffers::FlatBufferBuilder builder;
     auto payload = CreateBusinessBailoutPlayerPayload(builder, value, player_bail_times[player] != 0);
+    auto gamestatePayload = CreateMiniGamePayloadType(builder, builder.CreateString(get_camel_case_name()), GameStateType_BusinessBailoutPlayer,
+                                                      GameStatePayload_BusinessBailoutPlayerPayload, payload.Union());
     game->party->send_gamestate([&](Client *client) {
         return client->client_id == player->client_id;
-    }, builder, payload.Union());
+    }, builder, gamestatePayload.Union());
 }
 
 std::vector<Client *> BusinessBailout_Minigame::getMinigameResult() {
@@ -112,6 +117,7 @@ void BusinessBailout_Minigame::process_input(const MiniGamePayloadType *payload,
     switch(payload->gamestatetype()) {
         case GameStateType_BusinessBailoutPlayer:
             player_bail_times[from] = std::chrono::system_clock::now().time_since_epoch().count() - minigame_start_time;
+            send_player_data(from);
             break;
     }
 }
