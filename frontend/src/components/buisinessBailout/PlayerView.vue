@@ -13,8 +13,6 @@ function parsePayload(payload: string): playerPayload {
 function update(payload: string) {
   const { value: newValue } = parsePayload(payload)
 
-  console.log('Updating', value.value, newValue)
-
   value.value = newValue
 }
 
