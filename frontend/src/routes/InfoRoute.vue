@@ -7,9 +7,9 @@
                 src="./../../public/assets/info.svg"
             />
         </div>
-        <div class="max-w-md m-auto mb-4 row-start-4">
-            <router-link to="/join" class="underline mr-4 text-2xl">Join a party!</router-link>
-            <router-link to="/host" class="underline ml-4 text-2xl">Host a party!</router-link>
+        <div class="m-auto mb-8 row-start-4">
+            <router-link to="/join" class="underline mr-16 text-4xl">Join a party!</router-link>
+            <router-link to="/host" class="underline ml-16 text-4xl">Host a party!</router-link>
         </div>
     </div>
 </template>
