@@ -101,7 +101,7 @@ std::string BusinessBailout_Minigame::get_display_name() {
 }
 
 std::string BusinessBailout_Minigame::get_camel_case_name() {
-    return "business_bailout";
+    return "businessBailout";
 }
 
 std::string BusinessBailout_Minigame::get_description() {
