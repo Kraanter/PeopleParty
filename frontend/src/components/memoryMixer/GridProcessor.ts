@@ -16,7 +16,14 @@ interface MemoryMixerCell {
 
 export interface MemoryMixerGrid {
     timeLeft: number
+    maxOnCard: number
     grid: MemoryMixerCell[][]
+}
+
+export interface PlayerSubmittedData {
+    playerSubmitted: boolean,
+    x: number,
+    y: number
 }
 
 export const processGrid = (payload: MemoryMixerGridPayload): MemoryMixerGrid => {
@@ -26,7 +33,7 @@ export const processGrid = (payload: MemoryMixerGridPayload): MemoryMixerGrid =>
         for (let j = 0; j < payload.grid(i)?.rowLength()!; j++) {
             const cell = payload.grid(i)?.row(j)
             row.push({
-                icon: MemoryMixerIcon.Empty,
+                icon: MemoryMixerIcon.Empty, // fixme: actually get the icon
                 players_on_card: cell?.playersOnCard() || 0
             })
         }
@@ -34,6 +41,7 @@ export const processGrid = (payload: MemoryMixerGridPayload): MemoryMixerGrid =>
     }
     return {
         timeLeft: Number(payload.timeLeft()),
+        maxOnCard: Number(payload.maxOnCard()),
         grid
     }
 }

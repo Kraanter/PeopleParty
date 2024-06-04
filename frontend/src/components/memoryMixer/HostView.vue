@@ -25,6 +25,7 @@ const { width, height } = toRefs(props)
 
 const grid = ref<MemoryMixerGrid>({
   timeLeft: 0,
+  maxOnCard: 0,
   grid: [],
 })
 
@@ -73,7 +74,10 @@ defineExpose({
     <Introduction :data="intro" logoSVG="/assets/games/crazyCounting/crazyCountingLogo.svg" />
   </div>
   <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
-    <GridView :grid="grid" :isHost="true"></GridView>
+    <GridView 
+      :grid="grid" 
+      :player-submitted="{playerSubmitted: false, x: 0, y: 0}"
+      :isHost="true"></GridView>
   </div>
   <div v-else-if="viewState == ViewState.Results">
 

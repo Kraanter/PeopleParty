@@ -25,6 +25,7 @@ export { MemoryMixerGridPayload } from './memory-mixer-grid-payload.js';
 export { MemoryMixerGridRow } from './memory-mixer-grid-row.js';
 export { MemoryMixerIconType } from './memory-mixer-icon-type.js';
 export { MemoryMixerPlayerInputPayload } from './memory-mixer-player-input-payload.js';
+export { MemoryMixerPlayerSubmittedPayload } from './memory-mixer-player-submitted-payload.js';
 export { Message } from './message.js';
 export { MessageType } from './message-type.js';
 export { MiniGameIntroductionPayload } from './mini-game-introduction-payload.js';

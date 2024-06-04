@@ -1,9 +1,25 @@
 <script lang="ts" setup>
 import { ref, toRefs, defineProps } from 'vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
-import { GameStateType, MemoryMixerGridPayload, MiniGameIntroductionPayload, type MiniGamePayloadType } from '@/flatbuffers/messageClass';
+import { 
+  GameStatePayload,
+  GameStateType, 
+  MemoryMixerGridPayload, 
+  MemoryMixerPlayerInputPayload, 
+  MemoryMixerPlayerSubmittedPayload, 
+  MessageType, 
+  MiniGameIntroductionPayload, 
+  MiniGamePayloadType, 
+  Payload 
+} from '@/flatbuffers/messageClass';
 import TimeComponent from '../TimeComponent.vue'
+import GridView from './GridView.vue'
+import { processGrid, type MemoryMixerGrid, type PlayerSubmittedData } from './GridProcessor';
+import * as flatbuffers from 'flatbuffers'
+import { useWebSocketStore } from '@/stores/confettiStore';
+import { buildMessage } from '@/util/flatbufferMessageBuilder';
 
+const websocketStore = useWebSocketStore()
 
 const props = defineProps<{
   width: number
@@ -21,7 +37,6 @@ const viewState = ref<ViewState>(ViewState.None)
 
 const { width, height } = toRefs(props)
 
-
 // introduction
 const intro = ref<IntroductionData>({
   title: '',
@@ -29,6 +44,17 @@ const intro = ref<IntroductionData>({
   time_left: 0
 })
 // game data
+const grid = ref<MemoryMixerGrid>({
+  timeLeft: 0,
+  maxOnCard: 0,
+  grid: [],
+})
+// if player has submitted
+const playerSubmitted = ref<PlayerSubmittedData>({
+  playerSubmitted: false,
+  x: 0,
+  y: 0
+})
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -37,6 +63,21 @@ const update = (data: MiniGamePayloadType) => {
       const hostEntitiesPayload: MemoryMixerGridPayload = data.gamestatepayload(
         new MemoryMixerGridPayload()
       )
+
+      grid.value = processGrid(hostEntitiesPayload)
+      return null;
+    }
+    case GameStateType.MemoryMixerPlayerSubmitted: {
+      const playerSumbitted: MemoryMixerPlayerSubmittedPayload = data.gamestatepayload(
+        new MemoryMixerPlayerSubmittedPayload()
+      )
+
+      playerSubmitted.value = {
+        playerSubmitted: playerSumbitted.submitted(),
+        x: playerSumbitted.x(),
+        y: playerSumbitted.y()
+      }
+
       return null;
     }
     case GameStateType.MiniGameIntroduction: {
@@ -53,6 +94,30 @@ const update = (data: MiniGamePayloadType) => {
     }
   }
   return []
+}
+
+const sendPlayerAction = (x: number, y: number) => {
+  let builder = new flatbuffers.Builder()
+
+  let playerInput = MemoryMixerPlayerInputPayload.createMemoryMixerPlayerInputPayload(
+    builder,
+    x,
+    y
+  )
+
+  let miniGame = builder.createString('memoryMixer')
+
+  let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
+    builder,
+    miniGame,
+    GameStateType.MemoryMixerPlayerInput,
+    GameStatePayload.MemoryMixerPlayerInputPayload,
+    playerInput
+  )
+
+  websocketStore.sendMessage(
+    buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType)
+  )
 }
 
 defineExpose({
@@ -75,7 +140,7 @@ defineExpose({
     </div>
   </div>
   <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
-
+    <GridView :grid="grid" :player-submitted="playerSubmitted" :isHost="false" @click="sendPlayerAction"></GridView>
   </div>
   <div v-else-if="viewState == ViewState.Results">
 

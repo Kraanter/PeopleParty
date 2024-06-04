@@ -7,6 +7,7 @@ include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingResultPayload.fbs";
 include "minigamedata/MemoryMixer/MemoryMixerGridPayload.fbs";
 include "minigamedata/MemoryMixer/MemoryMixerPlayerInputPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerPlayerSubmittedPayload.fbs";
 include "minigamedata/MiniGameIntroductionPayload.fbs";
 
 enum GameStateType: byte {
@@ -16,6 +17,7 @@ enum GameStateType: byte {
     CrazyCountingResult,
     MemoryMixerGrid,
     MemoryMixerPlayerInput,
+    MemoryMixerPlayerSubmitted,
     MiniGameIntroduction,
 }
 
@@ -26,6 +28,7 @@ union GameStatePayload {
     CrazyCountingResultPayload,
     MemoryMixerGridPayload,
     MemoryMixerPlayerInputPayload,
+    MemoryMixerPlayerSubmittedPayload,
     MiniGameIntroductionPayload,
 }
 

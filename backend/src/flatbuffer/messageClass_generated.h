@@ -61,6 +61,9 @@ struct MemoryMixerGridPayloadBuilder;
 struct MemoryMixerPlayerInputPayload;
 struct MemoryMixerPlayerInputPayloadBuilder;
 
+struct MemoryMixerPlayerSubmittedPayload;
+struct MemoryMixerPlayerSubmittedPayloadBuilder;
+
 struct MiniGameIntroductionPayload;
 struct MiniGameIntroductionPayloadBuilder;
 
@@ -245,12 +248,13 @@ enum GameStateType : int8_t {
   GameStateType_CrazyCountingResult = 3,
   GameStateType_MemoryMixerGrid = 4,
   GameStateType_MemoryMixerPlayerInput = 5,
-  GameStateType_MiniGameIntroduction = 6,
+  GameStateType_MemoryMixerPlayerSubmitted = 6,
+  GameStateType_MiniGameIntroduction = 7,
   GameStateType_MIN = GameStateType_CrazyCountingHostEntities,
   GameStateType_MAX = GameStateType_MiniGameIntroduction
 };
 
-inline const GameStateType (&EnumValuesGameStateType())[7] {
+inline const GameStateType (&EnumValuesGameStateType())[8] {
   static const GameStateType values[] = {
     GameStateType_CrazyCountingHostEntities,
     GameStateType_CrazyCountingPlayerInput,
@@ -258,19 +262,21 @@ inline const GameStateType (&EnumValuesGameStateType())[7] {
     GameStateType_CrazyCountingResult,
     GameStateType_MemoryMixerGrid,
     GameStateType_MemoryMixerPlayerInput,
+    GameStateType_MemoryMixerPlayerSubmitted,
     GameStateType_MiniGameIntroduction
   };
   return values;
 }
 
 inline const char * const *EnumNamesGameStateType() {
-  static const char * const names[8] = {
+  static const char * const names[9] = {
     "CrazyCountingHostEntities",
     "CrazyCountingPlayerInput",
     "CrazyCountingPlayerUpdate",
     "CrazyCountingResult",
     "MemoryMixerGrid",
     "MemoryMixerPlayerInput",
+    "MemoryMixerPlayerSubmitted",
     "MiniGameIntroduction",
     nullptr
   };
@@ -291,12 +297,13 @@ enum GameStatePayload : uint8_t {
   GameStatePayload_CrazyCountingResultPayload = 4,
   GameStatePayload_MemoryMixerGridPayload = 5,
   GameStatePayload_MemoryMixerPlayerInputPayload = 6,
-  GameStatePayload_MiniGameIntroductionPayload = 7,
+  GameStatePayload_MemoryMixerPlayerSubmittedPayload = 7,
+  GameStatePayload_MiniGameIntroductionPayload = 8,
   GameStatePayload_MIN = GameStatePayload_NONE,
   GameStatePayload_MAX = GameStatePayload_MiniGameIntroductionPayload
 };
 
-inline const GameStatePayload (&EnumValuesGameStatePayload())[8] {
+inline const GameStatePayload (&EnumValuesGameStatePayload())[9] {
   static const GameStatePayload values[] = {
     GameStatePayload_NONE,
     GameStatePayload_CrazyCountingHostEntitiesPayload,
@@ -305,13 +312,14 @@ inline const GameStatePayload (&EnumValuesGameStatePayload())[8] {
     GameStatePayload_CrazyCountingResultPayload,
     GameStatePayload_MemoryMixerGridPayload,
     GameStatePayload_MemoryMixerPlayerInputPayload,
+    GameStatePayload_MemoryMixerPlayerSubmittedPayload,
     GameStatePayload_MiniGameIntroductionPayload
   };
   return values;
 }
 
 inline const char * const *EnumNamesGameStatePayload() {
-  static const char * const names[9] = {
+  static const char * const names[10] = {
     "NONE",
     "CrazyCountingHostEntitiesPayload",
     "CrazyCountingPlayerInputPayload",
@@ -319,6 +327,7 @@ inline const char * const *EnumNamesGameStatePayload() {
     "CrazyCountingResultPayload",
     "MemoryMixerGridPayload",
     "MemoryMixerPlayerInputPayload",
+    "MemoryMixerPlayerSubmittedPayload",
     "MiniGameIntroductionPayload",
     nullptr
   };
@@ -357,6 +366,10 @@ template<> struct GameStatePayloadTraits<MemoryMixerGridPayload> {
 
 template<> struct GameStatePayloadTraits<MemoryMixerPlayerInputPayload> {
   static const GameStatePayload enum_value = GameStatePayload_MemoryMixerPlayerInputPayload;
+};
+
+template<> struct GameStatePayloadTraits<MemoryMixerPlayerSubmittedPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_MemoryMixerPlayerSubmittedPayload;
 };
 
 template<> struct GameStatePayloadTraits<MiniGameIntroductionPayload> {
@@ -1355,10 +1368,14 @@ struct MemoryMixerGridPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
   typedef MemoryMixerGridPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIME_LEFT = 4,
-    VT_GRID = 6
+    VT_MAX_ON_CARD = 6,
+    VT_GRID = 8
   };
   uint64_t time_left() const {
     return GetField<uint64_t>(VT_TIME_LEFT, 0);
+  }
+  int16_t max_on_card() const {
+    return GetField<int16_t>(VT_MAX_ON_CARD, 0);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>> *grid() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>> *>(VT_GRID);
@@ -1366,6 +1383,7 @@ struct MemoryMixerGridPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TIME_LEFT, 8) &&
+           VerifyField<int16_t>(verifier, VT_MAX_ON_CARD, 2) &&
            VerifyOffset(verifier, VT_GRID) &&
            verifier.VerifyVector(grid()) &&
            verifier.VerifyVectorOfTables(grid()) &&
@@ -1379,6 +1397,9 @@ struct MemoryMixerGridPayloadBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_time_left(uint64_t time_left) {
     fbb_.AddElement<uint64_t>(MemoryMixerGridPayload::VT_TIME_LEFT, time_left, 0);
+  }
+  void add_max_on_card(int16_t max_on_card) {
+    fbb_.AddElement<int16_t>(MemoryMixerGridPayload::VT_MAX_ON_CARD, max_on_card, 0);
   }
   void add_grid(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>>> grid) {
     fbb_.AddOffset(MemoryMixerGridPayload::VT_GRID, grid);
@@ -1397,21 +1418,25 @@ struct MemoryMixerGridPayloadBuilder {
 inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayload(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t time_left = 0,
+    int16_t max_on_card = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>>> grid = 0) {
   MemoryMixerGridPayloadBuilder builder_(_fbb);
   builder_.add_time_left(time_left);
   builder_.add_grid(grid);
+  builder_.add_max_on_card(max_on_card);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayloadDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t time_left = 0,
+    int16_t max_on_card = 0,
     const std::vector<::flatbuffers::Offset<MemoryMixerGridRow>> *grid = nullptr) {
   auto grid__ = grid ? _fbb.CreateVector<::flatbuffers::Offset<MemoryMixerGridRow>>(*grid) : 0;
   return CreateMemoryMixerGridPayload(
       _fbb,
       time_left,
+      max_on_card,
       grid__);
 }
 
@@ -1463,6 +1488,67 @@ inline ::flatbuffers::Offset<MemoryMixerPlayerInputPayload> CreateMemoryMixerPla
   MemoryMixerPlayerInputPayloadBuilder builder_(_fbb);
   builder_.add_y(y);
   builder_.add_x(x);
+  return builder_.Finish();
+}
+
+struct MemoryMixerPlayerSubmittedPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MemoryMixerPlayerSubmittedPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_SUBMITTED = 4,
+    VT_X = 6,
+    VT_Y = 8
+  };
+  bool submitted() const {
+    return GetField<uint8_t>(VT_SUBMITTED, 0) != 0;
+  }
+  int16_t x() const {
+    return GetField<int16_t>(VT_X, 0);
+  }
+  int16_t y() const {
+    return GetField<int16_t>(VT_Y, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_SUBMITTED, 1) &&
+           VerifyField<int16_t>(verifier, VT_X, 2) &&
+           VerifyField<int16_t>(verifier, VT_Y, 2) &&
+           verifier.EndTable();
+  }
+};
+
+struct MemoryMixerPlayerSubmittedPayloadBuilder {
+  typedef MemoryMixerPlayerSubmittedPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_submitted(bool submitted) {
+    fbb_.AddElement<uint8_t>(MemoryMixerPlayerSubmittedPayload::VT_SUBMITTED, static_cast<uint8_t>(submitted), 0);
+  }
+  void add_x(int16_t x) {
+    fbb_.AddElement<int16_t>(MemoryMixerPlayerSubmittedPayload::VT_X, x, 0);
+  }
+  void add_y(int16_t y) {
+    fbb_.AddElement<int16_t>(MemoryMixerPlayerSubmittedPayload::VT_Y, y, 0);
+  }
+  explicit MemoryMixerPlayerSubmittedPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<MemoryMixerPlayerSubmittedPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<MemoryMixerPlayerSubmittedPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<MemoryMixerPlayerSubmittedPayload> CreateMemoryMixerPlayerSubmittedPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    bool submitted = false,
+    int16_t x = 0,
+    int16_t y = 0) {
+  MemoryMixerPlayerSubmittedPayloadBuilder builder_(_fbb);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  builder_.add_submitted(submitted);
   return builder_.Finish();
 }
 
@@ -1582,6 +1668,9 @@ struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   const MemoryMixerPlayerInputPayload *gamestatepayload_as_MemoryMixerPlayerInputPayload() const {
     return gamestatepayload_type() == GameStatePayload_MemoryMixerPlayerInputPayload ? static_cast<const MemoryMixerPlayerInputPayload *>(gamestatepayload()) : nullptr;
   }
+  const MemoryMixerPlayerSubmittedPayload *gamestatepayload_as_MemoryMixerPlayerSubmittedPayload() const {
+    return gamestatepayload_type() == GameStatePayload_MemoryMixerPlayerSubmittedPayload ? static_cast<const MemoryMixerPlayerSubmittedPayload *>(gamestatepayload()) : nullptr;
+  }
   const MiniGameIntroductionPayload *gamestatepayload_as_MiniGameIntroductionPayload() const {
     return gamestatepayload_type() == GameStatePayload_MiniGameIntroductionPayload ? static_cast<const MiniGameIntroductionPayload *>(gamestatepayload()) : nullptr;
   }
@@ -1619,6 +1708,10 @@ template<> inline const MemoryMixerGridPayload *MiniGamePayloadType::gamestatepa
 
 template<> inline const MemoryMixerPlayerInputPayload *MiniGamePayloadType::gamestatepayload_as<MemoryMixerPlayerInputPayload>() const {
   return gamestatepayload_as_MemoryMixerPlayerInputPayload();
+}
+
+template<> inline const MemoryMixerPlayerSubmittedPayload *MiniGamePayloadType::gamestatepayload_as<MemoryMixerPlayerSubmittedPayload>() const {
+  return gamestatepayload_as_MemoryMixerPlayerSubmittedPayload();
 }
 
 template<> inline const MiniGameIntroductionPayload *MiniGamePayloadType::gamestatepayload_as<MiniGameIntroductionPayload>() const {
@@ -2116,6 +2209,10 @@ inline bool VerifyGameStatePayload(::flatbuffers::Verifier &verifier, const void
     }
     case GameStatePayload_MemoryMixerPlayerInputPayload: {
       auto ptr = reinterpret_cast<const MemoryMixerPlayerInputPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_MemoryMixerPlayerSubmittedPayload: {
+      auto ptr = reinterpret_cast<const MemoryMixerPlayerSubmittedPayload *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case GameStatePayload_MiniGameIntroductionPayload: {

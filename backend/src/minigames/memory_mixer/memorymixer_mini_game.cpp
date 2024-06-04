@@ -3,8 +3,8 @@
 #include "../../globals.h"
 
 MemoryMixer_MiniGame::MemoryMixer_MiniGame(Game* game) : MiniGame(game) {
-    max_on_card = 2;
-    grid_size = 4;
+    max_on_card = 1;
+    grid_size = 5;
     grid = std::vector<std::vector<MemoryMixer_card>>(grid_size, std::vector<MemoryMixer_card>(grid_size));
     for (int i = 0; i < grid_size; i++) {
         for (int j = 0; j < grid_size; j++) {
@@ -74,8 +74,10 @@ void MemoryMixer_MiniGame::update(int delta_time) {
     remaining_time -= delta_time;
 
     if (remaining_time <= 0) {
-        timer.clear();
-        start_result();
+        remaining_time = 30 SECONDS;
+        //timer.clear();
+        //start_result();
+        // fixme: revert this
     }
 
     send_grid();
@@ -90,7 +92,15 @@ void MemoryMixer_MiniGame::send_grid() {
         for (int j = 0; j < grid_size; j++) {
             auto icon = MemoryMixerIconType(grid[i][j]);
             // todo add amount of players that have clicked on this cell
-            auto grid_cell = CreateMemoryMixerGridCell(builder, icon);
+            int amount = 0;
+
+            for (auto& [_, player] : players) {
+                if (player.submitted_x == i && player.submitted_y == j) {
+                    amount++;
+                }
+            }
+
+            auto grid_cell = CreateMemoryMixerGridCell(builder, icon, amount);
             grid_cell_buffer.push_back(grid_cell);
         }
 
@@ -101,12 +111,12 @@ void MemoryMixer_MiniGame::send_grid() {
 
     auto grid_row_vector = builder.CreateVector(grid_row_buffer);
 
-    auto payload = CreateMemoryMixerGridPayload(builder, remaining_time, grid_row_vector);
+    auto payload = CreateMemoryMixerGridPayload(builder, remaining_time, max_on_card, grid_row_vector);
 
     auto miniGame = builder.CreateString("memoryMixer");
 
-    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_CrazyCountingHostEntities,
-                                                      GameStatePayload_CrazyCountingHostEntitiesPayload, payload.Union());
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MemoryMixerGrid,
+                                                      GameStatePayload_MemoryMixerGridPayload, payload.Union());
 
     // Send payload to client
     game->party->send_gamestate([](Client* client) { return true; }, builder, gameStatePayload.Union());
@@ -118,6 +128,16 @@ void MemoryMixer_MiniGame::process_input(const MiniGamePayloadType* payload, Cli
             auto input = payload->gamestatepayload_as_MemoryMixerPlayerInputPayload();
 
             if (input->x() < 0 || input->x() >= grid_size || input->y() < 0 || input->y() >= grid_size) {
+                return;
+            }
+
+            int amount = 0;
+            for (auto& [_, player] : players) {
+                if (player.submitted_x == input->x() && player.submitted_y == input->y()) {
+                    amount++;
+                }
+            }
+            if (amount > max_on_card) {
                 return;
             }
 
