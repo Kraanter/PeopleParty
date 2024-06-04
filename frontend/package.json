@@ -18,6 +18,7 @@
     "prepare": "cd .. && husky"
   },
   "dependencies": {
+    "e": "^0.2.33",
     "flatbuffers": "^24.3.25",
     "pinia": "^2.1.7",
     "pixi.js": "^8.1.0",
@@ -39,7 +40,7 @@
     "eslint-plugin-cypress": "^2.15.1",
     "eslint-plugin-vue": "^9.23.0",
     "husky": "^9.0.11",
-    "naive-ui": "^2.38.1",
+    "naive-ui": "^2.38.2",
     "npm-run-all2": "^6.1.2",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",

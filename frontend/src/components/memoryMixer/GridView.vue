@@ -22,10 +22,11 @@ const emit = defineEmits(['click'])
                     <n-card
                         :style="{ width: '75px', height: '75px' }"
                         :bordered="false"
-                        :body-style="{ padding: '0' }"
+                        :body-style="{ padding: '' }"
                     >
                     <div v-if="isHost">
-                    <p class="text-2xl">{{ cell.players_on_card }}</p>
+                        {{ cell.icon }} <!-- todo: properly display icons -->
+                    <!--<p class="text-2xl">{{ cell.players_on_card }}</p>-->
                     </div>
                     <div v-else>
                         <PartyButton @click="emit('click', i, j)" 

@@ -16,10 +16,11 @@ enum ViewState {
   None,
   Introduction,
   MiniGame,
-  Results
+  Results,
+  GridView
 }
 
-const viewState = ref<ViewState>(ViewState.None)
+const viewState = ref<ViewState>(ViewState.GridView)
 
 const { width, height } = toRefs(props)
 
@@ -71,7 +72,7 @@ defineExpose({
 </script>
 <template>
   <div v-if="viewState == ViewState.Introduction">
-    <Introduction :data="intro" logoSVG="/assets/games/crazyCounting/crazyCountingLogo.svg" />
+    <Introduction :data="intro" logoSVG="/assets/games/memoryMixer/memoryMixerLogo.svg" />
   </div>
   <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
     <GridView 
