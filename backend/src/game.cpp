@@ -8,7 +8,7 @@ Game::Game(Party* party) {
     this->party = party;
 
     // For now adds all minigames
-    miniGames.push(new CrazyCounting_MiniGame(this));
+    miniGames.push(new BusinessBailout_Minigame(this));
 
     current_gamestate = new PartyPrep(this);
 }

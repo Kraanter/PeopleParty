@@ -3,9 +3,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export enum GameStateType {
-  CrazyCountingHostEntities = 0,
-  CrazyCountingPlayerInput = 1,
-  CrazyCountingPlayerUpdate = 2,
-  CrazyCountingResult = 3,
-  MiniGameIntroduction = 4
+  BusinessBailoutHost = 0,
+  BusinessBailoutPlayer = 1,
+  BusinessBailoutPlayerInput = 2,
+  CrazyCountingPlayerUpdate = 3,
+  CrazyCountingHostEntities = 4,
+  CrazyCountingPlayerInput = 5,
+  CrazyCountingResult = 6,
+  MiniGameIntroduction = 7
 }

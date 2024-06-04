@@ -1,24 +1,33 @@
 // Automatically generated main schema file
 // Include all gamestate types to build the MiniGamePayloadType scheme
 
+include "minigamedata/BusinessBailout/BusinessBailoutHostPayload.fbs";
+include "minigamedata/BusinessBailout/BusinessBailoutPlayerPayload.fbs";
+include "minigamedata/BusinessBailout/BusinessBailoutPlayerInputPayload.fbs";
+include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingHostEntitiesPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingPlayerInputPayload.fbs";
-include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingResultPayload.fbs";
 include "minigamedata/MiniGameIntroductionPayload.fbs";
 
 enum GameStateType: byte {
+    BusinessBailoutHost,
+    BusinessBailoutPlayer,
+    BusinessBailoutPlayerInput,
+    CrazyCountingPlayerUpdate,
     CrazyCountingHostEntities,
     CrazyCountingPlayerInput,
-    CrazyCountingPlayerUpdate,
     CrazyCountingResult,
     MiniGameIntroduction,
 }
 
 union GameStatePayload {
+    BusinessBailoutHostPayload,
+    BusinessBailoutPlayerPayload,
+    BusinessBailoutPlayerInputPayload,
+    CrazyCountingPlayerUpdatePayload,
     CrazyCountingHostEntitiesPayload,
     CrazyCountingPlayerInputPayload,
-    CrazyCountingPlayerUpdatePayload,
     CrazyCountingResultPayload,
     MiniGameIntroductionPayload,
 }
