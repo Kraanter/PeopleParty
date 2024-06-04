@@ -69,8 +69,11 @@ void MemoryMixer_MiniGame::start_minigame() {
 }
 
 void MemoryMixer_MiniGame::start_result() {
-    // todo: implement
-    results_timer.setTimeout([this]() { finished(); }, 5 SECONDS);
+    send_grid(true);
+
+    results_timer.setTimeout([this]() {
+        finished();
+    }, 5 SECONDS);
 }
 
 void MemoryMixer_MiniGame::update(int delta_time) {
@@ -87,15 +90,14 @@ void MemoryMixer_MiniGame::update(int delta_time) {
             mini_game_phase = 0;
             timer.clear();
             start_result();
-            // fixme: revert this
-            //remaining_time = 10 SECONDS;
+            return;
         }
     }
 
     send_grid();
 }
 
-void MemoryMixer_MiniGame::send_grid(bool highlight_correct = false) {
+void MemoryMixer_MiniGame::send_grid(bool highlight_correct) {
     flatbuffers::FlatBufferBuilder builder;
 
     int local_grid_size = grid_size;
