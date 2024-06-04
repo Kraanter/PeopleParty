@@ -7,9 +7,11 @@ export function parseBusinessBailoutPlayerPayload(payload: MiniGamePayloadType) 
     new BusinessBailoutPlayerPayload()
   )
   const value = bbpp.value()
+  const locked = bbpp.locked()
 
   return {
-    value
+    value,
+    locked: !!locked
   }
 }
 
