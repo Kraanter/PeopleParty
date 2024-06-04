@@ -85,17 +85,17 @@ void MemoryMixer_MiniGame::update(int delta_time) {
             remaining_time = 5 SECONDS;
         } else if (mini_game_phase == 2) {
             mini_game_phase = 0;
-            //timer.clear();
-            //start_result();
+            timer.clear();
+            start_result();
             // fixme: revert this
-            remaining_time = 30 SECONDS;
+            //remaining_time = 10 SECONDS;
         }
     }
 
     send_grid();
 }
 
-void MemoryMixer_MiniGame::send_grid() {
+void MemoryMixer_MiniGame::send_grid(bool highlight_correct = false) {
     flatbuffers::FlatBufferBuilder builder;
 
     int local_grid_size = grid_size;
@@ -126,7 +126,12 @@ void MemoryMixer_MiniGame::send_grid() {
                 icon = MemoryMixerIconType::MemoryMixerIconType_EMPTY;
             }
 
-            auto grid_cell = CreateMemoryMixerGridCell(builder, icon, amount);
+            bool high_light = false;
+            if (highlight_correct && grid[i][j] == target_card) {
+                high_light = true;
+            }
+
+            auto grid_cell = CreateMemoryMixerGridCell(builder, icon, amount, high_light);
             grid_cell_buffer.push_back(grid_cell);
         }
 
@@ -209,7 +214,9 @@ std::vector<Client*> MemoryMixer_MiniGame::getMinigameResult() {
     std::vector<MemoryMixer_Player> correct_players;
     std::vector<MemoryMixer_Player> wrong_players;
     for (MemoryMixer_Player player: sorted_players) {
-        if (grid[player.submitted_x][player.submitted_y] == target_card) {
+        if (player.submitted_x == -1 || player.submitted_y == -1) {
+            wrong_players.push_back(player);
+        } else if (grid[player.submitted_x][player.submitted_y] == target_card) {
             correct_players.push_back(player);
         } else {
             wrong_players.push_back(player);

@@ -35,8 +35,13 @@ playersOnCard():number {
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 }
 
+isHighlighted():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
 static startMemoryMixerGridCell(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 }
 
 static addIcon(builder:flatbuffers.Builder, icon:MemoryMixerIconType) {
@@ -47,15 +52,20 @@ static addPlayersOnCard(builder:flatbuffers.Builder, playersOnCard:number) {
   builder.addFieldInt16(1, playersOnCard, 0);
 }
 
+static addIsHighlighted(builder:flatbuffers.Builder, isHighlighted:boolean) {
+  builder.addFieldInt8(2, +isHighlighted, +false);
+}
+
 static endMemoryMixerGridCell(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createMemoryMixerGridCell(builder:flatbuffers.Builder, icon:MemoryMixerIconType, playersOnCard:number):flatbuffers.Offset {
+static createMemoryMixerGridCell(builder:flatbuffers.Builder, icon:MemoryMixerIconType, playersOnCard:number, isHighlighted:boolean):flatbuffers.Offset {
   MemoryMixerGridCell.startMemoryMixerGridCell(builder);
   MemoryMixerGridCell.addIcon(builder, icon);
   MemoryMixerGridCell.addPlayersOnCard(builder, playersOnCard);
+  MemoryMixerGridCell.addIsHighlighted(builder, isHighlighted);
   return MemoryMixerGridCell.endMemoryMixerGridCell(builder);
 }
 }

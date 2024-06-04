@@ -1,4 +1,4 @@
-import type { MemoryMixerGridPayload } from "@/flatbuffers/messageClass"
+import type { MemoryMixerGridCell, MemoryMixerGridPayload } from "@/flatbuffers/messageClass"
 
 enum MemoryMixerIcon {
     Balloon = "🎈",
@@ -12,6 +12,7 @@ enum MemoryMixerIcon {
 interface MemoryMixerCell {
     icon: MemoryMixerIcon
     players_on_card: number
+    is_highlighted: boolean
 }
 
 export interface MemoryMixerGrid {
@@ -40,7 +41,8 @@ export const processGrid = (payload: MemoryMixerGridPayload): MemoryMixerGrid =>
             const cell = payload.grid(i)?.row(j)
             row.push({
                 icon: Object.values(MemoryMixerIcon)[cell?.icon() || 0],
-                players_on_card: cell?.playersOnCard() || 0
+                players_on_card: cell?.playersOnCard() || 0,
+                is_highlighted: cell?.isHighlighted() || false
             })
         }
         grid.push(row)

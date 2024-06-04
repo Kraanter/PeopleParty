@@ -1317,7 +1317,8 @@ struct MemoryMixerGridCell FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   typedef MemoryMixerGridCellBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ICON = 4,
-    VT_PLAYERS_ON_CARD = 6
+    VT_PLAYERS_ON_CARD = 6,
+    VT_IS_HIGHLIGHTED = 8
   };
   MemoryMixerIconType icon() const {
     return static_cast<MemoryMixerIconType>(GetField<int8_t>(VT_ICON, 0));
@@ -1325,10 +1326,14 @@ struct MemoryMixerGridCell FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   int16_t players_on_card() const {
     return GetField<int16_t>(VT_PLAYERS_ON_CARD, 0);
   }
+  bool is_highlighted() const {
+    return GetField<uint8_t>(VT_IS_HIGHLIGHTED, 0) != 0;
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_ICON, 1) &&
            VerifyField<int16_t>(verifier, VT_PLAYERS_ON_CARD, 2) &&
+           VerifyField<uint8_t>(verifier, VT_IS_HIGHLIGHTED, 1) &&
            verifier.EndTable();
   }
 };
@@ -1342,6 +1347,9 @@ struct MemoryMixerGridCellBuilder {
   }
   void add_players_on_card(int16_t players_on_card) {
     fbb_.AddElement<int16_t>(MemoryMixerGridCell::VT_PLAYERS_ON_CARD, players_on_card, 0);
+  }
+  void add_is_highlighted(bool is_highlighted) {
+    fbb_.AddElement<uint8_t>(MemoryMixerGridCell::VT_IS_HIGHLIGHTED, static_cast<uint8_t>(is_highlighted), 0);
   }
   explicit MemoryMixerGridCellBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1357,9 +1365,11 @@ struct MemoryMixerGridCellBuilder {
 inline ::flatbuffers::Offset<MemoryMixerGridCell> CreateMemoryMixerGridCell(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     MemoryMixerIconType icon = MemoryMixerIconType_BALLOON,
-    int16_t players_on_card = 0) {
+    int16_t players_on_card = 0,
+    bool is_highlighted = false) {
   MemoryMixerGridCellBuilder builder_(_fbb);
   builder_.add_players_on_card(players_on_card);
+  builder_.add_is_highlighted(is_highlighted);
   builder_.add_icon(icon);
   return builder_.Finish();
 }

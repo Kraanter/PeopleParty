@@ -14,6 +14,7 @@ table MemoryMixerGridRow {
 table MemoryMixerGridCell {
   icon: MemoryMixerIconType;
   players_on_card: short;
+  is_highlighted: bool;
 }
 
 table MemoryMixerGridPayload {
