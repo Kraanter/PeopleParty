@@ -3,7 +3,18 @@ import { ref, defineProps, toRefs, computed } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 import { Graphics, type IPointData } from 'pixi.js'
 import { Application } from 'vue3-pixi'
+import { BusinessBailoutHostPayload } from '@/flatbuffers/business-bailout-host-payload'
+import type { MiniGamePayloadType } from '@/flatbuffers/mini-game-payload-type'
+import { GameStateType } from '@/flatbuffers/game-state-type'
 
+enum ViewState {
+  None,
+  Introduction,
+  MiniGame,
+  Results
+}
+
+const viewState = ref<ViewState>(ViewState.None)
 const value = ref(0)
 const time = ref(0)
 
@@ -22,19 +33,35 @@ export type BailedPlayer = {
 export type HostPayload = {
   value: number
   time: number
-  bailed_players: BailedPlayer[]
+  bailedPlayers: BailedPlayer[]
 }
 
-function parsePayload(payload: string): HostPayload {
-  return JSON.parse(payload)
+function update(payload: MiniGamePayloadType) {
+  switch (payload.gamestatetype()) {
+    case GameStateType.MiniGameIntroduction:
+      viewState.value = ViewState.Introduction
+      break
+    case GameStateType.BusinessBailoutHost:
+      return parseBusinessBailoutHostPayload(payload)
+    default:
+      throw new Error(`Unknown gamestatetype: ${payload.gamestatetype()}`)
+  }
 }
 
-function createPointData(value: number, time: number): IPointData {
-  return { x: time, y: value }
-}
-
-function update(payload: string) {
-  const { value: newValue, time: newTime, bailed_players } = parsePayload(payload)
+function parseBusinessBailoutHostPayload(payload: MiniGamePayloadType) {
+  const bbhp: BusinessBailoutHostPayload = payload.gamestatepayload(
+    new BusinessBailoutHostPayload()
+  )
+  const newValue = bbhp.value()
+  const newTime = bbhp.time()
+  const bailed_players: BailedPlayer[] = []
+  for (let i = 0; i < bbhp.bailedPlayersLength(); i++) {
+    const bailedPlayer = bbhp.bailedPlayers(i)
+    const name = bailedPlayer?.name()
+    const time = bailedPlayer?.time()
+    if (name && time) bailed_players.push({ name, time })
+  }
+  bailed_players.filter((bailedPlayer) => bailedPlayer.name && bailedPlayer.time)
 
   if (newValue > value.value) value.value = newValue
   if (bailedPlayers.value.length != bailed_players.length) {
@@ -44,6 +71,10 @@ function update(payload: string) {
   time.value = newTime
 
   points.value.push(createPointData(newValue, newTime))
+}
+
+function createPointData(value: number, time: number): IPointData {
+  return { x: time, y: value }
 }
 
 defineExpose({ update })
