@@ -60,8 +60,8 @@ void BusinessBailout_Minigame::update(int delta_time) {
         start_result();
     }
     time += delta_time;
-    double e = 2.71828;
-    value = std::pow(e, time);
+    double e = 1.1;
+    value = (std::pow(e, time / 1000.0f) - 1) * 1000;
 
     send_host_data();
     for (auto player: players) {
