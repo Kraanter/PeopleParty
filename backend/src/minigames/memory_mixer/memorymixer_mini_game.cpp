@@ -139,7 +139,7 @@ void MemoryMixer_MiniGame::send_grid() {
 
     auto payload = CreateMemoryMixerGridPayload(builder, remaining_time, max_on_card, grid_row_vector);
 
-    auto miniGame = builder.CreateString("memoryMixer");
+    auto miniGame = builder.CreateString(get_camel_case_name());
 
     auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MemoryMixerGrid,
                                                       GameStatePayload_MemoryMixerGridPayload, payload.Union());
@@ -154,7 +154,7 @@ void MemoryMixer_MiniGame::send_player_submitted(int client_id) {
     auto player = players[client_id];
     auto payload = CreateMemoryMixerPlayerSubmittedPayload(builder, true, player.submitted_x, player.submitted_y);
 
-    auto miniGame = builder.CreateString("memoryMixer");
+    auto miniGame = builder.CreateString(get_camel_case_name());
 
     auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MemoryMixerPlayerSubmitted,
                                                       GameStatePayload_MemoryMixerPlayerSubmittedPayload, payload.Union());
