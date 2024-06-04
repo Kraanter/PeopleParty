@@ -10,7 +10,7 @@ const props = defineProps<{
 }>()
 const { data } = toRefs(props)
 
-const gameName = ref('buisinessBailout')
+const gameName = ref('')
 
 const debounce = (func: Function, wait: number) => {
   let timeout: number | undefined
@@ -38,9 +38,6 @@ const gameViewRef = ref()
 const height = ref(0)
 const width = ref(0)
 
-const num = ref(0)
-const value = ref(0)
-const bailedPlayers = ref<BailedPlayer[]>([])
 onMounted(() => {
   const container = document.getElementById('container') as HTMLDivElement
 
@@ -49,25 +46,6 @@ onMounted(() => {
     height.value = hei
     width.value = wid
   })
-
-  setInterval(() => {
-    // value.value = (Math.sin(num.value / 10) + 1) * 100
-    value.value = Math.pow(num.value / 10, 2)
-    if (Math.random() > 0.95)
-      bailedPlayers.value = [
-        ...bailedPlayers.value,
-        {
-          name: 'Player ' + Math.floor(Math.random() * 100),
-          time: num.value * 100
-        }
-      ]
-    const newData: HostPayload = {
-      time: num.value++ * 100,
-      value: value.value,
-      bailed_players: bailedPlayers.value
-    }
-    gameViewRef.value?.update(JSON.stringify(newData))
-  }, 100)
 
   resizeObserver.observe(container)
 
