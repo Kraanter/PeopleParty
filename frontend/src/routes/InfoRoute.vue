@@ -2,7 +2,7 @@
 </script>
 <template>
     <div class="w-full h-full grid grid-rows-4 grid-cols-1 justify-center">
-        <div class=" m-auto row-start-1 row-span-3 h-1/3 mt-2">
+        <div class="m-auto row-start-1 row-span-3 w-2/3 mt-16">
             <img
                 src="./../../public/assets/info.svg"
             />
