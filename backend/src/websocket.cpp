@@ -9,7 +9,7 @@ WebSocket::WebSocket() { this->init(); }
 
 void send_host_message(WS *ws) {
   std::string output = FlatbufferMessageBuilder::buildHostMessage(ws->getUserData()->party_id);
-  
+
   ws->getUserData()->client->send(output);
 }
 
@@ -28,18 +28,16 @@ void process_message(WS *ws, std::string_view message) {
   //   return;
   // }
 
-  switch (parsedMessage->type()) {
-    case MessageType::MessageType_MiniGame: {
-      auto gameStatePayload = parsedMessage->payload_as_MiniGamePayloadType();
-      party_repository[ws->getUserData()->party_id]->game->process_input(gameStatePayload, ws->getUserData()->client);
-      break;
-    }
-      case MessageType::MessageType_PartyPrep: {
-        auto partyPrepPayload = parsedMessage->payload_as_PartyPrepPayloadType();
-        party_repository[ws->getUserData()->party_id]->game->process_partyprep_input(partyPrepPayload, ws->getUserData()->client);
-        break;
-      }
+  Game* targetGame = party_repository[ws->getUserData()->party_id]->game;
+  if (targetGame == nullptr) {
+    return;
   }
+
+  targetGame->process_input(parsedMessage, ws->getUserData()->client);
+}
+
+bool is_numeric(const std::string &s) {
+  return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
 }
 
 void WebSocket::init() {
@@ -55,13 +53,20 @@ void WebSocket::init() {
           "/join/:room/:name",
           {/* Handlers */
            .upgrade =
-               [](auto *res, auto *req, auto *context) {
+               [](auto *res, uWS::HttpRequest *req, auto *context) {
                 std::cout << "connection started with join" << std::endl;
 
-                 int party_id =
-                     std::stoi(std::string(req->getParameter("room")));
-                 std::string client_name =
-                     std::string(req->getParameter("name"));
+                std::string room = std::string(req->getParameter("room"));
+                std::string name = std::string(req->getParameter("name"));
+
+                if (room == "" || !is_numeric(room) || name == "" ) {
+                  res->writeStatus("400");
+                  res->write("Invalid parameters");
+                  res->end();
+                  return;
+                }
+
+                 int party_id = std::stoi(room);
 
                  if (!party_repository.contains(party_id)) {
                    res->writeStatus("400");
@@ -70,7 +75,7 @@ void WebSocket::init() {
                    return;
                  };
 
-                 Client *c = client_repository.CreateClient(client_name, party_repository[party_id]);
+                 Client *c = client_repository.CreateClient(name, party_repository[party_id]);
 
                  res->template upgrade<SocketData>(
                      {.client = c, .party_id = party_id},
@@ -89,6 +94,7 @@ void WebSocket::init() {
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
+                 ws->getUserData()->client->ws == nullptr;
                  client_repository.RemoveClient(ws->getUserData()->client->client_id);
                }})
       .ws<SocketData>(
@@ -114,11 +120,8 @@ void WebSocket::init() {
                },
            .close =
                [](auto *ws, int /*code*/, std::string_view /*message*/) {
-                // wait for 5 seconds before removing the party
-                std::thread([ws]() {
-                  std::this_thread::sleep_for(std::chrono::seconds(5));
-                    party_repository.RemoveParty(ws->getUserData()->party_id);
-                }).detach();
+                ws->getUserData()->client->party->stop_game();
+                party_repository.RemoveParty(ws->getUserData()->party_id);
                }})
       .listen(7899,
               [](auto *listen_socket) {

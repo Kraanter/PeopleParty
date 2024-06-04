@@ -9,21 +9,28 @@ Leaderboard::Leaderboard(Game *game) : GameState(game) {
 void Leaderboard::start() {
     send_leaderboard_information();
 
-    timer.startUpdateTimer(this);
+    timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
 
 void Leaderboard::finished() {
     game->nextGameState<decltype(*this)>();
 }
 
-void Leaderboard::process_leaderboard_input(const LeaderboardPayloadType *payload, Client *from)
-{
-    switch(payload->leaderboardtype()) {
-        case LeaderboardType_LeaderboardHostSkip: {
-            auto input = payload->leaderboardpayload_as_LeaderboardHostSkipPayload();
-            if (input->skip()) {
-                finished();
+void Leaderboard::process_input(const Message *payload, Client *from) {
+    switch(payload->type()) {
+        case MessageType::MessageType_Leaderboard: {
+            auto leaderboardPayload = payload->payload_as_LeaderboardPayloadType();
+            switch(leaderboardPayload->leaderboardtype()) {
+                case LeaderboardType_LeaderboardHostSkip: {
+                    auto input = leaderboardPayload->leaderboardpayload_as_LeaderboardHostSkipPayload();
+                    if (input->skip()) {
+                        timer.clear();
+                        finished();
+                    }
+                    break;
+                }
             }
+            break;
         }
     }
 }
@@ -55,8 +62,8 @@ void Leaderboard::update(int delta_time) {
     send_leaderboard_information();
 
     if(remaining_time <= 0) {
-        timer.stop();
-        Leaderboard::finished();
+        timer.clear();
+        finished();
         return;
     }
 }

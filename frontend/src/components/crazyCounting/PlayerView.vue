@@ -2,10 +2,12 @@
 import {
   CrazyCountingPlayerInputPayload,
   CrazyCountingPlayerUpdatePayload,
+  CrazyCountingResultPayload,
   GameStatePayload,
   GameStateType,
   Input,
   MessageType,
+  MiniGameIntroductionPayload,
   MiniGamePayloadType,
   Payload
 } from '@/flatbuffers/messageClass'
@@ -16,6 +18,8 @@ import { buildMessage } from '../../util/flatbufferMessageBuilder'
 import * as flatbuffers from 'flatbuffers'
 import PartyButton from '../PartyButton.vue'
 import PeoplePartyLogo from '../PeoplePartyLogo.vue'
+import type { IntroductionData } from '../introduction/Introduction.vue'
+import TimeComponent from '../TimeComponent.vue'
 
 defineProps<{
   width: number
@@ -36,12 +40,31 @@ const latestData = ref<latest>({
   submitted: true
 })
 
-// fixme: until propper endminigame screen is there
-const isDisabled = computed(() => latestData.value.submitted || latestData.value.timeLeft <= 100)
+enum ViewState {
+  None,
+  Introduction,
+  MiniGame,
+  Results
+}
+
+const viewState = ref<ViewState>(ViewState.None)
+
+const intro = ref<IntroductionData>({
+  title: '',
+  description: '',
+  time_left: 0
+})
+
+const result = ref<number>(0)
+
+const isDisabled = computed(
+  () => latestData.value.submitted || viewState.value == ViewState.Results
+)
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
     case GameStateType.CrazyCountingPlayerUpdate: {
+      viewState.value = ViewState.MiniGame
       const newData: CrazyCountingPlayerUpdatePayload = data.gamestatepayload(
         new CrazyCountingPlayerUpdatePayload()
       )
@@ -50,6 +73,27 @@ const update = (data: MiniGamePayloadType) => {
         timeLeft: Number(newData.timeLeft()),
         submitted: newData.submitted()
       }
+      break
+    }
+    case GameStateType.MiniGameIntroduction: {
+      viewState.value = ViewState.Introduction
+      const newData: MiniGameIntroductionPayload = data.gamestatepayload(
+        new MiniGameIntroductionPayload()
+      )
+      intro.value = {
+        title: newData.name() || '',
+        description: newData.instruction() || '',
+        time_left: Number(newData.timeLeft())
+      }
+      break
+    }
+    case GameStateType.CrazyCountingResult: {
+      viewState.value = ViewState.Results
+      const newData: CrazyCountingResultPayload = data.gamestatepayload(
+        new CrazyCountingResultPayload()
+      )
+      result.value = newData.correctAnswer()
+      break
     }
   }
 }
@@ -82,7 +126,25 @@ const sendPlayerAction = (action: Input) => {
 }
 </script>
 <template>
-  <div v-if="latestData" class="w-full h-full grid grid-cols-1 grid-rows-5 max-w-screen-md mx-auto">
+  <div
+    v-if="viewState == ViewState.Introduction"
+    class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center"
+  >
+    <div class="w-full flex justify-center px-8">
+      <div>
+        <TimeComponent :timeLeft="intro.time_left" />
+      </div>
+    </div>
+    <div>
+      <div class="w-full h-full mt-16">
+        <p class="text-4xl text-white">{{ intro.description }}</p>
+      </div>
+    </div>
+  </div>
+  <div
+    v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results"
+    class="w-full h-full grid grid-cols-1 grid-rows-5 max-w-screen-md mx-auto"
+  >
     <div class="w-full h-full flex justify-center items-center row-span-3 bg-black">
       <div
         style="box-shadow: inset 0.3em 0.3em var(--color-primary)"
@@ -106,7 +168,30 @@ const sendPlayerAction = (action: Input) => {
             </svg>
             {{ formatMilliseconds(latestData.timeLeft) }}
           </div>
-          <div class="text-8xl">{{ latestData.int }}</div>
+          <div
+            class="text-8xl"
+            :class="{
+              'diagonal-strike':
+                viewState == ViewState.Results && Math.abs(result - latestData.int) != 0
+            }"
+          >
+            {{ latestData.int }}
+          </div>
+          <div v-if="viewState == ViewState.Results">
+            <div v-if="Math.abs(result - latestData.int) == 0">
+              <p class="text-2xl">Good job, you are spot on!</p>
+            </div>
+            <div v-else>
+              <p class="text-6xl text-primary" style="position: relative; top: -25px; left: 70px">
+                {{ result }}
+              </p>
+              <p class="text-2xl">
+                You were
+                <span class="text-primary text-3xl">{{ Math.abs(result - latestData.int) }}</span>
+                off
+              </p>
+            </div>
+          </div>
           <div class="text-8xl">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -161,3 +246,23 @@ const sendPlayerAction = (action: Input) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.diagonal-strike {
+  position: relative;
+  display: inline-block;
+}
+
+.diagonal-strike::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 125%;
+  min-width: 90px;
+  height: 5px;
+  background-color: red;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  transform-origin: center center;
+}
+</style>

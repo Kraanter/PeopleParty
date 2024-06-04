@@ -7,6 +7,7 @@ import { useWebSocketStore } from '@/stores/confettiStore'
 import GameManager from '@/components/GameManager.vue'
 import { debounce } from '@/util/funcs'
 import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
+import Leaderboard from '@/components/leaderboard/Leaderboard.vue'
 import { storeToRefs } from 'pinia'
 import { useViewStore, ViewState } from '@/stores/viewStore'
 
@@ -35,7 +36,6 @@ onMounted(() => {
   }
 
   const unsubscribe = websocketStore.subscribe((success: boolean) => {
-    console.log('Joining party success: ', success)
     if (success) {
       partyCode.value = codeString.value
       joinPromise.value = undefined
@@ -136,6 +136,10 @@ const join = () => {
 </script>
 <template>
   <div class="grid grid-rows-3 grid-cols-1 justify-center">
+    <div class="row-span-3" v-if="viewState == ViewState.Leaderboard">
+      <Leaderboard :data="viewData" />
+    </div>
+
     <!-- ViewState === MiniGame -->
     <GameManager
       :data="viewData"

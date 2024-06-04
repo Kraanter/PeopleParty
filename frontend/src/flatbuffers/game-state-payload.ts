@@ -5,38 +5,46 @@
 import { CrazyCountingHostEntitiesPayload } from './crazy-counting-host-entities-payload.js';
 import { CrazyCountingPlayerInputPayload } from './crazy-counting-player-input-payload.js';
 import { CrazyCountingPlayerUpdatePayload } from './crazy-counting-player-update-payload.js';
+import { CrazyCountingResultPayload } from './crazy-counting-result-payload.js';
+import { MiniGameIntroductionPayload } from './mini-game-introduction-payload.js';
 
 
 export enum GameStatePayload {
   NONE = 0,
   CrazyCountingHostEntitiesPayload = 1,
   CrazyCountingPlayerInputPayload = 2,
-  CrazyCountingPlayerUpdatePayload = 3
+  CrazyCountingPlayerUpdatePayload = 3,
+  CrazyCountingResultPayload = 4,
+  MiniGameIntroductionPayload = 5
 }
 
 export function unionToGameStatePayload(
   type: GameStatePayload,
-  accessor: (obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|null
-): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|null {
+  accessor: (obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null
+): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
     case 'CrazyCountingHostEntitiesPayload': return accessor(new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
     case 'CrazyCountingPlayerInputPayload': return accessor(new CrazyCountingPlayerInputPayload())! as CrazyCountingPlayerInputPayload;
     case 'CrazyCountingPlayerUpdatePayload': return accessor(new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
+    case 'CrazyCountingResultPayload': return accessor(new CrazyCountingResultPayload())! as CrazyCountingResultPayload;
+    case 'MiniGameIntroductionPayload': return accessor(new MiniGameIntroductionPayload())! as MiniGameIntroductionPayload;
     default: return null;
   }
 }
 
 export function unionListToGameStatePayload(
   type: GameStatePayload, 
-  accessor: (index: number, obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|null, 
+  accessor: (index: number, obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null, 
   index: number
-): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|null {
+): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
     case 'CrazyCountingHostEntitiesPayload': return accessor(index, new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
     case 'CrazyCountingPlayerInputPayload': return accessor(index, new CrazyCountingPlayerInputPayload())! as CrazyCountingPlayerInputPayload;
     case 'CrazyCountingPlayerUpdatePayload': return accessor(index, new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
+    case 'CrazyCountingResultPayload': return accessor(index, new CrazyCountingResultPayload())! as CrazyCountingResultPayload;
+    case 'MiniGameIntroductionPayload': return accessor(index, new MiniGameIntroductionPayload())! as MiniGameIntroductionPayload;
     default: return null;
   }
 }

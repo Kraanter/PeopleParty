@@ -1,0 +1,11 @@
+table CrazyCountingResultPayload {
+  correct_answer: short;
+  results: [FBCrazyCountingResultPair];
+}
+
+table FBCrazyCountingResultPair {
+  name: string;
+  guess: short;
+}
+
+root_type CrazyCountingResultPayload;
