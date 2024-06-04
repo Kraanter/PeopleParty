@@ -2,7 +2,6 @@
 import { MiniGamePayloadType } from '@/flatbuffers/messageClass'
 import { defineAsyncComponent, ref, watch, defineProps, onMounted, shallowRef, toRefs } from 'vue'
 import PeoplePartyHeader from './PeoplePartyHeader.vue'
-import type { HostPayload, BailedPlayer } from './buisinessBailout/HostView.vue'
 
 const props = defineProps<{
   data: MiniGamePayloadType

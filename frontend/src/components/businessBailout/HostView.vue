@@ -53,6 +53,7 @@ function parseBusinessBailoutHostPayload(payload: MiniGamePayloadType) {
     new BusinessBailoutHostPayload()
   )
   const newValue = bbhp.value()
+  console.log(newValue)
   const newTime = bbhp.time()
   const bailed_players: BailedPlayer[] = []
   for (let i = 0; i < bbhp.bailedPlayersLength(); i++) {
@@ -137,6 +138,5 @@ function render(graphics: Graphics) {
     <div>
       <TimeComponent :time-left="time" />
     </div>
-    <h1>{{ value }}</h1>
   </div>
 </template>
