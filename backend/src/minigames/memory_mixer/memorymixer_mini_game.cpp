@@ -53,7 +53,8 @@ void MemoryMixer_MiniGame::start_introduction() {
 
 void MemoryMixer_MiniGame::start_minigame() {
     update_interval = 300 MILLISECONDS;
-    remaining_time = 20 SECONDS;
+    remaining_time = 10 SECONDS;
+    mini_game_phase = 0;
 
     for (Client* client : game->get_clients()) {
         if (client->isHost) {
@@ -74,10 +75,19 @@ void MemoryMixer_MiniGame::update(int delta_time) {
     remaining_time -= delta_time;
 
     if (remaining_time <= 0) {
-        remaining_time = 30 SECONDS;
-        //timer.clear();
-        //start_result();
-        // fixme: revert this
+        if (mini_game_phase == 0) {
+            mini_game_phase = 1;
+            remaining_time = 15 SECONDS;
+        } else if (mini_game_phase == 1) {
+            mini_game_phase = 2;
+            remaining_time = 5 SECONDS;
+        } else if (mini_game_phase == 2) {
+            mini_game_phase = 0;
+            //timer.clear();
+            //start_result();
+            // fixme: revert this
+            remaining_time = 30 SECONDS;
+        }
     }
 
     send_grid();
@@ -86,18 +96,33 @@ void MemoryMixer_MiniGame::update(int delta_time) {
 void MemoryMixer_MiniGame::send_grid() {
     flatbuffers::FlatBufferBuilder builder;
 
-    std::vector<flatbuffers::Offset<MemoryMixerGridRow>> grid_row_buffer;
-    for (int i = 0; i < grid_size; i++) {
-        std::vector<flatbuffers::Offset<MemoryMixerGridCell>> grid_cell_buffer;
-        for (int j = 0; j < grid_size; j++) {
-            auto icon = MemoryMixerIconType(grid[i][j]);
-            // todo add amount of players that have clicked on this cell
-            int amount = 0;
+    int local_grid_size = grid_size;
 
+    if (mini_game_phase == 1) {
+        local_grid_size = 1;
+    }
+
+    std::vector<flatbuffers::Offset<MemoryMixerGridRow>> grid_row_buffer;
+    for (int i = 0; i < local_grid_size; i++) {
+        std::vector<flatbuffers::Offset<MemoryMixerGridCell>> grid_cell_buffer;
+        for (int j = 0; j < local_grid_size; j++) {
+            int amount = 0;
             for (auto& [_, player] : players) {
                 if (player.submitted_x == i && player.submitted_y == j) {
                     amount++;
                 }
+            }
+
+            MemoryMixerIconType icon;
+            if (mini_game_phase == 0) {
+                icon = MemoryMixerIconType(grid[i][j]);
+                amount = -1;
+            } else if (mini_game_phase == 1) {
+                int rnd = rand() % (4 + 1);
+                icon = MemoryMixerIconType(rnd);
+                amount = -1;
+            } else if (mini_game_phase == 2) {
+                icon = MemoryMixerIconType::MemoryMixerIconType_EMPTY;
             }
 
             auto grid_cell = CreateMemoryMixerGridCell(builder, icon, amount);
@@ -122,6 +147,21 @@ void MemoryMixer_MiniGame::send_grid() {
     game->party->send_gamestate([](Client* client) { return true; }, builder, gameStatePayload.Union());
 }
 
+void MemoryMixer_MiniGame::send_player_submitted(int client_id) {
+    flatbuffers::FlatBufferBuilder builder;
+
+    auto player = players[client_id];
+    auto payload = CreateMemoryMixerPlayerSubmittedPayload(builder, true, player.submitted_x, player.submitted_y);
+
+    auto miniGame = builder.CreateString("memoryMixer");
+
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MemoryMixerPlayerSubmitted,
+                                                      GameStatePayload_MemoryMixerPlayerSubmittedPayload, payload.Union());
+
+    // Send payload to client
+    game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
+}
+
 void MemoryMixer_MiniGame::process_input(const MiniGamePayloadType* payload, Client* from) {
     switch(payload->gamestatetype()) {
         case GameStateType_MemoryMixerPlayerInput: {
@@ -144,6 +184,7 @@ void MemoryMixer_MiniGame::process_input(const MiniGamePayloadType* payload, Cli
             MemoryMixer_Player& player = players[from->client_id];
             player.submitted_x = input->x();
             player.submitted_y = input->y();
+            send_player_submitted(from->client_id);
         }
     }
 }

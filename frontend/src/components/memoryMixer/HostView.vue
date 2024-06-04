@@ -76,7 +76,7 @@ defineExpose({
   <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
     <GridView 
       :grid="grid" 
-      :player-submitted="{playerSubmitted: false, x: 0, y: 0}"
+      :player-submitted="{playerSubmitted: false, x: -1, y: -1}"
       :isHost="true"></GridView>
   </div>
   <div v-else-if="viewState == ViewState.Results">

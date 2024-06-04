@@ -52,8 +52,8 @@ const grid = ref<MemoryMixerGrid>({
 // if player has submitted
 const playerSubmitted = ref<PlayerSubmittedData>({
   playerSubmitted: false,
-  x: 0,
-  y: 0
+  x: -1,
+  y: -1
 })
 
 const update = (data: MiniGamePayloadType) => {

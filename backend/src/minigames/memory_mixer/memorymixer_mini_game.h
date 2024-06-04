@@ -28,9 +28,11 @@ private:
     int remaining_time;
     int max_on_card;
     int grid_size;
+    int mini_game_phase = 0; // 0 = show all symbols, 1 = show searching symbol, 2 = show hidden grid
     std::vector<std::vector<MemoryMixer_card>> grid;
 private:
     void send_grid();
+    void send_player_submitted(int client_id);
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
 };
 
