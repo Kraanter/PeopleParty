@@ -34,9 +34,9 @@ public:
     void update(int delta_time) override;
     std::vector<Client*> getMinigameResult() override;
     void clients_changed(int client_id, bool joined) override { }
-    std::string get_display_name() override;
-    std::string get_camel_case_name() override;
-    std::string get_description() override;
+    std::string get_display_name() override { return "Business Bailout"; };
+    std::string get_camel_case_name() override { return "businessBailout"; };
+    std::string get_description() override { return "Earn the most money, but don't get too greedy!"; };
 private:
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
     void send_host_data();

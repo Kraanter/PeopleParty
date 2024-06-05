@@ -118,18 +118,6 @@ std::vector<Client *> BusinessBailout_Minigame::getMinigameResult() {
     return players;
 }
 
-std::string BusinessBailout_Minigame::get_display_name() {
-    return "Business Bailout";
-}
-
-std::string BusinessBailout_Minigame::get_camel_case_name() {
-    return "businessBailout";
-}
-
-std::string BusinessBailout_Minigame::get_description() {
-    return "Earn the most money, but don't get too greedy!";
-}
-
 void BusinessBailout_Minigame::process_input(const MiniGamePayloadType *payload, Client *from) {
     switch(payload->gamestatetype()) {
         case GameStateType_BusinessBailoutPlayerInput:
