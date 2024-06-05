@@ -100,7 +100,11 @@ void BusinessBailout_Minigame::send_player_data(Client* player) {
 }
 
 std::vector<Client *> BusinessBailout_Minigame::getMinigameResult() {
-    return std::vector<Client *>();
+    sort(players.begin(), players.end(), [&](Client *a, Client *b) {
+        if (player_bail_times[a] == player_bail_times[b]) return rand() % 2 == 0;
+        return player_bail_times[a] > player_bail_times[b];
+    });
+    return players;
 }
 
 std::string BusinessBailout_Minigame::get_display_name() {
