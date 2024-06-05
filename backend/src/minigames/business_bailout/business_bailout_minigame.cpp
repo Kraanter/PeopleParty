@@ -9,6 +9,12 @@ BusinessBailout_Minigame::BusinessBailout_Minigame(Game *game) : MiniGame(game) 
 
 }
 
+BusinessBailout_Minigame::~BusinessBailout_Minigame() {
+    introduction_timer.clear();
+    minigame_timer.clear();
+    result_timer.clear();
+}
+
 void BusinessBailout_Minigame::start_introduction() {
     update_interval = 500 MILLISECONDS;
 

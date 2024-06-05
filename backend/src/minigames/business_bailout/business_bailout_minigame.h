@@ -20,10 +20,11 @@ private:
     std::vector<Client*> players;
     Client* host = nullptr;
     std::map<Client*, int> player_bail_times;
-    int time = 0;
+    unsigned int time = 0;
     int value = 0;
 public:
     BusinessBailout_Minigame(Game *game);
+    ~BusinessBailout_Minigame();
     void start_introduction() override;
     void start_minigame() override;
     void start_result() override;
