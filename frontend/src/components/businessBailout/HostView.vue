@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, defineProps, toRefs, computed, watchEffect } from 'vue'
+import { ref, defineProps, toRefs, computed } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 import Introduction from '../introduction/Introduction.vue'
+import { NH1, NNumberAnimation } from 'naive-ui'
 import { Graphics, type IPointData } from 'pixi.js'
 import { Application } from 'vue3-pixi'
 import type { MiniGamePayloadType } from '@/flatbuffers/mini-game-payload-type'
@@ -32,6 +33,7 @@ const colorStore = useColorStore()
 
 const viewState = ref<ViewState>(ViewState.None)
 const value = ref(0)
+const fromValue = ref(0)
 const maxValue = ref(0)
 const time = ref(0)
 const angle = ref(0)
@@ -79,6 +81,7 @@ function update(payload: MiniGamePayloadType) {
       // Calculate the angle between the last point and the new point
       angle.value = Math.atan2(newValue - value.value, newTime - time.value)
       if (newValue > maxValue.value) maxValue.value = newValue
+      fromValue.value = value.value
       value.value = newValue
       time.value = newTime
 
@@ -176,8 +179,13 @@ function render(graphics: Graphics) {
       </Application>
     </div>
     <div class="flex m-4">
-      <div>
-        <TimeComponent :time-left="time" />
+      <div
+        class="z-20 flex w-full text-[10vh] text-green-600 font-extrabold font-mono justify-center items-center"
+      >
+        <span class="mr-2"> € </span>
+        <span>
+          <n-number-animation show-separator :active="true" :from="fromValue" :to="value" />
+        </span>
       </div>
     </div>
   </template>
