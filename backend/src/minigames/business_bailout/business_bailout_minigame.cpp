@@ -62,20 +62,7 @@ void BusinessBailout_Minigame::start_result() {
 }
 
 void BusinessBailout_Minigame::update_value() {
-
-    const int n = 25;
-    const int a_min = 1;
-    const int a_max = 10;
-    const int b_min = 1;
-    const int b_max = 10;
-    const int c_min = 1;
-    const int c_max = 10;
-    for (int i = 0; i < n; ++i) {
-        const int a = rand() % a_max + a_min;
-        const int b = rand() % b_max + b_min;
-        const int c = (rand() % c_max + c_min) * (i + 1);
-        value += sin(time * a + b) * c;
-    }
+    value += rand() % step_max + step_min;
     value = abs(value);
 }
 

@@ -26,6 +26,8 @@ private:
     const int stddev = 30 SECONDS;
     const int min_duration = 5 SECONDS;
     const int dt = 100 MILLISECONDS;
+    const int step_min = -500;
+    const int step_max = 1000;
 public:
     BusinessBailout_Minigame(Game *game);
     ~BusinessBailout_Minigame();
