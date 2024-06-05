@@ -99,7 +99,7 @@ const xMargin = 25
 const xWidth = computed(() => width.value - xMargin * 2)
 const yHeight = computed(() => height.value - yMarginBottom)
 // Scale the position based on the angle between the last point and the new point
-const yScale = computed(() => (yHeight.value))
+const yScale = computed(() => yHeight.value)
 
 function interpPosition(position: IPointData): [number, number] {
   const xStep = xWidth.value / time.value
@@ -115,8 +115,7 @@ function render(graphics: Graphics) {
 
   graphics.lineStyle(10, colorStore.colorPalette.primary.base.number)
   graphics.moveTo(xMargin, yHeight.value)
-  points.value.forEach((point, i) => {
-    if (i === points.value.length - 1) return
+  points.value.forEach((point) => {
     graphics.lineTo(...interpPosition(point))
   })
 
@@ -180,9 +179,8 @@ function render(graphics: Graphics) {
           :rotation="Math.PI * 0.25"
         />
         <Sprite
-          v-if="points.length > 1"
-          :position-x="interpPosition(points[points.length - 2])[0]"
-          :position-y="interpPosition(points[points.length - 2])[1]"
+          :position-x="interpPosition(points[points.length - 1])[0]"
+          :position-y="interpPosition(points[points.length - 1])[1]"
           :width="size"
           :anchor-x="0.6"
           :height="size * 2"
