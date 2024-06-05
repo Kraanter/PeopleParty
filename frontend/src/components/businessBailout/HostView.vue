@@ -35,6 +35,7 @@ const value = ref(0)
 const maxValue = ref(0)
 const time = ref(0)
 const angle = ref(0)
+const size = ref(75)
 
 const props = defineProps<{
   height: number
@@ -176,6 +177,15 @@ function render(graphics: Graphics) {
           :y="interpPosition({ x: bailedPlayer.time, y: 0 })[1]"
           :text="bailedPlayer.name"
           :rotation="Math.PI * 0.25"
+        />
+        <Sprite
+          :position-x="interpPosition(points[points.length - 1])[0]"
+          :position-y="interpPosition(points[points.length - 1])[1]"
+          :width="size"
+          :height="size"
+          :anchor-x="0.5"
+          :rotation="-angle + Math.PI * 0.5"
+          texture="/assets/games/businessBailout/rocket.svg"
         />
       </Application>
     </div>
