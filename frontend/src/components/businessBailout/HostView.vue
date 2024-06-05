@@ -132,7 +132,11 @@ function render(graphics: Graphics) {
   graphics.lineStyle(4, 0x100000)
   graphics.lineStyle(4, 0x000000)
   graphics.moveTo(xWidth.value + xMargin, yHeight.value)
-  for (let valueIncrement = 0; valueIncrement < value.value; valueIncrement += 4000) {
+  for (
+    let valueIncrement = 0;
+    interpPosition({ x: 0, y: valueIncrement })[1] > 10;
+    valueIncrement += 4000
+  ) {
     const point = { x: 0, y: valueIncrement }
     graphics.lineTo(xWidth.value + xMargin, interpPosition(point)[1])
     graphics.lineTo(xWidth.value + 10 + xMargin, interpPosition(point)[1])
