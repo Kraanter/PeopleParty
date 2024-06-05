@@ -8,13 +8,13 @@ import {
   MiniGameIntroductionPayload,
   MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
-import { NNumberAnimation } from 'naive-ui'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import TimeComponent from '../TimeComponent.vue'
 import { Builder } from 'flatbuffers'
 import { parseBusinessBailoutPlayerPayload } from './parser'
 import { ref } from 'vue'
 import { useWebSocketStore } from '@/stores/confettiStore'
+import MoneyCounter from './components/MoneyCounter.vue'
 
 enum ViewState {
   None,
@@ -110,42 +110,50 @@ defineExpose({ update })
     <div class="grid grid-rows-3 grid-cols-1 h-full w-full p-2">
       <div class="w-full h-full flex justify-center items-center">
         <div
-          class="bg-slate-100 p-8 flex justify-center !text-7xl items-center rounded-2xl h-3/4 w-full my-8"
+          class="bg-slate-100 p-8 flex justify-center items-center rounded-2xl h-3/4 w-full my-8"
         >
-          <n-number-animation :active="true" :from="fromValue" :to="value" />
+          <MoneyCounter :value />
         </div>
       </div>
-      <div class="flex justify-center relative overflow-clip tems-center row-span-2 h-full w-full">
+      <div
+        class="flex justify-center mt-8 relative overflow-clip tems-center row-span-2 h-full w-full"
+      >
         <button :disabled="locked" @click="click" class="eject-button">
-          <span v-if="locked">Locked in</span>
-          <span v-else>Cash in</span>
+          <span v-if="locked">Locked</span>
+          <span v-else>Sell</span>
         </button>
       </div>
     </div>
   </template>
 </template>
-
 <style scoped>
 .eject-button {
   background-color: red;
   color: white;
   border-radius: 50%;
   aspect-ratio: 1/1;
-  max-height: 80%;
-  max-width: 80%;
+  --size: min(80vmin, 80vmax);
+  max-width: var(--size);
+  max-height: var(--size);
   line-height: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 7rem;
+  font-size: 8cap;
   box-shadow: 0rem 0.4em 0em 0.04em darkred;
   transition:
     box-shadow 0.3s,
     transform 0.3s !important;
 }
 
-button:active {
-  transform: translate(0rem, 2.4rem) !important;
-  box-shadow: 0rem 0.4rem 0 0.04em darkred !important;
+.eject-button:disabled {
+  background-color: slategray;
+  transform: translateY(0.3em) !important;
+  box-shadow: 0rem 0.1em 0 0.04em black !important;
+}
+
+.eject-button:active:not(:disabled) {
+  transform: translateY(0.3em) !important;
+  box-shadow: 0rem 0.1em 0 0.04em darkred !important;
 }
 </style>

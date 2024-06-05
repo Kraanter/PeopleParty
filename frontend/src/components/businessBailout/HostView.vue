@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, defineProps, toRefs, computed } from 'vue'
-import TimeComponent from '../TimeComponent.vue'
+import { ref, defineProps, toRefs, computed, onMounted } from 'vue'
+import MoneyCounter from './components/MoneyCounter.vue'
 import Introduction from '../introduction/Introduction.vue'
-import { NH1, NNumberAnimation } from 'naive-ui'
 import { Graphics, type IPointData } from 'pixi.js'
 import { Application } from 'vue3-pixi'
 import type { MiniGamePayloadType } from '@/flatbuffers/mini-game-payload-type'
@@ -32,11 +31,18 @@ const intro = ref<IntroductionData>({
 const colorStore = useColorStore()
 
 const viewState = ref<ViewState>(ViewState.None)
-const value = ref(0)
-const fromValue = ref(0)
-const maxValue = ref(0)
-const time = ref(0)
-const angle = ref(0)
+const value = computed(() => points.value[points.value.length - 1].y)
+const maxValue = computed(() => Math.max(...points.value.map((point) => point.y)))
+const time = computed(() => points.value[points.value.length - 1].x)
+const angle = computed(() =>
+  points.value.length > 1
+    ? Math.atan2(
+        value.value - points.value[points.value.length - 2].y,
+        time.value - points.value[points.value.length - 2].x
+      )
+    : 0
+)
+const size = ref(75)
 
 const props = defineProps<{
   height: number
@@ -78,13 +84,6 @@ function update(payload: MiniGamePayloadType) {
         bailedPlayers.value = bailed_players
       }
 
-      // Calculate the angle between the last point and the new point
-      angle.value = Math.atan2(newValue - value.value, newTime - time.value)
-      if (newValue > maxValue.value) maxValue.value = newValue
-      fromValue.value = value.value
-      value.value = newValue
-      time.value = newTime
-
       points.value.push(createPointData(newValue, newTime))
       break
     }
@@ -101,7 +100,7 @@ const xMargin = 25
 const xWidth = computed(() => width.value - xMargin * 2)
 const yHeight = computed(() => height.value - yMarginBottom)
 // Scale the position based on the angle between the last point and the new point
-const yScale = computed(() => (yHeight.value))
+const yScale = computed(() => yHeight.value)
 
 function interpPosition(position: IPointData): [number, number] {
   const xStep = xWidth.value / time.value
@@ -135,7 +134,11 @@ function render(graphics: Graphics) {
   graphics.lineStyle(4, 0x100000)
   graphics.lineStyle(4, 0x000000)
   graphics.moveTo(xWidth.value + xMargin, yHeight.value)
-  for (let valueIncrement = 0; valueIncrement < value.value; valueIncrement += 4000) {
+  for (
+    let valueIncrement = 0;
+    interpPosition({ x: 0, y: valueIncrement })[1] > 10;
+    valueIncrement += 4000
+  ) {
     const point = { x: 0, y: valueIncrement }
     graphics.lineTo(xWidth.value + xMargin, interpPosition(point)[1])
     graphics.lineTo(xWidth.value + 10 + xMargin, interpPosition(point)[1])
@@ -147,13 +150,13 @@ function render(graphics: Graphics) {
   graphics.lineStyle(4, 0xff0000)
   bailedPlayers.value.forEach((bailedPlayer) => {
     // Draw a vertical line at the time the player bailed
-    const [x, y] = interpPosition({ x: bailedPlayer.time, y: 0 })
-    graphics.moveTo(x, y)
-    graphics.lineTo(x, 0)
+    const [x, y] = interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })
+    graphics.moveTo(x, interpPosition({ x: 0, y: 0 })[1])
+    graphics.lineTo(x, y)
 
     // Draw a circle at the point where the player bailed
     graphics.beginFill(0xff0000)
-    graphics.drawCircle(x, y, 10)
+    graphics.drawCircle(x, y, 15)
     graphics.endFill()
   })
 }
@@ -171,25 +174,27 @@ function render(graphics: Graphics) {
         <Text
           v-for="bailedPlayer in bailedPlayers"
           :key="bailedPlayer.name"
-          :x="interpPosition({ x: bailedPlayer.time, y: 0 })[0] + 10"
-          :y="interpPosition({ x: bailedPlayer.time, y: 0 })[1]"
+          :anchor-x="1.1"
+          :anchor-y="0.07"
+          :x="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[0] + 10"
+          :y="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[1]"
           :text="bailedPlayer.name"
           :rotation="Math.PI * 0.25"
         />
+        <Sprite
+          :position-x="interpPosition(points[points.length - 1])[0]"
+          :position-y="interpPosition(points[points.length - 1])[1]"
+          :width="size"
+          :anchor-x="0.6"
+          :height="size * 2"
+          :rotation="-angle + Math.PI * 0.5"
+          texture="/assets/games/businessBailout/rocket.svg"
+        />
       </Application>
     </div>
-    <div class="flex m-4">
-      <div
-        class="z-20 flex w-full text-[10vh] text-green-600 font-extrabold font-mono justify-center items-center"
-      >
-        <span class="mr-2"> € </span>
-        <span>
-          <n-number-animation show-separator :active="true" :from="fromValue" :to="value" />
-        </span>
-      </div>
+    <div class="flex m-4 w-full justify-center items-center">
+      <MoneyCounter :value />
     </div>
   </template>
-  <template v-else>
-    <h1>No data</h1>
-  </template>
+  <template v-else> </template>
 </template>
