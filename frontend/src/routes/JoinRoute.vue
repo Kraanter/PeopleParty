@@ -77,7 +77,7 @@ watchEffect(() => {
 
 const changeSelected = (index: number) => {
   if (index > -1 && index < partyCodeLength) {
-    inputElements.value[index].select()
+    inputElements.value[index]?.select()
   } else if (index === partyCodeLength) {
     setTimeout(() => {
       nameInput.value?.focus()
