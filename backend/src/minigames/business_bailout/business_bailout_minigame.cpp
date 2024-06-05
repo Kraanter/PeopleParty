@@ -76,7 +76,7 @@ void BusinessBailout_Minigame::update_value() {
         const int c = (rand() % c_max + c_min) * (i + 1);
         value += sin(time * a + b) * c;
     }
-
+    value = abs(value);
 }
 
 void BusinessBailout_Minigame::update(int delta_time) {
