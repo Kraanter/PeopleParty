@@ -19,6 +19,7 @@ private:
     ThreadTimer result_timer;
     std::vector<Client*> players;
     Client* host = nullptr;
+    std::map<Client*, int> player_bail_values;
     std::map<Client*, int> player_bail_times;
     unsigned int time = 0;
     int value = 0;
