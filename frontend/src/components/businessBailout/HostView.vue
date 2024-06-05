@@ -32,6 +32,7 @@ const colorStore = useColorStore()
 
 const viewState = ref<ViewState>(ViewState.None)
 const value = ref(0)
+const maxValue = ref(0)
 const time = ref(0)
 const angle = ref(0)
 
@@ -77,6 +78,7 @@ function update(payload: MiniGamePayloadType) {
 
       // Calculate the angle between the last point and the new point
       angle.value = Math.atan2(newValue - value.value, newTime - time.value)
+      if (newValue > maxValue.value) maxValue.value = newValue
       value.value = newValue
       time.value = newTime
 
@@ -91,15 +93,17 @@ function update(payload: MiniGamePayloadType) {
 defineExpose({ update })
 
 const yMarginBottom = 100
+const xMargin = 25
 
+const xWidth = computed(() => width.value - xMargin * 2)
 const yHeight = computed(() => height.value - yMarginBottom)
 // Scale the position based on the angle between the last point and the new point
 const yScale = computed(() => (yHeight.value / (Math.PI / 2)) * angle.value)
 
 function interpPosition(position: IPointData): [number, number] {
-  const xStep = width.value / time.value
-  const yStep = yScale.value / value.value
-  const newX = position.x * xStep
+  const xStep = xWidth.value / time.value
+  const yStep = yScale.value / maxValue.value
+  const newX = position.x * xStep + xMargin
   const newY = yHeight.value - position.y * yStep
 
   return [newX, newY]
@@ -109,13 +113,13 @@ function render(graphics: Graphics) {
   graphics.clear()
 
   graphics.lineStyle(10, colorStore.colorPalette.primary.base.number)
-  graphics.moveTo(0, yHeight.value)
+  graphics.moveTo(xMargin, yHeight.value)
   points.value.forEach((point) => {
     graphics.lineTo(...interpPosition(point))
   })
 
   graphics.lineStyle(4, 0x000000)
-  graphics.moveTo(0, yHeight.value)
+  graphics.moveTo(xMargin, yHeight.value)
   for (let timeIncrement = 0; timeIncrement < time.value; timeIncrement += 2000) {
     const point = { x: timeIncrement, y: 0 }
     graphics.lineTo(interpPosition(point)[0], yHeight.value)
@@ -123,7 +127,19 @@ function render(graphics: Graphics) {
     graphics.lineTo(interpPosition(point)[0], yHeight.value - 10)
     graphics.lineTo(interpPosition(point)[0], yHeight.value)
   }
-  graphics.lineTo(width.value, yHeight.value)
+  graphics.lineTo(width.value - xMargin, yHeight.value)
+
+  graphics.lineStyle(4, 0x100000)
+  graphics.lineStyle(4, 0x000000)
+  graphics.moveTo(xWidth.value + xMargin, yHeight.value)
+  for (let valueIncrement = 0; valueIncrement < value.value; valueIncrement += 4000) {
+    const point = { x: 0, y: valueIncrement }
+    graphics.lineTo(xWidth.value + xMargin, interpPosition(point)[1])
+    graphics.lineTo(xWidth.value + 10 + xMargin, interpPosition(point)[1])
+    graphics.lineTo(xWidth.value - 10 + xMargin, interpPosition(point)[1])
+    graphics.lineTo(xWidth.value + xMargin, interpPosition(point)[1])
+  }
+  graphics.lineTo(xWidth.value + xMargin, 10)
 
   graphics.lineStyle(4, 0xff0000)
   bailedPlayers.value.forEach((bailedPlayer) => {
