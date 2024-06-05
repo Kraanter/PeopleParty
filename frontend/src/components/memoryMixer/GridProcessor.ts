@@ -1,11 +1,11 @@
 import type { MemoryMixerGridCell, MemoryMixerGridPayload } from "@/flatbuffers/messageClass"
 
 enum MemoryMixerIcon {
-    Balloon = "🎈",
-    Cake = "🎂",
-    Confetti = "🎊",
-    Popper = "🎉",
-    Face = "🥳",
+    Balloon = "assets/games/memoryMixer/balloon.svg",
+    Cake = "assets/games/memoryMixer/birthdaycake.svg",
+    Confetti = "assets/games/memoryMixer/confettiball.svg",
+    Popper = "assets/games/memoryMixer/partypopper.svg",
+    Face = "assets/games/memoryMixer/partyface.svg",
     //Empty = "",
 };
 
@@ -20,12 +20,6 @@ export interface MemoryMixerGrid {
     maxOnCard: number
     phase: number
     grid: MemoryMixerCell[][]
-}
-
-export interface PlayerSubmittedData {
-    playerSubmitted: boolean,
-    x: number,
-    y: number
 }
 
 export interface PlayerSubmittedData {

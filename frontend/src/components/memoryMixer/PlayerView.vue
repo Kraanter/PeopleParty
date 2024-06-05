@@ -18,6 +18,7 @@ import { processGrid, type MemoryMixerGrid, type PlayerSubmittedData } from './G
 import * as flatbuffers from 'flatbuffers'
 import { useWebSocketStore } from '@/stores/confettiStore';
 import { buildMessage } from '@/util/flatbufferMessageBuilder';
+import PeoplePartyLogo from '../PeoplePartyLogo.vue'
 
 const websocketStore = useWebSocketStore()
 
@@ -50,6 +51,7 @@ const grid = ref<MemoryMixerGrid>({
   phase: -1,
   grid: [],
 })
+const timeLeft = ref<number>(0)
 // if player has submitted
 const playerSubmitted = ref<PlayerSubmittedData>({
   playerSubmitted: false,
@@ -126,22 +128,25 @@ defineExpose({
 })
 </script>
 <template>
-  <div v-if="viewState == ViewState.Introduction">
-    <div v-if="viewState == ViewState.Introduction" class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
-        <div class="w-full flex justify-center px-8">
-            <div>
-                <TimeComponent :timeLeft="intro.time_left" />
-            </div>
-        </div>
-        <div>
-            <div class="w-full h-full mt-16">
-                <p class="text-4xl text-white">{{ intro.description }}</p>
-            </div>
-        </div>
-    </div>
+  <div 
+    v-if="viewState == ViewState.Introduction" 
+    class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center"
+    >
+      <div class="w-full flex justify-center px-8">
+          <div>
+              <TimeComponent :timeLeft="intro.time_left" />
+          </div>
+      </div>
+      <div>
+          <div class="w-full h-full mt-16">
+              <p class="text-4xl text-white">{{ intro.description }}</p>
+          </div>
+      </div>
   </div>
   <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
-    <GridView :grid="grid" :player-submitted="playerSubmitted" :isHost="false" @click="sendPlayerAction"></GridView>
+    <div class="mt-4 w-full h-screen flex flex-col justify-center items-center">
+      <GridView :grid="grid" :player-submitted="playerSubmitted" :isHost="false" @click="sendPlayerAction"></GridView>
+    </div>
   </div>
   <div v-else-if="viewState == ViewState.Results">
 

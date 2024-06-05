@@ -3,7 +3,7 @@
 #include "../../globals.h"
 
 MemoryMixer_MiniGame::MemoryMixer_MiniGame(Game* game) : MiniGame(game) {
-    max_on_card = 1;
+    max_on_card = 2;
     grid_size = 5;
     grid = std::vector<std::vector<MemoryMixer_card>>(grid_size, std::vector<MemoryMixer_card>(grid_size));
     for (int i = 0; i < grid_size; i++) {

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref, toRefs, defineProps } from 'vue'
+import TimeComponent from '../TimeComponent.vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import { GameStateType, MemoryMixerGridPayload, MiniGameIntroductionPayload, type MiniGamePayloadType } from '@/flatbuffers/messageClass';
 import Introduction from '@/components/introduction/Introduction.vue'
@@ -39,6 +40,8 @@ const intro = ref<IntroductionData>({
   time_left: 0
 })
 // game data
+const timeLeft = ref<number>(0)
+const submittedPlayers = ref<string[]>([])
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -76,10 +79,18 @@ defineExpose({
     <Introduction :data="intro" logoSVG="/assets/games/memoryMixer/memoryMixerLogo.svg" />
   </div>
   <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
-    <GridView 
-      :grid="grid" 
-      :player-submitted="{playerSubmitted: false, x: -1, y: -1}"
-      :isHost="true"></GridView>
+    <div class="mt-4 w-full h-full flex flex-col justify-center items-center">
+        <div class="mx-auto mb-4">
+          <TimeComponent :timeLeft />
+        </div>
+        <div class="mx-auto mt-4">
+          <GridView 
+          :grid="grid" 
+          :player-submitted="{playerSubmitted: false, x: -1, y: -1}"
+          :isHost="true">
+          </GridView>
+        </div>
+      </div>
   </div>
   <div v-else-if="viewState == ViewState.Results">
 
