@@ -77,8 +77,16 @@ void BusinessBailout_Minigame::start_result() {
 }
 
 void BusinessBailout_Minigame::update_value() {
-    value += rand() % step_max + step_min;
-    value = abs(value);
+    const float old_value = value;
+    const float rnd = static_cast <float> (rand()) / static_cast <float> (RAND_MAX); // generate number, 0 <= x < 1.0
+    float change_percent = 2 * volatility * rnd;
+    if (change_percent > volatility)
+        change_percent -= (2 * volatility);
+    const float change_amount = old_value * change_percent;
+    value += change_amount;
+    if (value < 1) {
+        value = 1;
+    }
 }
 
 void BusinessBailout_Minigame::update(int delta_time) {

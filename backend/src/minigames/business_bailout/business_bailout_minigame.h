@@ -22,13 +22,12 @@ private:
     std::map<Client*, int> player_bail_values;
     std::map<Client*, int> player_bail_times;
     unsigned int time = 0;
-    int value = 0;
+    int value = 1000;
     const int mean = 45 SECONDS;
     const int stddev = 30 SECONDS;
     const int min_duration = 5 SECONDS;
     const int dt = 100 MILLISECONDS;
-    const int step_min = -500;
-    const int step_max = 1000;
+    const float volatility = 0.05;
 public:
     BusinessBailout_Minigame(Game *game);
     ~BusinessBailout_Minigame();
