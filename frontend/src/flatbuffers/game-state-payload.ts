@@ -5,6 +5,7 @@
 import { BusinessBailoutHostPayload } from './business-bailout-host-payload.js';
 import { BusinessBailoutPlayerInputPayload } from './business-bailout-player-input-payload.js';
 import { BusinessBailoutPlayerPayload } from './business-bailout-player-payload.js';
+import { BusinessBailoutResultPayload } from './business-bailout-result-payload.js';
 import { CrazyCountingHostEntitiesPayload } from './crazy-counting-host-entities-payload.js';
 import { CrazyCountingPlayerInputPayload } from './crazy-counting-player-input-payload.js';
 import { CrazyCountingPlayerUpdatePayload } from './crazy-counting-player-update-payload.js';
@@ -15,22 +16,24 @@ import { MiniGameIntroductionPayload } from './mini-game-introduction-payload.js
 export enum GameStatePayload {
   NONE = 0,
   BusinessBailoutHostPayload = 1,
-  BusinessBailoutPlayerPayload = 2,
-  BusinessBailoutPlayerInputPayload = 3,
-  CrazyCountingPlayerUpdatePayload = 4,
-  CrazyCountingHostEntitiesPayload = 5,
-  CrazyCountingPlayerInputPayload = 6,
-  CrazyCountingResultPayload = 7,
-  MiniGameIntroductionPayload = 8
+  BusinessBailoutResultPayload = 2,
+  BusinessBailoutPlayerPayload = 3,
+  BusinessBailoutPlayerInputPayload = 4,
+  CrazyCountingPlayerUpdatePayload = 5,
+  CrazyCountingHostEntitiesPayload = 6,
+  CrazyCountingPlayerInputPayload = 7,
+  CrazyCountingResultPayload = 8,
+  MiniGameIntroductionPayload = 9
 }
 
 export function unionToGameStatePayload(
   type: GameStatePayload,
-  accessor: (obj:BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload) => BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null
-): BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null {
+  accessor: (obj:BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload) => BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null
+): BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
     case 'BusinessBailoutHostPayload': return accessor(new BusinessBailoutHostPayload())! as BusinessBailoutHostPayload;
+    case 'BusinessBailoutResultPayload': return accessor(new BusinessBailoutResultPayload())! as BusinessBailoutResultPayload;
     case 'BusinessBailoutPlayerPayload': return accessor(new BusinessBailoutPlayerPayload())! as BusinessBailoutPlayerPayload;
     case 'BusinessBailoutPlayerInputPayload': return accessor(new BusinessBailoutPlayerInputPayload())! as BusinessBailoutPlayerInputPayload;
     case 'CrazyCountingPlayerUpdatePayload': return accessor(new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
@@ -44,12 +47,13 @@ export function unionToGameStatePayload(
 
 export function unionListToGameStatePayload(
   type: GameStatePayload, 
-  accessor: (index: number, obj:BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload) => BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null, 
+  accessor: (index: number, obj:BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload) => BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null, 
   index: number
-): BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null {
+): BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MiniGameIntroductionPayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
     case 'BusinessBailoutHostPayload': return accessor(index, new BusinessBailoutHostPayload())! as BusinessBailoutHostPayload;
+    case 'BusinessBailoutResultPayload': return accessor(index, new BusinessBailoutResultPayload())! as BusinessBailoutResultPayload;
     case 'BusinessBailoutPlayerPayload': return accessor(index, new BusinessBailoutPlayerPayload())! as BusinessBailoutPlayerPayload;
     case 'BusinessBailoutPlayerInputPayload': return accessor(index, new BusinessBailoutPlayerInputPayload())! as BusinessBailoutPlayerInputPayload;
     case 'CrazyCountingPlayerUpdatePayload': return accessor(index, new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;

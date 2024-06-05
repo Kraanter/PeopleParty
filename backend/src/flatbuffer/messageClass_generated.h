@@ -37,6 +37,12 @@ struct PlayerBailoutBuilder;
 struct BusinessBailoutHostPayload;
 struct BusinessBailoutHostPayloadBuilder;
 
+struct BusinessBailoutResultPayload;
+struct BusinessBailoutResultPayloadBuilder;
+
+struct FBBusinessBailoutResultPair;
+struct FBBusinessBailoutResultPairBuilder;
+
 struct BusinessBailoutPlayerPayload;
 struct BusinessBailoutPlayerPayloadBuilder;
 
@@ -198,20 +204,22 @@ inline const char *EnumNameInput(Input e) {
 
 enum GameStateType : int8_t {
   GameStateType_BusinessBailoutHost = 0,
-  GameStateType_BusinessBailoutPlayer = 1,
-  GameStateType_BusinessBailoutPlayerInput = 2,
-  GameStateType_CrazyCountingPlayerUpdate = 3,
-  GameStateType_CrazyCountingHostEntities = 4,
-  GameStateType_CrazyCountingPlayerInput = 5,
-  GameStateType_CrazyCountingResult = 6,
-  GameStateType_MiniGameIntroduction = 7,
+  GameStateType_BusinessBailoutResult = 1,
+  GameStateType_BusinessBailoutPlayer = 2,
+  GameStateType_BusinessBailoutPlayerInput = 3,
+  GameStateType_CrazyCountingPlayerUpdate = 4,
+  GameStateType_CrazyCountingHostEntities = 5,
+  GameStateType_CrazyCountingPlayerInput = 6,
+  GameStateType_CrazyCountingResult = 7,
+  GameStateType_MiniGameIntroduction = 8,
   GameStateType_MIN = GameStateType_BusinessBailoutHost,
   GameStateType_MAX = GameStateType_MiniGameIntroduction
 };
 
-inline const GameStateType (&EnumValuesGameStateType())[8] {
+inline const GameStateType (&EnumValuesGameStateType())[9] {
   static const GameStateType values[] = {
     GameStateType_BusinessBailoutHost,
+    GameStateType_BusinessBailoutResult,
     GameStateType_BusinessBailoutPlayer,
     GameStateType_BusinessBailoutPlayerInput,
     GameStateType_CrazyCountingPlayerUpdate,
@@ -224,8 +232,9 @@ inline const GameStateType (&EnumValuesGameStateType())[8] {
 }
 
 inline const char * const *EnumNamesGameStateType() {
-  static const char * const names[9] = {
+  static const char * const names[10] = {
     "BusinessBailoutHost",
+    "BusinessBailoutResult",
     "BusinessBailoutPlayer",
     "BusinessBailoutPlayerInput",
     "CrazyCountingPlayerUpdate",
@@ -247,21 +256,23 @@ inline const char *EnumNameGameStateType(GameStateType e) {
 enum GameStatePayload : uint8_t {
   GameStatePayload_NONE = 0,
   GameStatePayload_BusinessBailoutHostPayload = 1,
-  GameStatePayload_BusinessBailoutPlayerPayload = 2,
-  GameStatePayload_BusinessBailoutPlayerInputPayload = 3,
-  GameStatePayload_CrazyCountingPlayerUpdatePayload = 4,
-  GameStatePayload_CrazyCountingHostEntitiesPayload = 5,
-  GameStatePayload_CrazyCountingPlayerInputPayload = 6,
-  GameStatePayload_CrazyCountingResultPayload = 7,
-  GameStatePayload_MiniGameIntroductionPayload = 8,
+  GameStatePayload_BusinessBailoutResultPayload = 2,
+  GameStatePayload_BusinessBailoutPlayerPayload = 3,
+  GameStatePayload_BusinessBailoutPlayerInputPayload = 4,
+  GameStatePayload_CrazyCountingPlayerUpdatePayload = 5,
+  GameStatePayload_CrazyCountingHostEntitiesPayload = 6,
+  GameStatePayload_CrazyCountingPlayerInputPayload = 7,
+  GameStatePayload_CrazyCountingResultPayload = 8,
+  GameStatePayload_MiniGameIntroductionPayload = 9,
   GameStatePayload_MIN = GameStatePayload_NONE,
   GameStatePayload_MAX = GameStatePayload_MiniGameIntroductionPayload
 };
 
-inline const GameStatePayload (&EnumValuesGameStatePayload())[9] {
+inline const GameStatePayload (&EnumValuesGameStatePayload())[10] {
   static const GameStatePayload values[] = {
     GameStatePayload_NONE,
     GameStatePayload_BusinessBailoutHostPayload,
+    GameStatePayload_BusinessBailoutResultPayload,
     GameStatePayload_BusinessBailoutPlayerPayload,
     GameStatePayload_BusinessBailoutPlayerInputPayload,
     GameStatePayload_CrazyCountingPlayerUpdatePayload,
@@ -274,9 +285,10 @@ inline const GameStatePayload (&EnumValuesGameStatePayload())[9] {
 }
 
 inline const char * const *EnumNamesGameStatePayload() {
-  static const char * const names[10] = {
+  static const char * const names[11] = {
     "NONE",
     "BusinessBailoutHostPayload",
+    "BusinessBailoutResultPayload",
     "BusinessBailoutPlayerPayload",
     "BusinessBailoutPlayerInputPayload",
     "CrazyCountingPlayerUpdatePayload",
@@ -301,6 +313,10 @@ template<typename T> struct GameStatePayloadTraits {
 
 template<> struct GameStatePayloadTraits<BusinessBailoutHostPayload> {
   static const GameStatePayload enum_value = GameStatePayload_BusinessBailoutHostPayload;
+};
+
+template<> struct GameStatePayloadTraits<BusinessBailoutResultPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_BusinessBailoutResultPayload;
 };
 
 template<> struct GameStatePayloadTraits<BusinessBailoutPlayerPayload> {
@@ -996,6 +1012,110 @@ inline ::flatbuffers::Offset<BusinessBailoutHostPayload> CreateBusinessBailoutHo
       bailed_players__);
 }
 
+struct BusinessBailoutResultPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef BusinessBailoutResultPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_VALUE = 4
+  };
+  int32_t value() const {
+    return GetField<int32_t>(VT_VALUE, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_VALUE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct BusinessBailoutResultPayloadBuilder {
+  typedef BusinessBailoutResultPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_value(int32_t value) {
+    fbb_.AddElement<int32_t>(BusinessBailoutResultPayload::VT_VALUE, value, 0);
+  }
+  explicit BusinessBailoutResultPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<BusinessBailoutResultPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<BusinessBailoutResultPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<BusinessBailoutResultPayload> CreateBusinessBailoutResultPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t value = 0) {
+  BusinessBailoutResultPayloadBuilder builder_(_fbb);
+  builder_.add_value(value);
+  return builder_.Finish();
+}
+
+struct FBBusinessBailoutResultPair FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FBBusinessBailoutResultPairBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_VALUE = 6
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  int32_t value() const {
+    return GetField<int32_t>(VT_VALUE, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyField<int32_t>(verifier, VT_VALUE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct FBBusinessBailoutResultPairBuilder {
+  typedef FBBusinessBailoutResultPair Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(FBBusinessBailoutResultPair::VT_NAME, name);
+  }
+  void add_value(int32_t value) {
+    fbb_.AddElement<int32_t>(FBBusinessBailoutResultPair::VT_VALUE, value, 0);
+  }
+  explicit FBBusinessBailoutResultPairBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<FBBusinessBailoutResultPair> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<FBBusinessBailoutResultPair>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<FBBusinessBailoutResultPair> CreateFBBusinessBailoutResultPair(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    int32_t value = 0) {
+  FBBusinessBailoutResultPairBuilder builder_(_fbb);
+  builder_.add_value(value);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<FBBusinessBailoutResultPair> CreateFBBusinessBailoutResultPairDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    int32_t value = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return CreateFBBusinessBailoutResultPair(
+      _fbb,
+      name__,
+      value);
+}
+
 struct BusinessBailoutPlayerPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef BusinessBailoutPlayerPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -1548,6 +1668,9 @@ struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   const BusinessBailoutHostPayload *gamestatepayload_as_BusinessBailoutHostPayload() const {
     return gamestatepayload_type() == GameStatePayload_BusinessBailoutHostPayload ? static_cast<const BusinessBailoutHostPayload *>(gamestatepayload()) : nullptr;
   }
+  const BusinessBailoutResultPayload *gamestatepayload_as_BusinessBailoutResultPayload() const {
+    return gamestatepayload_type() == GameStatePayload_BusinessBailoutResultPayload ? static_cast<const BusinessBailoutResultPayload *>(gamestatepayload()) : nullptr;
+  }
   const BusinessBailoutPlayerPayload *gamestatepayload_as_BusinessBailoutPlayerPayload() const {
     return gamestatepayload_type() == GameStatePayload_BusinessBailoutPlayerPayload ? static_cast<const BusinessBailoutPlayerPayload *>(gamestatepayload()) : nullptr;
   }
@@ -1583,6 +1706,10 @@ struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
 
 template<> inline const BusinessBailoutHostPayload *MiniGamePayloadType::gamestatepayload_as<BusinessBailoutHostPayload>() const {
   return gamestatepayload_as_BusinessBailoutHostPayload();
+}
+
+template<> inline const BusinessBailoutResultPayload *MiniGamePayloadType::gamestatepayload_as<BusinessBailoutResultPayload>() const {
+  return gamestatepayload_as_BusinessBailoutResultPayload();
 }
 
 template<> inline const BusinessBailoutPlayerPayload *MiniGamePayloadType::gamestatepayload_as<BusinessBailoutPlayerPayload>() const {
@@ -2084,6 +2211,10 @@ inline bool VerifyGameStatePayload(::flatbuffers::Verifier &verifier, const void
     }
     case GameStatePayload_BusinessBailoutHostPayload: {
       auto ptr = reinterpret_cast<const BusinessBailoutHostPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_BusinessBailoutResultPayload: {
+      auto ptr = reinterpret_cast<const BusinessBailoutResultPayload *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case GameStatePayload_BusinessBailoutPlayerPayload: {

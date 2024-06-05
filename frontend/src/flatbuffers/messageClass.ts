@@ -5,10 +5,12 @@
 export { BusinessBailoutHostPayload } from './business-bailout-host-payload.js';
 export { BusinessBailoutPlayerInputPayload } from './business-bailout-player-input-payload.js';
 export { BusinessBailoutPlayerPayload } from './business-bailout-player-payload.js';
+export { BusinessBailoutResultPayload } from './business-bailout-result-payload.js';
 export { CrazyCountingHostEntitiesPayload } from './crazy-counting-host-entities-payload.js';
 export { CrazyCountingPlayerInputPayload } from './crazy-counting-player-input-payload.js';
 export { CrazyCountingPlayerUpdatePayload } from './crazy-counting-player-update-payload.js';
 export { CrazyCountingResultPayload } from './crazy-counting-result-payload.js';
+export { FBBusinessBailoutResultPair } from './fbbusiness-bailout-result-pair.js';
 export { FBCrazyCountingEntity } from './fbcrazy-counting-entity.js';
 export { FBCrazyCountingResultPair } from './fbcrazy-counting-result-pair.js';
 export { FBLeaderboardPlayer } from './fbleaderboard-player.js';

@@ -2,6 +2,7 @@
 // Include all gamestate types to build the MiniGamePayloadType scheme
 
 include "minigamedata/BusinessBailout/BusinessBailoutHostPayload.fbs";
+include "minigamedata/BusinessBailout/BusinessBailoutResultPayload.fbs";
 include "minigamedata/BusinessBailout/BusinessBailoutPlayerPayload.fbs";
 include "minigamedata/BusinessBailout/BusinessBailoutPlayerInputPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
@@ -12,6 +13,7 @@ include "minigamedata/MiniGameIntroductionPayload.fbs";
 
 enum GameStateType: byte {
     BusinessBailoutHost,
+    BusinessBailoutResult,
     BusinessBailoutPlayer,
     BusinessBailoutPlayerInput,
     CrazyCountingPlayerUpdate,
@@ -23,6 +25,7 @@ enum GameStateType: byte {
 
 union GameStatePayload {
     BusinessBailoutHostPayload,
+    BusinessBailoutResultPayload,
     BusinessBailoutPlayerPayload,
     BusinessBailoutPlayerInputPayload,
     CrazyCountingPlayerUpdatePayload,

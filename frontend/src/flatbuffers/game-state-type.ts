@@ -4,11 +4,12 @@
 
 export enum GameStateType {
   BusinessBailoutHost = 0,
-  BusinessBailoutPlayer = 1,
-  BusinessBailoutPlayerInput = 2,
-  CrazyCountingPlayerUpdate = 3,
-  CrazyCountingHostEntities = 4,
-  CrazyCountingPlayerInput = 5,
-  CrazyCountingResult = 6,
-  MiniGameIntroduction = 7
+  BusinessBailoutResult = 1,
+  BusinessBailoutPlayer = 2,
+  BusinessBailoutPlayerInput = 3,
+  CrazyCountingPlayerUpdate = 4,
+  CrazyCountingHostEntities = 5,
+  CrazyCountingPlayerInput = 6,
+  CrazyCountingResult = 7,
+  MiniGameIntroduction = 8
 }
