@@ -115,7 +115,8 @@ function render(graphics: Graphics) {
 
   graphics.lineStyle(10, colorStore.colorPalette.primary.base.number)
   graphics.moveTo(xMargin, yHeight.value)
-  points.value.forEach((point) => {
+  points.value.forEach((point, i) => {
+    if (i === points.value.length - 1) return
     graphics.lineTo(...interpPosition(point))
   })
 
@@ -179,11 +180,12 @@ function render(graphics: Graphics) {
           :rotation="Math.PI * 0.25"
         />
         <Sprite
-          :position-x="interpPosition(points[points.length - 1])[0]"
-          :position-y="interpPosition(points[points.length - 1])[1]"
+          v-if="points.length > 1"
+          :position-x="interpPosition(points[points.length - 2])[0]"
+          :position-y="interpPosition(points[points.length - 2])[1]"
           :width="size"
-          :height="size"
-          :anchor-x="0.5"
+          :anchor-x="0.6"
+          :height="size * 2"
           :rotation="-angle + Math.PI * 0.5"
           texture="/assets/games/businessBailout/rocket.svg"
         />

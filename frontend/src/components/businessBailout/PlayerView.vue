@@ -115,7 +115,9 @@ defineExpose({ update })
           <MoneyCounter :value />
         </div>
       </div>
-      <div class="flex justify-center relative overflow-clip tems-center row-span-2 h-full w-full">
+      <div
+        class="flex justify-center mt-8 relative overflow-clip tems-center row-span-2 h-full w-full"
+      >
         <button :disabled="locked" @click="click" class="eject-button">
           <span v-if="locked">Locked</span>
           <span v-else>Sell</span>
@@ -146,12 +148,12 @@ defineExpose({ update })
 
 .eject-button:disabled {
   background-color: slategray;
-  box-shadow: 0rem 0.4rem 0 0.04em black !important;
-  transition: none;
+  transform: translateY(0.3em) !important;
+  box-shadow: 0rem 0.1em 0 0.04em black !important;
 }
 
-.eject-button:active {
-  transform: translate(0rem, 0.4rem) !important;
-  box-shadow: 0rem 0.4rem 0 0.04em darkred !important;
+.eject-button:active:not(:disabled) {
+  transform: translateY(0.3em) !important;
+  box-shadow: 0rem 0.1em 0 0.04em darkred !important;
 }
 </style>
