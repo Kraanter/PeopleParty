@@ -43,6 +43,7 @@ private:
     void send_host_data();
     void send_player_data(Client* player);
     void introduction_update(int delta_time);
+    void update_value();
 };
 
 
