@@ -45,6 +45,7 @@ void BusinessBailout_Minigame::start_minigame() {
         }
         else {
             players.push_back(client);
+            player_bail_values[client] = 0;
             player_bail_times[client] = 0;
         }
     }
@@ -61,18 +62,23 @@ void BusinessBailout_Minigame::start_result() {
     }, result_time);
 }
 
+void BusinessBailout_Minigame::update_value() {
+    value += rand() % step_max + step_min;
+    value = abs(value);
+}
+
 void BusinessBailout_Minigame::update(int delta_time) {
     if (time >= minigame_time) {
         minigame_timer.clear();
         start_result();
     }
     time += delta_time;
-    double e = 1.1;
-    value = (std::pow(e, time / 1000.0f) - 1) * 1000;
+
+    update_value();
 
     send_host_data();
     for (auto player: players) {
-        if (player_bail_times[player] == 0) {
+        if (player_bail_values[player] == 0) {
             send_player_data(player);
         }
     }
@@ -81,9 +87,9 @@ void BusinessBailout_Minigame::update(int delta_time) {
 void BusinessBailout_Minigame::send_host_data() {
     flatbuffers::FlatBufferBuilder builder;
     std::vector<flatbuffers::Offset<PlayerBailout>> player_bailout_buffer;
-    for (auto& [player, bail_time] : player_bail_times) {
+    for (auto& [player, bail_value] : player_bail_values) {
         auto name = builder.CreateString(player->name.c_str());
-        player_bailout_buffer.push_back(CreatePlayerBailout(builder, name, bail_time));
+        player_bailout_buffer.push_back(CreatePlayerBailout(builder, name, bail_value, player_bail_times[player]));
     }
     auto player_bailouts = builder.CreateVector(player_bailout_buffer);
     auto payload = CreateBusinessBailoutHostPayload(builder, value, time, player_bailouts);
@@ -98,7 +104,7 @@ void BusinessBailout_Minigame::send_host_data() {
 
 void BusinessBailout_Minigame::send_player_data(Client* player) {
     flatbuffers::FlatBufferBuilder builder;
-    auto payload = CreateBusinessBailoutPlayerPayload(builder, value, player_bail_times[player] != 0);
+    auto payload = CreateBusinessBailoutPlayerPayload(builder, value, player_bail_values[player] != 0);
     auto gamestatePayload = CreateMiniGamePayloadType(builder, builder.CreateString(get_camel_case_name()), GameStateType_BusinessBailoutPlayer,
                                                       GameStatePayload_BusinessBailoutPlayerPayload, payload.Union());
     game->party->send_gamestate([&](Client *client) {
@@ -108,8 +114,8 @@ void BusinessBailout_Minigame::send_player_data(Client* player) {
 
 std::vector<Client *> BusinessBailout_Minigame::getMinigameResult() {
     sort(players.begin(), players.end(), [&](Client *a, Client *b) {
-        if (player_bail_times[a] == player_bail_times[b]) return rand() % 2 == 0;
-        return player_bail_times[a] > player_bail_times[b];
+        if (player_bail_values[a] == player_bail_values[b]) return rand() % 2 == 0;
+        return player_bail_values[a] > player_bail_values[b];
     });
     return players;
 }
@@ -117,7 +123,8 @@ std::vector<Client *> BusinessBailout_Minigame::getMinigameResult() {
 void BusinessBailout_Minigame::process_input(const MiniGamePayloadType *payload, Client *from) {
     switch(payload->gamestatetype()) {
         case GameStateType_BusinessBailoutPlayerInput:
-            player_bail_times[from] = time;
+            player_bail_values[from] = value;
+            player_bail_times[from] = std::chrono::system_clock::now().time_since_epoch().count() - minigame_start_time;
             send_player_data(from);
             break;
     }

@@ -29,21 +29,30 @@ name(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-time():number {
+value():number {
   const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+time():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 static startPlayerBailout(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 }
 
 static addName(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset) {
   builder.addFieldOffset(0, nameOffset, 0);
 }
 
+static addValue(builder:flatbuffers.Builder, value:number) {
+  builder.addFieldInt32(1, value, 0);
+}
+
 static addTime(builder:flatbuffers.Builder, time:number) {
-  builder.addFieldInt32(1, time, 0);
+  builder.addFieldInt32(2, time, 0);
 }
 
 static endPlayerBailout(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -51,9 +60,10 @@ static endPlayerBailout(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createPlayerBailout(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, time:number):flatbuffers.Offset {
+static createPlayerBailout(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, value:number, time:number):flatbuffers.Offset {
   PlayerBailout.startPlayerBailout(builder);
   PlayerBailout.addName(builder, nameOffset);
+  PlayerBailout.addValue(builder, value);
   PlayerBailout.addTime(builder, time);
   return PlayerBailout.endPlayerBailout(builder);
 }

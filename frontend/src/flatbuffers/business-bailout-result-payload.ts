@@ -4,6 +4,9 @@
 
 import * as flatbuffers from 'flatbuffers';
 
+import { FBBusinessBailoutResultPair } from './fbbusiness-bailout-result-pair.js';
+
+
 export class BusinessBailoutResultPayload {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -22,17 +25,34 @@ static getSizePrefixedRootAsBusinessBailoutResultPayload(bb:flatbuffers.ByteBuff
   return (obj || new BusinessBailoutResultPayload()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-value():number {
+results(index: number, obj?:FBBusinessBailoutResultPair):FBBusinessBailoutResultPair|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+  return offset ? (obj || new FBBusinessBailoutResultPair()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+resultsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startBusinessBailoutResultPayload(builder:flatbuffers.Builder) {
   builder.startObject(1);
 }
 
-static addValue(builder:flatbuffers.Builder, value:number) {
-  builder.addFieldInt32(0, value, 0);
+static addResults(builder:flatbuffers.Builder, resultsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, resultsOffset, 0);
+}
+
+static createResultsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startResultsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
 }
 
 static endBusinessBailoutResultPayload(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -40,9 +60,9 @@ static endBusinessBailoutResultPayload(builder:flatbuffers.Builder):flatbuffers.
   return offset;
 }
 
-static createBusinessBailoutResultPayload(builder:flatbuffers.Builder, value:number):flatbuffers.Offset {
+static createBusinessBailoutResultPayload(builder:flatbuffers.Builder, resultsOffset:flatbuffers.Offset):flatbuffers.Offset {
   BusinessBailoutResultPayload.startBusinessBailoutResultPayload(builder);
-  BusinessBailoutResultPayload.addValue(builder, value);
+  BusinessBailoutResultPayload.addResults(builder, resultsOffset);
   return BusinessBailoutResultPayload.endBusinessBailoutResultPayload(builder);
 }
 }

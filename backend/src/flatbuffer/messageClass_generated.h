@@ -877,10 +877,14 @@ struct PlayerBailout FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef PlayerBailoutBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
-    VT_TIME = 6
+    VT_VALUE = 6,
+    VT_TIME = 8
   };
   const ::flatbuffers::String *name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  int32_t value() const {
+    return GetField<int32_t>(VT_VALUE, 0);
   }
   uint32_t time() const {
     return GetField<uint32_t>(VT_TIME, 0);
@@ -889,6 +893,7 @@ struct PlayerBailout FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
+           VerifyField<int32_t>(verifier, VT_VALUE, 4) &&
            VerifyField<uint32_t>(verifier, VT_TIME, 4) &&
            verifier.EndTable();
   }
@@ -900,6 +905,9 @@ struct PlayerBailoutBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
     fbb_.AddOffset(PlayerBailout::VT_NAME, name);
+  }
+  void add_value(int32_t value) {
+    fbb_.AddElement<int32_t>(PlayerBailout::VT_VALUE, value, 0);
   }
   void add_time(uint32_t time) {
     fbb_.AddElement<uint32_t>(PlayerBailout::VT_TIME, time, 0);
@@ -918,9 +926,11 @@ struct PlayerBailoutBuilder {
 inline ::flatbuffers::Offset<PlayerBailout> CreatePlayerBailout(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    int32_t value = 0,
     uint32_t time = 0) {
   PlayerBailoutBuilder builder_(_fbb);
   builder_.add_time(time);
+  builder_.add_value(value);
   builder_.add_name(name);
   return builder_.Finish();
 }
@@ -928,11 +938,13 @@ inline ::flatbuffers::Offset<PlayerBailout> CreatePlayerBailout(
 inline ::flatbuffers::Offset<PlayerBailout> CreatePlayerBailoutDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *name = nullptr,
+    int32_t value = 0,
     uint32_t time = 0) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   return CreatePlayerBailout(
       _fbb,
       name__,
+      value,
       time);
 }
 
@@ -1015,14 +1027,16 @@ inline ::flatbuffers::Offset<BusinessBailoutHostPayload> CreateBusinessBailoutHo
 struct BusinessBailoutResultPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef BusinessBailoutResultPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_VALUE = 4
+    VT_RESULTS = 4
   };
-  int32_t value() const {
-    return GetField<int32_t>(VT_VALUE, 0);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<FBBusinessBailoutResultPair>> *results() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBBusinessBailoutResultPair>> *>(VT_RESULTS);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<int32_t>(verifier, VT_VALUE, 4) &&
+           VerifyOffset(verifier, VT_RESULTS) &&
+           verifier.VerifyVector(results()) &&
+           verifier.VerifyVectorOfTables(results()) &&
            verifier.EndTable();
   }
 };
@@ -1031,8 +1045,8 @@ struct BusinessBailoutResultPayloadBuilder {
   typedef BusinessBailoutResultPayload Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_value(int32_t value) {
-    fbb_.AddElement<int32_t>(BusinessBailoutResultPayload::VT_VALUE, value, 0);
+  void add_results(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBBusinessBailoutResultPair>>> results) {
+    fbb_.AddOffset(BusinessBailoutResultPayload::VT_RESULTS, results);
   }
   explicit BusinessBailoutResultPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1047,17 +1061,27 @@ struct BusinessBailoutResultPayloadBuilder {
 
 inline ::flatbuffers::Offset<BusinessBailoutResultPayload> CreateBusinessBailoutResultPayload(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    int32_t value = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBBusinessBailoutResultPair>>> results = 0) {
   BusinessBailoutResultPayloadBuilder builder_(_fbb);
-  builder_.add_value(value);
+  builder_.add_results(results);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<BusinessBailoutResultPayload> CreateBusinessBailoutResultPayloadDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<FBBusinessBailoutResultPair>> *results = nullptr) {
+  auto results__ = results ? _fbb.CreateVector<::flatbuffers::Offset<FBBusinessBailoutResultPair>>(*results) : 0;
+  return CreateBusinessBailoutResultPayload(
+      _fbb,
+      results__);
 }
 
 struct FBBusinessBailoutResultPair FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef FBBusinessBailoutResultPairBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
-    VT_VALUE = 6
+    VT_VALUE = 6,
+    VT_TIME = 8
   };
   const ::flatbuffers::String *name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
@@ -1065,11 +1089,15 @@ struct FBBusinessBailoutResultPair FLATBUFFERS_FINAL_CLASS : private ::flatbuffe
   int32_t value() const {
     return GetField<int32_t>(VT_VALUE, 0);
   }
+  int32_t time() const {
+    return GetField<int32_t>(VT_TIME, 0);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
            VerifyField<int32_t>(verifier, VT_VALUE, 4) &&
+           VerifyField<int32_t>(verifier, VT_TIME, 4) &&
            verifier.EndTable();
   }
 };
@@ -1083,6 +1111,9 @@ struct FBBusinessBailoutResultPairBuilder {
   }
   void add_value(int32_t value) {
     fbb_.AddElement<int32_t>(FBBusinessBailoutResultPair::VT_VALUE, value, 0);
+  }
+  void add_time(int32_t time) {
+    fbb_.AddElement<int32_t>(FBBusinessBailoutResultPair::VT_TIME, time, 0);
   }
   explicit FBBusinessBailoutResultPairBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1098,8 +1129,10 @@ struct FBBusinessBailoutResultPairBuilder {
 inline ::flatbuffers::Offset<FBBusinessBailoutResultPair> CreateFBBusinessBailoutResultPair(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
-    int32_t value = 0) {
+    int32_t value = 0,
+    int32_t time = 0) {
   FBBusinessBailoutResultPairBuilder builder_(_fbb);
+  builder_.add_time(time);
   builder_.add_value(value);
   builder_.add_name(name);
   return builder_.Finish();
@@ -1108,12 +1141,14 @@ inline ::flatbuffers::Offset<FBBusinessBailoutResultPair> CreateFBBusinessBailou
 inline ::flatbuffers::Offset<FBBusinessBailoutResultPair> CreateFBBusinessBailoutResultPairDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *name = nullptr,
-    int32_t value = 0) {
+    int32_t value = 0,
+    int32_t time = 0) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   return CreateFBBusinessBailoutResultPair(
       _fbb,
       name__,
-      value);
+      value,
+      time);
 }
 
 struct BusinessBailoutPlayerPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
