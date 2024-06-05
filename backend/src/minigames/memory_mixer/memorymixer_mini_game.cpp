@@ -159,18 +159,18 @@ flatbuffers::Offset<MiniGamePayloadType> MemoryMixer_MiniGame::build_grid(flatbu
         auto row_vector = builder.CreateVector(grid_cell_buffer);
         auto grid_row = CreateMemoryMixerGridRow(builder, row_vector);
         grid_row_buffer.push_back(grid_row);
-
-        auto grid_row_vector = builder.CreateVector(grid_row_buffer);
-        
-        auto payload = CreateMemoryMixerGridPayload(builder, remaining_time, max_on_card, phase, grid_row_vector);
-
-        auto miniGame = builder.CreateString(get_camel_case_name());
-
-        auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MemoryMixerGrid,
-                                                        GameStatePayload_MemoryMixerGridPayload, payload.Union());
-
-        return gameStatePayload;
     }
+
+    auto grid_row_vector = builder.CreateVector(grid_row_buffer);
+    
+    auto payload = CreateMemoryMixerGridPayload(builder, remaining_time, max_on_card, phase, grid_row_vector);
+
+    auto miniGame = builder.CreateString(get_camel_case_name());
+
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MemoryMixerGrid,
+                                                    GameStatePayload_MemoryMixerGridPayload, payload.Union());
+
+    return gameStatePayload;
 }
 
 void MemoryMixer_MiniGame::send_player_submitted(int client_id) {
