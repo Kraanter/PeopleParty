@@ -101,7 +101,7 @@ const xMargin = 25
 const xWidth = computed(() => width.value - xMargin * 2)
 const yHeight = computed(() => height.value - yMarginBottom)
 // Scale the position based on the angle between the last point and the new point
-const yScale = computed(() => (yHeight.value / (Math.PI / 2)) * angle.value)
+const yScale = computed(() => (yHeight.value))
 
 function interpPosition(position: IPointData): [number, number] {
   const xStep = xWidth.value / time.value
