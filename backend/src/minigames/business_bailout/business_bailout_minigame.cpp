@@ -49,9 +49,6 @@ void BusinessBailout_Minigame::start_minigame() {
         }
     }
 
-    // Generate the time for the minigame between 20 and 60 seconds
-    minigame_time = 20 SECONDS + rand() % 40 SECONDS;
-
     minigame_start_time = std::chrono::system_clock::now().time_since_epoch().count();
     const int dt = 100 MILLISECONDS;
     minigame_timer.setInterval([this]() {
