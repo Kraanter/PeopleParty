@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, toRefs, computed } from 'vue'
+import { ref, defineProps, toRefs, computed, watchEffect } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 import Introduction from '../introduction/Introduction.vue'
 import { Graphics, type IPointData } from 'pixi.js'
@@ -33,6 +33,7 @@ const colorStore = useColorStore()
 const viewState = ref<ViewState>(ViewState.None)
 const value = ref(0)
 const time = ref(0)
+const angle = ref(0)
 
 const props = defineProps<{
   height: number
@@ -67,11 +68,16 @@ function update(payload: MiniGamePayloadType) {
         time: newTime
       } = parseBusinessBailoutHostPayload(payload)
 
-      if (newValue > value.value) value.value = newValue
+      if (bailedPlayers.value.length != bailed_players.length)
+        console.log('bailed_players', bailed_players)
+
       if (bailedPlayers.value.length != bailed_players.length) {
         bailedPlayers.value = bailed_players
       }
 
+      // Calculate the angle between the last point and the new point
+      angle.value = Math.atan2(newValue - value.value, newTime - time.value)
+      value.value = newValue
       time.value = newTime
 
       points.value.push(createPointData(newValue, newTime))
@@ -87,12 +93,14 @@ defineExpose({ update })
 const yMarginBottom = 100
 
 const yHeight = computed(() => height.value - yMarginBottom)
+// Scale the position based on the angle between the last point and the new point
+const yScale = computed(() => (yHeight.value / (Math.PI / 2)) * angle.value)
 
 function interpPosition(position: IPointData): [number, number] {
-  const xScale = width.value / time.value
-  const yScale = yHeight.value / value.value
-  const newX = position.x * xScale
-  const newY = yHeight.value - position.y * yScale
+  const xStep = width.value / time.value
+  const yStep = yScale.value / value.value
+  const newX = position.x * xStep
+  const newY = yHeight.value - position.y * yStep
 
   return [newX, newY]
 }
@@ -105,6 +113,17 @@ function render(graphics: Graphics) {
   points.value.forEach((point) => {
     graphics.lineTo(...interpPosition(point))
   })
+
+  graphics.lineStyle(4, 0x000000)
+  graphics.moveTo(0, yHeight.value)
+  for (let timeIncrement = 0; timeIncrement < time.value; timeIncrement += 2000) {
+    const point = { x: timeIncrement, y: 0 }
+    graphics.lineTo(interpPosition(point)[0], yHeight.value)
+    graphics.lineTo(interpPosition(point)[0], yHeight.value + 10)
+    graphics.lineTo(interpPosition(point)[0], yHeight.value - 10)
+    graphics.lineTo(interpPosition(point)[0], yHeight.value)
+  }
+  graphics.lineTo(width.value, yHeight.value)
 
   graphics.lineStyle(4, 0xff0000)
   bailedPlayers.value.forEach((bailedPlayer) => {
