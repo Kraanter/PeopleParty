@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, toRefs, computed } from 'vue'
+import { ref, defineProps, toRefs, computed, onMounted } from 'vue'
 import MoneyCounter from './components/MoneyCounter.vue'
 import Introduction from '../introduction/Introduction.vue'
 import { Graphics, type IPointData } from 'pixi.js'
@@ -31,10 +31,17 @@ const intro = ref<IntroductionData>({
 const colorStore = useColorStore()
 
 const viewState = ref<ViewState>(ViewState.None)
-const value = ref(0)
-const maxValue = ref(0)
-const time = ref(0)
-const angle = ref(0)
+const value = computed(() => points.value[points.value.length - 1].y)
+const maxValue = computed(() => Math.max(...points.value.map((point) => point.y)))
+const time = computed(() => points.value[points.value.length - 1].x)
+const angle = computed(() =>
+  points.value.length > 1
+    ? Math.atan2(
+        value.value - points.value[points.value.length - 2].y,
+        time.value - points.value[points.value.length - 2].x
+      )
+    : 0
+)
 const size = ref(75)
 
 const props = defineProps<{
@@ -76,12 +83,6 @@ function update(payload: MiniGamePayloadType) {
       if (bailedPlayers.value.length != bailed_players.length) {
         bailedPlayers.value = bailed_players
       }
-
-      // Calculate the angle between the last point and the new point
-      angle.value = Math.atan2(newValue - value.value, newTime - time.value)
-      if (newValue > maxValue.value) maxValue.value = newValue
-      value.value = newValue
-      time.value = newTime
 
       points.value.push(createPointData(newValue, newTime))
       break
@@ -149,13 +150,13 @@ function render(graphics: Graphics) {
   graphics.lineStyle(4, 0xff0000)
   bailedPlayers.value.forEach((bailedPlayer) => {
     // Draw a vertical line at the time the player bailed
-    const [x, y] = interpPosition({ x: bailedPlayer.time, y: 0 })
-    graphics.moveTo(x, y)
-    graphics.lineTo(x, 0)
+    const [x, y] = interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })
+    graphics.moveTo(x, interpPosition({ x: 0, y: 0 })[1])
+    graphics.lineTo(x, y)
 
     // Draw a circle at the point where the player bailed
     graphics.beginFill(0xff0000)
-    graphics.drawCircle(x, y, 10)
+    graphics.drawCircle(x, y, 15)
     graphics.endFill()
   })
 }
@@ -173,8 +174,10 @@ function render(graphics: Graphics) {
         <Text
           v-for="bailedPlayer in bailedPlayers"
           :key="bailedPlayer.name"
-          :x="interpPosition({ x: bailedPlayer.time, y: 0 })[0] + 10"
-          :y="interpPosition({ x: bailedPlayer.time, y: 0 })[1]"
+          :anchor-x="1.1"
+          :anchor-y="0.07"
+          :x="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[0] + 10"
+          :y="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[1]"
           :text="bailedPlayer.name"
           :rotation="Math.PI * 0.25"
         />

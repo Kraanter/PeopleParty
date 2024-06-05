@@ -18,6 +18,7 @@ export function parseBusinessBailoutPlayerPayload(payload: MiniGamePayloadType) 
 export type BailedPlayer = {
   name: string
   time: number
+  value: number
 }
 
 export function parseBusinessBailoutHostPayload(payload: MiniGamePayloadType) {
@@ -31,7 +32,8 @@ export function parseBusinessBailoutHostPayload(payload: MiniGamePayloadType) {
     const bailedPlayer = bbhp.bailedPlayers(i)
     const name = bailedPlayer?.name()
     const time = bailedPlayer?.time()
-    if (name && time) bailed_players.push({ name, time })
+    const value = bailedPlayer?.value()
+    if (name && time && value) bailed_players.push({ name, time, value })
   }
   bailed_players.filter((bailedPlayer) => bailedPlayer.name && bailedPlayer.time)
 
