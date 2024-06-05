@@ -23,9 +23,12 @@ const { versionNumber } = storeToRefs(viewStore)
             <div class="row-start-1 row-span-7 max-h contain-content">
                 <img class="h-full w-full" src="./../../public/assets/info-desktop.svg" />
             </div>
-            <div class="m-auto mb-8 row-start-8">
-                <router-link to="/join" class="underline mr-16 text-4xl">Join a party!</router-link>
-                <router-link to="/host" class="underline ml-16 text-4xl">Host a party!</router-link>
+            <div class="row-start-8 grid grid-cols-3 justify-center text-center">
+                <p class="justify-start text-start mt-auto ml-2 mb-2">{{ versionNumber }}</p>
+                <div class="flex mt-4 justify-between w-full">
+                    <router-link to="/join" class="underline text-4xl">Join a party!</router-link>
+                    <router-link to="/host" class="underline text-4xl">Host a party!</router-link>
+                </div>
             </div>
         </div>
     </div>
