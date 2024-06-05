@@ -25,6 +25,7 @@ private:
     const int mean = 45 SECONDS;
     const int stddev = 30 SECONDS;
     const int min_duration = 5 SECONDS;
+    const int dt = 100 MILLISECONDS;
 public:
     BusinessBailout_Minigame(Game *game);
     ~BusinessBailout_Minigame();

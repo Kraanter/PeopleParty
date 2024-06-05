@@ -50,7 +50,6 @@ void BusinessBailout_Minigame::start_minigame() {
     }
 
     minigame_start_time = std::chrono::system_clock::now().time_since_epoch().count();
-    const int dt = 100 MILLISECONDS;
     minigame_timer.setInterval([this]() {
         update(dt);
     }, dt);
