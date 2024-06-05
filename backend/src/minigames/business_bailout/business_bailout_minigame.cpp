@@ -60,6 +60,20 @@ void BusinessBailout_Minigame::start_result() {
     result_timer.setTimeout([this]() {
         finished();
     }, result_time);
+    flatbuffers::FlatBufferBuilder builder;
+    std::vector<flatbuffers::Offset<FBBusinessBailoutResultPair>> result_pairs;
+    for (auto player: getMinigameResult()) {
+        auto name = builder.CreateString(player->name.c_str());
+        result_pairs.push_back(CreateFBBusinessBailoutResultPair(builder, name, player_bail_values[player], player_bail_times[player]));
+    }
+    auto result_vector = builder.CreateVector(result_pairs);
+    auto payload = CreateBusinessBailoutResultPayload(builder, result_vector);
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, builder.CreateString(get_camel_case_name()), GameStateType_BusinessBailoutResult,
+                                                      GameStatePayload_BusinessBailoutResultPayload, payload.Union());
+    game->party->send_gamestate([&](Client *client) {
+        return client->client_id == host->client_id ||
+               std::find(players.begin(), players.end(), client) != players.end();
+    }, builder, gameStatePayload.Union());
 }
 
 void BusinessBailout_Minigame::update_value() {
