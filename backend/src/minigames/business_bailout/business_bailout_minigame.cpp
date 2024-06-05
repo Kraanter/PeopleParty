@@ -2,11 +2,16 @@
 // Created by itssiem on 5/31/24.
 //
 
+#include <random>
 #include "business_bailout_minigame.h"
 #include "../../game.h"
 
 BusinessBailout_Minigame::BusinessBailout_Minigame(Game *game) : MiniGame(game) {
-
+    std::mt19937 rng(std::random_device{}());
+    std::binomial_distribution distribution(mean, stddev);
+    while (minigame_time < min_duration) {
+        minigame_time = distribution(rng);
+    }
 }
 
 BusinessBailout_Minigame::~BusinessBailout_Minigame() {
