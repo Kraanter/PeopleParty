@@ -29,10 +29,11 @@ private:
     int max_on_card;
     int grid_size;
     MemoryMixer_card target_card;
-    int mini_game_phase = 0; // 0 = show all symbols, 1 = show searching symbol, 2 = show hidden grid
+    int mini_game_phase = 0; // 0 = show all symbols, 1 = show searching symbol and let players guess
     std::vector<std::vector<MemoryMixer_card>> grid;
 private:
     void send_grid(bool highlight_correct = false);
+    flatbuffers::Offset<MiniGamePayloadType> build_grid(flatbuffers::FlatBufferBuilder &builder, int phase, bool to_host = true, bool highlight_correct = false);
     void send_player_submitted(int client_id);
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
 };

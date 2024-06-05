@@ -1379,13 +1379,17 @@ struct MemoryMixerGridPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIME_LEFT = 4,
     VT_MAX_ON_CARD = 6,
-    VT_GRID = 8
+    VT_PHASE = 8,
+    VT_GRID = 10
   };
   uint64_t time_left() const {
     return GetField<uint64_t>(VT_TIME_LEFT, 0);
   }
   int16_t max_on_card() const {
     return GetField<int16_t>(VT_MAX_ON_CARD, 0);
+  }
+  int16_t phase() const {
+    return GetField<int16_t>(VT_PHASE, 0);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>> *grid() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>> *>(VT_GRID);
@@ -1394,6 +1398,7 @@ struct MemoryMixerGridPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TIME_LEFT, 8) &&
            VerifyField<int16_t>(verifier, VT_MAX_ON_CARD, 2) &&
+           VerifyField<int16_t>(verifier, VT_PHASE, 2) &&
            VerifyOffset(verifier, VT_GRID) &&
            verifier.VerifyVector(grid()) &&
            verifier.VerifyVectorOfTables(grid()) &&
@@ -1410,6 +1415,9 @@ struct MemoryMixerGridPayloadBuilder {
   }
   void add_max_on_card(int16_t max_on_card) {
     fbb_.AddElement<int16_t>(MemoryMixerGridPayload::VT_MAX_ON_CARD, max_on_card, 0);
+  }
+  void add_phase(int16_t phase) {
+    fbb_.AddElement<int16_t>(MemoryMixerGridPayload::VT_PHASE, phase, 0);
   }
   void add_grid(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>>> grid) {
     fbb_.AddOffset(MemoryMixerGridPayload::VT_GRID, grid);
@@ -1429,10 +1437,12 @@ inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayloa
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t time_left = 0,
     int16_t max_on_card = 0,
+    int16_t phase = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>>> grid = 0) {
   MemoryMixerGridPayloadBuilder builder_(_fbb);
   builder_.add_time_left(time_left);
   builder_.add_grid(grid);
+  builder_.add_phase(phase);
   builder_.add_max_on_card(max_on_card);
   return builder_.Finish();
 }
@@ -1441,12 +1451,14 @@ inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayloa
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t time_left = 0,
     int16_t max_on_card = 0,
+    int16_t phase = 0,
     const std::vector<::flatbuffers::Offset<MemoryMixerGridRow>> *grid = nullptr) {
   auto grid__ = grid ? _fbb.CreateVector<::flatbuffers::Offset<MemoryMixerGridRow>>(*grid) : 0;
   return CreateMemoryMixerGridPayload(
       _fbb,
       time_left,
       max_on_card,
+      phase,
       grid__);
 }
 

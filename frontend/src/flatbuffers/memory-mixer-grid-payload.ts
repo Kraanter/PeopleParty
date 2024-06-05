@@ -35,18 +35,23 @@ maxOnCard():number {
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 }
 
-grid(index: number, obj?:MemoryMixerGridRow):MemoryMixerGridRow|null {
+phase():number {
   const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+}
+
+grid(index: number, obj?:MemoryMixerGridRow):MemoryMixerGridRow|null {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? (obj || new MemoryMixerGridRow()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 gridLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startMemoryMixerGridPayload(builder:flatbuffers.Builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 }
 
 static addTimeLeft(builder:flatbuffers.Builder, timeLeft:bigint) {
@@ -57,8 +62,12 @@ static addMaxOnCard(builder:flatbuffers.Builder, maxOnCard:number) {
   builder.addFieldInt16(1, maxOnCard, 0);
 }
 
+static addPhase(builder:flatbuffers.Builder, phase:number) {
+  builder.addFieldInt16(2, phase, 0);
+}
+
 static addGrid(builder:flatbuffers.Builder, gridOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, gridOffset, 0);
+  builder.addFieldOffset(3, gridOffset, 0);
 }
 
 static createGridVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -78,10 +87,11 @@ static endMemoryMixerGridPayload(builder:flatbuffers.Builder):flatbuffers.Offset
   return offset;
 }
 
-static createMemoryMixerGridPayload(builder:flatbuffers.Builder, timeLeft:bigint, maxOnCard:number, gridOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createMemoryMixerGridPayload(builder:flatbuffers.Builder, timeLeft:bigint, maxOnCard:number, phase:number, gridOffset:flatbuffers.Offset):flatbuffers.Offset {
   MemoryMixerGridPayload.startMemoryMixerGridPayload(builder);
   MemoryMixerGridPayload.addTimeLeft(builder, timeLeft);
   MemoryMixerGridPayload.addMaxOnCard(builder, maxOnCard);
+  MemoryMixerGridPayload.addPhase(builder, phase);
   MemoryMixerGridPayload.addGrid(builder, gridOffset);
   return MemoryMixerGridPayload.endMemoryMixerGridPayload(builder);
 }

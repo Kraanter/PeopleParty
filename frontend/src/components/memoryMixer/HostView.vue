@@ -26,7 +26,8 @@ const { width, height } = toRefs(props)
 
 const grid = ref<MemoryMixerGrid>({
   timeLeft: 0,
-  maxOnCard: 0,
+  maxOnCard: -1,
+  phase: -1,
   grid: [],
 })
 

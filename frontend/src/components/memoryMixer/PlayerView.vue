@@ -46,7 +46,8 @@ const intro = ref<IntroductionData>({
 // game data
 const grid = ref<MemoryMixerGrid>({
   timeLeft: 0,
-  maxOnCard: 0,
+  maxOnCard: -1,
+  phase: -1,
   grid: [],
 })
 // if player has submitted

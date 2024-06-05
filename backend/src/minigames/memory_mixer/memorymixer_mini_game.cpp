@@ -84,9 +84,6 @@ void MemoryMixer_MiniGame::update(int delta_time) {
             mini_game_phase = 1;
             remaining_time = 15 SECONDS;
         } else if (mini_game_phase == 1) {
-            mini_game_phase = 2;
-            remaining_time = 5 SECONDS;
-        } else if (mini_game_phase == 2) {
             mini_game_phase = 0;
             timer.clear();
             start_result();
@@ -98,12 +95,32 @@ void MemoryMixer_MiniGame::update(int delta_time) {
 }
 
 void MemoryMixer_MiniGame::send_grid(bool highlight_correct) {
-    flatbuffers::FlatBufferBuilder builder;
+    if (mini_game_phase == 0 ) {
+        flatbuffers::FlatBufferBuilder builder;
 
+        auto gameStatePayload = build_grid(builder, mini_game_phase, false, highlight_correct);
+
+        // Send payload to client
+        game->party->send_gamestate([](Client* client) { return true; }, builder, gameStatePayload.Union());
+    } else if (mini_game_phase == 1) {
+        flatbuffers::FlatBufferBuilder builder;
+        flatbuffers::FlatBufferBuilder builder2;
+
+        auto gameStatePayloadHost = build_grid(builder, mini_game_phase, true, highlight_correct);
+        auto gameStatePayloadPlayer = build_grid(builder2, mini_game_phase, false, highlight_correct);
+
+        game->party->send_gamestate([](Client* client) { return client->isHost; }, builder, gameStatePayloadHost.Union());
+        game->party->send_gamestate([](Client* client) { return !client->isHost; }, builder2, gameStatePayloadPlayer.Union());
+    }
+}
+
+flatbuffers::Offset<MiniGamePayloadType> MemoryMixer_MiniGame::build_grid(flatbuffers::FlatBufferBuilder &builder, int phase, bool to_host, bool highlight_correct) {
     int local_grid_size = grid_size;
 
-    if (mini_game_phase == 1) {
-        local_grid_size = 1;
+    if (phase == 1) {
+        if (to_host) {
+            local_grid_size = 1;
+        }
     }
 
     std::vector<flatbuffers::Offset<MemoryMixerGridRow>> grid_row_buffer;
@@ -122,10 +139,12 @@ void MemoryMixer_MiniGame::send_grid(bool highlight_correct) {
                 icon = MemoryMixerIconType(grid[i][j]);
                 amount = -1;
             } else if (mini_game_phase == 1) {
-                icon = MemoryMixerIconType(target_card);
-                amount = -1;
-            } else if (mini_game_phase == 2) {
-                icon = MemoryMixerIconType::MemoryMixerIconType_EMPTY;
+                if (to_host) {
+                    icon = MemoryMixerIconType(target_card);
+                    amount = -1;
+                } else {
+                    icon = MemoryMixerIconType::MemoryMixerIconType_EMPTY;
+                }
             }
 
             bool high_light = false;
@@ -140,19 +159,18 @@ void MemoryMixer_MiniGame::send_grid(bool highlight_correct) {
         auto row_vector = builder.CreateVector(grid_cell_buffer);
         auto grid_row = CreateMemoryMixerGridRow(builder, row_vector);
         grid_row_buffer.push_back(grid_row);
+
+        auto grid_row_vector = builder.CreateVector(grid_row_buffer);
+        
+        auto payload = CreateMemoryMixerGridPayload(builder, remaining_time, max_on_card, phase, grid_row_vector);
+
+        auto miniGame = builder.CreateString(get_camel_case_name());
+
+        auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MemoryMixerGrid,
+                                                        GameStatePayload_MemoryMixerGridPayload, payload.Union());
+
+        return gameStatePayload;
     }
-
-    auto grid_row_vector = builder.CreateVector(grid_row_buffer);
-
-    auto payload = CreateMemoryMixerGridPayload(builder, remaining_time, max_on_card, grid_row_vector);
-
-    auto miniGame = builder.CreateString(get_camel_case_name());
-
-    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MemoryMixerGrid,
-                                                      GameStatePayload_MemoryMixerGridPayload, payload.Union());
-
-    // Send payload to client
-    game->party->send_gamestate([](Client* client) { return true; }, builder, gameStatePayload.Union());
 }
 
 void MemoryMixer_MiniGame::send_player_submitted(int client_id) {
@@ -171,7 +189,7 @@ void MemoryMixer_MiniGame::send_player_submitted(int client_id) {
 }
 
 void MemoryMixer_MiniGame::process_input(const MiniGamePayloadType* payload, Client* from) {
-    if (mini_game_phase != 2) {
+    if (mini_game_phase != 1) {
         return;
     }
 

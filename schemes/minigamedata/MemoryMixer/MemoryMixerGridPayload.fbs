@@ -20,6 +20,7 @@ table MemoryMixerGridCell {
 table MemoryMixerGridPayload {
   time_left: ulong;
   max_on_card: short;
+  phase: short;
   grid: [MemoryMixerGridRow];
 }
 

@@ -18,6 +18,7 @@ interface MemoryMixerCell {
 export interface MemoryMixerGrid {
     timeLeft: number
     maxOnCard: number
+    phase: number
     grid: MemoryMixerCell[][]
 }
 
@@ -49,7 +50,8 @@ export const processGrid = (payload: MemoryMixerGridPayload): MemoryMixerGrid =>
     }
     return {
         timeLeft: Number(payload.timeLeft()),
-        maxOnCard: Number(payload.maxOnCard()),
+        maxOnCard: payload.maxOnCard(),
+        phase: payload.phase(),
         grid
     }
 }
