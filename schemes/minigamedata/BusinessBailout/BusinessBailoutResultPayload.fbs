@@ -1,10 +1,11 @@
 table BusinessBailoutResultPayload {
-    value: int;
+    results: [FBBusinessBailoutResultPair];
 }
 
 table FBBusinessBailoutResultPair {
     name: string;
     value: int;
+    time: int;
 }
 
 root_type BusinessBailoutResultPayload;

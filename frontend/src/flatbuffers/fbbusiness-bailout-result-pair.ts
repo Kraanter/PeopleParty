@@ -34,8 +34,13 @@ value():number {
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
+time():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
 static startFBBusinessBailoutResultPair(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 }
 
 static addName(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset) {
@@ -46,15 +51,20 @@ static addValue(builder:flatbuffers.Builder, value:number) {
   builder.addFieldInt32(1, value, 0);
 }
 
+static addTime(builder:flatbuffers.Builder, time:number) {
+  builder.addFieldInt32(2, time, 0);
+}
+
 static endFBBusinessBailoutResultPair(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createFBBusinessBailoutResultPair(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, value:number):flatbuffers.Offset {
+static createFBBusinessBailoutResultPair(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, value:number, time:number):flatbuffers.Offset {
   FBBusinessBailoutResultPair.startFBBusinessBailoutResultPair(builder);
   FBBusinessBailoutResultPair.addName(builder, nameOffset);
   FBBusinessBailoutResultPair.addValue(builder, value);
+  FBBusinessBailoutResultPair.addTime(builder, time);
   return FBBusinessBailoutResultPair.endFBBusinessBailoutResultPair(builder);
 }
 }
