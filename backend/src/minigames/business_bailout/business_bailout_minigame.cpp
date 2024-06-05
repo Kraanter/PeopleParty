@@ -128,7 +128,7 @@ std::string BusinessBailout_Minigame::get_description() {
 void BusinessBailout_Minigame::process_input(const MiniGamePayloadType *payload, Client *from) {
     switch(payload->gamestatetype()) {
         case GameStateType_BusinessBailoutPlayerInput:
-            player_bail_times[from] = std::chrono::system_clock::now().time_since_epoch().count() - minigame_start_time;
+            player_bail_times[from] = time;
             send_player_data(from);
             break;
     }
