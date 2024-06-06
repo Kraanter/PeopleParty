@@ -39,8 +39,6 @@ const intro = ref<IntroductionData>({
   description: '',
   time_left: 0
 })
-// game data
-const timeLeft = ref<number>(0)
 const submittedPlayers = ref<string[]>([])
 
 const update = (data: MiniGamePayloadType) => {
@@ -81,7 +79,7 @@ defineExpose({
   <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
     <div class="mt-4 w-full h-full flex flex-col justify-center items-center">
         <div class="mx-auto mb-4">
-          <TimeComponent :timeLeft />
+          <TimeComponent :time-left="grid.timeLeft" />
         </div>
         <div class="mx-auto mt-4">
           <GridView 
