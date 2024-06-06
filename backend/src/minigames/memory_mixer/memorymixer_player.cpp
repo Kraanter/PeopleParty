@@ -8,6 +8,7 @@ MemoryMixer_Player::MemoryMixer_Player(int client_id) {
     submitted_x = -1;
     submitted_y = -1;
     finished_round = -1;
+    eliminated = false;
 }
 
 void MemoryMixer_Player::submit(int x, int y) {
@@ -17,6 +18,9 @@ void MemoryMixer_Player::submit(int x, int y) {
 }
 
 bool MemoryMixer_Player::operator<(const MemoryMixer_Player &other) const {
+    if (finished_round != other.finished_round) {
+        return finished_round > other.finished_round;
+    }
     if (submitted_time != other.submitted_time) {
         return submitted_time < other.submitted_time;
     }

@@ -3,9 +3,8 @@
 #include "../../globals.h"
 
 MemoryMixer_MiniGame::MemoryMixer_MiniGame(Game* game) : MiniGame(game) {
-    max_on_card = 2;
     grid_size = 5;
-    max_correct = 5;
+    unique_symbols = 3;
 
     create_grid();
 }
@@ -29,16 +28,16 @@ std::string MemoryMixer_MiniGame::get_description() {
 }
 
 void MemoryMixer_MiniGame::create_grid() {
-    target_card = MemoryMixer_card(rand() % (4 + 1));
+    target_card = MemoryMixer_card(rand() % (unique_symbols));
 
     int correct_cards = 0;
     grid = std::vector<std::vector<MemoryMixer_card>>(grid_size, std::vector<MemoryMixer_card>(grid_size));
     for (int i = 0; i < grid_size; i++) {
         for (int j = 0; j < grid_size; j++) {
-            int rnd = rand() % (4 + 1);
+            int rnd = rand() % (unique_symbols);
             if (max_correct == correct_cards) {
                 while(rnd == target_card) {
-                    rnd = rand() % (4 + 1);
+                    rnd = rand() % (unique_symbols);
                 }
             }
             grid[i][j] = MemoryMixer_card(rnd);
@@ -47,6 +46,42 @@ void MemoryMixer_MiniGame::create_grid() {
                 correct_cards++;
             }
         }
+    }
+}
+
+void MemoryMixer_MiniGame::set_round_difficulty(int current_round) {
+    // max 100% of players can go to round 2
+    // max 75% of players to round 3
+    // max 75% of players to round 4
+    // max 50% of players to round 5
+    // max 25% of players to round 6
+    if (current_round == 2) {
+        unique_symbols = 4;
+    } else if (current_round == 4) {
+        unique_symbols = 5;
+    }
+
+    double ammount_of_players = players.size();
+
+    double max = (grid_size * grid_size) / unique_symbols;
+    if (current_round == 2 || current_round == 3) {
+        max_correct = max * 0.75;
+    } else if (current_round == 3) {
+        max_correct = max * 0.5;
+    } else if (current_round >= 4) {
+        max_correct = max * 0.25;
+    } else {
+        max_correct = max;
+    }
+
+    if (max_correct > max) {
+        max_on_card = std::ceil(ammount_of_players / max);
+    } else {
+        max_on_card = 1;
+    }
+
+    if (current_round == 1 || current_round == 2) {
+        max_on_card = 2;
     }
 }
 
@@ -72,6 +107,7 @@ void MemoryMixer_MiniGame::start_introduction() {
 void MemoryMixer_MiniGame::start_minigame() {
     update_interval = 300 MILLISECONDS;
     remaining_time = memorise_time;
+    round = 1;
     mini_game_phase = 0;
 
     for (Client* client : game->get_clients()) {
@@ -80,6 +116,8 @@ void MemoryMixer_MiniGame::start_minigame() {
         }
         players[client->client_id] = MemoryMixer_Player(client->client_id);
     }
+
+    set_round_difficulty(round);
 
     timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
@@ -100,12 +138,20 @@ void MemoryMixer_MiniGame::send_round_result() {
     std::vector<flatbuffers::Offset<flatbuffers::String>> wrong_names_buffer;
 
     for (auto& [_, player] : players) {
+        if (player.eliminated) {
+            continue;
+        }
         if (player.submitted_x == -1 || player.submitted_y == -1) {
             wrong_names_buffer.push_back(builder.CreateString(client_repository[player.client_id]->name));
+            player.finished_round = round - 1;
+            player.eliminated = true;
         } else if (grid[player.submitted_x][player.submitted_y] == target_card) {
             correct_names_buffer.push_back(builder.CreateString(client_repository[player.client_id]->name));
+            player.finished_round = round;
         } else {
             wrong_names_buffer.push_back(builder.CreateString(client_repository[player.client_id]->name));
+            player.finished_round = round - 1;
+            player.eliminated = true;
         }
     }
 
@@ -125,26 +171,30 @@ void MemoryMixer_MiniGame::send_round_result() {
 
 void MemoryMixer_MiniGame::next_round() {
     mini_game_phase = 0;
-    round++;
     remaining_time = memorise_time;
 
-    if (round == 1) {
-        max_correct = 1;
-    }
+    send_round_result();
 
-    if (round == 3) {
-        start_result();
-        return;
-    }
-
+    int current_players = 0;
     for (auto& [_, player] : players) {
         player.submitted_x = -1;
         player.submitted_y = -1;
         send_player_submitted(player.client_id, false);
+        if (!player.eliminated) {
+            current_players++;
+        }
     }
     
+    if (current_players <= 1) {
+        start_result();
+        return;
+    }
+
+    round++;
+
+    set_round_difficulty(round);
+
     create_grid();
-    send_round_result();
     
     timer.pause(5 SECONDS);
 }
@@ -317,8 +367,8 @@ void MemoryMixer_MiniGame::process_input(const MiniGamePayloadType* payload, Cli
 
             int amount = 0;
             for (auto& [_, player] : players) {
-                if (player.finished_round != -1) {
-                    return;
+                if (player.eliminated) {
+                    continue;
                 }
                 if (player.submitted_x == input->x() && player.submitted_y == input->y()) {
                     amount++;
@@ -331,6 +381,7 @@ void MemoryMixer_MiniGame::process_input(const MiniGamePayloadType* payload, Cli
             MemoryMixer_Player& player = players[from->client_id];
             player.submitted_x = input->x();
             player.submitted_y = input->y();
+            player.submitted_time = std::chrono::system_clock::now().time_since_epoch().count();
             send_player_submitted(from->client_id, true);
         }
     }

@@ -28,8 +28,9 @@ private:
     int remaining_time;
     int max_on_card;
     int grid_size;
-    int round = 0;
+    int round;
     int max_correct;
+    int unique_symbols;
     MemoryMixer_card target_card;
     int mini_game_phase = 0; // 0 = show all symbols, 1 = show searching symbol and let players guess, 2 = show round results
     std::vector<std::vector<MemoryMixer_card>> grid;
@@ -37,6 +38,7 @@ private:
     int guess_time = 10 SECONDS;
     int round_results_time = 5 SECONDS;
 private:
+    void set_round_difficulty(int current_round);
     void create_grid();
     void send_grid(bool highlight_correct = false);
     void next_round();
