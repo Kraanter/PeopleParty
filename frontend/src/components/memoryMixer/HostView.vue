@@ -5,8 +5,8 @@ import { type IntroductionData } from '@/components/introduction/Introduction.vu
 import { GameStateType, MemoryMixerGridPayload, MemoryMixerResultPayload, MemoryMixerRoundResultPayload, MiniGameIntroductionPayload, type MiniGamePayloadType } from '@/flatbuffers/messageClass';
 import Introduction from '@/components/introduction/Introduction.vue'
 import GridView from './GridView.vue'
-import { processGrid, processMiniGameResult, processRoundResult, type MemoryMixerGrid, type MiniGameResult, type RoundResult } from './GridProcessor';
-
+import { processGrid, processMiniGameResult, processRoundResult, type MemoryMixerGrid, type MiniGameResult, type RoundResult} from './GridProcessor';
+import { NCard } from 'naive-ui'
 
 const props = defineProps<{
   width: number
@@ -22,8 +22,6 @@ enum ViewState {
 }
 
 const viewState = ref<ViewState>(ViewState.None)
-
-const { width, height } = toRefs(props)
 
 const grid = ref<MemoryMixerGrid>({
   timeLeft: 0,
@@ -107,32 +105,67 @@ defineExpose({
 })
 </script>
 <template>
-  <div v-if="viewState == ViewState.RoundResults">
-    <p class="text-2xl">round results of round {{ roundResult.round }}</p>
-    <span>correct guesses {{ roundResult.correctNames }}</span><br>
-    <span>wrong guesses {{ roundResult.wrongNames }}</span>
-  </div>
-  <div v-else-if="viewState == ViewState.Introduction">
+  <div v-if="viewState == ViewState.Introduction">
     <Introduction :data="intro" logoSVG="/assets/games/memoryMixer/memoryMixerLogo.svg" />
   </div>
-  <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
-    <span>round {{ grid.round }}</span><br>
-    <span>submitted names {{ grid.submittedNames }}</span>
-    <div class="mt-4 w-full h-full flex flex-col justify-center items-center">
-        <div class="mx-auto mb-4">
-          <TimeComponent :time-left="grid.timeLeft" />
-        </div>
-        <div class="mx-auto mt-4">
-          <GridView 
-          :grid="grid" 
-          :player-submitted="{playerSubmitted: false, x: -1, y: -1}"
-          :eliminated-players="eliminatedPlayers"
-          :isHost="true">
-          </GridView>
-        </div>
+  <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.RoundResults" class="flex justify-stretch">
+    <div class="mt-4 w-full h-full flex flex-col">
+      <div class="mx-auto mb-4">
+        <TimeComponent :time-left="grid.timeLeft" />
       </div>
+      <p class="text-4xl w-full text-center mb-4 text-white">Round {{ grid.round }}</p>
+      <div v-if="grid.phase == 0">
+        <p class="text-4xl w-full text-center text-white">Memorise the icons!</p>
+      </div>
+      <div v-else>
+        <n-scrollbar>
+          <div
+            class="mx-auto mb-4 w-4/5"
+            v-for="(name, i) in grid.submittedNames.slice().reverse()"
+            :key="i"
+          >
+            <n-card
+            :class="[
+              viewState == ViewState.RoundResults ? roundResult.correctNames.includes(name) ? ['outline', '-outline-offset-8', 'outline-8', 'outline-green-500'] : ['outline', '-outline-offset-8', 'outline-8', 'outline-red-500'] : ''
+            ]"  
+            >
+              <p class="font-bold text-2xl w-full text-center overflow-ellipsis">
+                {{ name }}
+              </p>
+            </n-card>
+          </div>
+        </n-scrollbar>
+      </div>
+    </div>
+    <div class="relative h-full flex justify-center items-center mr-12"> <!--tofix: center the grid vertically-->
+      <GridView
+        :grid="grid" 
+        :player-submitted="{playerSubmitted: false, x: -1, y: -1}"
+        :eliminated-players="eliminatedPlayers"
+        :isHost="true">
+      </GridView>
+    </div>
   </div>
   <div v-else-if="viewState == ViewState.Results">
-    {{ miniGameResult }}
+    <div class="flex flex-col gap-4 w-full h-full">
+      <p class="text-4xl w-full text-center text-white mt-4">Final Ranking:</p>
+      <n-scrollbar class="-mb-4">
+        <div class="grid gap-4">
+          <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in miniGameResult.results" :key="i">
+            <n-card>
+              <div class="w-full inline-flex justify-between text-2xl px-1">
+                <p class="inline-flex">
+                  <span class="w-16">{{ player.placement }}.</span
+                  ><span class="font-bold col-span-5">{{ player.name }}</span>
+                </p>
+                <p>
+                  Rounds: <span class="font-bold">{{ player.rounds_won }}</span>
+                </p>
+              </div>
+            </n-card>
+          </div>
+        </div>
+      </n-scrollbar>
+    </div>
   </div>
 </template>

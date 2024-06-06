@@ -186,7 +186,7 @@ void MemoryMixer_MiniGame::next_round() {
             current_players++;
         }
     }
-    timer.pause(5 SECONDS);
+    timer.pause(round_results_time);
     
     if (current_players <= 1) {
         start_result();
@@ -209,7 +209,7 @@ void MemoryMixer_MiniGame::update(int delta_time) {
             remaining_time = guess_time;
         } else if (mini_game_phase == 1) {
             mini_game_phase = 2;
-            remaining_time = round_results_time;
+            remaining_time = 0;
         } else if (mini_game_phase == 2) {
             next_round();
             // timer.clear();

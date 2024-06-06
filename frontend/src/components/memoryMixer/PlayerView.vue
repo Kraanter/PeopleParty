@@ -7,6 +7,7 @@ import {
   MemoryMixerGridPayload, 
   MemoryMixerPlayerInputPayload, 
   MemoryMixerPlayerSubmittedPayload, 
+  MemoryMixerResultPayload, 
   MemoryMixerRoundResultPayload, 
   MessageType, 
   MiniGameIntroductionPayload, 
@@ -15,10 +16,11 @@ import {
 } from '@/flatbuffers/messageClass';
 import TimeComponent from '../TimeComponent.vue'
 import GridView from './GridView.vue'
-import { processGrid, processRoundResult, type MemoryMixerGrid, type PlayerSubmittedData, type RoundResult } from './GridProcessor';
+import { processGrid, processRoundResult, type MemoryMixerGrid, type PlayerSubmittedData, type MiniGameResult, type RoundResult, processMiniGameResult } from './GridProcessor';
 import * as flatbuffers from 'flatbuffers'
 import { useWebSocketStore } from '@/stores/confettiStore';
 import { buildMessage } from '@/util/flatbufferMessageBuilder';
+import { NCard } from 'naive-ui'
 import PeoplePartyLogo from '../PeoplePartyLogo.vue'
 
 const websocketStore = useWebSocketStore()
@@ -37,8 +39,6 @@ enum ViewState {
 }
 
 const viewState = ref<ViewState>(ViewState.None)
-
-const { width, height } = toRefs(props)
 
 // introduction
 const intro = ref<IntroductionData>({
@@ -69,6 +69,12 @@ const playerSubmitted = ref<PlayerSubmittedData>({
   playerSubmitted: false,
   x: -1,
   y: -1
+})
+
+// minigame result
+const miniGameResult = ref<MiniGameResult>({
+  round: -1,
+  results: []
 })
 
 const update = (data: MiniGamePayloadType) => {
@@ -119,6 +125,14 @@ const update = (data: MiniGamePayloadType) => {
       }
       return intro.value
     }
+    case GameStateType.MemoryMixerResult: {
+      viewState.value = ViewState.Results
+      const miniGameResultPayload: MemoryMixerResultPayload = data.gamestatepayload(new MemoryMixerResultPayload())
+
+      miniGameResult.value = processMiniGameResult(miniGameResultPayload)
+
+      return null
+    }
   }
   return []
 }
@@ -162,21 +176,58 @@ defineExpose({
           </div>
       </div>
       <div>
-          <div class="w-full h-full mt-16">
+          <div class="w-full h-full mt-4">
               <p class="text-4xl text-white">{{ intro.description }}</p>
           </div>
       </div>
   </div>
-  <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
-    <div class="mt-4 w-full h-screen flex flex-col justify-center items-center">
+  <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.RoundResults" class="flex justify-stretch">
+    <div class="w-full h-screen flex flex-col justify-center items-center">
+      <div v-if="eliminatedPlayers.includes(websocketStore.clientName)">
+        <n-card class="mb-4">
+            <p class="font-bold text-2xl w-full text-center overflow-ellipsis">
+              You have been eliminated :&#40; <br>Better luck next time!
+            </p>
+        </n-card>
+      </div>
+      <div v-else>
+        <div class="w-full flex justify-center px-8">
+        <div class="mx-auto mb-8">
+          <TimeComponent :time-left="grid.timeLeft" />
+        </div>
+      </div>
       <GridView :grid="grid" :player-submitted="playerSubmitted" :eliminated-players="eliminatedPlayers" :isHost="false" @click="sendPlayerAction"></GridView>
+      </div>
+      <div class="h-48 w-48 -mt-8">
+        <PeoplePartyLogo />
+      </div>
     </div>
   </div>
-  <div v-else-if="viewState == ViewState.RoundResults">
-    <span>{{ roundResult }}</span>
-
-  </div>
   <div v-else-if="viewState == ViewState.Results">
-
+    <div class="flex flex-col gap-4 w-full h-full">
+      <p class="text-4xl w-full text-center text-white mt-4">Final Ranking:</p>
+      <n-scrollbar class="-mb-4">
+        <div class="grid gap-4">
+          <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in miniGameResult.results" :key="i">
+            <n-card 
+            :style="
+            player.name === websocketStore.clientName
+              ? 'background-color: var(--color-primary-dark); color: white'
+              : ''
+            ">
+              <div class="w-full inline-flex justify-between text-2xl px-1">
+                <p class="inline-flex">
+                  <span class="w-16">{{ player.placement }}.</span
+                  ><span class="font-bold col-span-5">{{ player.name }}</span>
+                </p>
+                <p>
+                  Rounds: <span class="font-bold">{{ player.rounds_won }}</span>
+                </p>
+              </div>
+            </n-card>
+          </div>
+        </div>
+      </n-scrollbar>
+    </div>
   </div>
 </template>

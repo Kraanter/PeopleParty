@@ -27,14 +27,10 @@ const emit = defineEmits(['click'])
 
 <template>
     <div>
-        <div v-if="eliminatedPlayers.includes(websocketStore.clientName)">
-            You are eliminated!
-        </div>
         <div class="flex">
             <div v-for="(row, i) in grid.grid" :key="i" class="ml-2 mr-2">
                 <div v-for="(cell, j) in row" :key="j" class="mb-4">
                     <div v-if="isHost">
-                        <!--for host, target card will be enlarged during guess phase-->
                         <n-card
                         :style="{ 
                             width: isGuessPhase? '440px' : '75px', 
@@ -51,13 +47,14 @@ const emit = defineEmits(['click'])
                         </n-card>
                     </div>
                     <div v-else>
-                        <!--for players, cards are replaced with buttons during guess phase-->
+                        <!--todo: add flip animation-->
                         <div v-if="isGuessPhase">
                             <PartyButton @click="emit('click', i, j)" 
                             :style="{ width: '75px', height: '75px', borderRadius: '20px'}"
                             :disabled="(grid.maxOnCard <= cell.players_on_card 
                                 && (playerSubmitted.x != i || playerSubmitted.y != j)) 
-                                || (playerSubmitted.playerSubmitted && (playerSubmitted.x != i || playerSubmitted.y != j)
+                                || (playerSubmitted.playerSubmitted 
+                                && (playerSubmitted.x != i || playerSubmitted.y != j)
                                 || eliminatedPlayers.includes(websocketStore.clientName))"
                             :class="[
                                 (playerSubmitted.x == i && playerSubmitted.y == j) ? 'bg-secondary' : 'bg-white', 'text-white']"
