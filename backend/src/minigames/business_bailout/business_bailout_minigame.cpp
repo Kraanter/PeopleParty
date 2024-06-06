@@ -14,7 +14,8 @@ BusinessBailout_Minigame::BusinessBailout_Minigame(Game *game) : MiniGame(game) 
     }
     int points = minigame_time / dt;
     for (int i = 0; i < points; ++i) {
-        double d = i;
+        const double d = i;
+        const double e = 1.1;
         int y = pow(e, d / 10.0f) * 1000 - 1000;
         path.push_back(abs(y));
     }
