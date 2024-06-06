@@ -7,6 +7,7 @@ MemoryMixer_Player::MemoryMixer_Player(int client_id) {
     this->client_id = client_id;
     submitted_x = -1;
     submitted_y = -1;
+    finished_round = -1;
 }
 
 void MemoryMixer_Player::submit(int x, int y) {

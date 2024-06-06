@@ -21,6 +21,8 @@ table MemoryMixerGridPayload {
   time_left: ulong;
   max_on_card: short;
   phase: short;
+  round: short;
+  names: [string];
   grid: [MemoryMixerGridRow];
 }
 

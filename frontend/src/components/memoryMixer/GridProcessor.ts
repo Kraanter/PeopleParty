@@ -1,4 +1,4 @@
-import type { MemoryMixerGridCell, MemoryMixerGridPayload } from "@/flatbuffers/messageClass"
+import type { MemoryMixerGridCell, MemoryMixerGridPayload, MemoryMixerResultPayload, MemoryMixerRoundResultPayload } from "@/flatbuffers/messageClass"
 
 enum MemoryMixerIcon {
     Balloon = "assets/games/memoryMixer/balloon.svg",
@@ -19,6 +19,8 @@ export interface MemoryMixerGrid {
     timeLeft: number
     maxOnCard: number
     phase: number
+    round: number
+    submittedNames: string[]
     grid: MemoryMixerCell[][]
 }
 
@@ -26,6 +28,57 @@ export interface PlayerSubmittedData {
     playerSubmitted: boolean,
     x: number,
     y: number
+}
+
+export interface RoundResult {
+    round: number,
+    correctNames: string[]
+    wrongNames: string[]
+}
+
+interface ResultsPair {
+    placement: number;
+    name: string;
+    rounds_won: number;
+}
+
+export interface MiniGameResult {
+    round: number;
+    results: ResultsPair[];
+}
+
+export const processRoundResult = (payload: MemoryMixerRoundResultPayload): RoundResult => {
+    const correctNames: string[] = []
+    for (let i = 0; i < payload.correctNamesLength(); i++) {
+        correctNames.push(payload.correctNames(i)!)
+    }
+
+    const wrongNames: string[] = []
+    for (let i = 0; i < payload.wrongNamesLength(); i++) {
+        wrongNames.push(payload.wrongNames(i)!)
+    }
+
+    return {
+        round: payload.round(),
+        correctNames,
+        wrongNames
+    }
+}
+
+export const processMiniGameResult = (payload: MemoryMixerResultPayload): MiniGameResult => {
+    const results: ResultsPair[] = []
+    for (let i = 0; i < payload.minigameResultsLength(); i++) {
+        const result = payload.minigameResults(i)
+        results.push({
+            placement: result?.placement() || 0,
+            name: result?.name() || "",
+            rounds_won: result?.roundsWon() || 0
+        })
+    }
+    return {
+        round: payload.round(),
+        results
+    }
 }
 
 export const processGrid = (payload: MemoryMixerGridPayload): MemoryMixerGrid => {
@@ -42,10 +95,17 @@ export const processGrid = (payload: MemoryMixerGridPayload): MemoryMixerGrid =>
         }
         grid.push(row)
     }
+
+    const names: string[] = []
+    for (let i = 0; i < payload.namesLength(); i++) {
+        names.push(payload.names(i)!)
+    }
     return {
         timeLeft: Number(payload.timeLeft()),
         maxOnCard: payload.maxOnCard(),
         phase: payload.phase(),
+        round: payload.round(),
+        submittedNames: names,
         grid
     }
 }

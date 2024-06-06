@@ -7,6 +7,7 @@ import {
   MemoryMixerGridPayload, 
   MemoryMixerPlayerInputPayload, 
   MemoryMixerPlayerSubmittedPayload, 
+  MemoryMixerRoundResultPayload, 
   MessageType, 
   MiniGameIntroductionPayload, 
   MiniGamePayloadType, 
@@ -14,7 +15,7 @@ import {
 } from '@/flatbuffers/messageClass';
 import TimeComponent from '../TimeComponent.vue'
 import GridView from './GridView.vue'
-import { processGrid, type MemoryMixerGrid, type PlayerSubmittedData } from './GridProcessor';
+import { processGrid, processRoundResult, type MemoryMixerGrid, type PlayerSubmittedData, type RoundResult } from './GridProcessor';
 import * as flatbuffers from 'flatbuffers'
 import { useWebSocketStore } from '@/stores/confettiStore';
 import { buildMessage } from '@/util/flatbufferMessageBuilder';
@@ -31,6 +32,7 @@ enum ViewState {
   None,
   Introduction,
   MiniGame,
+  RoundResults,
   Results
 }
 
@@ -49,9 +51,19 @@ const grid = ref<MemoryMixerGrid>({
   timeLeft: 0,
   maxOnCard: -1,
   phase: -1,
+  round: -1,
+  submittedNames: [],
   grid: [],
 })
-const timeLeft = ref<number>(0)
+
+//round result
+const roundResult = ref<RoundResult>({
+  round: -1,
+  correctNames: [],
+  wrongNames: [],
+})
+const eliminatedPlayers = ref<string[]>([])
+
 // if player has submitted
 const playerSubmitted = ref<PlayerSubmittedData>({
   playerSubmitted: false,
@@ -69,6 +81,18 @@ const update = (data: MiniGamePayloadType) => {
 
       grid.value = processGrid(hostEntitiesPayload)
       return null;
+    }
+    case GameStateType.MemoryMixerRoundResult: {
+      viewState.value = ViewState.RoundResults
+      const roundResultPayload: MemoryMixerRoundResultPayload = data.gamestatepayload(
+        new MemoryMixerRoundResultPayload()
+      )
+
+      roundResult.value = processRoundResult(roundResultPayload)
+
+      eliminatedPlayers.value.push(...roundResult.value.wrongNames)
+      
+      return roundResultPayload
     }
     case GameStateType.MemoryMixerPlayerSubmitted: {
       const playerSumbitted: MemoryMixerPlayerSubmittedPayload = data.gamestatepayload(
@@ -145,8 +169,12 @@ defineExpose({
   </div>
   <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
     <div class="mt-4 w-full h-screen flex flex-col justify-center items-center">
-      <GridView :grid="grid" :player-submitted="playerSubmitted" :isHost="false" @click="sendPlayerAction"></GridView>
+      <GridView :grid="grid" :player-submitted="playerSubmitted" :eliminated-players="eliminatedPlayers" :isHost="false" @click="sendPlayerAction"></GridView>
     </div>
+  </div>
+  <div v-else-if="viewState == ViewState.RoundResults">
+    <span>{{ roundResult }}</span>
+
   </div>
   <div v-else-if="viewState == ViewState.Results">
 

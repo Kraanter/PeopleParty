@@ -40,18 +40,35 @@ phase():number {
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 }
 
-grid(index: number, obj?:MemoryMixerGridRow):MemoryMixerGridRow|null {
+round():number {
   const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
+}
+
+names(index: number):string
+names(index: number,optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+names(index: number,optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.__string(this.bb!.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+}
+
+namesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
+grid(index: number, obj?:MemoryMixerGridRow):MemoryMixerGridRow|null {
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? (obj || new MemoryMixerGridRow()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 gridLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startMemoryMixerGridPayload(builder:flatbuffers.Builder) {
-  builder.startObject(4);
+  builder.startObject(6);
 }
 
 static addTimeLeft(builder:flatbuffers.Builder, timeLeft:bigint) {
@@ -66,8 +83,28 @@ static addPhase(builder:flatbuffers.Builder, phase:number) {
   builder.addFieldInt16(2, phase, 0);
 }
 
+static addRound(builder:flatbuffers.Builder, round:number) {
+  builder.addFieldInt16(3, round, 0);
+}
+
+static addNames(builder:flatbuffers.Builder, namesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(4, namesOffset, 0);
+}
+
+static createNamesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startNamesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static addGrid(builder:flatbuffers.Builder, gridOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, gridOffset, 0);
+  builder.addFieldOffset(5, gridOffset, 0);
 }
 
 static createGridVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -87,11 +124,13 @@ static endMemoryMixerGridPayload(builder:flatbuffers.Builder):flatbuffers.Offset
   return offset;
 }
 
-static createMemoryMixerGridPayload(builder:flatbuffers.Builder, timeLeft:bigint, maxOnCard:number, phase:number, gridOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createMemoryMixerGridPayload(builder:flatbuffers.Builder, timeLeft:bigint, maxOnCard:number, phase:number, round:number, namesOffset:flatbuffers.Offset, gridOffset:flatbuffers.Offset):flatbuffers.Offset {
   MemoryMixerGridPayload.startMemoryMixerGridPayload(builder);
   MemoryMixerGridPayload.addTimeLeft(builder, timeLeft);
   MemoryMixerGridPayload.addMaxOnCard(builder, maxOnCard);
   MemoryMixerGridPayload.addPhase(builder, phase);
+  MemoryMixerGridPayload.addRound(builder, round);
+  MemoryMixerGridPayload.addNames(builder, namesOffset);
   MemoryMixerGridPayload.addGrid(builder, gridOffset);
   return MemoryMixerGridPayload.endMemoryMixerGridPayload(builder);
 }

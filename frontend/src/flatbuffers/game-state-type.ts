@@ -10,5 +10,7 @@ export enum GameStateType {
   MemoryMixerGrid = 4,
   MemoryMixerPlayerInput = 5,
   MemoryMixerPlayerSubmitted = 6,
-  MiniGameIntroduction = 7
+  MemoryMixerResult = 7,
+  MemoryMixerRoundResult = 8,
+  MiniGameIntroduction = 9
 }

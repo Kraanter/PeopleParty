@@ -9,6 +9,8 @@ import { CrazyCountingResultPayload } from './crazy-counting-result-payload.js';
 import { MemoryMixerGridPayload } from './memory-mixer-grid-payload.js';
 import { MemoryMixerPlayerInputPayload } from './memory-mixer-player-input-payload.js';
 import { MemoryMixerPlayerSubmittedPayload } from './memory-mixer-player-submitted-payload.js';
+import { MemoryMixerResultPayload } from './memory-mixer-result-payload.js';
+import { MemoryMixerRoundResultPayload } from './memory-mixer-round-result-payload.js';
 import { MiniGameIntroductionPayload } from './mini-game-introduction-payload.js';
 
 
@@ -21,13 +23,15 @@ export enum GameStatePayload {
   MemoryMixerGridPayload = 5,
   MemoryMixerPlayerInputPayload = 6,
   MemoryMixerPlayerSubmittedPayload = 7,
-  MiniGameIntroductionPayload = 8
+  MemoryMixerResultPayload = 8,
+  MemoryMixerRoundResultPayload = 9,
+  MiniGameIntroductionPayload = 10
 }
 
 export function unionToGameStatePayload(
   type: GameStatePayload,
-  accessor: (obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MiniGameIntroductionPayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MiniGameIntroductionPayload|null
-): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MiniGameIntroductionPayload|null {
+  accessor: (obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|null
+): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
     case 'CrazyCountingHostEntitiesPayload': return accessor(new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
@@ -37,6 +41,8 @@ export function unionToGameStatePayload(
     case 'MemoryMixerGridPayload': return accessor(new MemoryMixerGridPayload())! as MemoryMixerGridPayload;
     case 'MemoryMixerPlayerInputPayload': return accessor(new MemoryMixerPlayerInputPayload())! as MemoryMixerPlayerInputPayload;
     case 'MemoryMixerPlayerSubmittedPayload': return accessor(new MemoryMixerPlayerSubmittedPayload())! as MemoryMixerPlayerSubmittedPayload;
+    case 'MemoryMixerResultPayload': return accessor(new MemoryMixerResultPayload())! as MemoryMixerResultPayload;
+    case 'MemoryMixerRoundResultPayload': return accessor(new MemoryMixerRoundResultPayload())! as MemoryMixerRoundResultPayload;
     case 'MiniGameIntroductionPayload': return accessor(new MiniGameIntroductionPayload())! as MiniGameIntroductionPayload;
     default: return null;
   }
@@ -44,9 +50,9 @@ export function unionToGameStatePayload(
 
 export function unionListToGameStatePayload(
   type: GameStatePayload, 
-  accessor: (index: number, obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MiniGameIntroductionPayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MiniGameIntroductionPayload|null, 
+  accessor: (index: number, obj:CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload) => CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|null, 
   index: number
-): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MiniGameIntroductionPayload|null {
+): CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
     case 'CrazyCountingHostEntitiesPayload': return accessor(index, new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
@@ -56,6 +62,8 @@ export function unionListToGameStatePayload(
     case 'MemoryMixerGridPayload': return accessor(index, new MemoryMixerGridPayload())! as MemoryMixerGridPayload;
     case 'MemoryMixerPlayerInputPayload': return accessor(index, new MemoryMixerPlayerInputPayload())! as MemoryMixerPlayerInputPayload;
     case 'MemoryMixerPlayerSubmittedPayload': return accessor(index, new MemoryMixerPlayerSubmittedPayload())! as MemoryMixerPlayerSubmittedPayload;
+    case 'MemoryMixerResultPayload': return accessor(index, new MemoryMixerResultPayload())! as MemoryMixerResultPayload;
+    case 'MemoryMixerRoundResultPayload': return accessor(index, new MemoryMixerRoundResultPayload())! as MemoryMixerRoundResultPayload;
     case 'MiniGameIntroductionPayload': return accessor(index, new MiniGameIntroductionPayload())! as MiniGameIntroductionPayload;
     default: return null;
   }

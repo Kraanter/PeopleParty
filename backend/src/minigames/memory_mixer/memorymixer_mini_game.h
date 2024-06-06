@@ -28,13 +28,22 @@ private:
     int remaining_time;
     int max_on_card;
     int grid_size;
+    int round = 0;
+    int max_correct;
     MemoryMixer_card target_card;
-    int mini_game_phase = 0; // 0 = show all symbols, 1 = show searching symbol and let players guess
+    int mini_game_phase = 0; // 0 = show all symbols, 1 = show searching symbol and let players guess, 2 = show round results
     std::vector<std::vector<MemoryMixer_card>> grid;
+    int memorise_time = 15 SECONDS;
+    int guess_time = 10 SECONDS;
+    int round_results_time = 5 SECONDS;
 private:
+    void create_grid();
     void send_grid(bool highlight_correct = false);
+    void next_round();
     flatbuffers::Offset<MiniGamePayloadType> build_grid(flatbuffers::FlatBufferBuilder &builder, int phase, bool to_host = true, bool highlight_correct = false);
-    void send_player_submitted(int client_id);
+    void send_round_result();
+    void send_results();
+    void send_player_submitted(int client_id, bool submitted);
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
 };
 

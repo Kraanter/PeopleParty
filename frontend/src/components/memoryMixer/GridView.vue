@@ -3,14 +3,18 @@ import { computed, defineProps, toRefs } from 'vue'
 import type { MemoryMixerGrid, PlayerSubmittedData } from './GridProcessor'
 import { NCard } from 'naive-ui'
 import PartyButton from '../PartyButton.vue'
+import { useWebSocketStore } from '@/stores/confettiStore';
+
+const websocketStore = useWebSocketStore()
 
 const props = defineProps<{
     grid: MemoryMixerGrid
     isHost: boolean
     playerSubmitted: PlayerSubmittedData
+    eliminatedPlayers: string[]
 }>()
 
-const { grid, isHost, playerSubmitted } = toRefs(props)
+const { grid, isHost, playerSubmitted, eliminatedPlayers } = toRefs(props)
 
 const isGuessPhase = computed(() => {
   return grid.value.phase == 1 ? true : false
@@ -23,6 +27,9 @@ const emit = defineEmits(['click'])
 
 <template>
     <div>
+        <div v-if="eliminatedPlayers.includes(websocketStore.clientName)">
+            You are eliminated!
+        </div>
         <div class="flex">
             <div v-for="(row, i) in grid.grid" :key="i" class="ml-2 mr-2">
                 <div v-for="(cell, j) in row" :key="j" class="mb-4">
@@ -48,7 +55,10 @@ const emit = defineEmits(['click'])
                         <div v-if="isGuessPhase">
                             <PartyButton @click="emit('click', i, j)" 
                             :style="{ width: '75px', height: '75px', borderRadius: '20px'}"
-                            :disabled="(grid.maxOnCard <= cell.players_on_card && (playerSubmitted.x != i || playerSubmitted.y != j)) || (playerSubmitted.playerSubmitted && (playerSubmitted.x != i || playerSubmitted.y != j))"
+                            :disabled="(grid.maxOnCard <= cell.players_on_card 
+                                && (playerSubmitted.x != i || playerSubmitted.y != j)) 
+                                || (playerSubmitted.playerSubmitted && (playerSubmitted.x != i || playerSubmitted.y != j)
+                                || eliminatedPlayers.includes(websocketStore.clientName))"
                             :class="[
                                 (playerSubmitted.x == i && playerSubmitted.y == j) ? 'bg-secondary' : 'bg-white', 'text-white']"
                             >
