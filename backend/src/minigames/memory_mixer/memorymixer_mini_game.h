@@ -38,7 +38,7 @@ private:
     int guess_time = 10 SECONDS;
     int round_results_time = 5 SECONDS;
 private:
-    void set_round_difficulty(int current_round);
+    void set_round_difficulty(int current_round, double amount_of_players);
     void create_grid();
     void send_grid(bool highlight_correct = false);
     void next_round();

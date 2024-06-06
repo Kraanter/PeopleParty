@@ -49,7 +49,7 @@ void MemoryMixer_MiniGame::create_grid() {
     }
 }
 
-void MemoryMixer_MiniGame::set_round_difficulty(int current_round) {
+void MemoryMixer_MiniGame::set_round_difficulty(int current_round, double amount_of_players) {
     // max 100% of players can go to round 2
     // max 75% of players to round 3
     // max 75% of players to round 4
@@ -60,8 +60,6 @@ void MemoryMixer_MiniGame::set_round_difficulty(int current_round) {
     } else if (current_round == 4) {
         unique_symbols = 5;
     }
-
-    double ammount_of_players = players.size();
 
     double max = (grid_size * grid_size) / unique_symbols;
     if (current_round == 2 || current_round == 3) {
@@ -75,7 +73,7 @@ void MemoryMixer_MiniGame::set_round_difficulty(int current_round) {
     }
 
     if (max_correct > max) {
-        max_on_card = std::ceil(ammount_of_players / max);
+        max_on_card = std::ceil(amount_of_players / max);
     } else {
         max_on_card = 1;
     }
@@ -117,7 +115,7 @@ void MemoryMixer_MiniGame::start_minigame() {
         players[client->client_id] = MemoryMixer_Player(client->client_id);
     }
 
-    set_round_difficulty(round);
+    set_round_difficulty(round, players.size());
 
     timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
@@ -184,6 +182,7 @@ void MemoryMixer_MiniGame::next_round() {
             current_players++;
         }
     }
+    timer.pause(5 SECONDS);
     
     if (current_players <= 1) {
         start_result();
@@ -192,11 +191,9 @@ void MemoryMixer_MiniGame::next_round() {
 
     round++;
 
-    set_round_difficulty(round);
+    set_round_difficulty(round, current_players);
 
     create_grid();
-    
-    timer.pause(5 SECONDS);
 }
 
 void MemoryMixer_MiniGame::update(int delta_time) {
