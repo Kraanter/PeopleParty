@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, defineProps, toRefs, computed, onMounted } from 'vue'
 import MoneyCounter from './components/MoneyCounter.vue'
+import ResultGraph from './components/RestultGraph.vue'
 import Introduction from '../introduction/Introduction.vue'
 import { Graphics, type IPointData } from 'pixi.js'
 import { Application } from 'vue3-pixi'
@@ -70,6 +71,7 @@ function update(payload: MiniGamePayloadType) {
       break
     }
     case GameStateType.BusinessBailoutHost: {
+      if (viewState.value === ViewState.Results) break
       viewState.value = ViewState.MiniGame
       const {
         value: newValue,
@@ -87,6 +89,12 @@ function update(payload: MiniGamePayloadType) {
       points.value.push(createPointData(newValue, newTime))
       break
     }
+    case GameStateType.BusinessBailoutResult: {
+      viewState.value = ViewState.Results
+      console.log('points:', points.value.length)
+
+      break
+    }
     default:
       throw new Error(`Unknown gamestatetype: ${payload.gamestatetype()}`)
   }
@@ -94,33 +102,32 @@ function update(payload: MiniGamePayloadType) {
 
 defineExpose({ update })
 
-const yMarginBottom = 100
+const yMargin = 25
 const xMargin = 25
 
 const xWidth = computed(() => width.value - xMargin * 2)
-const yHeight = computed(() => height.value - yMarginBottom)
-// Scale the position based on the angle between the last point and the new point
-const yScale = computed(() => yHeight.value)
+const yHeight = computed(() => height.value - yMargin * 2)
 
 function interpPosition(position: IPointData): [number, number] {
   const xStep = xWidth.value / time.value
-  const yStep = yScale.value / maxValue.value
+  const yStep = yHeight.value / maxValue.value
   const newX = position.x * xStep + xMargin
-  const newY = yHeight.value - position.y * yStep
+  const newY = height.value - (position.y * yStep + yMargin)
 
   return [newX, newY]
 }
 
-function render(graphics: Graphics) {
+function renderMinigame(graphics: Graphics) {
   graphics.clear()
 
   graphics.lineStyle(10, colorStore.colorPalette.primary.base.number)
-  graphics.moveTo(xMargin, yHeight.value)
+  graphics.moveTo(...interpPosition(points.value[0]))
   points.value.forEach((point) => {
     graphics.lineTo(...interpPosition(point))
   })
 
-  graphics.lineStyle(4, 0x000000)
+  // Draw the x axis
+  graphics.lineStyle(4, 0xffffff)
   graphics.moveTo(xMargin, yHeight.value)
   for (let timeIncrement = 0; timeIncrement < time.value; timeIncrement += 2000) {
     const point = { x: timeIncrement, y: 0 }
@@ -132,8 +139,9 @@ function render(graphics: Graphics) {
   graphics.lineTo(width.value - xMargin, yHeight.value)
 
   graphics.lineStyle(4, 0x100000)
-  graphics.lineStyle(4, 0x000000)
-  graphics.moveTo(xWidth.value + xMargin, yHeight.value)
+  // Draw the y axis
+  graphics.lineStyle(4, 0xffffff)
+  graphics.moveTo(xWidth.value + xMargin, interpPosition({ x: 0, y: yMargin })[1])
   for (
     let valueIncrement = 0;
     interpPosition({ x: 0, y: valueIncrement })[1] > 10;
@@ -145,7 +153,7 @@ function render(graphics: Graphics) {
     graphics.lineTo(xWidth.value - 10 + xMargin, interpPosition(point)[1])
     graphics.lineTo(xWidth.value + xMargin, interpPosition(point)[1])
   }
-  graphics.lineTo(xWidth.value + xMargin, 10)
+  graphics.lineTo(xWidth.value + xMargin, yMargin)
 
   graphics.lineStyle(4, 0xff0000)
   bailedPlayers.value.forEach((bailedPlayer) => {
@@ -169,11 +177,12 @@ function render(graphics: Graphics) {
   </template>
   <template v-else-if="viewState === ViewState.MiniGame">
     <div class="absolute h-full w-full">
-      <Application :height :width background-color="white">
-        <Graphics :x="0" :y="0" @render="render" />
+      <Application :height :width background-color="black">
+        <Graphics :x="0" :y="0" @render="renderMinigame" />
         <Text
           v-for="bailedPlayer in bailedPlayers"
           :key="bailedPlayer.name"
+          color="white"
           :anchor-x="1.1"
           :anchor-y="0.07"
           :x="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[0] + 10"
@@ -194,6 +203,11 @@ function render(graphics: Graphics) {
     </div>
     <div class="flex m-4 w-full justify-center items-center">
       <MoneyCounter :value />
+    </div>
+  </template>
+  <template v-if="viewState === ViewState.Results">
+    <div class="absolute h-full w-full">
+      <ResultGraph :points :height :width :bailed-players="bailedPlayers" />
     </div>
   </template>
   <template v-else> </template>
