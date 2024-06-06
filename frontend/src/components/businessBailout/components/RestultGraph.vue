@@ -20,7 +20,7 @@ const { width, height, points, bailedPlayers } = toRefs(props)
 
 // Get the unix timestamp of the start of the result page
 const pageStartTime = Date.now()
-const pageTime = 4.5 * 1000
+const pageTime = 9 * 1000
 const pageCurTime = ref(Date.now() - pageStartTime)
 
 onMounted(() => {
@@ -35,7 +35,7 @@ const endTime = computed(() => points.value[points.value.length - 1].x)
 const maxValue = computed(() => Math.max(...points.value.map((point) => point.y)))
 
 const curPointPercent = computed(() =>
-  unLerp(-(pageTime / 10), pageTime + pageTime / 10, Math.min(pageCurTime.value, pageTime))
+  unLerp(-(pageTime / 5), pageTime, Math.min(pageCurTime.value, pageTime))
 )
 
 const xMargin = 10
@@ -76,9 +76,6 @@ function render(graphics: Graphics) {
   bailedPlayers.value.forEach((bailedPlayer) => {
     // Draw a vertical line at the time the player bailed
     const [x, y] = interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })
-    graphics.moveTo(x, interpPosition({ x: 0, y: 0 })[1])
-    graphics.lineTo(x, y)
-
     // Draw a circle at the point where the player bailed
     graphics.beginFill(0xff0000)
     graphics.drawCircle(x, y, 15)
@@ -89,5 +86,16 @@ function render(graphics: Graphics) {
 <template>
   <Application :height :width backgroud-color="black">
     <Graphics :x="0" :y="0" @render="render" />
+    <Text
+      v-for="bailedPlayer in bailedPlayers"
+      :key="bailedPlayer.name"
+      :style="{ fill: 'white' }"
+      :anchor-x="1.1"
+      :anchor-y="0.07"
+      :x="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[0] + 10"
+      :y="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[1]"
+      :text="bailedPlayer.name"
+      :rotation="Math.PI * 0.25"
+    />
   </Application>
 </template>

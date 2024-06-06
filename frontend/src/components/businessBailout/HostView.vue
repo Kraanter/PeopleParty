@@ -35,14 +35,13 @@ const viewState = ref<ViewState>(ViewState.None)
 const value = computed(() => points.value[points.value.length - 1].y)
 const maxValue = computed(() => Math.max(...points.value.map((point) => point.y)))
 const time = computed(() => points.value[points.value.length - 1].x)
-const angle = computed(() =>
-  points.value.length > 1
-    ? Math.atan2(
-        value.value - points.value[points.value.length - 2].y,
-        time.value - points.value[points.value.length - 2].x
-      )
-    : 0
-)
+// Angle between value and last value
+const angle = computed(() => {
+  if (points.value.length < 2) return 0
+  const lastPoint = interpPosition(points.value[points.value.length - 2])
+  const currentPoint = interpPosition(points.value[points.value.length - 1])
+  return Math.atan2(currentPoint[0] - lastPoint[0], currentPoint[1] - lastPoint[1])
+})
 const size = ref(75)
 
 const props = defineProps<{
@@ -128,15 +127,16 @@ function renderMinigame(graphics: Graphics) {
 
   // Draw the x axis
   graphics.lineStyle(4, 0xffffff)
-  graphics.moveTo(xMargin, yHeight.value)
+  graphics.moveTo(...interpPosition({ x: 0, y: 0 }))
   for (let timeIncrement = 0; timeIncrement < time.value; timeIncrement += 2000) {
     const point = { x: timeIncrement, y: 0 }
-    graphics.lineTo(interpPosition(point)[0], yHeight.value)
-    graphics.lineTo(interpPosition(point)[0], yHeight.value + 10)
-    graphics.lineTo(interpPosition(point)[0], yHeight.value - 10)
-    graphics.lineTo(interpPosition(point)[0], yHeight.value)
+    const position = interpPosition(point)
+    graphics.lineTo(...position)
+    graphics.lineTo(position[0], position[1] + 10)
+    graphics.lineTo(position[0], position[1] - 10)
+    graphics.lineTo(...position)
   }
-  graphics.lineTo(width.value - xMargin, yHeight.value)
+  graphics.lineTo(...interpPosition({ x: time.value, y: 0 }))
 
   graphics.lineStyle(4, 0x100000)
   // Draw the y axis
@@ -182,7 +182,7 @@ function renderMinigame(graphics: Graphics) {
         <Text
           v-for="bailedPlayer in bailedPlayers"
           :key="bailedPlayer.name"
-          color="white"
+          :style="{ fill: 'white' }"
           :anchor-x="1.1"
           :anchor-y="0.07"
           :x="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[0] + 10"
@@ -194,9 +194,9 @@ function renderMinigame(graphics: Graphics) {
           :position-x="interpPosition(points[points.length - 1])[0]"
           :position-y="interpPosition(points[points.length - 1])[1]"
           :width="size"
-          :anchor-x="0.6"
+          :anchor-x="0.5"
           :height="size * 2"
-          :rotation="-angle + Math.PI * 0.5"
+          :rotation="Math.PI - angle"
           texture="/assets/games/businessBailout/rocket.svg"
         />
       </Application>
