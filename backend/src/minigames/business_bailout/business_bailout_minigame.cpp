@@ -12,6 +12,12 @@ BusinessBailout_Minigame::BusinessBailout_Minigame(Game *game) : MiniGame(game) 
     while (minigame_time < min_duration) {
         minigame_time = distribution(rng);
     }
+    int points = minigame_time / dt;
+    for (int i = 0; i < points; ++i) {
+        double d = i;
+        int y = pow(e, d / 10.0f) * 1000 - 1000;
+        path.push_back(abs(y));
+    }
 }
 
 BusinessBailout_Minigame::~BusinessBailout_Minigame() {
@@ -77,16 +83,7 @@ void BusinessBailout_Minigame::start_result() {
 }
 
 void BusinessBailout_Minigame::update_value() {
-    const float old_value = value;
-    const float rnd = static_cast <float> (rand()) / static_cast <float> (RAND_MAX); // generate number, 0 <= x < 1.0
-    float change_percent = 2 * volatility * rnd;
-    if (change_percent > volatility)
-        change_percent -= (2 * volatility);
-    const float change_amount = old_value * change_percent;
-    value += change_amount;
-    if (value < 1) {
-        value = 1;
-    }
+    value = path[time / dt];
 }
 
 void BusinessBailout_Minigame::update(int delta_time) {

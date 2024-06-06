@@ -12,7 +12,7 @@ class BusinessBailout_Minigame : public MiniGame {
 private:
     int introduction_time = 7 SECONDS;
     int minigame_time = 0;
-    int result_time = 5 SECONDS;
+    int result_time = 10 SECONDS;
     int minigame_start_time;
     ThreadTimer introduction_timer;
     ThreadTimer minigame_timer;
@@ -22,12 +22,12 @@ private:
     std::map<Client*, int> player_bail_values;
     std::map<Client*, int> player_bail_times;
     unsigned int time = 0;
-    int value = 1000;
+    int value = 0;
     const int mean = 45 SECONDS;
     const int stddev = 30 SECONDS;
     const int min_duration = 5 SECONDS;
     const int dt = 100 MILLISECONDS;
-    const float volatility = 0.05;
+    std::vector<double> path;
 public:
     BusinessBailout_Minigame(Game *game);
     ~BusinessBailout_Minigame();
