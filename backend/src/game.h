@@ -46,8 +46,14 @@ public:
                 miniGames.pop();
                 ((MiniGame*)current_gamestate)->start();
 
-                // fixme: Infinite loop for now
-                miniGames.push(new BusinessBailout_Minigame(this));
+                // fixme: find a better way of selecting a random minigame
+                MiniGame* minigame;
+                if (rand() % 2 == 0) {
+                    minigame = new CrazyCounting_MiniGame(this);
+                } else {
+                    minigame = new BusinessBailout_Minigame(this);
+                }
+                miniGames.push(minigame);
                 return;
             }
         }
