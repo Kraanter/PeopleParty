@@ -55,30 +55,34 @@ void MemoryMixer_MiniGame::set_round_difficulty(int current_round, double amount
     // max 75% of players to round 4
     // max 50% of players to round 5
     // max 25% of players to round 6
-    if (current_round == 2) {
+    if (current_round == 1) {
+        unique_symbols = 3;
+    } else if (current_round == 2 || current_round == 3) {
         unique_symbols = 4;
-    } else if (current_round == 4) {
+    } else if (current_round >= 4) {
         unique_symbols = 5;
     }
 
     double max = (grid_size * grid_size) / unique_symbols;
     if (current_round == 2 || current_round == 3) {
-        max_correct = max * 0.75;
+        max_correct = max * 0.8;
     } else if (current_round == 3) {
+        max_correct = max * 0.6;
+    } else if (current_round == 4) {
         max_correct = max * 0.5;
-    } else if (current_round >= 4) {
-        max_correct = max * 0.25;
+    } else if (current_round >= 5) {
+        max_correct = max * 0.4;
     } else {
         max_correct = max;
     }
 
-    if (max_correct > max) {
-        max_on_card = std::ceil(amount_of_players / max);
+    if (amount_of_players > max_correct) {
+        max_on_card = std::ceil(amount_of_players / max_correct);
     } else {
         max_on_card = 1;
     }
 
-    if (current_round == 1 || current_round == 2) {
+    if ((current_round == 1 || current_round == 2) && max_on_card < 2) {
         max_on_card = 2;
     }
 }
