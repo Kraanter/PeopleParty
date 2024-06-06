@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineProps, toRefs, computed } from 'vue'
 import MoneyCounter from './components/MoneyCounter.vue'
-import ResultGraph from './components/RestultGraph.vue'
+import ResultGraph from './components/ResultGraph.vue'
 import Introduction from '../introduction/Introduction.vue'
 import { Graphics, type IPointData } from 'pixi.js'
 import { Application } from 'vue3-pixi'
@@ -175,7 +175,7 @@ function renderMinigame(graphics: Graphics) {
 <template>
   <template v-if="viewState === ViewState.Introduction">
     <div>
-      <Introduction :data="intro" logoSVG="/assets/games/crazyCounting/crazyCountingLogo.svg" />
+      <Introduction :data="intro" logoSVG="/assets/games/businessBailout/businessBailoutLogo.svg" />
     </div>
   </template>
   <template v-else-if="viewState === ViewState.MiniGame">

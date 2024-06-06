@@ -3,7 +3,7 @@ import { Application } from 'vue3-pixi'
 import { computed, defineProps, ref, onMounted, toRefs } from 'vue'
 import type { IPointData, Graphics } from 'pixi.js'
 import { useColorStore } from '@/stores/colorStore'
-import { unLerp, lerp } from '@/util/funcs'
+import { unLerp } from '@/util/funcs'
 import { deCasteljau } from '../spline'
 import type { BailedPlayer } from '../parser'
 
