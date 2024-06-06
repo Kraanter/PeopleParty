@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, toRefs, computed, onMounted } from 'vue'
+import { ref, defineProps, toRefs, computed } from 'vue'
 import MoneyCounter from './components/MoneyCounter.vue'
 import ResultGraph from './components/RestultGraph.vue'
 import Introduction from '../introduction/Introduction.vue'
@@ -9,7 +9,11 @@ import type { MiniGamePayloadType } from '@/flatbuffers/mini-game-payload-type'
 import { GameStateType } from '@/flatbuffers/game-state-type'
 import { MiniGameIntroductionPayload } from '@/flatbuffers/mini-game-introduction-payload'
 import { useColorStore } from '@/stores/colorStore'
-import { parseBusinessBailoutHostPayload, type BailedPlayer } from './parser'
+import {
+  parseBusinessBailoutHostPayload,
+  parseBusinessBailoutResultPayload,
+  type BailedPlayer
+} from './parser'
 
 enum ViewState {
   None,
@@ -78,9 +82,6 @@ function update(payload: MiniGamePayloadType) {
         time: newTime
       } = parseBusinessBailoutHostPayload(payload)
 
-      if (bailedPlayers.value.length != bailed_players.length)
-        console.log('bailed_players', bailed_players)
-
       if (bailedPlayers.value.length != bailed_players.length) {
         bailedPlayers.value = bailed_players
       }
@@ -90,8 +91,10 @@ function update(payload: MiniGamePayloadType) {
     }
     case GameStateType.BusinessBailoutResult: {
       viewState.value = ViewState.Results
-      console.log('points:', points.value.length)
 
+      const { submittedPlayers } = parseBusinessBailoutResultPayload(payload)
+
+      bailedPlayers.value = submittedPlayers
       break
     }
     default:
