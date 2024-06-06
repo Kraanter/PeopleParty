@@ -10,7 +10,7 @@ export enum ViewState {
 
 export const useViewStore = defineStore('view', () => {
   const viewState = ref<ViewState>(ViewState.None)
-  const viewData = ref<any>(null)
+  const viewData = ref<any>()
 
   function setViewState(state: ViewState, defaultData: any = null) {
     viewState.value = state

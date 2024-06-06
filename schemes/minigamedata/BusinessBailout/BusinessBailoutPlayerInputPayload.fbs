@@ -1,0 +1,5 @@
+table BusinessBailoutPlayerInputPayload {
+    lock: bool;
+}
+
+root_type BusinessBailoutPlayerInputPayload;

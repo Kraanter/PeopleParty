@@ -12,6 +12,7 @@
 #include "leaderboard/leaderboard.h"
 #include "party.h"
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
+#include "minigames/business_bailout/business_bailout_minigame.h"
 #include <queue>
 #include <map>
 
@@ -45,8 +46,14 @@ public:
                 miniGames.pop();
                 ((MiniGame*)current_gamestate)->start();
 
-                // fixme: Infinite loop for now
-                miniGames.push(new CrazyCounting_MiniGame(this));
+                // fixme: find a better way of selecting a random minigame
+                MiniGame* minigame;
+                if (rand() % 2 == 0) {
+                    minigame = new CrazyCounting_MiniGame(this);
+                } else {
+                    minigame = new BusinessBailout_Minigame(this);
+                }
+                miniGames.push(minigame);
                 return;
             }
         }

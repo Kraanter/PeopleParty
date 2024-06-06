@@ -35,7 +35,7 @@ minigame(optionalEncoding?:any):string|Uint8Array|null {
 
 gamestatetype():GameStateType {
   const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.readInt8(this.bb_pos + offset) : GameStateType.CrazyCountingHostEntities;
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : GameStateType.BusinessBailoutHost;
 }
 
 gamestatepayloadType():GameStatePayload {
@@ -57,7 +57,7 @@ static addMinigame(builder:flatbuffers.Builder, minigameOffset:flatbuffers.Offse
 }
 
 static addGamestatetype(builder:flatbuffers.Builder, gamestatetype:GameStateType) {
-  builder.addFieldInt8(1, gamestatetype, GameStateType.CrazyCountingHostEntities);
+  builder.addFieldInt8(1, gamestatetype, GameStateType.BusinessBailoutHost);
 }
 
 static addGamestatepayloadType(builder:flatbuffers.Builder, gamestatepayloadType:GameStatePayload) {

@@ -20,7 +20,7 @@
   "dependencies": {
     "flatbuffers": "^24.3.25",
     "pinia": "^2.1.7",
-    "pixi.js": "^8.1.0",
+    "pixi.js": "^7.*",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",
     "vue3-pixi": "^0.9.1"

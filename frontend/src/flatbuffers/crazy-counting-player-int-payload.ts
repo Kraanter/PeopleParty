@@ -2,47 +2,62 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import * as flatbuffers from 'flatbuffers';
+import * as flatbuffers from 'flatbuffers'
 
 export class CrazyCountingPlayerIntPayload {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):CrazyCountingPlayerIntPayload {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
+  bb: flatbuffers.ByteBuffer | null = null
+  bb_pos = 0
+  __init(i: number, bb: flatbuffers.ByteBuffer): CrazyCountingPlayerIntPayload {
+    this.bb_pos = i
+    this.bb = bb
+    return this
+  }
 
-static getRootAsCrazyCountingPlayerIntPayload(bb:flatbuffers.ByteBuffer, obj?:CrazyCountingPlayerIntPayload):CrazyCountingPlayerIntPayload {
-  return (obj || new CrazyCountingPlayerIntPayload()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
+  static getRootAsCrazyCountingPlayerIntPayload(
+    bb: flatbuffers.ByteBuffer,
+    obj?: CrazyCountingPlayerIntPayload
+  ): CrazyCountingPlayerIntPayload {
+    return (obj || new CrazyCountingPlayerIntPayload()).__init(
+      bb.readInt32(bb.position()) + bb.position(),
+      bb
+    )
+  }
 
-static getSizePrefixedRootAsCrazyCountingPlayerIntPayload(bb:flatbuffers.ByteBuffer, obj?:CrazyCountingPlayerIntPayload):CrazyCountingPlayerIntPayload {
-  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new CrazyCountingPlayerIntPayload()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-}
+  static getSizePrefixedRootAsCrazyCountingPlayerIntPayload(
+    bb: flatbuffers.ByteBuffer,
+    obj?: CrazyCountingPlayerIntPayload
+  ): CrazyCountingPlayerIntPayload {
+    bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH)
+    return (obj || new CrazyCountingPlayerIntPayload()).__init(
+      bb.readInt32(bb.position()) + bb.position(),
+      bb
+    )
+  }
 
-newInt():number {
-  const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
-}
+  newInt(): number {
+    const offset = this.bb!.__offset(this.bb_pos, 4)
+    return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0
+  }
 
-static startCrazyCountingPlayerIntPayload(builder:flatbuffers.Builder) {
-  builder.startObject(1);
-}
+  static startCrazyCountingPlayerIntPayload(builder: flatbuffers.Builder) {
+    builder.startObject(1)
+  }
 
-static addNewInt(builder:flatbuffers.Builder, newInt:number) {
-  builder.addFieldInt16(0, newInt, 0);
-}
+  static addNewInt(builder: flatbuffers.Builder, newInt: number) {
+    builder.addFieldInt16(0, newInt, 0)
+  }
 
-static endCrazyCountingPlayerIntPayload(builder:flatbuffers.Builder):flatbuffers.Offset {
-  const offset = builder.endObject();
-  return offset;
-}
+  static endCrazyCountingPlayerIntPayload(builder: flatbuffers.Builder): flatbuffers.Offset {
+    const offset = builder.endObject()
+    return offset
+  }
 
-static createCrazyCountingPlayerIntPayload(builder:flatbuffers.Builder, newInt:number):flatbuffers.Offset {
-  CrazyCountingPlayerIntPayload.startCrazyCountingPlayerIntPayload(builder);
-  CrazyCountingPlayerIntPayload.addNewInt(builder, newInt);
-  return CrazyCountingPlayerIntPayload.endCrazyCountingPlayerIntPayload(builder);
-}
+  static createCrazyCountingPlayerIntPayload(
+    builder: flatbuffers.Builder,
+    newInt: number
+  ): flatbuffers.Offset {
+    CrazyCountingPlayerIntPayload.startCrazyCountingPlayerIntPayload(builder)
+    CrazyCountingPlayerIntPayload.addNewInt(builder, newInt)
+    return CrazyCountingPlayerIntPayload.endCrazyCountingPlayerIntPayload(builder)
+  }
 }
