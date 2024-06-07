@@ -104,12 +104,15 @@ function getRowsInRound(round: number) {
 
 function render(graphics: Graphics) {
   graphics.clear()
-  graphics.lineStyle(2, 0xffffff, 1)
+  graphics.lineStyle(4, 0xffffff)
   const bracketWidth = calcBracketWidth(bracketCols.value)
   // Draw a grid of the cols and rows
   for (let col = 0; col < bracketCols.value; col++) {
     // If the middle col skip it
     if (col === Math.floor(bracketCols.value / 2)) {
+      graphics.lineStyle(4, 0xffffff)
+      graphics.moveTo(xMargin + col * bracketWidth, height.value / 2)
+      graphics.lineTo(xMargin + (col + 1) * bracketWidth, height.value / 2)
       continue
     }
     // If right of the middle col, flip
