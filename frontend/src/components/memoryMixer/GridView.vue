@@ -27,15 +27,15 @@ const emit = defineEmits(['click'])
 </script>
 
 <template>
-    <div>
+    <div class="m-auto w-full">
         <div class="flex">
             <div v-for="(row, i) in grid.grid" :key="i" class="ml-2 mr-2">
                 <div v-for="(cell, j) in row" :key="j" class="mb-4">
                     <div v-if="isHost">
                         <n-card
                         :style="{ 
-                            width: isGuessPhase? '440px' : '75px', 
-                            height: isGuessPhase? '440px' : '75px',
+                            width: isGuessPhase? '440px' : '100px', 
+                            height: isGuessPhase? '440px' : '100px',
                             backgroundImage: 'url(' + cell.icon + ')',
                             backgroundPosition: 'center',
                             backgroundSize: '70%',

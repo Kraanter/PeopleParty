@@ -52,6 +52,7 @@ const grid = ref<MemoryMixerGrid>({
   maxOnCard: -1,
   phase: -1,
   round: -1,
+  active_players: -1,
   submittedNames: [],
   grid: [],
 })

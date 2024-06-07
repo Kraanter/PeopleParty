@@ -31,6 +31,7 @@ private:
     int round;
     int max_correct;
     int unique_symbols;
+    int active_players;
     MemoryMixer_card target_card;
     int mini_game_phase = 0; // 0 = show all symbols, 1 = show searching symbol and let players guess, 2 = show round results
     std::vector<std::vector<MemoryMixer_card>> grid;

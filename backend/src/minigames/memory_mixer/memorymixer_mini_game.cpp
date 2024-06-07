@@ -6,6 +6,8 @@ MemoryMixer_MiniGame::MemoryMixer_MiniGame(Game* game) : MiniGame(game) {
     grid_size = 5;
     unique_symbols = 3;
 
+    active_players = -1;
+
     create_grid();
 }
 
@@ -119,6 +121,7 @@ void MemoryMixer_MiniGame::start_minigame() {
         players[client->client_id] = MemoryMixer_Player(client->client_id);
     }
 
+    active_players = players.size();
     set_round_difficulty(round, players.size());
 
     timer.setInterval([this]() { update(update_interval); }, update_interval);
@@ -186,9 +189,11 @@ void MemoryMixer_MiniGame::next_round() {
             current_players++;
         }
     }
+    active_players = current_players;
+
     timer.pause(round_results_time);
     
-    if (current_players <= 1) {
+    if (active_players <= 1) {
         start_result();
         return;
     }
@@ -302,7 +307,7 @@ flatbuffers::Offset<MiniGamePayloadType> MemoryMixer_MiniGame::build_grid(flatbu
     }
     auto submitted_names = builder.CreateVector(submitted_names_buffer);
     
-    auto payload = CreateMemoryMixerGridPayload(builder, remaining_time, max_on_card, phase, round, submitted_names, grid_row_vector);
+    auto payload = CreateMemoryMixerGridPayload(builder, remaining_time, max_on_card, phase, round, active_players, submitted_names, grid_row_vector);
 
     auto miniGame = builder.CreateString(get_camel_case_name());
 

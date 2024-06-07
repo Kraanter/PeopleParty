@@ -1410,8 +1410,9 @@ struct MemoryMixerGridPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
     VT_MAX_ON_CARD = 6,
     VT_PHASE = 8,
     VT_ROUND = 10,
-    VT_NAMES = 12,
-    VT_GRID = 14
+    VT_PLAYERS_LEFT = 12,
+    VT_NAMES = 14,
+    VT_GRID = 16
   };
   uint64_t time_left() const {
     return GetField<uint64_t>(VT_TIME_LEFT, 0);
@@ -1425,6 +1426,9 @@ struct MemoryMixerGridPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
   int16_t round() const {
     return GetField<int16_t>(VT_ROUND, 0);
   }
+  int16_t players_left() const {
+    return GetField<int16_t>(VT_PLAYERS_LEFT, 0);
+  }
   const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *names() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_NAMES);
   }
@@ -1437,6 +1441,7 @@ struct MemoryMixerGridPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
            VerifyField<int16_t>(verifier, VT_MAX_ON_CARD, 2) &&
            VerifyField<int16_t>(verifier, VT_PHASE, 2) &&
            VerifyField<int16_t>(verifier, VT_ROUND, 2) &&
+           VerifyField<int16_t>(verifier, VT_PLAYERS_LEFT, 2) &&
            VerifyOffset(verifier, VT_NAMES) &&
            verifier.VerifyVector(names()) &&
            verifier.VerifyVectorOfStrings(names()) &&
@@ -1463,6 +1468,9 @@ struct MemoryMixerGridPayloadBuilder {
   void add_round(int16_t round) {
     fbb_.AddElement<int16_t>(MemoryMixerGridPayload::VT_ROUND, round, 0);
   }
+  void add_players_left(int16_t players_left) {
+    fbb_.AddElement<int16_t>(MemoryMixerGridPayload::VT_PLAYERS_LEFT, players_left, 0);
+  }
   void add_names(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> names) {
     fbb_.AddOffset(MemoryMixerGridPayload::VT_NAMES, names);
   }
@@ -1486,12 +1494,14 @@ inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayloa
     int16_t max_on_card = 0,
     int16_t phase = 0,
     int16_t round = 0,
+    int16_t players_left = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> names = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>>> grid = 0) {
   MemoryMixerGridPayloadBuilder builder_(_fbb);
   builder_.add_time_left(time_left);
   builder_.add_grid(grid);
   builder_.add_names(names);
+  builder_.add_players_left(players_left);
   builder_.add_round(round);
   builder_.add_phase(phase);
   builder_.add_max_on_card(max_on_card);
@@ -1504,6 +1514,7 @@ inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayloa
     int16_t max_on_card = 0,
     int16_t phase = 0,
     int16_t round = 0,
+    int16_t players_left = 0,
     const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *names = nullptr,
     const std::vector<::flatbuffers::Offset<MemoryMixerGridRow>> *grid = nullptr) {
   auto names__ = names ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*names) : 0;
@@ -1514,6 +1525,7 @@ inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayloa
       max_on_card,
       phase,
       round,
+      players_left,
       names__,
       grid__);
 }

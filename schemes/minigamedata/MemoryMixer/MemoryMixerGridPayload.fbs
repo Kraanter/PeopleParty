@@ -22,6 +22,7 @@ table MemoryMixerGridPayload {
   max_on_card: short;
   phase: short;
   round: short;
+  players_left: short;
   names: [string];
   grid: [MemoryMixerGridRow];
 }

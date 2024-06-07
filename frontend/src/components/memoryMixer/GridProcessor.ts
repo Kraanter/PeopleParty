@@ -20,6 +20,7 @@ export interface MemoryMixerGrid {
     maxOnCard: number
     phase: number
     round: number
+    active_players: number
     submittedNames: string[]
     grid: MemoryMixerCell[][]
 }
@@ -105,6 +106,7 @@ export const processGrid = (payload: MemoryMixerGridPayload): MemoryMixerGrid =>
         maxOnCard: payload.maxOnCard(),
         phase: payload.phase(),
         round: payload.round(),
+        active_players: payload.playersLeft(),
         submittedNames: names,
         grid
     }
