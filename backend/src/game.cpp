@@ -8,7 +8,13 @@ Game::Game(Party* party) {
     this->party = party;
 
     // For now adds all minigames
-    miniGames.push(new MemoryMixer_MiniGame(this));
+    MiniGame* minigame;
+    if (rand() % 2 == 0) {
+        minigame = new CrazyCounting_MiniGame(this);
+    } else {
+        minigame = new BusinessBailout_Minigame(this);
+    }
+    miniGames.push(minigame);
 
     current_gamestate = new PartyPrep(this);
 }
