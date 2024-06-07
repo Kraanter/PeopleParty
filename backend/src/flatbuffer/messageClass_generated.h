@@ -58,9 +58,6 @@ struct FBCrazyCountingEntityBuilder;
 struct CrazyCountingPlayerInputPayload;
 struct CrazyCountingPlayerInputPayloadBuilder;
 
-struct CrazyCountingPlayerUpdatePayload;
-struct CrazyCountingPlayerUpdatePayloadBuilder;
-
 struct CrazyCountingResultPayload;
 struct CrazyCountingResultPayloadBuilder;
 
@@ -295,7 +292,6 @@ inline const GameStateType (&EnumValuesGameStateType())[14] {
     GameStateType_BusinessBailoutResult,
     GameStateType_CrazyCountingHostEntities,
     GameStateType_CrazyCountingPlayerInput,
-    GameStateType_CrazyCountingPlayerUpdate,
     GameStateType_CrazyCountingResult,
     GameStateType_MemoryMixerGrid,
     GameStateType_MemoryMixerPlayerInput,
@@ -315,7 +311,6 @@ inline const char * const *EnumNamesGameStateType() {
     "BusinessBailoutResult",
     "CrazyCountingHostEntities",
     "CrazyCountingPlayerInput",
-    "CrazyCountingPlayerUpdate",
     "CrazyCountingResult",
     "MemoryMixerGrid",
     "MemoryMixerPlayerInput",
@@ -363,7 +358,6 @@ inline const GameStatePayload (&EnumValuesGameStatePayload())[15] {
     GameStatePayload_BusinessBailoutResultPayload,
     GameStatePayload_CrazyCountingHostEntitiesPayload,
     GameStatePayload_CrazyCountingPlayerInputPayload,
-    GameStatePayload_CrazyCountingPlayerUpdatePayload,
     GameStatePayload_CrazyCountingResultPayload,
     GameStatePayload_MemoryMixerGridPayload,
     GameStatePayload_MemoryMixerPlayerInputPayload,
@@ -384,7 +378,6 @@ inline const char * const *EnumNamesGameStatePayload() {
     "BusinessBailoutResultPayload",
     "CrazyCountingHostEntitiesPayload",
     "CrazyCountingPlayerInputPayload",
-    "CrazyCountingPlayerUpdatePayload",
     "CrazyCountingResultPayload",
     "MemoryMixerGridPayload",
     "MemoryMixerPlayerInputPayload",
@@ -427,12 +420,28 @@ template<> struct GameStatePayloadTraits<CrazyCountingHostEntitiesPayload> {
   static const GameStatePayload enum_value = GameStatePayload_CrazyCountingHostEntitiesPayload;
 };
 
-template<> struct GameStatePayloadTraits<CrazyCountingPlayerInputPayload> {
-  static const GameStatePayload enum_value = GameStatePayload_CrazyCountingPlayerInputPayload;
+template<> struct GameStatePayloadTraits<BusinessBailoutResultPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_BusinessBailoutResultPayload;
+};
+
+template<> struct GameStatePayloadTraits<BusinessBailoutPlayerPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_BusinessBailoutPlayerPayload;
+};
+
+template<> struct GameStatePayloadTraits<BusinessBailoutPlayerInputPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_BusinessBailoutPlayerInputPayload;
 };
 
 template<> struct GameStatePayloadTraits<CrazyCountingPlayerUpdatePayload> {
   static const GameStatePayload enum_value = GameStatePayload_CrazyCountingPlayerUpdatePayload;
+};
+
+template<> struct GameStatePayloadTraits<CrazyCountingHostEntitiesPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_CrazyCountingHostEntitiesPayload;
+};
+
+template<> struct GameStatePayloadTraits<CrazyCountingPlayerInputPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_CrazyCountingPlayerInputPayload;
 };
 
 template<> struct GameStatePayloadTraits<CrazyCountingResultPayload> {
@@ -1530,67 +1539,6 @@ inline ::flatbuffers::Offset<CrazyCountingPlayerInputPayload> CreateCrazyCountin
   return builder_.Finish();
 }
 
-struct CrazyCountingPlayerUpdatePayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CrazyCountingPlayerUpdatePayloadBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_NEW_INT = 4,
-    VT_TIME_LEFT = 6,
-    VT_SUBMITTED = 8
-  };
-  int16_t new_int() const {
-    return GetField<int16_t>(VT_NEW_INT, 0);
-  }
-  uint64_t time_left() const {
-    return GetField<uint64_t>(VT_TIME_LEFT, 0);
-  }
-  bool submitted() const {
-    return GetField<uint8_t>(VT_SUBMITTED, 0) != 0;
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<int16_t>(verifier, VT_NEW_INT, 2) &&
-           VerifyField<uint64_t>(verifier, VT_TIME_LEFT, 8) &&
-           VerifyField<uint8_t>(verifier, VT_SUBMITTED, 1) &&
-           verifier.EndTable();
-  }
-};
-
-struct CrazyCountingPlayerUpdatePayloadBuilder {
-  typedef CrazyCountingPlayerUpdatePayload Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_new_int(int16_t new_int) {
-    fbb_.AddElement<int16_t>(CrazyCountingPlayerUpdatePayload::VT_NEW_INT, new_int, 0);
-  }
-  void add_time_left(uint64_t time_left) {
-    fbb_.AddElement<uint64_t>(CrazyCountingPlayerUpdatePayload::VT_TIME_LEFT, time_left, 0);
-  }
-  void add_submitted(bool submitted) {
-    fbb_.AddElement<uint8_t>(CrazyCountingPlayerUpdatePayload::VT_SUBMITTED, static_cast<uint8_t>(submitted), 0);
-  }
-  explicit CrazyCountingPlayerUpdatePayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<CrazyCountingPlayerUpdatePayload> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<CrazyCountingPlayerUpdatePayload>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<CrazyCountingPlayerUpdatePayload> CreateCrazyCountingPlayerUpdatePayload(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    int16_t new_int = 0,
-    uint64_t time_left = 0,
-    bool submitted = false) {
-  CrazyCountingPlayerUpdatePayloadBuilder builder_(_fbb);
-  builder_.add_time_left(time_left);
-  builder_.add_new_int(new_int);
-  builder_.add_submitted(submitted);
-  return builder_.Finish();
-}
-
 struct CrazyCountingResultPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CrazyCountingResultPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -2404,9 +2352,6 @@ struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   const CrazyCountingPlayerInputPayload *gamestatepayload_as_CrazyCountingPlayerInputPayload() const {
     return gamestatepayload_type() == GameStatePayload_CrazyCountingPlayerInputPayload ? static_cast<const CrazyCountingPlayerInputPayload *>(gamestatepayload()) : nullptr;
   }
-  const CrazyCountingPlayerUpdatePayload *gamestatepayload_as_CrazyCountingPlayerUpdatePayload() const {
-    return gamestatepayload_type() == GameStatePayload_CrazyCountingPlayerUpdatePayload ? static_cast<const CrazyCountingPlayerUpdatePayload *>(gamestatepayload()) : nullptr;
-  }
   const CrazyCountingResultPayload *gamestatepayload_as_CrazyCountingResultPayload() const {
     return gamestatepayload_type() == GameStatePayload_CrazyCountingResultPayload ? static_cast<const CrazyCountingResultPayload *>(gamestatepayload()) : nullptr;
   }
@@ -2460,12 +2405,28 @@ template<> inline const CrazyCountingHostEntitiesPayload *MiniGamePayloadType::g
   return gamestatepayload_as_CrazyCountingHostEntitiesPayload();
 }
 
-template<> inline const CrazyCountingPlayerInputPayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingPlayerInputPayload>() const {
-  return gamestatepayload_as_CrazyCountingPlayerInputPayload();
+template<> inline const BusinessBailoutResultPayload *MiniGamePayloadType::gamestatepayload_as<BusinessBailoutResultPayload>() const {
+  return gamestatepayload_as_BusinessBailoutResultPayload();
+}
+
+template<> inline const BusinessBailoutPlayerPayload *MiniGamePayloadType::gamestatepayload_as<BusinessBailoutPlayerPayload>() const {
+  return gamestatepayload_as_BusinessBailoutPlayerPayload();
+}
+
+template<> inline const BusinessBailoutPlayerInputPayload *MiniGamePayloadType::gamestatepayload_as<BusinessBailoutPlayerInputPayload>() const {
+  return gamestatepayload_as_BusinessBailoutPlayerInputPayload();
 }
 
 template<> inline const CrazyCountingPlayerUpdatePayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingPlayerUpdatePayload>() const {
   return gamestatepayload_as_CrazyCountingPlayerUpdatePayload();
+}
+
+template<> inline const CrazyCountingHostEntitiesPayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingHostEntitiesPayload>() const {
+  return gamestatepayload_as_CrazyCountingHostEntitiesPayload();
+}
+
+template<> inline const CrazyCountingPlayerInputPayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingPlayerInputPayload>() const {
+  return gamestatepayload_as_CrazyCountingPlayerInputPayload();
 }
 
 template<> inline const CrazyCountingResultPayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingResultPayload>() const {
@@ -2985,12 +2946,28 @@ inline bool VerifyGameStatePayload(::flatbuffers::Verifier &verifier, const void
       auto ptr = reinterpret_cast<const CrazyCountingHostEntitiesPayload *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case GameStatePayload_CrazyCountingPlayerInputPayload: {
-      auto ptr = reinterpret_cast<const CrazyCountingPlayerInputPayload *>(obj);
+    case GameStatePayload_BusinessBailoutResultPayload: {
+      auto ptr = reinterpret_cast<const BusinessBailoutResultPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_BusinessBailoutPlayerPayload: {
+      auto ptr = reinterpret_cast<const BusinessBailoutPlayerPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_BusinessBailoutPlayerInputPayload: {
+      auto ptr = reinterpret_cast<const BusinessBailoutPlayerInputPayload *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case GameStatePayload_CrazyCountingPlayerUpdatePayload: {
       auto ptr = reinterpret_cast<const CrazyCountingPlayerUpdatePayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_CrazyCountingHostEntitiesPayload: {
+      auto ptr = reinterpret_cast<const CrazyCountingHostEntitiesPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_CrazyCountingPlayerInputPayload: {
+      auto ptr = reinterpret_cast<const CrazyCountingPlayerInputPayload *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case GameStatePayload_CrazyCountingResultPayload: {

@@ -48,7 +48,6 @@ export function unionToGameStatePayload(
     case 'BusinessBailoutResultPayload': return accessor(new BusinessBailoutResultPayload())! as BusinessBailoutResultPayload;
     case 'CrazyCountingHostEntitiesPayload': return accessor(new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
     case 'CrazyCountingPlayerInputPayload': return accessor(new CrazyCountingPlayerInputPayload())! as CrazyCountingPlayerInputPayload;
-    case 'CrazyCountingPlayerUpdatePayload': return accessor(new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     case 'CrazyCountingResultPayload': return accessor(new CrazyCountingResultPayload())! as CrazyCountingResultPayload;
     case 'MemoryMixerGridPayload': return accessor(new MemoryMixerGridPayload())! as MemoryMixerGridPayload;
     case 'MemoryMixerPlayerInputPayload': return accessor(new MemoryMixerPlayerInputPayload())! as MemoryMixerPlayerInputPayload;
@@ -73,7 +72,6 @@ export function unionListToGameStatePayload(
     case 'BusinessBailoutResultPayload': return accessor(index, new BusinessBailoutResultPayload())! as BusinessBailoutResultPayload;
     case 'CrazyCountingHostEntitiesPayload': return accessor(index, new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
     case 'CrazyCountingPlayerInputPayload': return accessor(index, new CrazyCountingPlayerInputPayload())! as CrazyCountingPlayerInputPayload;
-    case 'CrazyCountingPlayerUpdatePayload': return accessor(index, new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     case 'CrazyCountingResultPayload': return accessor(index, new CrazyCountingResultPayload())! as CrazyCountingResultPayload;
     case 'MemoryMixerGridPayload': return accessor(index, new MemoryMixerGridPayload())! as MemoryMixerGridPayload;
     case 'MemoryMixerPlayerInputPayload': return accessor(index, new MemoryMixerPlayerInputPayload())! as MemoryMixerPlayerInputPayload;
