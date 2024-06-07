@@ -16,7 +16,7 @@ const { width, height } = toRefs(props)
 // The first match is the first round of the bracket
 // The first match has the first two teams, the second match has the next two teams, etc.
 // This means the first half of the matches are the first round, the first half of second half of the matches is the second round, etc.
-const bracket = ref(createBracket(8))
+const bracket = ref(createBracket(18))
 
 const xMargin = 50 / 2
 const yMargin = 50 / 2
@@ -28,17 +28,15 @@ const calcBracketWidth = (cols: number): number => (width.value - xMargin * 2) /
 
 console.log(bracket.value.matches)
 
-const bracketMargin = 10
-
 function getCircleColor(match: BracketMatch, right: boolean) {
+  const toCheckProp = right ? 'right' : 'left'
+  if (!match) return 0x000000
+
   if (!match.winner) {
-    return 0x000000
+    return match[toCheckProp] ? 0x00ff00 : 0xff0000
   }
-  if (right) {
-    return match.winner === 'right' ? 0x00ff00 : 0xff0000
-  } else {
-    return match.winner === 'left' ? 0x00ff00 : 0xff0000
-  }
+
+  return match.winner === toCheckProp ? 0x00ff00 : 0xff0000
 }
 
 function drawMatch(
@@ -69,8 +67,8 @@ function drawMatch(
 }
 
 function getMatchIndex(round: number, row: number, rightSide: boolean = false) {
-  const roundStart = bracket.value.matches.length / Math.pow(2, round + 1)
-  const roundEnd = bracket.value.matches.length / Math.pow(2, round)
+  const roundStart = Math.floor(bracket.value.matches.length / Math.pow(2, round + 1))
+  const roundEnd = Math.floor(bracket.value.matches.length / Math.pow(2, round))
   const roundLength = roundEnd - roundStart
   const roundIndex = roundStart + row
   return rightSide ? roundIndex + roundLength / 2 : roundIndex
@@ -105,6 +103,7 @@ function render(graphics: Graphics) {
     const currentBracketHeight = calcBracketHeight(rowAmount)
     for (let row = 0; row < rowAmount; row++) {
       const curMatchIndex = getMatchIndex(roundNr, row, flip)
+      console.log(curMatchIndex, roundNr, row)
       const match = bracket.value.matches[curMatchIndex]
       const x = xMargin + col * bracketWidth
       const y = yMargin + row * currentBracketHeight
@@ -144,7 +143,8 @@ function render(graphics: Graphics) {
           class="text-white text-center text-nowrap overflow-hidden w-full h-full grid grid-rows-4"
           :class="{ hidden: row + 1 > getRowsInRound(getRoundNumber(col)) }"
           :style="{
-            fontSize: `${calcBracketHeight(getRowsInRound(getRoundNumber(col))) / 8}px`
+            fontSize: `${Math.min(calcBracketHeight(getRowsInRound(getRoundNumber(col))) / 8, height / 30)}px`,
+            rotate: getRoundNumber(col) > 3 ? '90deg' : '0deg'
           }"
         >
           <p
@@ -152,7 +152,7 @@ function render(graphics: Graphics) {
             :style="{ gridRowStart: isRightSide(col) ? 3 : 2 }"
           >
             {{
-              bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))].left?.name
+              bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name
             }}
           </p>
           <p
@@ -160,7 +160,8 @@ function render(graphics: Graphics) {
             :style="{ gridRowStart: isRightSide(col) ? 2 : 3 }"
           >
             {{
-              bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))].right?.name
+              bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right
+                ?.name
             }}
           </p>
         </span>
