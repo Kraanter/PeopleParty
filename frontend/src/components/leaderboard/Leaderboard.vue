@@ -107,11 +107,21 @@ const skipLeaderboard = () => {
           <n-card>
             <div class="w-full inline-flex justify-between text-2xl px-4">
               <p class="inline-flex">
-                <span class="w-20">{{ formatOrdinals(i + 1) }}.</span
-                ><span class="font-bold ml-4 col-span-5">{{ player.name }}</span>
+                <span class="w-20">{{ formatOrdinals(i + 1) }}.</span>
+                <span :class="player.deltaPosition > 0 ? 'text-green-600' : 'text-gray-600'">
+                    <span v-if="player.deltaPosition > 0">^</span>
+                    <span v-else-if="player.deltaPosition < 0">v</span>
+                    <span v-else>-</span>
+                    {{ player.deltaPosition }}
+                </span>
+                <span class="font-bold ml-4 col-span-5">{{ player.name }}</span>
               </p>
               <p>
                 <span class="font-bold">{{ player.score }}</span> Points
+                <span class="text-base" :class="player.deltaScore > 0 ? 'text-green-600' : 'text-gray-600' ">
+                    {{ player.deltaScore > 0 ? "+" : "-" }}
+                    {{ player.deltaScore }}
+                </span>
               </p>
             </div>
           </n-card>
