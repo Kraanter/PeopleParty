@@ -4,6 +4,7 @@ import type { MemoryMixerGrid, PlayerSubmittedData } from './GridProcessor'
 import { NCard } from 'naive-ui'
 import PartyButton from '../PartyButton.vue'
 import { useWebSocketStore } from '@/stores/confettiStore';
+import { VueFlip } from 'vue-flip';
 
 const websocketStore = useWebSocketStore()
 
@@ -47,42 +48,43 @@ const emit = defineEmits(['click'])
                         </n-card>
                     </div>
                     <div v-else>
-                        <!--todo: add flip animation-->
-                        <div v-if="isGuessPhase">
-                            <PartyButton @click="emit('click', i, j)" 
-                            :style="{ width: '75px', height: '75px', borderRadius: '20px'}"
-                            :disabled="(grid.maxOnCard <= cell.players_on_card 
-                                && (playerSubmitted.x != i || playerSubmitted.y != j)) 
-                                || (playerSubmitted.playerSubmitted 
-                                && (playerSubmitted.x != i || playerSubmitted.y != j)
-                                || eliminatedPlayers.includes(websocketStore.clientName))"
-                            :class="[
-                                (playerSubmitted.x == i && playerSubmitted.y == j) ? 'bg-secondary' : 'bg-white', 'text-white']"
-                            >
-                            <div v-if="playerSubmitted.x == i && playerSubmitted.y == j">
-                                {{ "X" }}
-                            </div>
-                            <div v-else>
-                                {{ "?" }}
-                            </div>
-                            </PartyButton>
-                        </div>
-                        <div v-else>
-                            <n-card
-                            :style="{ 
-                                width: '75px', 
-                                height: '75px',
-                                backgroundImage: 'url(' + cell.icon + ')',
-                                backgroundPosition: 'center',
-                                backgroundSize: '70%',
-                                backgroundRepeat: 'no-repeat',
-                                borderRadius: '20px'
-                            }"
-                            :class="[
-                                cell.is_highlighted ? ['outline', '-outline-offset-8', 'outline-8', 'outline-green-500'] : playerSubmitted.x == i && playerSubmitted.y == j ? ['outline', '-outline-offset-8', 'outline-8', 'outline-secondary'] : '']"
-                            >
-                            </n-card>
-                        </div>
+                        <vue-flip :active-hover="false" v-model="isGuessPhase" width="75px" height="75px" transition="1s">
+                            <template v-slot:front>
+                                <n-card
+                                :style="{ 
+                                    width: '75px', 
+                                    height: '75px',
+                                    backgroundImage: 'url(' + cell.icon + ')',
+                                    backgroundPosition: 'center',
+                                    backgroundSize: '70%',
+                                    backgroundRepeat: 'no-repeat',
+                                    borderRadius: '20px'
+                                }"
+                                :class="[
+                                    cell.is_highlighted ? ['outline', '-outline-offset-8', 'outline-8', 'outline-green-500'] : playerSubmitted.x == i && playerSubmitted.y == j ? ['outline', '-outline-offset-8', 'outline-8', 'outline-secondary'] : '']"
+                                >
+                                </n-card>
+                            </template>
+                            <template v-slot:back>
+                                <PartyButton @click="emit('click', i, j)" 
+                                :style="{ width: '75px', height: '75px', borderRadius: '20px'}"
+                                :disabled="(grid.maxOnCard <= cell.players_on_card 
+                                    && (playerSubmitted.x != i || playerSubmitted.y != j)) 
+                                    || (playerSubmitted.playerSubmitted 
+                                    && (playerSubmitted.x != i || playerSubmitted.y != j)
+                                    || eliminatedPlayers.includes(websocketStore.clientName))"
+                                :class="[
+                                    (playerSubmitted.x == i && playerSubmitted.y == j) ? 'bg-secondary' : 'bg-white', 'text-white']"
+                                >
+                                <div v-if="playerSubmitted.x == i && playerSubmitted.y == j">
+                                    {{ "X" }}
+                                </div>
+                                <div v-else>
+                                    {{ "?" }}
+                                </div>
+                                </PartyButton>
+                            </template>
+                        </vue-flip>
                     </div>
                 </div>
             </div>
