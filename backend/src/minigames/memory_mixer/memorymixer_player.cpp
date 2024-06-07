@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "memorymixer_player.h"
 
 MemoryMixer_Player::MemoryMixer_Player() : MemoryMixer_Player(-1) {
