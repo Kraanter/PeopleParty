@@ -7,6 +7,7 @@ include "minigamedata/BusinessBailout/BusinessBailoutPlayerPayload.fbs";
 include "minigamedata/BusinessBailout/BusinessBailoutResultPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingHostEntitiesPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingPlayerInputPayload.fbs";
+include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingResultPayload.fbs";
 include "minigamedata/MemoryMixer/MemoryMixerGridPayload.fbs";
 include "minigamedata/MemoryMixer/MemoryMixerPlayerInputPayload.fbs";
@@ -22,6 +23,7 @@ enum GameStateType: byte {
     BusinessBailoutResult,
     CrazyCountingHostEntities,
     CrazyCountingPlayerInput,
+    CrazyCountingPlayerUpdate,
     CrazyCountingResult,
     MemoryMixerGrid,
     MemoryMixerPlayerInput,
@@ -38,6 +40,7 @@ union GameStatePayload {
     BusinessBailoutResultPayload,
     CrazyCountingHostEntitiesPayload,
     CrazyCountingPlayerInputPayload,
+    CrazyCountingPlayerUpdatePayload,
     CrazyCountingResultPayload,
     MemoryMixerGridPayload,
     MemoryMixerPlayerInputPayload,
