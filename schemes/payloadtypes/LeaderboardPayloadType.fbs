@@ -1,6 +1,8 @@
 table FBLeaderboardPlayer {
     name: string;
     score: ulong;
+    delta_score: ulong;
+    delta_position: int;
 }
 
 table LeaderboardInformationPayload {
