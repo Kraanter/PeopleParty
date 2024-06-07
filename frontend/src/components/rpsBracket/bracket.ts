@@ -38,7 +38,5 @@ export function createBracket(playerCount: number): Bracket {
     }
   }
 
-  matches[0] = {}
-
   return { matches }
 }

@@ -123,6 +123,12 @@ function render(graphics: Graphics) {
 <template>
   <div>
     <div
+      v-if="bracket.matches[0]?.winner"
+      class="absolute text-8xl bg-black/75 z-20 w-full h-full text-center text-secondary"
+    >
+      <span class="mt-auto">Winner: {{ bracket.matches[0][bracket.matches[0].winner]?.name }}</span>
+    </div>
+    <div
       class="absolute h-full w-full grid"
       :style="{
         gridTemplateColumns: `repeat(${bracketCols}, 1fr)`,
