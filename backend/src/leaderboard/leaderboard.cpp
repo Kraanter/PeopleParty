@@ -35,6 +35,16 @@ void Leaderboard::process_input(const Message *payload, Client *from) {
     }
 }
 
+int get_position(std::map<const Client*, int> leaderboard, const Client* client) {
+    int position = 1;
+    for (auto& [_, score] : leaderboard) {
+        if (score > leaderboard[client]) {
+            position++;
+        }
+    }
+    return position;
+}
+
 void Leaderboard::send_leaderboard_information() {
     flatbuffers::FlatBufferBuilder builder;
     std::vector<flatbuffers::Offset<FBLeaderboardPlayer>> players_buffer;
@@ -42,7 +52,9 @@ void Leaderboard::send_leaderboard_information() {
     for (Client* client: game->get_clients()) {
         if (client->isHost) continue;
         auto name = builder.CreateString(client->name.c_str());
-        players_buffer.push_back(CreateFBLeaderboardPlayer(builder, name, game->leaderboard[client]));
+        int delta_score = game->leaderboard[client] - game->previous_leaderboard[client];
+        int delta_position = get_position(game->leaderboard, client) - get_position(game->previous_leaderboard, client);
+        players_buffer.push_back(CreateFBLeaderboardPlayer(builder, name, game->leaderboard[client], delta_score, delta_position));
     }
     auto entities_vector = builder.CreateVector(players_buffer);
 
@@ -55,6 +67,7 @@ void Leaderboard::send_leaderboard_information() {
     // Send payload to host
     game->party->send_leaderboard([](Client* client) { return true; }, builder, leaderboardPayload.Union());
 }
+
 
 void Leaderboard::update(int delta_time) {
     remaining_time -= delta_time;

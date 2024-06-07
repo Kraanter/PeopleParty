@@ -54,6 +54,7 @@ int score(int place, int max_score, int players) {
 }
 
 void Game::update_leaderboard(std::vector<Client *> minigame_result) {
+    previous_leaderboard = leaderboard;
     for (int i = 1; i <= minigame_result.size(); ++i) {
         Client* client = minigame_result[i - 1];
         leaderboard[client] += score(i, 1000, minigame_result.size());

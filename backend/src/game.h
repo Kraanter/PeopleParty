@@ -65,6 +65,7 @@ public:
     void update_leaderboard(std::vector<Client*> minigame_result);
 public:
     std::map<const Client*, int> leaderboard;
+    std::map<const Client*, int> previous_leaderboard;
     Party *party;
 private:
     GameState* current_gamestate;
