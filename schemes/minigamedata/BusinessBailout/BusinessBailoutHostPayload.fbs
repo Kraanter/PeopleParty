@@ -1,0 +1,13 @@
+table PlayerBailout {
+    name: string;
+    value: int;
+    time: uint;
+}
+
+table BusinessBailoutHostPayload {
+    value: int;
+    time: uint;
+    bailed_players: [PlayerBailout];
+}
+
+root_type BusinessBailoutHostPayload;

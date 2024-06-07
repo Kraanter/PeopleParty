@@ -75,7 +75,7 @@ inline void ThreadTimer::threadProcessTimeout(std::function<void()> handler,int 
 inline void ThreadTimer::setInterval(std::function<void()> ptr, int timer)
 {
 	active = true;
-	std::thread t(([=] {
+	std::thread t(([this, ptr, timer] {
 		threadProcessInterval(ptr,timer);
 		}));
 	t.detach();
@@ -84,7 +84,7 @@ inline void ThreadTimer::setInterval(std::function<void()> ptr, int timer)
 inline void ThreadTimer::setTimeout(std::function<void()> ptr, int timer)
 {	
 	active = true;
-	std::thread t(([=] {
+	std::thread t(([this, ptr, timer] {
 		threadProcessTimeout(ptr,timer);
 		}));
 	t.detach();
