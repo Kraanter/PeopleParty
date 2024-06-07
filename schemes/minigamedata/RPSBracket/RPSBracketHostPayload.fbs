@@ -1,11 +1,11 @@
-table RPSMatch {
+table FB_RPSMatch {
     player_1: string;
     player_2: string;
     winner: string;
 }
 
 table RPSBracketHostPayload {
-    matches: [RPSMatch];
+    matches: [FB_RPSMatch];
 }
 
 root_type RPSBracketHostPayload;

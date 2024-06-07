@@ -76,8 +76,8 @@ struct MemoryMixerPlayerInputPayloadBuilder;
 struct RPSBracketPlayerPayload;
 struct RPSBracketPlayerPayloadBuilder;
 
-struct RPSMatch;
-struct RPSMatchBuilder;
+struct FB_RPSMatch;
+struct FB_RPSMatchBuilder;
 
 struct RPSBracketHostPayload;
 struct RPSBracketHostPayloadBuilder;
@@ -244,26 +244,26 @@ inline const char *EnumNameMemoryMixerIconType(MemoryMixerIconType e) {
   return EnumNamesMemoryMixerIconType()[index];
 }
 
-enum RPSChoice : int8_t {
-  RPSChoice_ROCK = 0,
-  RPSChoice_PAPER = 1,
-  RPSChoice_SCISSORS = 2,
-  RPSChoice_NONE = 3,
-  RPSChoice_MIN = RPSChoice_ROCK,
-  RPSChoice_MAX = RPSChoice_NONE
+enum FB_RPSChoice : int8_t {
+  FB_RPSChoice_ROCK = 0,
+  FB_RPSChoice_PAPER = 1,
+  FB_RPSChoice_SCISSORS = 2,
+  FB_RPSChoice_NONE = 3,
+  FB_RPSChoice_MIN = FB_RPSChoice_ROCK,
+  FB_RPSChoice_MAX = FB_RPSChoice_NONE
 };
 
-inline const RPSChoice (&EnumValuesRPSChoice())[4] {
-  static const RPSChoice values[] = {
-    RPSChoice_ROCK,
-    RPSChoice_PAPER,
-    RPSChoice_SCISSORS,
-    RPSChoice_NONE
+inline const FB_RPSChoice (&EnumValuesFB_RPSChoice())[4] {
+  static const FB_RPSChoice values[] = {
+    FB_RPSChoice_ROCK,
+    FB_RPSChoice_PAPER,
+    FB_RPSChoice_SCISSORS,
+    FB_RPSChoice_NONE
   };
   return values;
 }
 
-inline const char * const *EnumNamesRPSChoice() {
+inline const char * const *EnumNamesFB_RPSChoice() {
   static const char * const names[5] = {
     "ROCK",
     "PAPER",
@@ -274,10 +274,10 @@ inline const char * const *EnumNamesRPSChoice() {
   return names;
 }
 
-inline const char *EnumNameRPSChoice(RPSChoice e) {
-  if (::flatbuffers::IsOutRange(e, RPSChoice_ROCK, RPSChoice_NONE)) return "";
+inline const char *EnumNameFB_RPSChoice(FB_RPSChoice e) {
+  if (::flatbuffers::IsOutRange(e, FB_RPSChoice_ROCK, FB_RPSChoice_NONE)) return "";
   const size_t index = static_cast<size_t>(e);
-  return EnumNamesRPSChoice()[index];
+  return EnumNamesFB_RPSChoice()[index];
 }
 
 enum Input : int8_t {
@@ -2000,8 +2000,8 @@ struct RPSBracketPlayerPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::
     VT_CHOICE = 4,
     VT_REMAINING_TIME = 6
   };
-  RPSChoice choice() const {
-    return static_cast<RPSChoice>(GetField<int8_t>(VT_CHOICE, 0));
+  FB_RPSChoice choice() const {
+    return static_cast<FB_RPSChoice>(GetField<int8_t>(VT_CHOICE, 0));
   }
   int32_t remaining_time() const {
     return GetField<int32_t>(VT_REMAINING_TIME, 0);
@@ -2018,7 +2018,7 @@ struct RPSBracketPlayerPayloadBuilder {
   typedef RPSBracketPlayerPayload Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_choice(RPSChoice choice) {
+  void add_choice(FB_RPSChoice choice) {
     fbb_.AddElement<int8_t>(RPSBracketPlayerPayload::VT_CHOICE, static_cast<int8_t>(choice), 0);
   }
   void add_remaining_time(int32_t remaining_time) {
@@ -2037,7 +2037,7 @@ struct RPSBracketPlayerPayloadBuilder {
 
 inline ::flatbuffers::Offset<RPSBracketPlayerPayload> CreateRPSBracketPlayerPayload(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    RPSChoice choice = RPSChoice_ROCK,
+    FB_RPSChoice choice = FB_RPSChoice_ROCK,
     int32_t remaining_time = 0) {
   RPSBracketPlayerPayloadBuilder builder_(_fbb);
   builder_.add_remaining_time(remaining_time);
@@ -2045,8 +2045,8 @@ inline ::flatbuffers::Offset<RPSBracketPlayerPayload> CreateRPSBracketPlayerPayl
   return builder_.Finish();
 }
 
-struct RPSMatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef RPSMatchBuilder Builder;
+struct FB_RPSMatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FB_RPSMatchBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PLAYER_1 = 4,
     VT_PLAYER_2 = 6,
@@ -2073,43 +2073,43 @@ struct RPSMatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
 };
 
-struct RPSMatchBuilder {
-  typedef RPSMatch Table;
+struct FB_RPSMatchBuilder {
+  typedef FB_RPSMatch Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_player_1(::flatbuffers::Offset<::flatbuffers::String> player_1) {
-    fbb_.AddOffset(RPSMatch::VT_PLAYER_1, player_1);
+    fbb_.AddOffset(FB_RPSMatch::VT_PLAYER_1, player_1);
   }
   void add_player_2(::flatbuffers::Offset<::flatbuffers::String> player_2) {
-    fbb_.AddOffset(RPSMatch::VT_PLAYER_2, player_2);
+    fbb_.AddOffset(FB_RPSMatch::VT_PLAYER_2, player_2);
   }
   void add_winner(::flatbuffers::Offset<::flatbuffers::String> winner) {
-    fbb_.AddOffset(RPSMatch::VT_WINNER, winner);
+    fbb_.AddOffset(FB_RPSMatch::VT_WINNER, winner);
   }
-  explicit RPSMatchBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  explicit FB_RPSMatchBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<RPSMatch> Finish() {
+  ::flatbuffers::Offset<FB_RPSMatch> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<RPSMatch>(end);
+    auto o = ::flatbuffers::Offset<FB_RPSMatch>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<RPSMatch> CreateRPSMatch(
+inline ::flatbuffers::Offset<FB_RPSMatch> CreateFB_RPSMatch(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> player_1 = 0,
     ::flatbuffers::Offset<::flatbuffers::String> player_2 = 0,
     ::flatbuffers::Offset<::flatbuffers::String> winner = 0) {
-  RPSMatchBuilder builder_(_fbb);
+  FB_RPSMatchBuilder builder_(_fbb);
   builder_.add_winner(winner);
   builder_.add_player_2(player_2);
   builder_.add_player_1(player_1);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<RPSMatch> CreateRPSMatchDirect(
+inline ::flatbuffers::Offset<FB_RPSMatch> CreateFB_RPSMatchDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *player_1 = nullptr,
     const char *player_2 = nullptr,
@@ -2117,7 +2117,7 @@ inline ::flatbuffers::Offset<RPSMatch> CreateRPSMatchDirect(
   auto player_1__ = player_1 ? _fbb.CreateString(player_1) : 0;
   auto player_2__ = player_2 ? _fbb.CreateString(player_2) : 0;
   auto winner__ = winner ? _fbb.CreateString(winner) : 0;
-  return CreateRPSMatch(
+  return CreateFB_RPSMatch(
       _fbb,
       player_1__,
       player_2__,
@@ -2129,8 +2129,8 @@ struct RPSBracketHostPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MATCHES = 4
   };
-  const ::flatbuffers::Vector<::flatbuffers::Offset<RPSMatch>> *matches() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<RPSMatch>> *>(VT_MATCHES);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<FB_RPSMatch>> *matches() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FB_RPSMatch>> *>(VT_MATCHES);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -2145,7 +2145,7 @@ struct RPSBracketHostPayloadBuilder {
   typedef RPSBracketHostPayload Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_matches(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<RPSMatch>>> matches) {
+  void add_matches(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FB_RPSMatch>>> matches) {
     fbb_.AddOffset(RPSBracketHostPayload::VT_MATCHES, matches);
   }
   explicit RPSBracketHostPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
@@ -2161,7 +2161,7 @@ struct RPSBracketHostPayloadBuilder {
 
 inline ::flatbuffers::Offset<RPSBracketHostPayload> CreateRPSBracketHostPayload(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<RPSMatch>>> matches = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FB_RPSMatch>>> matches = 0) {
   RPSBracketHostPayloadBuilder builder_(_fbb);
   builder_.add_matches(matches);
   return builder_.Finish();
@@ -2169,8 +2169,8 @@ inline ::flatbuffers::Offset<RPSBracketHostPayload> CreateRPSBracketHostPayload(
 
 inline ::flatbuffers::Offset<RPSBracketHostPayload> CreateRPSBracketHostPayloadDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<::flatbuffers::Offset<RPSMatch>> *matches = nullptr) {
-  auto matches__ = matches ? _fbb.CreateVector<::flatbuffers::Offset<RPSMatch>>(*matches) : 0;
+    const std::vector<::flatbuffers::Offset<FB_RPSMatch>> *matches = nullptr) {
+  auto matches__ = matches ? _fbb.CreateVector<::flatbuffers::Offset<FB_RPSMatch>>(*matches) : 0;
   return CreateRPSBracketHostPayload(
       _fbb,
       matches__);

@@ -4,7 +4,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { RPSChoice } from './rpschoice.js';
+import { FB_RPSChoice } from './fb-rpschoice.js';
 
 
 export class RPSBracketPlayerPayload {
@@ -25,9 +25,9 @@ static getSizePrefixedRootAsRPSBracketPlayerPayload(bb:flatbuffers.ByteBuffer, o
   return (obj || new RPSBracketPlayerPayload()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-choice():RPSChoice {
+choice():FB_RPSChoice {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt8(this.bb_pos + offset) : RPSChoice.ROCK;
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : FB_RPSChoice.ROCK;
 }
 
 remainingTime():number {
@@ -39,8 +39,8 @@ static startRPSBracketPlayerPayload(builder:flatbuffers.Builder) {
   builder.startObject(2);
 }
 
-static addChoice(builder:flatbuffers.Builder, choice:RPSChoice) {
-  builder.addFieldInt8(0, choice, RPSChoice.ROCK);
+static addChoice(builder:flatbuffers.Builder, choice:FB_RPSChoice) {
+  builder.addFieldInt8(0, choice, FB_RPSChoice.ROCK);
 }
 
 static addRemainingTime(builder:flatbuffers.Builder, remainingTime:number) {
@@ -52,7 +52,7 @@ static endRPSBracketPlayerPayload(builder:flatbuffers.Builder):flatbuffers.Offse
   return offset;
 }
 
-static createRPSBracketPlayerPayload(builder:flatbuffers.Builder, choice:RPSChoice, remainingTime:number):flatbuffers.Offset {
+static createRPSBracketPlayerPayload(builder:flatbuffers.Builder, choice:FB_RPSChoice, remainingTime:number):flatbuffers.Offset {
   RPSBracketPlayerPayload.startRPSBracketPlayerPayload(builder);
   RPSBracketPlayerPayload.addChoice(builder, choice);
   RPSBracketPlayerPayload.addRemainingTime(builder, remainingTime);

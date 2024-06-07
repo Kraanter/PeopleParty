@@ -1,4 +1,4 @@
-enum RPSChoice : byte {
+enum FB_RPSChoice : byte {
     ROCK = 0,
     PAPER = 1,
     SCISSORS = 2,
@@ -6,7 +6,7 @@ enum RPSChoice : byte {
 }
 
 table RPSBracketPlayerPayload {
-    choice: RPSChoice;
+    choice: FB_RPSChoice;
     remaining_time: int;
 }
 

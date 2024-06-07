@@ -4,7 +4,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { RPSMatch } from './rpsmatch.js';
+import { FB_RPSMatch } from './fb-rpsmatch.js';
 
 
 export class RPSBracketHostPayload {
@@ -25,9 +25,9 @@ static getSizePrefixedRootAsRPSBracketHostPayload(bb:flatbuffers.ByteBuffer, obj
   return (obj || new RPSBracketHostPayload()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-matches(index: number, obj?:RPSMatch):RPSMatch|null {
+matches(index: number, obj?:FB_RPSMatch):FB_RPSMatch|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? (obj || new RPSMatch()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new FB_RPSMatch()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 matchesLength():number {
