@@ -27,15 +27,15 @@ const emit = defineEmits(['click'])
 </script>
 
 <template>
-    <div class="m-auto w-full">
-        <div class="flex">
-            <div v-for="(row, i) in grid.grid" :key="i" class="ml-2 mr-2">
-                <div v-for="(cell, j) in row" :key="j" class="mb-4">
+    <div class="m-auto w-full h-full mt-8">
+        <div class="grid grid-cols-5 w-full">
+            <div v-for="(row, i) in grid.grid" :key="i" class="mr-3 grid grid-rows-5 h-full">
+                <div v-for="(cell, j) in row" :key="j" class="mb-3 h-full w-full">
                     <div v-if="isHost">
                         <n-card
-                        :style="{ 
-                            width: isGuessPhase? '440px' : '100px', 
-                            height: isGuessPhase? '440px' : '100px',
+                        :style="{
+                            width: isGuessPhase? '440px' : '90px',      
+                            height: isGuessPhase? '440px' : '90px',
                             backgroundImage: 'url(' + cell.icon + ')',
                             backgroundPosition: 'center',
                             backgroundSize: '70%',
@@ -48,12 +48,12 @@ const emit = defineEmits(['click'])
                         </n-card>
                     </div>
                     <div v-else>
-                        <vue-flip :active-hover="false" v-model="isGuessPhase" width="75px" height="75px" transition="1s">
+                        <vue-flip :active-hover="false" v-model="isGuessPhase" width="60px" height="60px" transition="1s">
                             <template v-slot:front>
                                 <n-card
                                 :style="{ 
-                                    width: '75px', 
-                                    height: '75px',
+                                    width: '60px', 
+                                    height: '60px',
                                     backgroundImage: 'url(' + cell.icon + ')',
                                     backgroundPosition: 'center',
                                     backgroundSize: '70%',
@@ -67,7 +67,7 @@ const emit = defineEmits(['click'])
                             </template>
                             <template v-slot:back>
                                 <PartyButton @click="emit('click', i, j)" 
-                                :style="{ width: '75px', height: '75px', borderRadius: '20px'}"
+                                :style="{ width: '60px', height: '60px', borderRadius: '20px'}"
                                 :disabled="(grid.maxOnCard <= cell.players_on_card 
                                     && (playerSubmitted.x != i || playerSubmitted.y != j)) 
                                     || (playerSubmitted.playerSubmitted 
