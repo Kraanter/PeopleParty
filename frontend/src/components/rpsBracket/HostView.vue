@@ -18,8 +18,6 @@ const { width, height } = toRefs(props)
 // This means the first half of the matches are the first round, the first half of second half of the matches is the second round, etc.
 const bracket = ref(createBracket(12))
 
-console.log(bracket.value.matches)
-
 const xMargin = 0 / 2
 const yMargin = 30 / 2
 const bracketRows = computed(() => Math.ceil(bracket.value.matches.length / 8) * 2)
@@ -27,8 +25,6 @@ const bracketCols = computed(() => Math.ceil(Math.log2(bracket.value.matches.len
 
 const calcBracketHeight = (rows: number): number => (height.value - yMargin * 2) / rows
 const calcBracketWidth = (cols: number): number => (width.value - xMargin * 2) / cols
-
-console.log(bracket.value.matches)
 
 function getCircleColor(match: BracketMatch, right: boolean) {
   const toCheckProp = right ? 'right' : 'left'
@@ -123,7 +119,6 @@ function render(graphics: Graphics) {
     const currentBracketHeight = calcBracketHeight(rowAmount)
     for (let row = 0; row < rowAmount; row++) {
       const curMatchIndex = getMatchIndex(roundNr, row, flip)
-      console.log(curMatchIndex, roundNr, row)
       const match = bracket.value.matches[curMatchIndex]
       const x = xMargin + col * bracketWidth
       const y = yMargin + row * currentBracketHeight
