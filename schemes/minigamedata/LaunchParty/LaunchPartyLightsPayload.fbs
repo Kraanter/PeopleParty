@@ -1,0 +1,5 @@
+table LaunchPartyLightsPayload {
+    lights: short;
+}
+
+root_type LaunchPartyLightsPayload;

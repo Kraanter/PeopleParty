@@ -11,10 +11,14 @@ export enum GameStateType {
   CrazyCountingPlayerInput = 5,
   CrazyCountingPlayerUpdate = 6,
   CrazyCountingResult = 7,
-  MemoryMixerGrid = 8,
-  MemoryMixerPlayerInput = 9,
-  MemoryMixerPlayerSubmitted = 10,
-  MemoryMixerResult = 11,
-  MemoryMixerRoundResult = 12,
-  MiniGameIntroduction = 13
+  LaunchPartyLights = 8,
+  LaunchPartyPlayerInput = 9,
+  LaunchPartyPlayerTime = 10,
+  LaunchPartyResult = 11,
+  MemoryMixerGrid = 12,
+  MemoryMixerPlayerInput = 13,
+  MemoryMixerPlayerSubmitted = 14,
+  MemoryMixerResult = 15,
+  MemoryMixerRoundResult = 16,
+  MiniGameIntroduction = 17
 }

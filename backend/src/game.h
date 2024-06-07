@@ -14,6 +14,7 @@
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
 #include "minigames/memory_mixer/memorymixer_mini_game.h"
 #include "minigames/business_bailout/business_bailout_minigame.h"
+#include "minigames/launch_party/launch_party_mini_game.h"
 #include <queue>
 #include <map>
 
@@ -50,13 +51,15 @@ public:
                 // fixme: find a better way of selecting a random minigame
                 MiniGame* minigame;
 
-                int rnd = rand() % 3;
+                int rnd = 3;
                 if (rnd == 0) {
                     minigame = new CrazyCounting_MiniGame(this);
                 } else if (rnd == 1) {
                     minigame = new BusinessBailout_Minigame(this);
                 } else if (rnd == 2) {
                     minigame = new MemoryMixer_MiniGame(this);
+                } else if (rnd == 3) {
+                    minigame = new LaunchParty_Minigame(this);
                 }
                 miniGames.push(minigame);
                 return;
