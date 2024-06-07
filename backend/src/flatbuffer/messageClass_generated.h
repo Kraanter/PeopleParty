@@ -31,6 +31,27 @@ struct LeaderboardHostSkipPayloadBuilder;
 struct LeaderboardPayloadType;
 struct LeaderboardPayloadTypeBuilder;
 
+struct PlayerBailout;
+struct PlayerBailoutBuilder;
+
+struct BusinessBailoutHostPayload;
+struct BusinessBailoutHostPayloadBuilder;
+
+struct BusinessBailoutResultPayload;
+struct BusinessBailoutResultPayloadBuilder;
+
+struct FBBusinessBailoutResultPair;
+struct FBBusinessBailoutResultPairBuilder;
+
+struct BusinessBailoutPlayerPayload;
+struct BusinessBailoutPlayerPayloadBuilder;
+
+struct BusinessBailoutPlayerInputPayload;
+struct BusinessBailoutPlayerInputPayloadBuilder;
+
+struct CrazyCountingPlayerUpdatePayload;
+struct CrazyCountingPlayerUpdatePayloadBuilder;
+
 struct CrazyCountingHostEntitiesPayload;
 struct CrazyCountingHostEntitiesPayloadBuilder;
 
@@ -40,38 +61,11 @@ struct FBCrazyCountingEntityBuilder;
 struct CrazyCountingPlayerInputPayload;
 struct CrazyCountingPlayerInputPayloadBuilder;
 
-struct CrazyCountingPlayerUpdatePayload;
-struct CrazyCountingPlayerUpdatePayloadBuilder;
-
 struct CrazyCountingResultPayload;
 struct CrazyCountingResultPayloadBuilder;
 
 struct FBCrazyCountingResultPair;
 struct FBCrazyCountingResultPairBuilder;
-
-struct MemoryMixerGridRow;
-struct MemoryMixerGridRowBuilder;
-
-struct MemoryMixerGridCell;
-struct MemoryMixerGridCellBuilder;
-
-struct MemoryMixerGridPayload;
-struct MemoryMixerGridPayloadBuilder;
-
-struct MemoryMixerPlayerInputPayload;
-struct MemoryMixerPlayerInputPayloadBuilder;
-
-struct MemoryMixerPlayerSubmittedPayload;
-struct MemoryMixerPlayerSubmittedPayloadBuilder;
-
-struct MemoryMixerResultPayload;
-struct MemoryMixerResultPayloadBuilder;
-
-struct FBMemoryMixerResultPair;
-struct FBMemoryMixerResultPairBuilder;
-
-struct MemoryMixerRoundResultPayload;
-struct MemoryMixerRoundResultPayloadBuilder;
 
 struct MiniGameIntroductionPayload;
 struct MiniGameIntroductionPayloadBuilder;
@@ -208,90 +202,45 @@ inline const char *EnumNameInput(Input e) {
   return EnumNamesInput()[index];
 }
 
-enum MemoryMixerIconType : int8_t {
-  MemoryMixerIconType_BALLOON = 0,
-  MemoryMixerIconType_CAKE = 1,
-  MemoryMixerIconType_CONFETTI = 2,
-  MemoryMixerIconType_CONFETTI2 = 3,
-  MemoryMixerIconType_SMILEY = 4,
-  MemoryMixerIconType_EMPTY = 5,
-  MemoryMixerIconType_MIN = MemoryMixerIconType_BALLOON,
-  MemoryMixerIconType_MAX = MemoryMixerIconType_EMPTY
-};
-
-inline const MemoryMixerIconType (&EnumValuesMemoryMixerIconType())[6] {
-  static const MemoryMixerIconType values[] = {
-    MemoryMixerIconType_BALLOON,
-    MemoryMixerIconType_CAKE,
-    MemoryMixerIconType_CONFETTI,
-    MemoryMixerIconType_CONFETTI2,
-    MemoryMixerIconType_SMILEY,
-    MemoryMixerIconType_EMPTY
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesMemoryMixerIconType() {
-  static const char * const names[7] = {
-    "BALLOON",
-    "CAKE",
-    "CONFETTI",
-    "CONFETTI2",
-    "SMILEY",
-    "EMPTY",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameMemoryMixerIconType(MemoryMixerIconType e) {
-  if (::flatbuffers::IsOutRange(e, MemoryMixerIconType_BALLOON, MemoryMixerIconType_EMPTY)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesMemoryMixerIconType()[index];
-}
-
 enum GameStateType : int8_t {
-  GameStateType_CrazyCountingHostEntities = 0,
-  GameStateType_CrazyCountingPlayerInput = 1,
-  GameStateType_CrazyCountingPlayerUpdate = 2,
-  GameStateType_CrazyCountingResult = 3,
-  GameStateType_MemoryMixerGrid = 4,
-  GameStateType_MemoryMixerPlayerInput = 5,
-  GameStateType_MemoryMixerPlayerSubmitted = 6,
-  GameStateType_MemoryMixerResult = 7,
-  GameStateType_MemoryMixerRoundResult = 8,
-  GameStateType_MiniGameIntroduction = 9,
-  GameStateType_MIN = GameStateType_CrazyCountingHostEntities,
+  GameStateType_BusinessBailoutHost = 0,
+  GameStateType_BusinessBailoutResult = 1,
+  GameStateType_BusinessBailoutPlayer = 2,
+  GameStateType_BusinessBailoutPlayerInput = 3,
+  GameStateType_CrazyCountingPlayerUpdate = 4,
+  GameStateType_CrazyCountingHostEntities = 5,
+  GameStateType_CrazyCountingPlayerInput = 6,
+  GameStateType_CrazyCountingResult = 7,
+  GameStateType_MiniGameIntroduction = 8,
+  GameStateType_MIN = GameStateType_BusinessBailoutHost,
   GameStateType_MAX = GameStateType_MiniGameIntroduction
 };
 
-inline const GameStateType (&EnumValuesGameStateType())[10] {
+inline const GameStateType (&EnumValuesGameStateType())[9] {
   static const GameStateType values[] = {
+    GameStateType_BusinessBailoutHost,
+    GameStateType_BusinessBailoutResult,
+    GameStateType_BusinessBailoutPlayer,
+    GameStateType_BusinessBailoutPlayerInput,
+    GameStateType_CrazyCountingPlayerUpdate,
     GameStateType_CrazyCountingHostEntities,
     GameStateType_CrazyCountingPlayerInput,
-    GameStateType_CrazyCountingPlayerUpdate,
     GameStateType_CrazyCountingResult,
-    GameStateType_MemoryMixerGrid,
-    GameStateType_MemoryMixerPlayerInput,
-    GameStateType_MemoryMixerPlayerSubmitted,
-    GameStateType_MemoryMixerResult,
-    GameStateType_MemoryMixerRoundResult,
     GameStateType_MiniGameIntroduction
   };
   return values;
 }
 
 inline const char * const *EnumNamesGameStateType() {
-  static const char * const names[11] = {
+  static const char * const names[10] = {
+    "BusinessBailoutHost",
+    "BusinessBailoutResult",
+    "BusinessBailoutPlayer",
+    "BusinessBailoutPlayerInput",
+    "CrazyCountingPlayerUpdate",
     "CrazyCountingHostEntities",
     "CrazyCountingPlayerInput",
-    "CrazyCountingPlayerUpdate",
     "CrazyCountingResult",
-    "MemoryMixerGrid",
-    "MemoryMixerPlayerInput",
-    "MemoryMixerPlayerSubmitted",
-    "MemoryMixerResult",
-    "MemoryMixerRoundResult",
     "MiniGameIntroduction",
     nullptr
   };
@@ -299,56 +248,53 @@ inline const char * const *EnumNamesGameStateType() {
 }
 
 inline const char *EnumNameGameStateType(GameStateType e) {
-  if (::flatbuffers::IsOutRange(e, GameStateType_CrazyCountingHostEntities, GameStateType_MiniGameIntroduction)) return "";
+  if (::flatbuffers::IsOutRange(e, GameStateType_BusinessBailoutHost, GameStateType_MiniGameIntroduction)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesGameStateType()[index];
 }
 
 enum GameStatePayload : uint8_t {
   GameStatePayload_NONE = 0,
-  GameStatePayload_CrazyCountingHostEntitiesPayload = 1,
-  GameStatePayload_CrazyCountingPlayerInputPayload = 2,
-  GameStatePayload_CrazyCountingPlayerUpdatePayload = 3,
-  GameStatePayload_CrazyCountingResultPayload = 4,
-  GameStatePayload_MemoryMixerGridPayload = 5,
-  GameStatePayload_MemoryMixerPlayerInputPayload = 6,
-  GameStatePayload_MemoryMixerPlayerSubmittedPayload = 7,
-  GameStatePayload_MemoryMixerResultPayload = 8,
-  GameStatePayload_MemoryMixerRoundResultPayload = 9,
-  GameStatePayload_MiniGameIntroductionPayload = 10,
+  GameStatePayload_BusinessBailoutHostPayload = 1,
+  GameStatePayload_BusinessBailoutResultPayload = 2,
+  GameStatePayload_BusinessBailoutPlayerPayload = 3,
+  GameStatePayload_BusinessBailoutPlayerInputPayload = 4,
+  GameStatePayload_CrazyCountingPlayerUpdatePayload = 5,
+  GameStatePayload_CrazyCountingHostEntitiesPayload = 6,
+  GameStatePayload_CrazyCountingPlayerInputPayload = 7,
+  GameStatePayload_CrazyCountingResultPayload = 8,
+  GameStatePayload_MiniGameIntroductionPayload = 9,
   GameStatePayload_MIN = GameStatePayload_NONE,
   GameStatePayload_MAX = GameStatePayload_MiniGameIntroductionPayload
 };
 
-inline const GameStatePayload (&EnumValuesGameStatePayload())[11] {
+inline const GameStatePayload (&EnumValuesGameStatePayload())[10] {
   static const GameStatePayload values[] = {
     GameStatePayload_NONE,
+    GameStatePayload_BusinessBailoutHostPayload,
+    GameStatePayload_BusinessBailoutResultPayload,
+    GameStatePayload_BusinessBailoutPlayerPayload,
+    GameStatePayload_BusinessBailoutPlayerInputPayload,
+    GameStatePayload_CrazyCountingPlayerUpdatePayload,
     GameStatePayload_CrazyCountingHostEntitiesPayload,
     GameStatePayload_CrazyCountingPlayerInputPayload,
-    GameStatePayload_CrazyCountingPlayerUpdatePayload,
     GameStatePayload_CrazyCountingResultPayload,
-    GameStatePayload_MemoryMixerGridPayload,
-    GameStatePayload_MemoryMixerPlayerInputPayload,
-    GameStatePayload_MemoryMixerPlayerSubmittedPayload,
-    GameStatePayload_MemoryMixerResultPayload,
-    GameStatePayload_MemoryMixerRoundResultPayload,
     GameStatePayload_MiniGameIntroductionPayload
   };
   return values;
 }
 
 inline const char * const *EnumNamesGameStatePayload() {
-  static const char * const names[12] = {
+  static const char * const names[11] = {
     "NONE",
+    "BusinessBailoutHostPayload",
+    "BusinessBailoutResultPayload",
+    "BusinessBailoutPlayerPayload",
+    "BusinessBailoutPlayerInputPayload",
+    "CrazyCountingPlayerUpdatePayload",
     "CrazyCountingHostEntitiesPayload",
     "CrazyCountingPlayerInputPayload",
-    "CrazyCountingPlayerUpdatePayload",
     "CrazyCountingResultPayload",
-    "MemoryMixerGridPayload",
-    "MemoryMixerPlayerInputPayload",
-    "MemoryMixerPlayerSubmittedPayload",
-    "MemoryMixerResultPayload",
-    "MemoryMixerRoundResultPayload",
     "MiniGameIntroductionPayload",
     nullptr
   };
@@ -365,6 +311,26 @@ template<typename T> struct GameStatePayloadTraits {
   static const GameStatePayload enum_value = GameStatePayload_NONE;
 };
 
+template<> struct GameStatePayloadTraits<BusinessBailoutHostPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_BusinessBailoutHostPayload;
+};
+
+template<> struct GameStatePayloadTraits<BusinessBailoutResultPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_BusinessBailoutResultPayload;
+};
+
+template<> struct GameStatePayloadTraits<BusinessBailoutPlayerPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_BusinessBailoutPlayerPayload;
+};
+
+template<> struct GameStatePayloadTraits<BusinessBailoutPlayerInputPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_BusinessBailoutPlayerInputPayload;
+};
+
+template<> struct GameStatePayloadTraits<CrazyCountingPlayerUpdatePayload> {
+  static const GameStatePayload enum_value = GameStatePayload_CrazyCountingPlayerUpdatePayload;
+};
+
 template<> struct GameStatePayloadTraits<CrazyCountingHostEntitiesPayload> {
   static const GameStatePayload enum_value = GameStatePayload_CrazyCountingHostEntitiesPayload;
 };
@@ -373,32 +339,8 @@ template<> struct GameStatePayloadTraits<CrazyCountingPlayerInputPayload> {
   static const GameStatePayload enum_value = GameStatePayload_CrazyCountingPlayerInputPayload;
 };
 
-template<> struct GameStatePayloadTraits<CrazyCountingPlayerUpdatePayload> {
-  static const GameStatePayload enum_value = GameStatePayload_CrazyCountingPlayerUpdatePayload;
-};
-
 template<> struct GameStatePayloadTraits<CrazyCountingResultPayload> {
   static const GameStatePayload enum_value = GameStatePayload_CrazyCountingResultPayload;
-};
-
-template<> struct GameStatePayloadTraits<MemoryMixerGridPayload> {
-  static const GameStatePayload enum_value = GameStatePayload_MemoryMixerGridPayload;
-};
-
-template<> struct GameStatePayloadTraits<MemoryMixerPlayerInputPayload> {
-  static const GameStatePayload enum_value = GameStatePayload_MemoryMixerPlayerInputPayload;
-};
-
-template<> struct GameStatePayloadTraits<MemoryMixerPlayerSubmittedPayload> {
-  static const GameStatePayload enum_value = GameStatePayload_MemoryMixerPlayerSubmittedPayload;
-};
-
-template<> struct GameStatePayloadTraits<MemoryMixerResultPayload> {
-  static const GameStatePayload enum_value = GameStatePayload_MemoryMixerResultPayload;
-};
-
-template<> struct GameStatePayloadTraits<MemoryMixerRoundResultPayload> {
-  static const GameStatePayload enum_value = GameStatePayload_MemoryMixerRoundResultPayload;
 };
 
 template<> struct GameStatePayloadTraits<MiniGameIntroductionPayload> {
@@ -931,6 +873,437 @@ inline ::flatbuffers::Offset<LeaderboardPayloadType> CreateLeaderboardPayloadTyp
   return builder_.Finish();
 }
 
+struct PlayerBailout FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PlayerBailoutBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_VALUE = 6,
+    VT_TIME = 8
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  int32_t value() const {
+    return GetField<int32_t>(VT_VALUE, 0);
+  }
+  uint32_t time() const {
+    return GetField<uint32_t>(VT_TIME, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyField<int32_t>(verifier, VT_VALUE, 4) &&
+           VerifyField<uint32_t>(verifier, VT_TIME, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct PlayerBailoutBuilder {
+  typedef PlayerBailout Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(PlayerBailout::VT_NAME, name);
+  }
+  void add_value(int32_t value) {
+    fbb_.AddElement<int32_t>(PlayerBailout::VT_VALUE, value, 0);
+  }
+  void add_time(uint32_t time) {
+    fbb_.AddElement<uint32_t>(PlayerBailout::VT_TIME, time, 0);
+  }
+  explicit PlayerBailoutBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<PlayerBailout> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<PlayerBailout>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<PlayerBailout> CreatePlayerBailout(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    int32_t value = 0,
+    uint32_t time = 0) {
+  PlayerBailoutBuilder builder_(_fbb);
+  builder_.add_time(time);
+  builder_.add_value(value);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<PlayerBailout> CreatePlayerBailoutDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    int32_t value = 0,
+    uint32_t time = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return CreatePlayerBailout(
+      _fbb,
+      name__,
+      value,
+      time);
+}
+
+struct BusinessBailoutHostPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef BusinessBailoutHostPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_VALUE = 4,
+    VT_TIME = 6,
+    VT_BAILED_PLAYERS = 8
+  };
+  int32_t value() const {
+    return GetField<int32_t>(VT_VALUE, 0);
+  }
+  uint32_t time() const {
+    return GetField<uint32_t>(VT_TIME, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<PlayerBailout>> *bailed_players() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<PlayerBailout>> *>(VT_BAILED_PLAYERS);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_VALUE, 4) &&
+           VerifyField<uint32_t>(verifier, VT_TIME, 4) &&
+           VerifyOffset(verifier, VT_BAILED_PLAYERS) &&
+           verifier.VerifyVector(bailed_players()) &&
+           verifier.VerifyVectorOfTables(bailed_players()) &&
+           verifier.EndTable();
+  }
+};
+
+struct BusinessBailoutHostPayloadBuilder {
+  typedef BusinessBailoutHostPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_value(int32_t value) {
+    fbb_.AddElement<int32_t>(BusinessBailoutHostPayload::VT_VALUE, value, 0);
+  }
+  void add_time(uint32_t time) {
+    fbb_.AddElement<uint32_t>(BusinessBailoutHostPayload::VT_TIME, time, 0);
+  }
+  void add_bailed_players(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<PlayerBailout>>> bailed_players) {
+    fbb_.AddOffset(BusinessBailoutHostPayload::VT_BAILED_PLAYERS, bailed_players);
+  }
+  explicit BusinessBailoutHostPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<BusinessBailoutHostPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<BusinessBailoutHostPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<BusinessBailoutHostPayload> CreateBusinessBailoutHostPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t value = 0,
+    uint32_t time = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<PlayerBailout>>> bailed_players = 0) {
+  BusinessBailoutHostPayloadBuilder builder_(_fbb);
+  builder_.add_bailed_players(bailed_players);
+  builder_.add_time(time);
+  builder_.add_value(value);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<BusinessBailoutHostPayload> CreateBusinessBailoutHostPayloadDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t value = 0,
+    uint32_t time = 0,
+    const std::vector<::flatbuffers::Offset<PlayerBailout>> *bailed_players = nullptr) {
+  auto bailed_players__ = bailed_players ? _fbb.CreateVector<::flatbuffers::Offset<PlayerBailout>>(*bailed_players) : 0;
+  return CreateBusinessBailoutHostPayload(
+      _fbb,
+      value,
+      time,
+      bailed_players__);
+}
+
+struct BusinessBailoutResultPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef BusinessBailoutResultPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_RESULTS = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<FBBusinessBailoutResultPair>> *results() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBBusinessBailoutResultPair>> *>(VT_RESULTS);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_RESULTS) &&
+           verifier.VerifyVector(results()) &&
+           verifier.VerifyVectorOfTables(results()) &&
+           verifier.EndTable();
+  }
+};
+
+struct BusinessBailoutResultPayloadBuilder {
+  typedef BusinessBailoutResultPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_results(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBBusinessBailoutResultPair>>> results) {
+    fbb_.AddOffset(BusinessBailoutResultPayload::VT_RESULTS, results);
+  }
+  explicit BusinessBailoutResultPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<BusinessBailoutResultPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<BusinessBailoutResultPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<BusinessBailoutResultPayload> CreateBusinessBailoutResultPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBBusinessBailoutResultPair>>> results = 0) {
+  BusinessBailoutResultPayloadBuilder builder_(_fbb);
+  builder_.add_results(results);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<BusinessBailoutResultPayload> CreateBusinessBailoutResultPayloadDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<FBBusinessBailoutResultPair>> *results = nullptr) {
+  auto results__ = results ? _fbb.CreateVector<::flatbuffers::Offset<FBBusinessBailoutResultPair>>(*results) : 0;
+  return CreateBusinessBailoutResultPayload(
+      _fbb,
+      results__);
+}
+
+struct FBBusinessBailoutResultPair FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FBBusinessBailoutResultPairBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_VALUE = 6,
+    VT_TIME = 8
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  int32_t value() const {
+    return GetField<int32_t>(VT_VALUE, 0);
+  }
+  int32_t time() const {
+    return GetField<int32_t>(VT_TIME, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyField<int32_t>(verifier, VT_VALUE, 4) &&
+           VerifyField<int32_t>(verifier, VT_TIME, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct FBBusinessBailoutResultPairBuilder {
+  typedef FBBusinessBailoutResultPair Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(FBBusinessBailoutResultPair::VT_NAME, name);
+  }
+  void add_value(int32_t value) {
+    fbb_.AddElement<int32_t>(FBBusinessBailoutResultPair::VT_VALUE, value, 0);
+  }
+  void add_time(int32_t time) {
+    fbb_.AddElement<int32_t>(FBBusinessBailoutResultPair::VT_TIME, time, 0);
+  }
+  explicit FBBusinessBailoutResultPairBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<FBBusinessBailoutResultPair> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<FBBusinessBailoutResultPair>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<FBBusinessBailoutResultPair> CreateFBBusinessBailoutResultPair(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    int32_t value = 0,
+    int32_t time = 0) {
+  FBBusinessBailoutResultPairBuilder builder_(_fbb);
+  builder_.add_time(time);
+  builder_.add_value(value);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<FBBusinessBailoutResultPair> CreateFBBusinessBailoutResultPairDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    int32_t value = 0,
+    int32_t time = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return CreateFBBusinessBailoutResultPair(
+      _fbb,
+      name__,
+      value,
+      time);
+}
+
+struct BusinessBailoutPlayerPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef BusinessBailoutPlayerPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_VALUE = 4,
+    VT_LOCKED = 6
+  };
+  int32_t value() const {
+    return GetField<int32_t>(VT_VALUE, 0);
+  }
+  bool locked() const {
+    return GetField<uint8_t>(VT_LOCKED, 0) != 0;
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_VALUE, 4) &&
+           VerifyField<uint8_t>(verifier, VT_LOCKED, 1) &&
+           verifier.EndTable();
+  }
+};
+
+struct BusinessBailoutPlayerPayloadBuilder {
+  typedef BusinessBailoutPlayerPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_value(int32_t value) {
+    fbb_.AddElement<int32_t>(BusinessBailoutPlayerPayload::VT_VALUE, value, 0);
+  }
+  void add_locked(bool locked) {
+    fbb_.AddElement<uint8_t>(BusinessBailoutPlayerPayload::VT_LOCKED, static_cast<uint8_t>(locked), 0);
+  }
+  explicit BusinessBailoutPlayerPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<BusinessBailoutPlayerPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<BusinessBailoutPlayerPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<BusinessBailoutPlayerPayload> CreateBusinessBailoutPlayerPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t value = 0,
+    bool locked = false) {
+  BusinessBailoutPlayerPayloadBuilder builder_(_fbb);
+  builder_.add_value(value);
+  builder_.add_locked(locked);
+  return builder_.Finish();
+}
+
+struct BusinessBailoutPlayerInputPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef BusinessBailoutPlayerInputPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_LOCK = 4
+  };
+  bool lock() const {
+    return GetField<uint8_t>(VT_LOCK, 0) != 0;
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_LOCK, 1) &&
+           verifier.EndTable();
+  }
+};
+
+struct BusinessBailoutPlayerInputPayloadBuilder {
+  typedef BusinessBailoutPlayerInputPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_lock(bool lock) {
+    fbb_.AddElement<uint8_t>(BusinessBailoutPlayerInputPayload::VT_LOCK, static_cast<uint8_t>(lock), 0);
+  }
+  explicit BusinessBailoutPlayerInputPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<BusinessBailoutPlayerInputPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<BusinessBailoutPlayerInputPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<BusinessBailoutPlayerInputPayload> CreateBusinessBailoutPlayerInputPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    bool lock = false) {
+  BusinessBailoutPlayerInputPayloadBuilder builder_(_fbb);
+  builder_.add_lock(lock);
+  return builder_.Finish();
+}
+
+struct CrazyCountingPlayerUpdatePayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CrazyCountingPlayerUpdatePayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NEW_INT = 4,
+    VT_TIME_LEFT = 6,
+    VT_SUBMITTED = 8
+  };
+  int16_t new_int() const {
+    return GetField<int16_t>(VT_NEW_INT, 0);
+  }
+  uint64_t time_left() const {
+    return GetField<uint64_t>(VT_TIME_LEFT, 0);
+  }
+  bool submitted() const {
+    return GetField<uint8_t>(VT_SUBMITTED, 0) != 0;
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int16_t>(verifier, VT_NEW_INT, 2) &&
+           VerifyField<uint64_t>(verifier, VT_TIME_LEFT, 8) &&
+           VerifyField<uint8_t>(verifier, VT_SUBMITTED, 1) &&
+           verifier.EndTable();
+  }
+};
+
+struct CrazyCountingPlayerUpdatePayloadBuilder {
+  typedef CrazyCountingPlayerUpdatePayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_new_int(int16_t new_int) {
+    fbb_.AddElement<int16_t>(CrazyCountingPlayerUpdatePayload::VT_NEW_INT, new_int, 0);
+  }
+  void add_time_left(uint64_t time_left) {
+    fbb_.AddElement<uint64_t>(CrazyCountingPlayerUpdatePayload::VT_TIME_LEFT, time_left, 0);
+  }
+  void add_submitted(bool submitted) {
+    fbb_.AddElement<uint8_t>(CrazyCountingPlayerUpdatePayload::VT_SUBMITTED, static_cast<uint8_t>(submitted), 0);
+  }
+  explicit CrazyCountingPlayerUpdatePayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CrazyCountingPlayerUpdatePayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CrazyCountingPlayerUpdatePayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CrazyCountingPlayerUpdatePayload> CreateCrazyCountingPlayerUpdatePayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int16_t new_int = 0,
+    uint64_t time_left = 0,
+    bool submitted = false) {
+  CrazyCountingPlayerUpdatePayloadBuilder builder_(_fbb);
+  builder_.add_time_left(time_left);
+  builder_.add_new_int(new_int);
+  builder_.add_submitted(submitted);
+  return builder_.Finish();
+}
+
 struct CrazyCountingHostEntitiesPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CrazyCountingHostEntitiesPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -1102,67 +1475,6 @@ inline ::flatbuffers::Offset<CrazyCountingPlayerInputPayload> CreateCrazyCountin
   return builder_.Finish();
 }
 
-struct CrazyCountingPlayerUpdatePayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CrazyCountingPlayerUpdatePayloadBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_NEW_INT = 4,
-    VT_TIME_LEFT = 6,
-    VT_SUBMITTED = 8
-  };
-  int16_t new_int() const {
-    return GetField<int16_t>(VT_NEW_INT, 0);
-  }
-  uint64_t time_left() const {
-    return GetField<uint64_t>(VT_TIME_LEFT, 0);
-  }
-  bool submitted() const {
-    return GetField<uint8_t>(VT_SUBMITTED, 0) != 0;
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<int16_t>(verifier, VT_NEW_INT, 2) &&
-           VerifyField<uint64_t>(verifier, VT_TIME_LEFT, 8) &&
-           VerifyField<uint8_t>(verifier, VT_SUBMITTED, 1) &&
-           verifier.EndTable();
-  }
-};
-
-struct CrazyCountingPlayerUpdatePayloadBuilder {
-  typedef CrazyCountingPlayerUpdatePayload Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_new_int(int16_t new_int) {
-    fbb_.AddElement<int16_t>(CrazyCountingPlayerUpdatePayload::VT_NEW_INT, new_int, 0);
-  }
-  void add_time_left(uint64_t time_left) {
-    fbb_.AddElement<uint64_t>(CrazyCountingPlayerUpdatePayload::VT_TIME_LEFT, time_left, 0);
-  }
-  void add_submitted(bool submitted) {
-    fbb_.AddElement<uint8_t>(CrazyCountingPlayerUpdatePayload::VT_SUBMITTED, static_cast<uint8_t>(submitted), 0);
-  }
-  explicit CrazyCountingPlayerUpdatePayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<CrazyCountingPlayerUpdatePayload> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<CrazyCountingPlayerUpdatePayload>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<CrazyCountingPlayerUpdatePayload> CreateCrazyCountingPlayerUpdatePayload(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    int16_t new_int = 0,
-    uint64_t time_left = 0,
-    bool submitted = false) {
-  CrazyCountingPlayerUpdatePayloadBuilder builder_(_fbb);
-  builder_.add_time_left(time_left);
-  builder_.add_new_int(new_int);
-  builder_.add_submitted(submitted);
-  return builder_.Finish();
-}
-
 struct CrazyCountingResultPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CrazyCountingResultPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -1290,576 +1602,6 @@ inline ::flatbuffers::Offset<FBCrazyCountingResultPair> CreateFBCrazyCountingRes
       guess);
 }
 
-struct MemoryMixerGridRow FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MemoryMixerGridRowBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_ROW = 4
-  };
-  const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridCell>> *row() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridCell>> *>(VT_ROW);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_ROW) &&
-           verifier.VerifyVector(row()) &&
-           verifier.VerifyVectorOfTables(row()) &&
-           verifier.EndTable();
-  }
-};
-
-struct MemoryMixerGridRowBuilder {
-  typedef MemoryMixerGridRow Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_row(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridCell>>> row) {
-    fbb_.AddOffset(MemoryMixerGridRow::VT_ROW, row);
-  }
-  explicit MemoryMixerGridRowBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<MemoryMixerGridRow> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<MemoryMixerGridRow>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<MemoryMixerGridRow> CreateMemoryMixerGridRow(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridCell>>> row = 0) {
-  MemoryMixerGridRowBuilder builder_(_fbb);
-  builder_.add_row(row);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<MemoryMixerGridRow> CreateMemoryMixerGridRowDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<::flatbuffers::Offset<MemoryMixerGridCell>> *row = nullptr) {
-  auto row__ = row ? _fbb.CreateVector<::flatbuffers::Offset<MemoryMixerGridCell>>(*row) : 0;
-  return CreateMemoryMixerGridRow(
-      _fbb,
-      row__);
-}
-
-struct MemoryMixerGridCell FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MemoryMixerGridCellBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_ICON = 4,
-    VT_PLAYERS_ON_CARD = 6,
-    VT_IS_HIGHLIGHTED = 8
-  };
-  MemoryMixerIconType icon() const {
-    return static_cast<MemoryMixerIconType>(GetField<int8_t>(VT_ICON, 0));
-  }
-  int16_t players_on_card() const {
-    return GetField<int16_t>(VT_PLAYERS_ON_CARD, 0);
-  }
-  bool is_highlighted() const {
-    return GetField<uint8_t>(VT_IS_HIGHLIGHTED, 0) != 0;
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<int8_t>(verifier, VT_ICON, 1) &&
-           VerifyField<int16_t>(verifier, VT_PLAYERS_ON_CARD, 2) &&
-           VerifyField<uint8_t>(verifier, VT_IS_HIGHLIGHTED, 1) &&
-           verifier.EndTable();
-  }
-};
-
-struct MemoryMixerGridCellBuilder {
-  typedef MemoryMixerGridCell Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_icon(MemoryMixerIconType icon) {
-    fbb_.AddElement<int8_t>(MemoryMixerGridCell::VT_ICON, static_cast<int8_t>(icon), 0);
-  }
-  void add_players_on_card(int16_t players_on_card) {
-    fbb_.AddElement<int16_t>(MemoryMixerGridCell::VT_PLAYERS_ON_CARD, players_on_card, 0);
-  }
-  void add_is_highlighted(bool is_highlighted) {
-    fbb_.AddElement<uint8_t>(MemoryMixerGridCell::VT_IS_HIGHLIGHTED, static_cast<uint8_t>(is_highlighted), 0);
-  }
-  explicit MemoryMixerGridCellBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<MemoryMixerGridCell> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<MemoryMixerGridCell>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<MemoryMixerGridCell> CreateMemoryMixerGridCell(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    MemoryMixerIconType icon = MemoryMixerIconType_BALLOON,
-    int16_t players_on_card = 0,
-    bool is_highlighted = false) {
-  MemoryMixerGridCellBuilder builder_(_fbb);
-  builder_.add_players_on_card(players_on_card);
-  builder_.add_is_highlighted(is_highlighted);
-  builder_.add_icon(icon);
-  return builder_.Finish();
-}
-
-struct MemoryMixerGridPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MemoryMixerGridPayloadBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_TIME_LEFT = 4,
-    VT_MAX_ON_CARD = 6,
-    VT_PHASE = 8,
-    VT_ROUND = 10,
-    VT_PLAYERS_LEFT = 12,
-    VT_NAMES = 14,
-    VT_GRID = 16
-  };
-  uint64_t time_left() const {
-    return GetField<uint64_t>(VT_TIME_LEFT, 0);
-  }
-  int16_t max_on_card() const {
-    return GetField<int16_t>(VT_MAX_ON_CARD, 0);
-  }
-  int16_t phase() const {
-    return GetField<int16_t>(VT_PHASE, 0);
-  }
-  int16_t round() const {
-    return GetField<int16_t>(VT_ROUND, 0);
-  }
-  int16_t players_left() const {
-    return GetField<int16_t>(VT_PLAYERS_LEFT, 0);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *names() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_NAMES);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>> *grid() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>> *>(VT_GRID);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint64_t>(verifier, VT_TIME_LEFT, 8) &&
-           VerifyField<int16_t>(verifier, VT_MAX_ON_CARD, 2) &&
-           VerifyField<int16_t>(verifier, VT_PHASE, 2) &&
-           VerifyField<int16_t>(verifier, VT_ROUND, 2) &&
-           VerifyField<int16_t>(verifier, VT_PLAYERS_LEFT, 2) &&
-           VerifyOffset(verifier, VT_NAMES) &&
-           verifier.VerifyVector(names()) &&
-           verifier.VerifyVectorOfStrings(names()) &&
-           VerifyOffset(verifier, VT_GRID) &&
-           verifier.VerifyVector(grid()) &&
-           verifier.VerifyVectorOfTables(grid()) &&
-           verifier.EndTable();
-  }
-};
-
-struct MemoryMixerGridPayloadBuilder {
-  typedef MemoryMixerGridPayload Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_time_left(uint64_t time_left) {
-    fbb_.AddElement<uint64_t>(MemoryMixerGridPayload::VT_TIME_LEFT, time_left, 0);
-  }
-  void add_max_on_card(int16_t max_on_card) {
-    fbb_.AddElement<int16_t>(MemoryMixerGridPayload::VT_MAX_ON_CARD, max_on_card, 0);
-  }
-  void add_phase(int16_t phase) {
-    fbb_.AddElement<int16_t>(MemoryMixerGridPayload::VT_PHASE, phase, 0);
-  }
-  void add_round(int16_t round) {
-    fbb_.AddElement<int16_t>(MemoryMixerGridPayload::VT_ROUND, round, 0);
-  }
-  void add_players_left(int16_t players_left) {
-    fbb_.AddElement<int16_t>(MemoryMixerGridPayload::VT_PLAYERS_LEFT, players_left, 0);
-  }
-  void add_names(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> names) {
-    fbb_.AddOffset(MemoryMixerGridPayload::VT_NAMES, names);
-  }
-  void add_grid(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>>> grid) {
-    fbb_.AddOffset(MemoryMixerGridPayload::VT_GRID, grid);
-  }
-  explicit MemoryMixerGridPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<MemoryMixerGridPayload> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<MemoryMixerGridPayload>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayload(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t time_left = 0,
-    int16_t max_on_card = 0,
-    int16_t phase = 0,
-    int16_t round = 0,
-    int16_t players_left = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> names = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MemoryMixerGridRow>>> grid = 0) {
-  MemoryMixerGridPayloadBuilder builder_(_fbb);
-  builder_.add_time_left(time_left);
-  builder_.add_grid(grid);
-  builder_.add_names(names);
-  builder_.add_players_left(players_left);
-  builder_.add_round(round);
-  builder_.add_phase(phase);
-  builder_.add_max_on_card(max_on_card);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<MemoryMixerGridPayload> CreateMemoryMixerGridPayloadDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t time_left = 0,
-    int16_t max_on_card = 0,
-    int16_t phase = 0,
-    int16_t round = 0,
-    int16_t players_left = 0,
-    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *names = nullptr,
-    const std::vector<::flatbuffers::Offset<MemoryMixerGridRow>> *grid = nullptr) {
-  auto names__ = names ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*names) : 0;
-  auto grid__ = grid ? _fbb.CreateVector<::flatbuffers::Offset<MemoryMixerGridRow>>(*grid) : 0;
-  return CreateMemoryMixerGridPayload(
-      _fbb,
-      time_left,
-      max_on_card,
-      phase,
-      round,
-      players_left,
-      names__,
-      grid__);
-}
-
-struct MemoryMixerPlayerInputPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MemoryMixerPlayerInputPayloadBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_X = 4,
-    VT_Y = 6
-  };
-  int16_t x() const {
-    return GetField<int16_t>(VT_X, 0);
-  }
-  int16_t y() const {
-    return GetField<int16_t>(VT_Y, 0);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<int16_t>(verifier, VT_X, 2) &&
-           VerifyField<int16_t>(verifier, VT_Y, 2) &&
-           verifier.EndTable();
-  }
-};
-
-struct MemoryMixerPlayerInputPayloadBuilder {
-  typedef MemoryMixerPlayerInputPayload Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_x(int16_t x) {
-    fbb_.AddElement<int16_t>(MemoryMixerPlayerInputPayload::VT_X, x, 0);
-  }
-  void add_y(int16_t y) {
-    fbb_.AddElement<int16_t>(MemoryMixerPlayerInputPayload::VT_Y, y, 0);
-  }
-  explicit MemoryMixerPlayerInputPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<MemoryMixerPlayerInputPayload> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<MemoryMixerPlayerInputPayload>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<MemoryMixerPlayerInputPayload> CreateMemoryMixerPlayerInputPayload(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    int16_t x = 0,
-    int16_t y = 0) {
-  MemoryMixerPlayerInputPayloadBuilder builder_(_fbb);
-  builder_.add_y(y);
-  builder_.add_x(x);
-  return builder_.Finish();
-}
-
-struct MemoryMixerPlayerSubmittedPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MemoryMixerPlayerSubmittedPayloadBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_SUBMITTED = 4,
-    VT_X = 6,
-    VT_Y = 8
-  };
-  bool submitted() const {
-    return GetField<uint8_t>(VT_SUBMITTED, 0) != 0;
-  }
-  int16_t x() const {
-    return GetField<int16_t>(VT_X, 0);
-  }
-  int16_t y() const {
-    return GetField<int16_t>(VT_Y, 0);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_SUBMITTED, 1) &&
-           VerifyField<int16_t>(verifier, VT_X, 2) &&
-           VerifyField<int16_t>(verifier, VT_Y, 2) &&
-           verifier.EndTable();
-  }
-};
-
-struct MemoryMixerPlayerSubmittedPayloadBuilder {
-  typedef MemoryMixerPlayerSubmittedPayload Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_submitted(bool submitted) {
-    fbb_.AddElement<uint8_t>(MemoryMixerPlayerSubmittedPayload::VT_SUBMITTED, static_cast<uint8_t>(submitted), 0);
-  }
-  void add_x(int16_t x) {
-    fbb_.AddElement<int16_t>(MemoryMixerPlayerSubmittedPayload::VT_X, x, 0);
-  }
-  void add_y(int16_t y) {
-    fbb_.AddElement<int16_t>(MemoryMixerPlayerSubmittedPayload::VT_Y, y, 0);
-  }
-  explicit MemoryMixerPlayerSubmittedPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<MemoryMixerPlayerSubmittedPayload> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<MemoryMixerPlayerSubmittedPayload>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<MemoryMixerPlayerSubmittedPayload> CreateMemoryMixerPlayerSubmittedPayload(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    bool submitted = false,
-    int16_t x = 0,
-    int16_t y = 0) {
-  MemoryMixerPlayerSubmittedPayloadBuilder builder_(_fbb);
-  builder_.add_y(y);
-  builder_.add_x(x);
-  builder_.add_submitted(submitted);
-  return builder_.Finish();
-}
-
-struct MemoryMixerResultPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MemoryMixerResultPayloadBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_ROUND = 4,
-    VT_MINIGAME_RESULTS = 6
-  };
-  int16_t round() const {
-    return GetField<int16_t>(VT_ROUND, 0);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<FBMemoryMixerResultPair>> *minigame_results() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBMemoryMixerResultPair>> *>(VT_MINIGAME_RESULTS);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<int16_t>(verifier, VT_ROUND, 2) &&
-           VerifyOffset(verifier, VT_MINIGAME_RESULTS) &&
-           verifier.VerifyVector(minigame_results()) &&
-           verifier.VerifyVectorOfTables(minigame_results()) &&
-           verifier.EndTable();
-  }
-};
-
-struct MemoryMixerResultPayloadBuilder {
-  typedef MemoryMixerResultPayload Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_round(int16_t round) {
-    fbb_.AddElement<int16_t>(MemoryMixerResultPayload::VT_ROUND, round, 0);
-  }
-  void add_minigame_results(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBMemoryMixerResultPair>>> minigame_results) {
-    fbb_.AddOffset(MemoryMixerResultPayload::VT_MINIGAME_RESULTS, minigame_results);
-  }
-  explicit MemoryMixerResultPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<MemoryMixerResultPayload> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<MemoryMixerResultPayload>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<MemoryMixerResultPayload> CreateMemoryMixerResultPayload(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    int16_t round = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBMemoryMixerResultPair>>> minigame_results = 0) {
-  MemoryMixerResultPayloadBuilder builder_(_fbb);
-  builder_.add_minigame_results(minigame_results);
-  builder_.add_round(round);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<MemoryMixerResultPayload> CreateMemoryMixerResultPayloadDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    int16_t round = 0,
-    const std::vector<::flatbuffers::Offset<FBMemoryMixerResultPair>> *minigame_results = nullptr) {
-  auto minigame_results__ = minigame_results ? _fbb.CreateVector<::flatbuffers::Offset<FBMemoryMixerResultPair>>(*minigame_results) : 0;
-  return CreateMemoryMixerResultPayload(
-      _fbb,
-      round,
-      minigame_results__);
-}
-
-struct FBMemoryMixerResultPair FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef FBMemoryMixerResultPairBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PLACEMENT = 4,
-    VT_NAME = 6,
-    VT_ROUNDS_WON = 8
-  };
-  int16_t placement() const {
-    return GetField<int16_t>(VT_PLACEMENT, 0);
-  }
-  const ::flatbuffers::String *name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
-  }
-  int16_t rounds_won() const {
-    return GetField<int16_t>(VT_ROUNDS_WON, 0);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<int16_t>(verifier, VT_PLACEMENT, 2) &&
-           VerifyOffset(verifier, VT_NAME) &&
-           verifier.VerifyString(name()) &&
-           VerifyField<int16_t>(verifier, VT_ROUNDS_WON, 2) &&
-           verifier.EndTable();
-  }
-};
-
-struct FBMemoryMixerResultPairBuilder {
-  typedef FBMemoryMixerResultPair Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_placement(int16_t placement) {
-    fbb_.AddElement<int16_t>(FBMemoryMixerResultPair::VT_PLACEMENT, placement, 0);
-  }
-  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
-    fbb_.AddOffset(FBMemoryMixerResultPair::VT_NAME, name);
-  }
-  void add_rounds_won(int16_t rounds_won) {
-    fbb_.AddElement<int16_t>(FBMemoryMixerResultPair::VT_ROUNDS_WON, rounds_won, 0);
-  }
-  explicit FBMemoryMixerResultPairBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<FBMemoryMixerResultPair> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<FBMemoryMixerResultPair>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<FBMemoryMixerResultPair> CreateFBMemoryMixerResultPair(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    int16_t placement = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
-    int16_t rounds_won = 0) {
-  FBMemoryMixerResultPairBuilder builder_(_fbb);
-  builder_.add_name(name);
-  builder_.add_rounds_won(rounds_won);
-  builder_.add_placement(placement);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<FBMemoryMixerResultPair> CreateFBMemoryMixerResultPairDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    int16_t placement = 0,
-    const char *name = nullptr,
-    int16_t rounds_won = 0) {
-  auto name__ = name ? _fbb.CreateString(name) : 0;
-  return CreateFBMemoryMixerResultPair(
-      _fbb,
-      placement,
-      name__,
-      rounds_won);
-}
-
-struct MemoryMixerRoundResultPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MemoryMixerRoundResultPayloadBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_ROUND = 4,
-    VT_CORRECT_NAMES = 6,
-    VT_WRONG_NAMES = 8
-  };
-  int16_t round() const {
-    return GetField<int16_t>(VT_ROUND, 0);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *correct_names() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_CORRECT_NAMES);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *wrong_names() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_WRONG_NAMES);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<int16_t>(verifier, VT_ROUND, 2) &&
-           VerifyOffset(verifier, VT_CORRECT_NAMES) &&
-           verifier.VerifyVector(correct_names()) &&
-           verifier.VerifyVectorOfStrings(correct_names()) &&
-           VerifyOffset(verifier, VT_WRONG_NAMES) &&
-           verifier.VerifyVector(wrong_names()) &&
-           verifier.VerifyVectorOfStrings(wrong_names()) &&
-           verifier.EndTable();
-  }
-};
-
-struct MemoryMixerRoundResultPayloadBuilder {
-  typedef MemoryMixerRoundResultPayload Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_round(int16_t round) {
-    fbb_.AddElement<int16_t>(MemoryMixerRoundResultPayload::VT_ROUND, round, 0);
-  }
-  void add_correct_names(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> correct_names) {
-    fbb_.AddOffset(MemoryMixerRoundResultPayload::VT_CORRECT_NAMES, correct_names);
-  }
-  void add_wrong_names(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> wrong_names) {
-    fbb_.AddOffset(MemoryMixerRoundResultPayload::VT_WRONG_NAMES, wrong_names);
-  }
-  explicit MemoryMixerRoundResultPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<MemoryMixerRoundResultPayload> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<MemoryMixerRoundResultPayload>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<MemoryMixerRoundResultPayload> CreateMemoryMixerRoundResultPayload(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    int16_t round = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> correct_names = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> wrong_names = 0) {
-  MemoryMixerRoundResultPayloadBuilder builder_(_fbb);
-  builder_.add_wrong_names(wrong_names);
-  builder_.add_correct_names(correct_names);
-  builder_.add_round(round);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<MemoryMixerRoundResultPayload> CreateMemoryMixerRoundResultPayloadDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    int16_t round = 0,
-    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *correct_names = nullptr,
-    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *wrong_names = nullptr) {
-  auto correct_names__ = correct_names ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*correct_names) : 0;
-  auto wrong_names__ = wrong_names ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*wrong_names) : 0;
-  return CreateMemoryMixerRoundResultPayload(
-      _fbb,
-      round,
-      correct_names__,
-      wrong_names__);
-}
-
 struct MiniGameIntroductionPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MiniGameIntroductionPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -1958,32 +1700,29 @@ struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
     return GetPointer<const void *>(VT_GAMESTATEPAYLOAD);
   }
   template<typename T> const T *gamestatepayload_as() const;
+  const BusinessBailoutHostPayload *gamestatepayload_as_BusinessBailoutHostPayload() const {
+    return gamestatepayload_type() == GameStatePayload_BusinessBailoutHostPayload ? static_cast<const BusinessBailoutHostPayload *>(gamestatepayload()) : nullptr;
+  }
+  const BusinessBailoutResultPayload *gamestatepayload_as_BusinessBailoutResultPayload() const {
+    return gamestatepayload_type() == GameStatePayload_BusinessBailoutResultPayload ? static_cast<const BusinessBailoutResultPayload *>(gamestatepayload()) : nullptr;
+  }
+  const BusinessBailoutPlayerPayload *gamestatepayload_as_BusinessBailoutPlayerPayload() const {
+    return gamestatepayload_type() == GameStatePayload_BusinessBailoutPlayerPayload ? static_cast<const BusinessBailoutPlayerPayload *>(gamestatepayload()) : nullptr;
+  }
+  const BusinessBailoutPlayerInputPayload *gamestatepayload_as_BusinessBailoutPlayerInputPayload() const {
+    return gamestatepayload_type() == GameStatePayload_BusinessBailoutPlayerInputPayload ? static_cast<const BusinessBailoutPlayerInputPayload *>(gamestatepayload()) : nullptr;
+  }
+  const CrazyCountingPlayerUpdatePayload *gamestatepayload_as_CrazyCountingPlayerUpdatePayload() const {
+    return gamestatepayload_type() == GameStatePayload_CrazyCountingPlayerUpdatePayload ? static_cast<const CrazyCountingPlayerUpdatePayload *>(gamestatepayload()) : nullptr;
+  }
   const CrazyCountingHostEntitiesPayload *gamestatepayload_as_CrazyCountingHostEntitiesPayload() const {
     return gamestatepayload_type() == GameStatePayload_CrazyCountingHostEntitiesPayload ? static_cast<const CrazyCountingHostEntitiesPayload *>(gamestatepayload()) : nullptr;
   }
   const CrazyCountingPlayerInputPayload *gamestatepayload_as_CrazyCountingPlayerInputPayload() const {
     return gamestatepayload_type() == GameStatePayload_CrazyCountingPlayerInputPayload ? static_cast<const CrazyCountingPlayerInputPayload *>(gamestatepayload()) : nullptr;
   }
-  const CrazyCountingPlayerUpdatePayload *gamestatepayload_as_CrazyCountingPlayerUpdatePayload() const {
-    return gamestatepayload_type() == GameStatePayload_CrazyCountingPlayerUpdatePayload ? static_cast<const CrazyCountingPlayerUpdatePayload *>(gamestatepayload()) : nullptr;
-  }
   const CrazyCountingResultPayload *gamestatepayload_as_CrazyCountingResultPayload() const {
     return gamestatepayload_type() == GameStatePayload_CrazyCountingResultPayload ? static_cast<const CrazyCountingResultPayload *>(gamestatepayload()) : nullptr;
-  }
-  const MemoryMixerGridPayload *gamestatepayload_as_MemoryMixerGridPayload() const {
-    return gamestatepayload_type() == GameStatePayload_MemoryMixerGridPayload ? static_cast<const MemoryMixerGridPayload *>(gamestatepayload()) : nullptr;
-  }
-  const MemoryMixerPlayerInputPayload *gamestatepayload_as_MemoryMixerPlayerInputPayload() const {
-    return gamestatepayload_type() == GameStatePayload_MemoryMixerPlayerInputPayload ? static_cast<const MemoryMixerPlayerInputPayload *>(gamestatepayload()) : nullptr;
-  }
-  const MemoryMixerPlayerSubmittedPayload *gamestatepayload_as_MemoryMixerPlayerSubmittedPayload() const {
-    return gamestatepayload_type() == GameStatePayload_MemoryMixerPlayerSubmittedPayload ? static_cast<const MemoryMixerPlayerSubmittedPayload *>(gamestatepayload()) : nullptr;
-  }
-  const MemoryMixerResultPayload *gamestatepayload_as_MemoryMixerResultPayload() const {
-    return gamestatepayload_type() == GameStatePayload_MemoryMixerResultPayload ? static_cast<const MemoryMixerResultPayload *>(gamestatepayload()) : nullptr;
-  }
-  const MemoryMixerRoundResultPayload *gamestatepayload_as_MemoryMixerRoundResultPayload() const {
-    return gamestatepayload_type() == GameStatePayload_MemoryMixerRoundResultPayload ? static_cast<const MemoryMixerRoundResultPayload *>(gamestatepayload()) : nullptr;
   }
   const MiniGameIntroductionPayload *gamestatepayload_as_MiniGameIntroductionPayload() const {
     return gamestatepayload_type() == GameStatePayload_MiniGameIntroductionPayload ? static_cast<const MiniGameIntroductionPayload *>(gamestatepayload()) : nullptr;
@@ -2000,6 +1739,26 @@ struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   }
 };
 
+template<> inline const BusinessBailoutHostPayload *MiniGamePayloadType::gamestatepayload_as<BusinessBailoutHostPayload>() const {
+  return gamestatepayload_as_BusinessBailoutHostPayload();
+}
+
+template<> inline const BusinessBailoutResultPayload *MiniGamePayloadType::gamestatepayload_as<BusinessBailoutResultPayload>() const {
+  return gamestatepayload_as_BusinessBailoutResultPayload();
+}
+
+template<> inline const BusinessBailoutPlayerPayload *MiniGamePayloadType::gamestatepayload_as<BusinessBailoutPlayerPayload>() const {
+  return gamestatepayload_as_BusinessBailoutPlayerPayload();
+}
+
+template<> inline const BusinessBailoutPlayerInputPayload *MiniGamePayloadType::gamestatepayload_as<BusinessBailoutPlayerInputPayload>() const {
+  return gamestatepayload_as_BusinessBailoutPlayerInputPayload();
+}
+
+template<> inline const CrazyCountingPlayerUpdatePayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingPlayerUpdatePayload>() const {
+  return gamestatepayload_as_CrazyCountingPlayerUpdatePayload();
+}
+
 template<> inline const CrazyCountingHostEntitiesPayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingHostEntitiesPayload>() const {
   return gamestatepayload_as_CrazyCountingHostEntitiesPayload();
 }
@@ -2008,32 +1767,8 @@ template<> inline const CrazyCountingPlayerInputPayload *MiniGamePayloadType::ga
   return gamestatepayload_as_CrazyCountingPlayerInputPayload();
 }
 
-template<> inline const CrazyCountingPlayerUpdatePayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingPlayerUpdatePayload>() const {
-  return gamestatepayload_as_CrazyCountingPlayerUpdatePayload();
-}
-
 template<> inline const CrazyCountingResultPayload *MiniGamePayloadType::gamestatepayload_as<CrazyCountingResultPayload>() const {
   return gamestatepayload_as_CrazyCountingResultPayload();
-}
-
-template<> inline const MemoryMixerGridPayload *MiniGamePayloadType::gamestatepayload_as<MemoryMixerGridPayload>() const {
-  return gamestatepayload_as_MemoryMixerGridPayload();
-}
-
-template<> inline const MemoryMixerPlayerInputPayload *MiniGamePayloadType::gamestatepayload_as<MemoryMixerPlayerInputPayload>() const {
-  return gamestatepayload_as_MemoryMixerPlayerInputPayload();
-}
-
-template<> inline const MemoryMixerPlayerSubmittedPayload *MiniGamePayloadType::gamestatepayload_as<MemoryMixerPlayerSubmittedPayload>() const {
-  return gamestatepayload_as_MemoryMixerPlayerSubmittedPayload();
-}
-
-template<> inline const MemoryMixerResultPayload *MiniGamePayloadType::gamestatepayload_as<MemoryMixerResultPayload>() const {
-  return gamestatepayload_as_MemoryMixerResultPayload();
-}
-
-template<> inline const MemoryMixerRoundResultPayload *MiniGamePayloadType::gamestatepayload_as<MemoryMixerRoundResultPayload>() const {
-  return gamestatepayload_as_MemoryMixerRoundResultPayload();
 }
 
 template<> inline const MiniGameIntroductionPayload *MiniGamePayloadType::gamestatepayload_as<MiniGameIntroductionPayload>() const {
@@ -2070,7 +1805,7 @@ struct MiniGamePayloadTypeBuilder {
 inline ::flatbuffers::Offset<MiniGamePayloadType> CreateMiniGamePayloadType(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> minigame = 0,
-    GameStateType gamestatetype = GameStateType_CrazyCountingHostEntities,
+    GameStateType gamestatetype = GameStateType_BusinessBailoutHost,
     GameStatePayload gamestatepayload_type = GameStatePayload_NONE,
     ::flatbuffers::Offset<void> gamestatepayload = 0) {
   MiniGamePayloadTypeBuilder builder_(_fbb);
@@ -2084,7 +1819,7 @@ inline ::flatbuffers::Offset<MiniGamePayloadType> CreateMiniGamePayloadType(
 inline ::flatbuffers::Offset<MiniGamePayloadType> CreateMiniGamePayloadTypeDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *minigame = nullptr,
-    GameStateType gamestatetype = GameStateType_CrazyCountingHostEntities,
+    GameStateType gamestatetype = GameStateType_BusinessBailoutHost,
     GameStatePayload gamestatepayload_type = GameStatePayload_NONE,
     ::flatbuffers::Offset<void> gamestatepayload = 0) {
   auto minigame__ = minigame ? _fbb.CreateString(minigame) : 0;
@@ -2509,6 +2244,26 @@ inline bool VerifyGameStatePayload(::flatbuffers::Verifier &verifier, const void
     case GameStatePayload_NONE: {
       return true;
     }
+    case GameStatePayload_BusinessBailoutHostPayload: {
+      auto ptr = reinterpret_cast<const BusinessBailoutHostPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_BusinessBailoutResultPayload: {
+      auto ptr = reinterpret_cast<const BusinessBailoutResultPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_BusinessBailoutPlayerPayload: {
+      auto ptr = reinterpret_cast<const BusinessBailoutPlayerPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_BusinessBailoutPlayerInputPayload: {
+      auto ptr = reinterpret_cast<const BusinessBailoutPlayerInputPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_CrazyCountingPlayerUpdatePayload: {
+      auto ptr = reinterpret_cast<const CrazyCountingPlayerUpdatePayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     case GameStatePayload_CrazyCountingHostEntitiesPayload: {
       auto ptr = reinterpret_cast<const CrazyCountingHostEntitiesPayload *>(obj);
       return verifier.VerifyTable(ptr);
@@ -2517,32 +2272,8 @@ inline bool VerifyGameStatePayload(::flatbuffers::Verifier &verifier, const void
       auto ptr = reinterpret_cast<const CrazyCountingPlayerInputPayload *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case GameStatePayload_CrazyCountingPlayerUpdatePayload: {
-      auto ptr = reinterpret_cast<const CrazyCountingPlayerUpdatePayload *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
     case GameStatePayload_CrazyCountingResultPayload: {
       auto ptr = reinterpret_cast<const CrazyCountingResultPayload *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case GameStatePayload_MemoryMixerGridPayload: {
-      auto ptr = reinterpret_cast<const MemoryMixerGridPayload *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case GameStatePayload_MemoryMixerPlayerInputPayload: {
-      auto ptr = reinterpret_cast<const MemoryMixerPlayerInputPayload *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case GameStatePayload_MemoryMixerPlayerSubmittedPayload: {
-      auto ptr = reinterpret_cast<const MemoryMixerPlayerSubmittedPayload *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case GameStatePayload_MemoryMixerResultPayload: {
-      auto ptr = reinterpret_cast<const MemoryMixerResultPayload *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case GameStatePayload_MemoryMixerRoundResultPayload: {
-      auto ptr = reinterpret_cast<const MemoryMixerRoundResultPayload *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case GameStatePayload_MiniGameIntroductionPayload: {
