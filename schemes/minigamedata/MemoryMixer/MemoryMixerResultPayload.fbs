@@ -1,0 +1,14 @@
+table MemoryMixerResultPayload {
+    round: short;
+    minigame_results: [FBMemoryMixerResultPair];
+}
+
+
+table FBMemoryMixerResultPair {
+    placement: short;
+    name: string;
+    rounds_won: short;
+}
+
+
+root_type MemoryMixerResultPayload;

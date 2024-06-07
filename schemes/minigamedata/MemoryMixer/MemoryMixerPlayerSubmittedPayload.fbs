@@ -1,0 +1,8 @@
+table MemoryMixerPlayerSubmittedPayload {
+    submitted: bool;
+    x: short;
+    y: short;
+}
+
+
+root_type MemoryMixerPlayerSubmittedPayload;

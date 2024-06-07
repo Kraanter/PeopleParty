@@ -1,0 +1,7 @@
+table MemoryMixerPlayerInputPayload {
+    x: short;
+    y: short;
+}
+
+
+root_type MemoryMixerPlayerInputPayload;
