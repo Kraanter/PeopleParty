@@ -16,10 +16,12 @@ const { width, height } = toRefs(props)
 // The first match is the first round of the bracket
 // The first match has the first two teams, the second match has the next two teams, etc.
 // This means the first half of the matches are the first round, the first half of second half of the matches is the second round, etc.
-const bracket = ref(createBracket(18))
+const bracket = ref(createBracket(12))
 
-const xMargin = 50 / 2
-const yMargin = 50 / 2
+console.log(bracket.value.matches)
+
+const xMargin = 0 / 2
+const yMargin = 30 / 2
 const bracketRows = computed(() => Math.ceil(bracket.value.matches.length / 8) * 2)
 const bracketCols = computed(() => Math.ceil(Math.log2(bracket.value.matches.length)) * 2 - 1)
 
@@ -33,7 +35,7 @@ function getCircleColor(match: BracketMatch, right: boolean) {
   if (!match) return 0x000000
 
   if (!match.winner) {
-    return match[toCheckProp] ? 0x00ff00 : 0xff0000
+    return match[toCheckProp] ? 0xffffff : 0x000000
   }
 
   return match.winner === toCheckProp ? 0x00ff00 : 0xff0000
@@ -46,16 +48,34 @@ function drawMatch(
   y: number,
   width: number,
   height: number,
-  flip: boolean
+  flip: boolean,
+  round: number
 ) {
+  g.lineStyle(4, 0xffffff)
+  if (round === 0 && !match.left && !match.right) {
+    g.moveTo(x, y + height / 2)
+    g.lineTo(x + width, y + height / 2)
+    return
+  }
+
   if (flip) {
     ;[x, y, width, height] = [x + width, y + height, -width, -height]
   }
-  g.lineStyle(4, 0xffffff)
-  g.moveTo(x, y)
-  g.lineTo(x + width, y)
+  // top line
+  if (round > 0 || match.left) {
+    g.moveTo(x, y)
+    g.lineTo(x + width, y)
+  }
+
+  // connecting line
+  g.moveTo(x + width, y)
   g.lineTo(x + width, y + height)
-  g.lineTo(x, y + height)
+
+  // bottom line
+  if (round > 0 || match.right) {
+    g.moveTo(x + width, y + height)
+    g.lineTo(x, y + height)
+  }
 
   g.lineStyle(2, 0xffffff)
   g.beginFill(getCircleColor(match, false))
@@ -107,6 +127,7 @@ function render(graphics: Graphics) {
       const match = bracket.value.matches[curMatchIndex]
       const x = xMargin + col * bracketWidth
       const y = yMargin + row * currentBracketHeight
+
       drawMatch(
         graphics,
         match,
@@ -114,7 +135,8 @@ function render(graphics: Graphics) {
         y + currentBracketHeight / 4,
         bracketWidth,
         currentBracketHeight / 2,
-        flip
+        flip,
+        roundNr
       )
     }
   }
