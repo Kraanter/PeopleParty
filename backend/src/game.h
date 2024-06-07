@@ -12,6 +12,7 @@
 #include "leaderboard/leaderboard.h"
 #include "party.h"
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
+#include "minigames/memory_mixer/memorymixer_mini_game.h"
 #include "minigames/business_bailout/business_bailout_minigame.h"
 #include <queue>
 #include <map>

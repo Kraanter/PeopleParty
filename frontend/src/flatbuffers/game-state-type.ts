@@ -4,12 +4,17 @@
 
 export enum GameStateType {
   BusinessBailoutHost = 0,
-  BusinessBailoutResult = 1,
+  BusinessBailoutPlayerInput = 1,
   BusinessBailoutPlayer = 2,
-  BusinessBailoutPlayerInput = 3,
-  CrazyCountingPlayerUpdate = 4,
-  CrazyCountingHostEntities = 5,
-  CrazyCountingPlayerInput = 6,
+  BusinessBailoutResult = 3,
+  CrazyCountingHostEntities = 4,
+  CrazyCountingPlayerInput = 5,
+  CrazyCountingPlayerUpdate = 6,
   CrazyCountingResult = 7,
-  MiniGameIntroduction = 8
+  MemoryMixerGrid = 8,
+  MemoryMixerPlayerInput = 9,
+  MemoryMixerPlayerSubmitted = 10,
+  MemoryMixerResult = 11,
+  MemoryMixerRoundResult = 12,
+  MiniGameIntroduction = 13
 }

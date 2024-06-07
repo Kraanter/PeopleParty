@@ -9,10 +9,14 @@ Game::Game(Party* party) {
 
     // For now adds all minigames
     MiniGame* minigame;
-    if (rand() % 2 == 0) {
+
+    int rnd = rand() % 3;
+    if (rnd == 0) {
         minigame = new CrazyCounting_MiniGame(this);
-    } else {
+    } else if (rnd == 1) {
         minigame = new BusinessBailout_Minigame(this);
+    } else if (rnd == 2) {
+        minigame = new MemoryMixer_MiniGame(this);
     }
     miniGames.push(minigame);
 

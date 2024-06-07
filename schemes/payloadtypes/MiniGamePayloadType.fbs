@@ -2,12 +2,12 @@
 // Include all gamestate types to build the MiniGamePayloadType scheme
 
 include "minigamedata/BusinessBailout/BusinessBailoutHostPayload.fbs";
-include "minigamedata/BusinessBailout/BusinessBailoutResultPayload.fbs";
-include "minigamedata/BusinessBailout/BusinessBailoutPlayerPayload.fbs";
 include "minigamedata/BusinessBailout/BusinessBailoutPlayerInputPayload.fbs";
-include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
+include "minigamedata/BusinessBailout/BusinessBailoutPlayerPayload.fbs";
+include "minigamedata/BusinessBailout/BusinessBailoutResultPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingHostEntitiesPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingPlayerInputPayload.fbs";
+include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingResultPayload.fbs";
 include "minigamedata/MemoryMixer/MemoryMixerGridPayload.fbs";
 include "minigamedata/MemoryMixer/MemoryMixerPlayerInputPayload.fbs";
@@ -18,12 +18,12 @@ include "minigamedata/MiniGameIntroductionPayload.fbs";
 
 enum GameStateType: byte {
     BusinessBailoutHost,
-    BusinessBailoutResult,
-    BusinessBailoutPlayer,
     BusinessBailoutPlayerInput,
-    CrazyCountingPlayerUpdate,
+    BusinessBailoutPlayer,
+    BusinessBailoutResult,
     CrazyCountingHostEntities,
     CrazyCountingPlayerInput,
+    CrazyCountingPlayerUpdate,
     CrazyCountingResult,
     MemoryMixerGrid,
     MemoryMixerPlayerInput,
@@ -35,12 +35,12 @@ enum GameStateType: byte {
 
 union GameStatePayload {
     BusinessBailoutHostPayload,
-    BusinessBailoutResultPayload,
-    BusinessBailoutPlayerPayload,
     BusinessBailoutPlayerInputPayload,
-    CrazyCountingPlayerUpdatePayload,
+    BusinessBailoutPlayerPayload,
+    BusinessBailoutResultPayload,
     CrazyCountingHostEntitiesPayload,
     CrazyCountingPlayerInputPayload,
+    CrazyCountingPlayerUpdatePayload,
     CrazyCountingResultPayload,
     MemoryMixerGridPayload,
     MemoryMixerPlayerInputPayload,

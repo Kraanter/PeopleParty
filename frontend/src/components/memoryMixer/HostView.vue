@@ -141,7 +141,7 @@ defineExpose({
           </n-scrollbar>
         </div>
       </div>
-      <div class="relative h-full col-span-3 col-start-3 justify-center items-center m-auto mt-16"> <!--tofix: center the grid vertically-->
+      <div class="relative h-full col-span-3 col-start-3 justify-center items-center m-auto mt-16">
         <GridView :grid="grid" :player-submitted="{ playerSubmitted: false, x: -1, y: -1 }"
           :eliminated-players="eliminatedPlayers" :isHost="true">
         </GridView>
