@@ -1,0 +1,13 @@
+enum RPSChoice : byte {
+    ROCK = 0,
+    PAPER = 1,
+    SCISSORS = 2,
+    NONE = 3
+}
+
+table RPSBracketPlayerPayload {
+    choice: RPSChoice;
+    remaining_time: int;
+}
+
+root_type RPSBracketPlayerPayload;
