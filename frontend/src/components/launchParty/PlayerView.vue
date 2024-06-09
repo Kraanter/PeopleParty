@@ -2,12 +2,12 @@
 import { ref, defineProps } from 'vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import TimeComponent from '../TimeComponent.vue'
-import { GameStatePayload, GameStateType, LaunchPartyLightsPayload, LaunchPartyPlayerInputPayload, LaunchPartyResultPayload, MessageType, MiniGameIntroductionPayload, MiniGamePayloadType, Payload } from '@/flatbuffers/messageClass';
-import { type LauncPartyResultPair, type LaunchPartyLights, type LaunchPartyResults } from './LaunchPartyProcessor';
+import { GameStatePayload, GameStateType, LaunchPartyLightsPayload, LaunchPartyPlayerInputPayload, LaunchPartyPlayerTimePayload, LaunchPartyResultPayload, MessageType, MiniGameIntroductionPayload, MiniGamePayloadType, Payload } from '@/flatbuffers/messageClass';
+import { type LauncPartyResultPair, type LaunchPartyLights, type LaunchPartyPlayerFeedback, type LaunchPartyResults } from './LaunchPartyProcessor';
 import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder';
 import { useWebSocketStore } from '@/stores/confettiStore';
-
+import LightsComponent from './LightsComponent.vue'
 
 const websocketStore = useWebSocketStore()
 
@@ -33,13 +33,18 @@ const intro = ref<IntroductionData>({
 })
 
 const lightsData = ref<LaunchPartyLights>({
-    lights: -1,
+  lights: -1,
+})
+
+const playerFeedback = ref<LaunchPartyPlayerFeedback>({
+  reaction_time: -1
 })
 
 const resultsData = ref<LaunchPartyResults>({
     results: []
 })
 
+let hasSendLag: boolean = false;
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -49,8 +54,23 @@ const update = (data: MiniGamePayloadType) => {
         new LaunchPartyLightsPayload()
       )
 
+      if (lights.lights() == 4 && !hasSendLag) {
+        hasSendLag = true
+        sendPlayerAction(false)
+      }
+
       lightsData.value = {
         lights: Number(lights.lights())
+      }
+      break
+    }
+    case GameStateType.LaunchPartyPlayerTime: {
+      const playerFeedbackPayload: LaunchPartyPlayerTimePayload = data.gamestatepayload(
+        new LaunchPartyPlayerTimePayload()
+      )
+
+      playerFeedback.value = {
+        reaction_time: Number(playerFeedbackPayload.time())
       }
       break
     }
@@ -88,10 +108,10 @@ const update = (data: MiniGamePayloadType) => {
   return []
 }
 
-const sendPlayerAction = () => {
+const sendPlayerAction = (pressed: boolean) => {
   let builder = new flatbuffers.Builder()
 
-  let playerInput = LaunchPartyPlayerInputPayload.createLaunchPartyPlayerInputPayload(builder, true)
+  let playerInput = LaunchPartyPlayerInputPayload.createLaunchPartyPlayerInputPayload(builder, pressed)
 
   let miniGame = builder.createString('launchParty')
 
@@ -129,11 +149,18 @@ defineExpose({
       </div>
     </div>
     <div v-else-if="viewState == ViewState.MiniGame">
-        {{ lightsData.lights }}
-        <button @click="sendPlayerAction">Start!</button>
+      <div>
+        <div v-if="lightsData.lights != -1">
+          <LightsComponent :value="lightsData.lights" />
+        </div>
+        <button @click="sendPlayerAction(true)">Start!</button>
+        <div v-if="playerFeedback.reaction_time != -1">
+          {{  playerFeedback.reaction_time }}
+        </div>
+      </div>
     </div>
     <div v-else-if="viewState == ViewState.Results">
-        {{ resultsData.results }}
+      
     </div>
   </div>
 </template>

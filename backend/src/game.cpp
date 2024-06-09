@@ -10,6 +10,7 @@ Game::Game(Party* party) {
     // For now adds all minigames
     MiniGame* minigame;
 
+    // todo: fixme to be random
     int rnd = 3;
     if (rnd == 0) {
         minigame = new CrazyCounting_MiniGame(this);

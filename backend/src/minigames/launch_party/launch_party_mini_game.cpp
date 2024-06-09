@@ -7,11 +7,18 @@
 #include "../../game.h"
 
 LaunchParty_Minigame::LaunchParty_Minigame(Game *game) : MiniGame(game) {
-    wait_for_green_time = 1000 + (std::rand() % (3000 - 1000 + 1));
+    wait_for_green_time = 1500 + (std::rand() % (4000 - 1500 + 1));
+}
+
+LaunchParty_Minigame::~LaunchParty_Minigame() {
+    introduction_timer.clear();
+    minigame_timer.clear();
+    result_timer.clear();
 }
 
 void LaunchParty_Minigame::start_introduction() {
-    introduction_timer.setInterval([this]() { introduction_update(introduction_time); }, introduction_time);
+    update_interval = 500 MILLISECONDS;
+    introduction_timer.setInterval([this]() { introduction_update(update_interval); }, update_interval);
 }
 
 void LaunchParty_Minigame::introduction_update(int delta_time) {
@@ -28,7 +35,9 @@ void LaunchParty_Minigame::introduction_update(int delta_time) {
 
 void LaunchParty_Minigame::start_minigame() {
     for (auto client : game->get_clients()) {
-        players[client] = -10000;
+        if (!client->isHost) {
+            players[client].reaction_time = -10000;
+        }
     }
 
     minigame_timer.setInterval([this]() { update(100 MILLISECONDS); }, 100 MILLISECONDS);
@@ -42,13 +51,16 @@ void LaunchParty_Minigame::update(int delta_time) {
 
         if (lights_time <= 0) {
             phase = 1;
+            reaction_time = std::chrono::high_resolution_clock::now();
+            send_lights_data(4);
         }
     } else if (phase == 1) {
         wait_for_green_time -= delta_time;
-
-        send_lights_data(5);
+        send_lights_data(4);
 
         if (wait_for_green_time <= 0) {
+            send_lights_data(5);
+            reaction_time = std::chrono::high_resolution_clock::now();
             phase = 2;
         }
     } else if (phase == 2) {
@@ -56,11 +68,12 @@ void LaunchParty_Minigame::update(int delta_time) {
 
         if (wait_time <= 0) {
             for (auto &player : players) {
-                if (player.second == -10000) {
-                    player.second = 10 SECONDS;
+                if (player.second.reaction_time == -10000) {
+                    player.second.reaction_time = 10 SECONDS;
                 }
             }
 
+            minigame_timer.clear();
             phase = 0;
             start_result();
         }
@@ -69,7 +82,7 @@ void LaunchParty_Minigame::update(int delta_time) {
 }
 
 void LaunchParty_Minigame::start_result() {
-    // todo send results
+    send_result_data();
 
     result_timer.setTimeout([this]() {
         finished();
@@ -77,21 +90,30 @@ void LaunchParty_Minigame::start_result() {
 }
 
 void LaunchParty_Minigame::process_input(const MiniGamePayloadType *payload, Client *from) {
-    if (players[from] != -10000) {
+    if (players[from].reaction_time != -10000) {
         return;
     }
     switch(payload->gamestatetype()) {
         case GameStateType_LaunchPartyPlayerInput: {
             auto input = payload->gamestatepayload_as_LaunchPartyPlayerInputPayload();
 
+            // to calculate the network delay
+            if (phase == 1 && !input->pressed()) {
+                auto t_end = std::chrono::high_resolution_clock::now();
+                players[from].lag_time = std::chrono::duration<double, std::milli>(t_end - reaction_time).count();
+            }
+
             if (input->pressed()) {
                 if (phase == 0 || phase == 1) {
-                    players[from] = -wait_for_green_time;
+                    players[from].reaction_time = -wait_for_green_time;
                     send_player_data(from);
-                    players[from] = 5 SECONDS + wait_for_green_time;
+                    players[from].reaction_time = 5 SECONDS + wait_for_green_time;
                 }
                 if (phase == 2) {
-                    players[from] = 5 SECONDS - wait_time;
+                    auto t_end = std::chrono::high_resolution_clock::now();
+                    int difference_ms = std::chrono::duration<double, std::milli>(t_end - reaction_time).count();
+
+                    players[from].reaction_time = difference_ms - players[from].lag_time;
                     send_player_data(from);
                 }
             }
@@ -115,7 +137,7 @@ void LaunchParty_Minigame::send_lights_data(int lights_on) {
 void LaunchParty_Minigame::send_player_data(Client *player) {
     flatbuffers::FlatBufferBuilder builder;
 
-    int time = players[player];
+    int time = players[player].reaction_time;
 
     auto payload = CreateLaunchPartyPlayerTimePayload(builder, time);
 
@@ -130,9 +152,11 @@ void LaunchParty_Minigame::send_player_data(Client *player) {
 void LaunchParty_Minigame::send_result_data() {
     flatbuffers::FlatBufferBuilder builder;
 
+    std::vector<Client*> playerResult = getMinigameResult();    
+
     std::vector<flatbuffers::Offset<FBLaunchPartyResultPair>> results;
-    for (auto &player : players) {
-        auto result = CreateFBLaunchPartyResultPair(builder, builder.CreateString(player.first->name), player.second);
+    for (auto &player : playerResult) {
+        auto result = CreateFBLaunchPartyResultPair(builder, builder.CreateString(player->name), players[player].reaction_time);
         results.push_back(result);
     }
     auto resultsPayload = builder.CreateVector(results);
@@ -155,8 +179,8 @@ std::vector<Client *> LaunchParty_Minigame::getMinigameResult() {
     }
 
     sort(local_players.begin(), local_players.end(), [&](Client *a, Client *b) {
-        if (players[a] == players[b]) return rand() % 2 == 0;
-        return players[a] < players[b];
+        if (players[a].reaction_time == players[b].reaction_time) return rand() % 2 == 0;
+        return players[a].reaction_time < players[b].reaction_time;
     });
     return local_players;
 }

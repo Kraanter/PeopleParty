@@ -4,21 +4,26 @@
 #include <map>
 #include "../minigame.h"
 
+struct LaunchParty_Player_Data {
+    int reaction_time;
+    int lag_time;
+};
+
 class LaunchParty_Minigame : public MiniGame {
 private:
-    int introduction_time = 7 SECONDS;
     int result_time = 10 SECONDS;
     ThreadTimer introduction_timer;
     ThreadTimer minigame_timer;
     ThreadTimer result_timer;
-    std::map<Client*, int> players;
+    std::map<Client*, LaunchParty_Player_Data> players;
     int phase = 0; // 0 = lights slowly go red, 1 = wait for light to turn green, 2 = light is green and wait for players
     int lights_time = 4 SECONDS;
     int wait_for_green_time;
     int wait_time = 5 SECONDS;
+    std::chrono::steady_clock::time_point reaction_time;
 public:
     LaunchParty_Minigame(Game *game);
-    ~LaunchParty_Minigame() { };
+    ~LaunchParty_Minigame();
     void start_introduction() override;
     void start_minigame() override;
     void start_result() override;

@@ -10,3 +10,7 @@ export interface LauncPartyResultPair {
 export interface LaunchPartyResults {
     results: LauncPartyResultPair[]
 }
+
+export interface LaunchPartyPlayerFeedback {
+    reaction_time: number
+}
