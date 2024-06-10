@@ -1,14 +1,14 @@
 #include "memorymixer_mini_game.h"
 #include "../../game.h"
 #include "../../globals.h"
+#include <algorithm>
+#include <random>
 
 MemoryMixer_MiniGame::MemoryMixer_MiniGame(Game* game) : MiniGame(game) {
     grid_size = 5;
     unique_symbols = 3;
 
     active_players = -1;
-
-    create_grid();
 }
 
 MemoryMixer_MiniGame::~MemoryMixer_MiniGame() {
@@ -33,20 +33,28 @@ void MemoryMixer_MiniGame::create_grid() {
     target_card = MemoryMixer_card(rand() % (unique_symbols));
 
     int correct_cards = 0;
+    std::vector<MemoryMixer_card> card_list;
+    while (card_list.size() < grid_size * grid_size) {
+        if (correct_cards < max_correct) {
+            card_list.push_back(target_card);
+            correct_cards++;
+        } else {
+            int rnd = rand() % (unique_symbols);
+            while(rnd == target_card) {
+                rnd = rand() % (unique_symbols);
+            }
+            card_list.push_back(MemoryMixer_card(rnd));
+        }
+    }
+
+    auto rd = std::random_device {}; 
+    auto rng = std::default_random_engine { rd() };
+    std::shuffle(std::begin(card_list), std::end(card_list), rng);
+    
     grid = std::vector<std::vector<MemoryMixer_card>>(grid_size, std::vector<MemoryMixer_card>(grid_size));
     for (int i = 0; i < grid_size; i++) {
         for (int j = 0; j < grid_size; j++) {
-            int rnd = rand() % (unique_symbols);
-            if (max_correct == correct_cards) {
-                while(rnd == target_card) {
-                    rnd = rand() % (unique_symbols);
-                }
-            }
-            grid[i][j] = MemoryMixer_card(rnd);
-
-            if (grid[i][j] == target_card) {
-                correct_cards++;
-            }
+            grid[i][j] = card_list[i * 5 + j];
         }
     }
 }
@@ -123,6 +131,8 @@ void MemoryMixer_MiniGame::start_minigame() {
 
     active_players = players.size();
     set_round_difficulty(round, players.size());
+
+    create_grid();
 
     timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
