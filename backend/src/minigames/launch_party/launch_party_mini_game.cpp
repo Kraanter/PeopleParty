@@ -7,13 +7,13 @@
 #include "../../game.h"
 
 LaunchParty_Minigame::LaunchParty_Minigame(Game *game) : MiniGame(game) {
-    wait_for_green_time = 1500 + (std::rand() % (4000 - 1500 + 1));
 }
 
 LaunchParty_Minigame::~LaunchParty_Minigame() {
     introduction_timer.clear();
     minigame_timer.clear();
     result_timer.clear();
+    timer.clear();
 }
 
 void LaunchParty_Minigame::start_introduction() {
@@ -34,9 +34,19 @@ void LaunchParty_Minigame::introduction_update(int delta_time) {
 }
 
 void LaunchParty_Minigame::start_minigame() {
+    lights_time = 4 SECONDS;
+    wait_time = 5 SECONDS;
+    result_time = 10 SECONDS;
+    wait_for_green_time = 1500 + (std::rand() % (4000 - 1500 + 1));
+
     for (auto client : game->get_clients()) {
         if (!client->isHost) {
             players[client].reaction_time = -10000;
+
+            if (!practice_round) {
+                // resets the player ui
+                send_player_data(client);
+            }
         }
     }
 
@@ -83,10 +93,16 @@ void LaunchParty_Minigame::update(int delta_time) {
 
 void LaunchParty_Minigame::start_result() {
     send_result_data();
-
-    result_timer.setTimeout([this]() {
-        finished();
-    }, result_time);
+    if (practice_round) {
+        result_timer.setTimeout([this]() {
+            practice_round = false;
+            start_minigame();
+        }, 5 SECONDS);
+    } else {
+        result_timer.setTimeout([this]() {
+            finished();
+        }, result_time);
+    }
 }
 
 void LaunchParty_Minigame::process_input(const MiniGamePayloadType *payload, Client *from) {
@@ -124,7 +140,7 @@ void LaunchParty_Minigame::process_input(const MiniGamePayloadType *payload, Cli
 void LaunchParty_Minigame::send_lights_data(int lights_on) {
     flatbuffers::FlatBufferBuilder builder;
 
-    auto payload = CreateLaunchPartyLightsPayload(builder, lights_on);
+    auto payload = CreateLaunchPartyLightsPayload(builder, practice_round, lights_on);
 
     auto miniGame = builder.CreateString(get_camel_case_name());
     

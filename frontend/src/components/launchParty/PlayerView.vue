@@ -8,6 +8,7 @@ import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder';
 import { useWebSocketStore } from '@/stores/confettiStore';
 import LightsComponent from './LightsComponent.vue'
+import { NButton, NCard } from 'naive-ui'
 
 const websocketStore = useWebSocketStore()
 
@@ -33,15 +34,21 @@ const intro = ref<IntroductionData>({
 })
 
 const lightsData = ref<LaunchPartyLights>({
+  practice_round: true,
   lights: -1,
 })
 
 const playerFeedback = ref<LaunchPartyPlayerFeedback>({
-  reaction_time: -1
+  reaction_time: -10000
 })
 
 const resultsData = ref<LaunchPartyResults>({
     results: []
+})
+
+const personalResult = ref<LauncPartyResultPair>({
+  player: '',
+  reaction_time: -10000
 })
 
 let hasSendLag: boolean = false;
@@ -60,6 +67,7 @@ const update = (data: MiniGamePayloadType) => {
       }
 
       lightsData.value = {
+        practice_round: lights.pratice(),
         lights: Number(lights.lights())
       }
       break
@@ -85,6 +93,13 @@ const update = (data: MiniGamePayloadType) => {
           player: result.name() || '',
           reaction_time: Number(result.reactionTime())
         })
+
+        if (result.name() == websocketStore.clientName) {
+          personalResult.value = {
+            player: result.name() || '',
+            reaction_time: Number(result.reactionTime())
+          }
+        }
       }
 
       resultsData.value = {
@@ -149,18 +164,31 @@ defineExpose({
       </div>
     </div>
     <div v-else-if="viewState == ViewState.MiniGame">
-      <div>
-        <div v-if="lightsData.lights != -1">
+      <div class="h-full w-full flex flex-col justify-center text-center mr-auto">
+        <div>
+          <p class="text-4xl w-full text-center text-white mt-4">Press the button when all the lights hit green!</p>
+        </div>
+        <div v-if="lightsData.lights != -1" class="mt-4">
           <LightsComponent :value="lightsData.lights" />
         </div>
-        <button @click="sendPlayerAction(true)">Start!</button>
-        <div v-if="playerFeedback.reaction_time != -1">
+        <div class="m-auto mt-8">
+          <n-button type="primary" @click="sendPlayerAction(true)" :disabled="playerFeedback.reaction_time != -10000">
+            <p class="text-4xl m-4">Start!</p>
+          </n-button>
+        </div>
+        <div v-if="playerFeedback.reaction_time != -10000" class="mt-4">
           {{  playerFeedback.reaction_time }}
         </div>
       </div>
     </div>
     <div v-else-if="viewState == ViewState.Results">
-      
+      <div class="h-full w-full flex flex-cols mr-auto justify-center text-center">
+        <p v-if="personalResult" class="text-4xl text-center text-white mt-4">
+          <span v-if="personalResult.reaction_time >= 5000 && personalResult.reaction_time < 10000">Too early</span>
+          <span v-else-if="personalResult.reaction_time >= 10000">Too late</span>
+          <span v-else>reaction time: <span class="font-bold">{{ personalResult.reaction_time }}</span>ms</span>
+        </p>
+      </div>
     </div>
   </div>
 </template>

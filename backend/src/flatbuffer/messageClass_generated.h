@@ -1776,13 +1776,18 @@ inline ::flatbuffers::Offset<FBCrazyCountingResultPair> CreateFBCrazyCountingRes
 struct LaunchPartyLightsPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef LaunchPartyLightsPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_LIGHTS = 4
+    VT_PRATICE = 4,
+    VT_LIGHTS = 6
   };
+  bool pratice() const {
+    return GetField<uint8_t>(VT_PRATICE, 0) != 0;
+  }
   int16_t lights() const {
     return GetField<int16_t>(VT_LIGHTS, 0);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_PRATICE, 1) &&
            VerifyField<int16_t>(verifier, VT_LIGHTS, 2) &&
            verifier.EndTable();
   }
@@ -1792,6 +1797,9 @@ struct LaunchPartyLightsPayloadBuilder {
   typedef LaunchPartyLightsPayload Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_pratice(bool pratice) {
+    fbb_.AddElement<uint8_t>(LaunchPartyLightsPayload::VT_PRATICE, static_cast<uint8_t>(pratice), 0);
+  }
   void add_lights(int16_t lights) {
     fbb_.AddElement<int16_t>(LaunchPartyLightsPayload::VT_LIGHTS, lights, 0);
   }
@@ -1808,9 +1816,11 @@ struct LaunchPartyLightsPayloadBuilder {
 
 inline ::flatbuffers::Offset<LaunchPartyLightsPayload> CreateLaunchPartyLightsPayload(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    bool pratice = false,
     int16_t lights = 0) {
   LaunchPartyLightsPayloadBuilder builder_(_fbb);
   builder_.add_lights(lights);
+  builder_.add_pratice(pratice);
   return builder_.Finish();
 }
 

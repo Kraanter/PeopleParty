@@ -29,11 +29,12 @@ const intro = ref<IntroductionData>({
 })
 
 const lightsData = ref<LaunchPartyLights>({
-    lights: -1,
+  practice_round: true,
+  lights: -1,
 })
 
 const resultsData = ref<LaunchPartyResults>({
-    results: []
+  results: []
 })
 
 
@@ -46,6 +47,7 @@ const update = (data: MiniGamePayloadType) => {
       )
 
       lightsData.value = {
+        practice_round: lights.pratice(),
         lights: Number(lights.lights())
       }
       break
@@ -94,14 +96,27 @@ defineExpose({
       <Introduction :data="intro" logoSVG="/assets/games/memoryMixer/memoryMixerLogo.svg" />
     </div>
     <div v-else-if="viewState == ViewState.MiniGame">
-      {{ lightsData.lights }}
-      <div v-if="lightsData.lights != -1">
-        <LightsComponent :value="lightsData.lights" />
+      <div class="h-full w-full flex flex-col justiy-items text-center m-auto">
+        <div>
+          <p class="text-4xl w-full text-center text-white mt-4">Press the button when all the lights hit green!</p>
+        </div>
+        <div v-if="lightsData.lights != -1">
+          <div class="mt-4">
+            <LightsComponent :value="lightsData.lights" />
+          </div>
+        </div>
+        <div v-if="lightsData.practice_round">
+          <p class="text-4xl w-full text-center text-white mt-4">Warmup round, no points are given!</p>
+        </div>
+        <div v-else>
+          <p class="text-4xl w-full text-center text-white mt-4">Get ready!</p>
+        </div>
       </div>
     </div>
     <div v-else-if="viewState == ViewState.Results">
       <div class="flex flex-col gap-4 w-full h-full">
-        <p class="text-4xl w-full text-center text-white mt-4">Final Ranking:</p>
+        <p v-if="lightsData.practice_round" class="text-4xl w-full text-center text-white mt-4">Practice Ranking:</p>
+        <p v-else class="text-4xl w-full text-center text-white mt-4">Final Ranking:</p>
         <n-scrollbar class="-mb-4">
           <div class="grid gap-4">
             <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in resultsData.results" :key="i">

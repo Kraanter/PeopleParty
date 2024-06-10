@@ -1,4 +1,5 @@
 export interface LaunchPartyLights {
+    practice_round: boolean
     lights: number // 1-4 = red, 5 = all green
 }
 

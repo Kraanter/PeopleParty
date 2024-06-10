@@ -22,17 +22,26 @@ static getSizePrefixedRootAsLaunchPartyLightsPayload(bb:flatbuffers.ByteBuffer, 
   return (obj || new LaunchPartyLightsPayload()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-lights():number {
+pratice():boolean {
   const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
+lights():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt16(this.bb_pos + offset) : 0;
 }
 
 static startLaunchPartyLightsPayload(builder:flatbuffers.Builder) {
-  builder.startObject(1);
+  builder.startObject(2);
+}
+
+static addPratice(builder:flatbuffers.Builder, pratice:boolean) {
+  builder.addFieldInt8(0, +pratice, +false);
 }
 
 static addLights(builder:flatbuffers.Builder, lights:number) {
-  builder.addFieldInt16(0, lights, 0);
+  builder.addFieldInt16(1, lights, 0);
 }
 
 static endLaunchPartyLightsPayload(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -40,8 +49,9 @@ static endLaunchPartyLightsPayload(builder:flatbuffers.Builder):flatbuffers.Offs
   return offset;
 }
 
-static createLaunchPartyLightsPayload(builder:flatbuffers.Builder, lights:number):flatbuffers.Offset {
+static createLaunchPartyLightsPayload(builder:flatbuffers.Builder, pratice:boolean, lights:number):flatbuffers.Offset {
   LaunchPartyLightsPayload.startLaunchPartyLightsPayload(builder);
+  LaunchPartyLightsPayload.addPratice(builder, pratice);
   LaunchPartyLightsPayload.addLights(builder, lights);
   return LaunchPartyLightsPayload.endLaunchPartyLightsPayload(builder);
 }

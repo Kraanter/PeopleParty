@@ -23,8 +23,9 @@ watch(value, (newValue, oldValue) => {
 })
 </script>
 <template>
-   <div class="lights-container">
+   <div class="lights-container justify-center mr-auto bg-black">
     <div
+    class="mt-4 mb-4"
       v-for="index in 4"
       :key="index"
       :class="['light', getLightClass(index)]"
@@ -36,12 +37,13 @@ watch(value, (newValue, oldValue) => {
 <style scoped>
 .lights-container {
   display: flex;
-  gap: 10px;
+  gap: 20px;
+  border: 2px solid black;
 }
 
 .light {
-  width: 30px;
-  height: 30px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   background-color: gray;
 }

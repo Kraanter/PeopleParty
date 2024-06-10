@@ -1,4 +1,5 @@
 table LaunchPartyLightsPayload {
+    pratice: bool;
     lights: short;
 }
 
