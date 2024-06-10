@@ -33,6 +33,10 @@ const router = createRouter({
       name: 'info',
       component: () => import('../routes/InfoRoute.vue')
     },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/',
+    },
   ]
 })
 
