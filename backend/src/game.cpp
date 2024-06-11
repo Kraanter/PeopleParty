@@ -7,10 +7,8 @@
 Game::Game(Party* party) {
     this->party = party;
 
-    // For now adds all minigames
     MiniGame* minigame;
-
-    // todo: fixme to be random
+  
     int rnd = rand() % 4;
     if (rnd == 0) {
         minigame = new CrazyCounting_MiniGame(this);
@@ -22,6 +20,7 @@ Game::Game(Party* party) {
         minigame = new LaunchParty_Minigame(this);
     }
     miniGames.push(minigame);
+    last_minigame = minigame->get_camel_case_name();
 
     current_gamestate = new PartyPrep(this);
 }
