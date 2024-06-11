@@ -14,6 +14,7 @@
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
 #include "minigames/memory_mixer/memorymixer_mini_game.h"
 #include "minigames/business_bailout/business_bailout_minigame.h"
+#include "minigames/launch_party/launch_party_mini_game.h"
 #include <queue>
 #include <map>
 #include <algorithm>
@@ -55,6 +56,7 @@ public:
                     temp_minigames.push_back(new CrazyCounting_MiniGame(this));
                     temp_minigames.push_back(new BusinessBailout_Minigame(this));
                     temp_minigames.push_back(new MemoryMixer_MiniGame(this));
+                    temp_minigames.push_back(new LaunchParty_Minigame(this));
 
                     auto rd = std::random_device {}; 
                     auto rng = std::default_random_engine { rd() };

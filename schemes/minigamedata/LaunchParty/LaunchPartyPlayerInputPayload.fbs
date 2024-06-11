@@ -1,0 +1,5 @@
+table LaunchPartyPlayerInputPayload {
+    pressed: bool;
+}
+
+root_type LaunchPartyPlayerInputPayload;

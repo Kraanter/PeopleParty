@@ -1,0 +1,5 @@
+table LaunchPartyPlayerTimePayload {
+    time: long;
+}
+
+root_type LaunchPartyPlayerTimePayload;
