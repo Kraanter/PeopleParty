@@ -59,7 +59,7 @@ watch(() => getCodeString(), debounceCodeString)
 
 const codeString = ref(getCodeString())
 const joinable = computed(
-  () => codeString.value?.length === partyCodeLength && username.value.length > 3
+  () => codeString.value?.length === partyCodeLength && username.value.length > 1
 )
 
 const joining = computed(() => !!joinPromise.value)

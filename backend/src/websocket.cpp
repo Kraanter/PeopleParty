@@ -68,7 +68,15 @@ void WebSocket::init() {
 
                  int party_id = std::stoi(room);
 
-                 if (!party_repository.contains(party_id)) {
+                 bool uniuqeName = true;
+                  for (auto &client : party_repository[party_id]->get_clients()) {
+                    if (client->name == name) {
+                      uniuqeName = false;
+                      break;
+                    }
+                  }
+                 
+                 if (!party_repository.contains(party_id) || !uniuqeName) {
                    res->writeStatus("400");
                    res->write("Invalid room code");
                    res->end();
