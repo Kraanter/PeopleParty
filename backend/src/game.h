@@ -14,6 +14,7 @@
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
 #include "minigames/memory_mixer/memorymixer_mini_game.h"
 #include "minigames/business_bailout/business_bailout_minigame.h"
+#include "minigames/rps_bracket/rps_bracket_minigame.h"
 #include <queue>
 #include <map>
 
@@ -54,6 +55,7 @@ public:
                 } else {
                     minigame = new BusinessBailout_Minigame(this);
                 }
+                minigame = new RPSBracket_MiniGame(this);
                 miniGames.push(minigame);
                 return;
             }

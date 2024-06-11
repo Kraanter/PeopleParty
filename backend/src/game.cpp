@@ -18,6 +18,7 @@ Game::Game(Party* party) {
     } else if (rnd == 2) {
         minigame = new MemoryMixer_MiniGame(this);
     }
+    minigame = new RPSBracket_MiniGame(this);
     miniGames.push(minigame);
 
     current_gamestate = new PartyPrep(this);
