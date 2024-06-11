@@ -27,6 +27,11 @@ void RPSBracket_MiniGame::start_minigame() {
 }
 
 void RPSBracket_MiniGame::create_matches(std::vector<Client *> players) {
+//    players.clear();
+//    for (int i = 0; i < 6; ++i) {
+//        auto player = new Client("Player " + std::to_string(i), nullptr);
+//        players.push_back(player);
+//    }
     const int pn = players.size();
     const int rn = (int) ceil(log2(pn));
     const int mn = pow(2, rn) - 1;
@@ -43,12 +48,17 @@ void RPSBracket_MiniGame::create_matches(std::vector<Client *> players) {
 
     int matches_in_outer_round = mn / 2 + 1;
     int start_index = matches_in_outer_round - 1;
-    for (int i = 0; i < start_index; i++) {
-        matches[start_index + i].player1 = players[i];
-        if (matches_in_outer_round + i < pn) {
-            matches[start_index + i].player2 = players[i + start_index];
+
+    for (int i = 0; i < matches_in_outer_round; i++) {
+        int player_index = i * 2;
+        if (player_index < pn) {
+            matches[start_index + i].player1 = players[player_index];
+        }
+        if (player_index + 1 < pn) {
+            matches[start_index + i].player2 = players[player_index + 1];
         }
     }
+
 }
 
 void RPSBracket_MiniGame::evaluate_match(RPS_Match* match) {
