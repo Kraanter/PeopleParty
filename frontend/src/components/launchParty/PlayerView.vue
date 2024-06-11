@@ -90,13 +90,13 @@ const update = (data: MiniGamePayloadType) => {
       for (let i = 0; i < miniGameResultPayload.minigameResultsLength(); i++) {
         const result = miniGameResultPayload.minigameResults(i)
         results.push({
-          player: result.name() || '',
+          player: decodeURI(result.name()) || '',
           reaction_time: Number(result.reactionTime())
         })
 
         if (result.name() == websocketStore.clientName) {
           personalResult.value = {
-            player: result.name() || '',
+            player: decodeURI(result.name()) || '',
             reaction_time: Number(result.reactionTime())
           }
         }

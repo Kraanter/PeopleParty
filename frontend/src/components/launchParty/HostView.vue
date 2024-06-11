@@ -60,7 +60,7 @@ const update = (data: MiniGamePayloadType) => {
       for(let i = 0; i < miniGameResultPayload.minigameResultsLength(); i++) {
         const result = miniGameResultPayload.minigameResults(i)
         results.push({
-          player: result.name() || '',
+          player: decodeURI(result.name()) || '',
           reaction_time: Number(result.reactionTime())
         })
       }
@@ -93,7 +93,7 @@ defineExpose({
 <template>
   <div class="h-full">
     <div v-if="viewState == ViewState.Introduction">
-      <Introduction :data="intro" logoSVG="/assets/games/memoryMixer/memoryMixerLogo.svg" />
+      <Introduction :data="intro" logoSVG="/assets/games/launchParty/launchPartyLogo.svg" />
     </div>
     <div v-else-if="viewState == ViewState.MiniGame">
       <div class="h-full w-full flex flex-col justiy-items text-center m-auto mt-16">
