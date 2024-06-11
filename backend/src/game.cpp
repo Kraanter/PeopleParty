@@ -11,7 +11,7 @@ Game::Game(Party* party) {
     MiniGame* minigame;
 
     // todo: fixme to be random
-    int rnd = 3;
+    int rnd = rand() % 4;
     if (rnd == 0) {
         minigame = new CrazyCounting_MiniGame(this);
     } else if (rnd == 1) {

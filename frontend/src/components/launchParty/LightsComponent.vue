@@ -23,29 +23,27 @@ watch(value, (newValue, oldValue) => {
 })
 </script>
 <template>
-   <div class="lights-container justify-center mr-auto bg-black">
-    <div
-    class="mt-4 mb-4"
-      v-for="index in 4"
-      :key="index"
-      :class="['light', getLightClass(index)]"
-    ></div>
+  <div class="m-8">
+    <div class="lights-container grid grid-cols-4 justify-center text-center h-full w-full bg-black">
+      <div class="m-4 justify-center" v-for="index in 4" :key="index">
+        <div class="m-auto" :class="['light', getLightClass(index)]"> </div>
+      </div>
+   </div>
   </div>
 </template>
 
 
 <style scoped>
 .lights-container {
-  display: flex;
-  gap: 20px;
   border: 2px solid black;
+  border-radius: 20px;
 }
 
 .light {
-  width: 90px;
-  height: 90px;
   border-radius: 50%;
   background-color: gray;
+  width: 15vw;
+  height: 15vw;
 }
 
 .red-light {

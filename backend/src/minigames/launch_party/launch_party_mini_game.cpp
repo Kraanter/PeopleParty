@@ -61,7 +61,7 @@ void LaunchParty_Minigame::update(int delta_time) {
 
         if (lights_time <= 0) {
             phase = 1;
-            reaction_time = std::chrono::high_resolution_clock::now();
+            reaction_time = std::chrono::steady_clock::now();
             send_lights_data(4);
         }
     } else if (phase == 1) {
@@ -70,7 +70,7 @@ void LaunchParty_Minigame::update(int delta_time) {
 
         if (wait_for_green_time <= 0) {
             send_lights_data(5);
-            reaction_time = std::chrono::high_resolution_clock::now();
+            reaction_time = std::chrono::steady_clock::now();
             phase = 2;
         }
     } else if (phase == 2) {
@@ -87,7 +87,6 @@ void LaunchParty_Minigame::update(int delta_time) {
             phase = 0;
             start_result();
         }
-
     }
 }
 
@@ -115,7 +114,7 @@ void LaunchParty_Minigame::process_input(const MiniGamePayloadType *payload, Cli
 
             // to calculate the network delay
             if (phase == 1 && !input->pressed()) {
-                auto t_end = std::chrono::high_resolution_clock::now();
+                auto t_end = std::chrono::steady_clock::now();
                 players[from].lag_time = std::chrono::duration<double, std::milli>(t_end - reaction_time).count();
             }
 
@@ -126,7 +125,7 @@ void LaunchParty_Minigame::process_input(const MiniGamePayloadType *payload, Cli
                     players[from].reaction_time = 5 SECONDS + wait_for_green_time;
                 }
                 if (phase == 2) {
-                    auto t_end = std::chrono::high_resolution_clock::now();
+                    auto t_end = std::chrono::steady_clock::now();
                     int difference_ms = std::chrono::duration<double, std::milli>(t_end - reaction_time).count();
 
                     players[from].reaction_time = difference_ms - players[from].lag_time;
@@ -162,7 +161,7 @@ void LaunchParty_Minigame::send_player_data(Client *player) {
     auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_LaunchPartyPlayerTime,
                                                       GameStatePayload_LaunchPartyPlayerTimePayload, payload.Union());
 
-    game->party->send_gamestate([](Client* client) { return true; }, builder, gameStatePayload.Union());
+    game->party->send_gamestate([player](Client* client) { return client->client_id == player->client_id; }, builder, gameStatePayload.Union());
 }
 
 void LaunchParty_Minigame::send_result_data() {

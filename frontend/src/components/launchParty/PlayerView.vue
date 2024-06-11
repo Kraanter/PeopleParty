@@ -43,7 +43,7 @@ const playerFeedback = ref<LaunchPartyPlayerFeedback>({
 })
 
 const resultsData = ref<LaunchPartyResults>({
-    results: []
+  results: []
 })
 
 const personalResult = ref<LauncPartyResultPair>({
@@ -87,7 +87,7 @@ const update = (data: MiniGamePayloadType) => {
       const miniGameResultPayload: LaunchPartyResultPayload = data.gamestatepayload(new LaunchPartyResultPayload())
 
       const results: LauncPartyResultPair[] = []
-      for(let i = 0; i < miniGameResultPayload.minigameResultsLength(); i++) {
+      for (let i = 0; i < miniGameResultPayload.minigameResultsLength(); i++) {
         const result = miniGameResultPayload.minigameResults(i)
         results.push({
           player: result.name() || '',
@@ -148,47 +148,53 @@ defineExpose({
 })
 </script>
 <template>
-  <div class="h-full">
-    <div v-if="viewState == ViewState.Introduction">
-      <div class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
-        <div class="w-full flex justify-center px-8">
-          <div>
-            <TimeComponent :timeLeft="intro.time_left" />
-          </div>
-        </div>
+  <template v-if="viewState == ViewState.Introduction">
+    <div class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
+      <div class="w-full flex justify-center px-8">
         <div>
-          <div class="w-full h-full mt-16">
-            <p class="text-4xl text-white">{{ intro.description }}</p>
-          </div>
+          <TimeComponent :timeLeft="intro.time_left" />
+        </div>
+      </div>
+      <div>
+        <div class="w-full h-full mt-16">
+          <p class="text-4xl text-white">{{ intro.description }}</p>
         </div>
       </div>
     </div>
-    <div v-else-if="viewState == ViewState.MiniGame">
-      <div class="h-full w-full flex flex-col justify-center text-center mr-auto">
-        <div>
-          <p class="text-4xl w-full text-center text-white mt-4">Press the button when all the lights hit green!</p>
+  </template>
+  <template v-else-if="viewState == ViewState.MiniGame">
+    <div class="mt-32">
+      <div class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
+        <div class="m-auto w-full">
+          <p class="text-3xl text-center text-white mt-4">Press the button when all the lights hit green!</p>
         </div>
         <div v-if="lightsData.lights != -1" class="mt-4">
           <LightsComponent :value="lightsData.lights" />
         </div>
-        <div class="m-auto mt-8">
+        <div class="m-auto mt-4">
           <n-button type="primary" @click="sendPlayerAction(true)" :disabled="playerFeedback.reaction_time != -10000">
             <p class="text-4xl m-4">Start!</p>
           </n-button>
         </div>
+        <div v-if="lightsData.practice_round">
+          <p class="text-3xl w-full text-center text-white mt-4">Warmup round, no points are given!</p>
+        </div>
         <div v-if="playerFeedback.reaction_time != -10000" class="mt-4">
-          {{  playerFeedback.reaction_time }}
+          <p class="text-3xl text-center text-white mt-2">
+            <span v-if="playerFeedback.reaction_time < 0">Too early!</span>
+            <span v-else>reaction time: <span class="font-bold">{{ playerFeedback.reaction_time }}</span>ms</span>
+          </p>
         </div>
       </div>
     </div>
-    <div v-else-if="viewState == ViewState.Results">
-      <div class="h-full w-full flex flex-cols mr-auto justify-center text-center">
-        <p v-if="personalResult" class="text-4xl text-center text-white mt-4">
-          <span v-if="personalResult.reaction_time >= 5000 && personalResult.reaction_time < 10000">Too early</span>
-          <span v-else-if="personalResult.reaction_time >= 10000">Too late</span>
-          <span v-else>reaction time: <span class="font-bold">{{ personalResult.reaction_time }}</span>ms</span>
-        </p>
-      </div>
+  </template>
+  <template v-else-if="viewState == ViewState.Results">
+    <div class="h-full w-full flex flex-cols mr-auto justify-center text-center mt-40">
+      <p v-if="personalResult" class="text-4xl text-center text-white mt-4">
+        <span v-if="personalResult.reaction_time >= 5000 && personalResult.reaction_time < 10000">Too early</span>
+        <span v-else-if="personalResult.reaction_time >= 10000">Too late</span>
+        <span v-else>reaction time: <span class="font-bold">{{ personalResult.reaction_time }}</span>ms</span>
+      </p>
     </div>
-  </div>
+  </template>
 </template>

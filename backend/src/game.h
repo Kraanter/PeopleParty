@@ -51,7 +51,7 @@ public:
                 // fixme: find a better way of selecting a random minigame
                 MiniGame* minigame;
 
-                int rnd = 3;
+                int rnd = rand() % 4;
                 if (rnd == 0) {
                     minigame = new CrazyCounting_MiniGame(this);
                 } else if (rnd == 1) {

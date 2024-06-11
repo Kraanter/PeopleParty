@@ -96,13 +96,13 @@ defineExpose({
       <Introduction :data="intro" logoSVG="/assets/games/memoryMixer/memoryMixerLogo.svg" />
     </div>
     <div v-else-if="viewState == ViewState.MiniGame">
-      <div class="h-full w-full flex flex-col justiy-items text-center m-auto">
+      <div class="h-full w-full flex flex-col justiy-items text-center m-auto mt-16">
         <div>
           <p class="text-4xl w-full text-center text-white mt-4">Press the button when all the lights hit green!</p>
         </div>
         <div v-if="lightsData.lights != -1">
           <div class="mt-4">
-            <LightsComponent :value="lightsData.lights" />
+              <LightsComponent :value="lightsData.lights" />
           </div>
         </div>
         <div v-if="lightsData.practice_round">
