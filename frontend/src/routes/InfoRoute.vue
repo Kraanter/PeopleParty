@@ -10,7 +10,7 @@ const { versionNumber } = storeToRefs(viewStore)
     <div v-if="isMobile()">
         <div class="h-full w-full grid grid-rows-8 grid-cols-1 justify-center">
             <div class="row-start-1 row-span-7 max-h contain-content">
-                <img class="h-full w-full" src="./../../public/assets/info-phone.svg" />
+                <img class="h-full w-full" src="/assets/info-phone.svg" />
             </div>
             <div class="m-auto row-start-8 justify-center text-center">
                 <router-link to="/join" class="underline mr-4 text-2xl">Join a party!</router-link> 
@@ -21,7 +21,7 @@ const { versionNumber } = storeToRefs(viewStore)
     <div v-else>
         <div class="w-full h-full grid grid-rows-8 grid-cols-1 justify-center">
             <div class="row-start-1 row-span-7 max-h contain-content">
-                <img class="h-full w-full" src="./../../public/assets/info-desktop.svg" />
+                <img class="h-full w-full" src="/assets/info-desktop.svg" />
             </div>
             <div class="row-start-8 grid grid-cols-3 justify-center text-center">
                 <p class="justify-start text-start mt-auto ml-2 mb-2">{{ versionNumber }}</p>

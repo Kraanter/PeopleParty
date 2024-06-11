@@ -7,10 +7,9 @@
 Game::Game(Party* party) {
     this->party = party;
 
-    // For now adds all minigames
     MiniGame* minigame;
-
     int rnd = rand() % 3;
+
     if (rnd == 0) {
         minigame = new CrazyCounting_MiniGame(this);
     } else if (rnd == 1) {
@@ -19,6 +18,7 @@ Game::Game(Party* party) {
         minigame = new MemoryMixer_MiniGame(this);
     }
     miniGames.push(minigame);
+    last_minigame = minigame->get_camel_case_name();
 
     current_gamestate = new PartyPrep(this);
 }
