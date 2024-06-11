@@ -16,6 +16,7 @@ private:
     ThreadTimer minigame_timer;
     ThreadTimer result_timer;
     std::map<Client*, LaunchParty_Player_Data> players;
+    Client* host;
     int phase = 0; // 0 = lights slowly go red, 1 = wait for light to turn green, 2 = light is green and wait for players
     int lights_time;
     int wait_for_green_time;
@@ -36,9 +37,9 @@ public:
     std::string get_description() override { return "Test your reaction time!"; };
 private:
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
-    void send_lights_data(int lights_on);
+    void send_lights_data(int client_id, int lights_on);
     void send_player_data(Client* player);
-    void send_result_data();
+    void send_result_data(int client_id);
     void introduction_update(int delta_time);
 };
 
