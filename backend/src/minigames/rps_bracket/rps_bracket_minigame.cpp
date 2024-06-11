@@ -232,10 +232,43 @@ std::vector<Client *> RPSBracket_MiniGame::getMinigameResult() {
 }
 
 void RPSBracket_MiniGame::process_input(const MiniGamePayloadType *payload, Client *from) {
-
+    switch (payload->gamestatetype()) {
+        case GameStateType_RPSBracketPlayerInput: {
+            auto input = payload->gamestatepayload_as_RPSBracketPlayerInputPayload();
+            for (RPS_Match &match : matches) {
+                if (match.player1 == from) {
+                    match.player1_choice = (RPS_Choice) input->choice();
+                } else if (match.player2 == from) {
+                    match.player2_choice = (RPS_Choice) input->choice();
+                }
+            }
+            break;
+        }
+    }
 }
 
 void RPSBracket_MiniGame::send_players_update() {
+    for (auto match : matches) {
+        if (match.player1 != nullptr || match.player2 != nullptr) {
+            send_match_update(match);
+        }
+    }
+}
 
+void RPSBracket_MiniGame::send_match_update(const RPS_Match match) {
+    if (match.player1 != nullptr) {
+        flatbuffers::FlatBufferBuilder builder;
+        auto opponent_name = match.player2 != nullptr ? match.player2->name : "";
+        auto payload = CreateRPSBracketPlayerPayload(builder, (FB_RPSChoice) match.player1_choice, (FB_RPSChoice) match.player2_choice, builder.CreateString(opponent_name));
+        auto gamestatePayload = CreateMiniGamePayloadType(builder, builder.CreateString(get_camel_case_name()), GameStateType_RPSBracketPlayer, GameStatePayload_RPSBracketPlayerPayload, payload.Union());
+        this->game->party->send_gamestate([match](Client* c){ return c->client_id == match.player1->client_id;}, builder, gamestatePayload.Union());
+    }
+    if (match.player2 != nullptr) {
+        flatbuffers::FlatBufferBuilder builder;
+        auto opponent_name = match.player1 != nullptr ? match.player1->name : "";
+        auto payload = CreateRPSBracketPlayerPayload(builder, (FB_RPSChoice) match.player2_choice, (FB_RPSChoice) match.player1_choice, builder.CreateString(opponent_name));
+        auto gamestatePayload = CreateMiniGamePayloadType(builder, builder.CreateString(get_camel_case_name()), GameStateType_RPSBracketPlayer, GameStatePayload_RPSBracketPlayerPayload, payload.Union());
+        this->game->party->send_gamestate([match](Client* c){ return c->client_id == match.player2->client_id;}, builder, gamestatePayload.Union());
+    }
 }
 

@@ -46,6 +46,7 @@ private:
     void promote_winners();
     void update(int delta_time) override;
     void introduction_update(int delta_time);
+    void send_match_update(const RPS_Match match);
 private:
     ThreadTimer introduction_timer;
     int introduction_time = 5 SECONDS;
