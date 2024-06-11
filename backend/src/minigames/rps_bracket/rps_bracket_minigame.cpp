@@ -10,6 +10,11 @@ RPSBracket_MiniGame::RPSBracket_MiniGame(Game *game) : MiniGame(game) {
 
 }
 
+RPSBracket_MiniGame::~RPSBracket_MiniGame() {
+    timer.clear();
+    result_timer.clear();
+}
+
 void RPSBracket_MiniGame::start_minigame() {
     for ( auto client : game->get_clients()) {
         if (client->isHost) continue;
@@ -21,7 +26,7 @@ void RPSBracket_MiniGame::start_minigame() {
 
 void RPSBracket_MiniGame::create_matches(std::vector<Client *> players) {
     players.clear();
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 20; ++i) {
         auto player = new Client("Player " + std::to_string(i), nullptr);
         players.push_back(player);
     }
@@ -84,10 +89,11 @@ void RPSBracket_MiniGame::evaluate_match(RPS_Match* match) {
     if (match->player1_choice == NONE && match->player2_choice == NONE) {
         if (rand() % 2 == 0) {
             match->winner = match->player1;
+            minigame_result.push(match->player2);
         } else {
             match->winner = match->player2;
+            minigame_result.push(match->player1);
         }
-        std::cout << match->winner->name << " won" << std::endl;
         promote_winners();
         return;
     }
@@ -96,10 +102,11 @@ void RPSBracket_MiniGame::evaluate_match(RPS_Match* match) {
     if (match->player1_choice == NONE || match->player2_choice == NONE) {
         if (match->player1_choice == NONE) {
             match->winner = match->player2;
+            minigame_result.push(match->player1);
         } else {
             match->winner = match->player1;
+            minigame_result.push(match->player2);
         }
-        std::cout << match->winner->name << " won" << std::endl;
         promote_winners();
         return;
     }
@@ -111,12 +118,16 @@ void RPSBracket_MiniGame::evaluate_match(RPS_Match* match) {
         match->player2_choice = NONE;
     } else if (match->player1_choice == ROCK && match->player2_choice == SCISSORS) {
         match->winner = match->player1;
+        minigame_result.push(match->player2);
     } else if (match->player1_choice == PAPER && match->player2_choice == ROCK) {
         match->winner = match->player1;
+        minigame_result.push(match->player2);
     } else if (match->player1_choice == SCISSORS && match->player2_choice == PAPER) {
         match->winner = match->player1;
+        minigame_result.push(match->player2);
     } else {
         match->winner = match->player2;
+        minigame_result.push(match->player1);
     }
 
     promote_winners();
@@ -158,8 +169,9 @@ void RPSBracket_MiniGame::update_matches(int delta_time) {
 
 void RPSBracket_MiniGame::update(int delta_time) {
     if (matches[0].winner != nullptr) {
-        std::cout << "winner is: " << matches[0].winner->name << std::endl;
+        minigame_result.push(matches[0].winner);
         start_result();
+        timer.clear();
     }
     update_matches(delta_time);
     send_host_update();
@@ -183,15 +195,40 @@ void RPSBracket_MiniGame::send_host_update() {
 }
 
 void RPSBracket_MiniGame::start_introduction() {
-    start_minigame();
+    const int introduction_interval = 500 MILLISECONDS;
+    introduction_timer.setInterval([this]() {
+        introduction_update(introduction_interval);
+    }, introduction_interval);
+}
+
+void RPSBracket_MiniGame::introduction_update(int dt) {
+    introduction_time -= dt;
+    if (introduction_time <= 0) {
+        introduction_timer.clear();
+        start_minigame();
+        return;
+    }
+    send_minigame_introduction(get_camel_case_name(), introduction_time, get_display_name(), get_description());
 }
 
 void RPSBracket_MiniGame::start_result() {
-    timer.clear();
+    auto res = getMinigameResult();
+    for (auto client : res) {
+        std::cout << client->name << std::endl;
+    }
+
+    result_timer.setTimeout([this]() {
+        finished();
+    }, 5 SECONDS);
 }
 
 std::vector<Client *> RPSBracket_MiniGame::getMinigameResult() {
-    return std::vector<Client *>();
+    std::vector<Client *> res;
+    while (!minigame_result.empty()) {
+        res.push_back(minigame_result.top());
+        minigame_result.pop();
+    }
+    return res;
 }
 
 void RPSBracket_MiniGame::process_input(const MiniGamePayloadType *payload, Client *from) {
