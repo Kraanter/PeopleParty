@@ -9,7 +9,7 @@ export enum ViewState {
 }
 
 export const useViewStore = defineStore('view', () => {
-  const viewState = ref<ViewState>(ViewState.None)
+  const viewState = ref<ViewState>(ViewState.MiniGame)
   const viewData = ref<any>()
 
   function setViewState(state: ViewState, defaultData: any = null) {
