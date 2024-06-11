@@ -278,7 +278,7 @@ const join = () => {
 
       <div class="grid grid-cols-3 justify-between w-full bottom-0 m-auto mb-10">
         <p class="flex">{{ versionNumber }}</p>
-        <div class="flex justify-center items-center">
+        <div class="flex col-span-2 justify-start items-center">
           <router-link v-if="!(joining || joined)" to="/host" class="underline">
             Host your own party!
           </router-link>
