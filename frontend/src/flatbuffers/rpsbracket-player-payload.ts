@@ -30,21 +30,41 @@ choice():FB_RPSChoice {
   return offset ? this.bb!.readInt8(this.bb_pos + offset) : FB_RPSChoice.ROCK;
 }
 
-remainingTime():number {
+opponentChoice():FB_RPSChoice {
   const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : FB_RPSChoice.ROCK;
+}
+
+opponentName():string|null
+opponentName(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+opponentName(optionalEncoding?:any):string|Uint8Array|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+remainingTime():number {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
 static startRPSBracketPlayerPayload(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(4);
 }
 
 static addChoice(builder:flatbuffers.Builder, choice:FB_RPSChoice) {
   builder.addFieldInt8(0, choice, FB_RPSChoice.ROCK);
 }
 
+static addOpponentChoice(builder:flatbuffers.Builder, opponentChoice:FB_RPSChoice) {
+  builder.addFieldInt8(1, opponentChoice, FB_RPSChoice.ROCK);
+}
+
+static addOpponentName(builder:flatbuffers.Builder, opponentNameOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, opponentNameOffset, 0);
+}
+
 static addRemainingTime(builder:flatbuffers.Builder, remainingTime:number) {
-  builder.addFieldInt32(1, remainingTime, 0);
+  builder.addFieldInt32(3, remainingTime, 0);
 }
 
 static endRPSBracketPlayerPayload(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -52,9 +72,11 @@ static endRPSBracketPlayerPayload(builder:flatbuffers.Builder):flatbuffers.Offse
   return offset;
 }
 
-static createRPSBracketPlayerPayload(builder:flatbuffers.Builder, choice:FB_RPSChoice, remainingTime:number):flatbuffers.Offset {
+static createRPSBracketPlayerPayload(builder:flatbuffers.Builder, choice:FB_RPSChoice, opponentChoice:FB_RPSChoice, opponentNameOffset:flatbuffers.Offset, remainingTime:number):flatbuffers.Offset {
   RPSBracketPlayerPayload.startRPSBracketPlayerPayload(builder);
   RPSBracketPlayerPayload.addChoice(builder, choice);
+  RPSBracketPlayerPayload.addOpponentChoice(builder, opponentChoice);
+  RPSBracketPlayerPayload.addOpponentName(builder, opponentNameOffset);
   RPSBracketPlayerPayload.addRemainingTime(builder, remainingTime);
   return RPSBracketPlayerPayload.endRPSBracketPlayerPayload(builder);
 }

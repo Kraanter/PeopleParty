@@ -7,6 +7,8 @@ enum FB_RPSChoice : byte {
 
 table RPSBracketPlayerPayload {
     choice: FB_RPSChoice;
+    opponent_choice: FB_RPSChoice;
+    opponent_name: string;
     remaining_time: int;
 }
 
