@@ -31,7 +31,7 @@ public:
     void start_result() override;
     std::vector<Client*> getMinigameResult() override;
     std::string get_display_name() override { return "Rock Paper Scissors Bracket"; }
-    std::string get_camel_case_name() override { return "rps_bracket"; }
+    std::string get_camel_case_name() override { return "rpsBracket"; }
     std::string get_description() override { return "Rock Paper Scissors Bracket Tournament"; }
     void clients_changed(int client_id, bool joined) override { };
 private:

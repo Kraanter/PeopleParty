@@ -10,28 +10,21 @@ RPSBracket_MiniGame::RPSBracket_MiniGame(Game *game) : MiniGame(game) {
 
 }
 
-void print_matches(std::vector<RPS_Match> matches) {
-    for (RPS_Match &match : matches) {
-        std::cout << "Player1: " << (match.player1 != nullptr ? match.player1->name : "null") << " Player2: " << (match.player2 != nullptr ? match.player2->name : "null") << " Winner: " << (match.winner != nullptr ? match.winner->name : "null") << std::endl;
-    }
-}
-
 void RPSBracket_MiniGame::start_minigame() {
     for ( auto client : game->get_clients()) {
         if (client->isHost) continue;
         players.push_back(client);
     }
     create_matches(players);
-    print_matches(matches);
     timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
 
 void RPSBracket_MiniGame::create_matches(std::vector<Client *> players) {
-//    players.clear();
-//    for (int i = 0; i < 6; ++i) {
-//        auto player = new Client("Player " + std::to_string(i), nullptr);
-//        players.push_back(player);
-//    }
+    players.clear();
+    for (int i = 0; i < 6; ++i) {
+        auto player = new Client("Player " + std::to_string(i), nullptr);
+        players.push_back(player);
+    }
     const int pn = players.size();
     const int rn = (int) ceil(log2(pn));
     const int mn = pow(2, rn) - 1;
@@ -48,14 +41,27 @@ void RPSBracket_MiniGame::create_matches(std::vector<Client *> players) {
 
     int matches_in_outer_round = mn / 2 + 1;
     int start_index = matches_in_outer_round - 1;
+    std::vector<int> population_order;
+    for(int i = 0; i < matches_in_outer_round / 2; i++) {
+        population_order.push_back(start_index + i);
+        population_order.push_back(start_index + i + matches_in_outer_round / 2);
+    }
+    for(int i = 0; i < population_order.size(); i++) {
+        int index = population_order[i];
+        matches[index].player1 = players[i];
+    }
 
-    for (int i = 0; i < matches_in_outer_round; i++) {
-        int player_index = i * 2;
-        if (player_index < pn) {
-            matches[start_index + i].player1 = players[player_index];
+    for(int i = 0; i < population_order.size(); i++) {
+        int index = population_order[i];
+        if (i + population_order.size() >= players.size()) {
+            break;
         }
-        if (player_index + 1 < pn) {
-            matches[start_index + i].player2 = players[player_index + 1];
+        matches[index].player2 = players[i + population_order.size()];
+    }
+
+    for(int i = 0; i < matches.size(); i++) {
+        if (matches[i].player1 == nullptr || matches[i].player2 == nullptr) {
+            evaluate_match(&matches[i]);
         }
     }
 
@@ -113,7 +119,6 @@ void RPSBracket_MiniGame::evaluate_match(RPS_Match* match) {
         match->winner = match->player2;
     }
 
-    std::cout << match->winner->name << " won" << std::endl;
     promote_winners();
 }
 
@@ -125,7 +130,6 @@ void RPSBracket_MiniGame::promote_winners() {
         int li = i - rl;
         int p1i = li * 2 + (pow(2, (ri + 1)) - 1);
         int p2i = p1i + 1;
-        std::cout << "i: " << i << " p1i: " << p1i << " p2i: " << p2i << std::endl;
         if (p1i >= matches.size() || p2i >= matches.size()) {
             continue;
         }
@@ -141,7 +145,6 @@ void RPSBracket_MiniGame::update_matches(int delta_time) {
         }
 
         if (match.player1 == nullptr || match.player2 == nullptr) {
-            evaluate_match(&match);
             continue;
         }
 
@@ -184,9 +187,7 @@ void RPSBracket_MiniGame::start_introduction() {
 }
 
 void RPSBracket_MiniGame::start_result() {
-    timer.setTimeout([this]() {
-        finished();
-    }, 10 SECONDS);
+    timer.clear();
 }
 
 std::vector<Client *> RPSBracket_MiniGame::getMinigameResult() {

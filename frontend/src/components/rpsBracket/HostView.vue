@@ -2,7 +2,11 @@
 import { Application } from 'vue3-pixi'
 import { computed, defineProps, ref, toRefs } from 'vue'
 import { Graphics } from 'pixi.js'
-import { createBracket, type BracketMatch } from './bracket'
+import { type BracketMatch, createBracket } from './bracket'
+import { GameStateType } from '@/flatbuffers/game-state-type'
+import { MiniGameIntroductionPayload } from '@/flatbuffers/mini-game-introduction-payload'
+import { RPSBracketHostPayload } from '@/flatbuffers/rpsbracket-host-payload'
+import type { MiniGamePayloadType } from '@/flatbuffers/mini-game-payload-type'
 
 const props = defineProps<{
   width: number
@@ -10,6 +14,15 @@ const props = defineProps<{
 }>()
 
 const { width, height } = toRefs(props)
+
+enum ViewState {
+  None,
+  Introduction,
+  MiniGame,
+  Results
+}
+
+const viewState = ref<ViewState>(ViewState.None);
 
 // The single elimination bracket has all matches and the matches have the teams
 // The last match is the final, the second to last is the semi-final, etc.
@@ -28,13 +41,13 @@ const calcBracketWidth = (cols: number): number => (width.value - xMargin * 2) /
 
 function getCircleColor(match: BracketMatch, right: boolean) {
   const toCheckProp = right ? 'right' : 'left'
-  if (!match) return 0x000000
+  if (!match ) return 0x000000
 
-  if (!match.winner) {
-    return match[toCheckProp] ? 0xffffff : 0x000000
+  if (!match.winner?.name) {
+    return match[toCheckProp]?.name ? 0xffffff : 0x000000
   }
 
-  return match.winner === toCheckProp ? 0x00ff00 : 0xff0000
+  return match.winner.name === match[toCheckProp]?.name ? 0x00ff00 : 0xff0000
 }
 
 function drawMatch(
@@ -56,6 +69,9 @@ function drawMatch(
 
   if (flip) {
     ;[x, y, width, height] = [x + width, y + height, -width, -height]
+    let temp = match.left;
+    match.left = match.right;
+    match.right = temp;
   }
   // top line
   if (round > 0 || match.left) {
@@ -139,14 +155,50 @@ function render(graphics: Graphics) {
     }
   }
 }
+
+function update(payload: MiniGamePayloadType) {
+  switch (payload.gamestatetype()) {
+    case GameStateType.MiniGameIntroduction: {
+      viewState.value = ViewState.Introduction
+      const introPayload: MiniGameIntroductionPayload = payload.gamestatepayload(
+        new MiniGameIntroductionPayload()
+      )
+      intro.value = {
+        title: introPayload.name() || '',
+        description: introPayload.instruction() || '',
+        time_left: Number(introPayload.timeLeft())
+      }
+      break
+    }
+    case GameStateType.RPSBracketHost: {
+      if (viewState.value === ViewState.Results) break
+      viewState.value = ViewState.MiniGame
+      const input : RPSBracketHostPayload = payload.gamestatepayload(new RPSBracketHostPayload());
+
+      const matches : BracketMatch[] = [];
+      for (let i = 0; i < input.matchesLength(); i++) {
+        const matchfb = input.matches(i);
+        const match = { left: { name: matchfb?.player1() }, right: { name: matchfb?.player2() }, winner: { name: matchfb?.winner() } };
+        matches.push(match);
+      }
+      console.log(matches);
+      bracket.value.matches = matches;
+      break
+    }
+    default:
+      throw new Error(`Unknown gamestatetype: ${payload.gamestatetype()}`)
+  }
+}
+
+defineExpose({ update })
 </script>
 <template>
   <div>
     <div
-      v-if="bracket.matches[0]?.winner"
+      v-if="bracket.matches[0]?.winner?.name"
       class="absolute text-8xl bg-black/75 z-20 w-full h-full text-center text-secondary"
     >
-      <span class="mt-auto">Winner: {{ bracket.matches[0][bracket.matches[0].winner]?.name }}</span>
+      <span class="mt-auto">Winner: {{ bracket.matches[0].winner?.name }}</span>
     </div>
     <div
       class="absolute h-full w-full grid"

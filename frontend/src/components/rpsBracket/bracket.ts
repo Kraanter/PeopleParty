@@ -6,7 +6,7 @@ export type PlayerRPS = {
 export type BracketMatch = {
   left?: PlayerRPS
   right?: PlayerRPS
-  winner?: 'left' | 'right'
+  winner?: PlayerRPS
 }
 
 export type Bracket = {
