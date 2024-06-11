@@ -11,7 +11,6 @@ import {
   MiniGameIntroductionPayload,
   MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
-import { type Player } from '@/stores/confettiStore'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import Introduction from '@/components/introduction/Introduction.vue'
 

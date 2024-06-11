@@ -1,0 +1,11 @@
+table BusinessBailoutResultPayload {
+    results: [FBBusinessBailoutResultPair];
+}
+
+table FBBusinessBailoutResultPair {
+    name: string;
+    value: int;
+    time: int;
+}
+
+root_type BusinessBailoutResultPayload;

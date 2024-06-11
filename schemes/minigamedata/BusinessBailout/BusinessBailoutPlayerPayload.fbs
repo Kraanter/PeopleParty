@@ -1,0 +1,6 @@
+table BusinessBailoutPlayerPayload {
+    value: int;
+    locked: bool;
+}
+
+root_type BusinessBailoutPlayerPayload;

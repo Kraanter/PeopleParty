@@ -14,6 +14,7 @@ class Client;
 class GameState {
 public:
     GameState(Game* game);
+    virtual ~GameState() = default;
     virtual void process_input(const Message* payload, Client* from) = 0;
     virtual void update(int delta_time) = 0;
     int update_interval;
