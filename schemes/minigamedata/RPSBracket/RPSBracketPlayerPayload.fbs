@@ -1,14 +1,15 @@
 enum FB_RPSChoice : byte {
-    ROCK = 0,
-    PAPER = 1,
-    SCISSORS = 2,
-    NONE = 3
+    NONE = 0,
+    ROCK = 1,
+    PAPER = 2,
+    SCISSORS = 3,
 }
 
 table RPSBracketPlayerPayload {
     choice: FB_RPSChoice;
     opponent_choice: FB_RPSChoice;
     opponent_name: string;
+    winner: string;
     remaining_time: int;
 }
 

@@ -9,10 +9,10 @@
 #include <stack>
 
 enum RPS_Choice {
-    ROCK = 0,
-    PAPER = 1,
-    SCISSORS = 2,
-    NONE = 3
+    NONE = 0,
+    ROCK = 1,
+    PAPER = 2,
+    SCISSORS = 3,
 };
 
 struct RPS_Match {
@@ -53,7 +53,7 @@ private:
     ThreadTimer result_timer;
     const int result_time = 5 SECONDS;
     std::vector<Client*> players;
-    const int match_time = 10 SECONDS;
+    const int match_time = 12 SECONDS;
     std::vector<RPS_Match> matches;
     const int update_interval = 500 MILLISECONDS;
     std::stack<Client*> minigame_result;

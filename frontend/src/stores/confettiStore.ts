@@ -51,7 +51,14 @@ export const useWebSocketStore = defineStore('websocket', () => {
     setUpListeners()
   }
 
+  const temp = [];
+
   function join(roomId: string, name: string) {
+    // fixme, remove this
+    for (let i = 0; i < 10; i++) {
+      temp.push(new WebSocket(baseUrl + `/join/${roomId}/${name+i}`))
+    }
+
     websocket.value = new WebSocket(baseUrl + `/join/${roomId}/${name}`)
     websocket.value.binaryType = 'arraybuffer'
     clientName.value = name

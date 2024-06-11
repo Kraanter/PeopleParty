@@ -281,37 +281,37 @@ inline const char *EnumNameMemoryMixerIconType(MemoryMixerIconType e) {
 }
 
 enum FB_RPSChoice : int8_t {
-  FB_RPSChoice_ROCK = 0,
-  FB_RPSChoice_PAPER = 1,
-  FB_RPSChoice_SCISSORS = 2,
-  FB_RPSChoice_NONE = 3,
-  FB_RPSChoice_MIN = FB_RPSChoice_ROCK,
-  FB_RPSChoice_MAX = FB_RPSChoice_NONE
+  FB_RPSChoice_NONE = 0,
+  FB_RPSChoice_ROCK = 1,
+  FB_RPSChoice_PAPER = 2,
+  FB_RPSChoice_SCISSORS = 3,
+  FB_RPSChoice_MIN = FB_RPSChoice_NONE,
+  FB_RPSChoice_MAX = FB_RPSChoice_SCISSORS
 };
 
 inline const FB_RPSChoice (&EnumValuesFB_RPSChoice())[4] {
   static const FB_RPSChoice values[] = {
+    FB_RPSChoice_NONE,
     FB_RPSChoice_ROCK,
     FB_RPSChoice_PAPER,
-    FB_RPSChoice_SCISSORS,
-    FB_RPSChoice_NONE
+    FB_RPSChoice_SCISSORS
   };
   return values;
 }
 
 inline const char * const *EnumNamesFB_RPSChoice() {
   static const char * const names[5] = {
+    "NONE",
     "ROCK",
     "PAPER",
     "SCISSORS",
-    "NONE",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameFB_RPSChoice(FB_RPSChoice e) {
-  if (::flatbuffers::IsOutRange(e, FB_RPSChoice_ROCK, FB_RPSChoice_NONE)) return "";
+  if (::flatbuffers::IsOutRange(e, FB_RPSChoice_NONE, FB_RPSChoice_SCISSORS)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesFB_RPSChoice()[index];
 }
@@ -2580,7 +2580,8 @@ struct RPSBracketPlayerPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::
     VT_CHOICE = 4,
     VT_OPPONENT_CHOICE = 6,
     VT_OPPONENT_NAME = 8,
-    VT_REMAINING_TIME = 10
+    VT_WINNER = 10,
+    VT_REMAINING_TIME = 12
   };
   FB_RPSChoice choice() const {
     return static_cast<FB_RPSChoice>(GetField<int8_t>(VT_CHOICE, 0));
@@ -2591,6 +2592,9 @@ struct RPSBracketPlayerPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::
   const ::flatbuffers::String *opponent_name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_OPPONENT_NAME);
   }
+  const ::flatbuffers::String *winner() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_WINNER);
+  }
   int32_t remaining_time() const {
     return GetField<int32_t>(VT_REMAINING_TIME, 0);
   }
@@ -2600,6 +2604,8 @@ struct RPSBracketPlayerPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::
            VerifyField<int8_t>(verifier, VT_OPPONENT_CHOICE, 1) &&
            VerifyOffset(verifier, VT_OPPONENT_NAME) &&
            verifier.VerifyString(opponent_name()) &&
+           VerifyOffset(verifier, VT_WINNER) &&
+           verifier.VerifyString(winner()) &&
            VerifyField<int32_t>(verifier, VT_REMAINING_TIME, 4) &&
            verifier.EndTable();
   }
@@ -2618,6 +2624,9 @@ struct RPSBracketPlayerPayloadBuilder {
   void add_opponent_name(::flatbuffers::Offset<::flatbuffers::String> opponent_name) {
     fbb_.AddOffset(RPSBracketPlayerPayload::VT_OPPONENT_NAME, opponent_name);
   }
+  void add_winner(::flatbuffers::Offset<::flatbuffers::String> winner) {
+    fbb_.AddOffset(RPSBracketPlayerPayload::VT_WINNER, winner);
+  }
   void add_remaining_time(int32_t remaining_time) {
     fbb_.AddElement<int32_t>(RPSBracketPlayerPayload::VT_REMAINING_TIME, remaining_time, 0);
   }
@@ -2634,12 +2643,14 @@ struct RPSBracketPlayerPayloadBuilder {
 
 inline ::flatbuffers::Offset<RPSBracketPlayerPayload> CreateRPSBracketPlayerPayload(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    FB_RPSChoice choice = FB_RPSChoice_ROCK,
-    FB_RPSChoice opponent_choice = FB_RPSChoice_ROCK,
+    FB_RPSChoice choice = FB_RPSChoice_NONE,
+    FB_RPSChoice opponent_choice = FB_RPSChoice_NONE,
     ::flatbuffers::Offset<::flatbuffers::String> opponent_name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> winner = 0,
     int32_t remaining_time = 0) {
   RPSBracketPlayerPayloadBuilder builder_(_fbb);
   builder_.add_remaining_time(remaining_time);
+  builder_.add_winner(winner);
   builder_.add_opponent_name(opponent_name);
   builder_.add_opponent_choice(opponent_choice);
   builder_.add_choice(choice);
@@ -2648,16 +2659,19 @@ inline ::flatbuffers::Offset<RPSBracketPlayerPayload> CreateRPSBracketPlayerPayl
 
 inline ::flatbuffers::Offset<RPSBracketPlayerPayload> CreateRPSBracketPlayerPayloadDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    FB_RPSChoice choice = FB_RPSChoice_ROCK,
-    FB_RPSChoice opponent_choice = FB_RPSChoice_ROCK,
+    FB_RPSChoice choice = FB_RPSChoice_NONE,
+    FB_RPSChoice opponent_choice = FB_RPSChoice_NONE,
     const char *opponent_name = nullptr,
+    const char *winner = nullptr,
     int32_t remaining_time = 0) {
   auto opponent_name__ = opponent_name ? _fbb.CreateString(opponent_name) : 0;
+  auto winner__ = winner ? _fbb.CreateString(winner) : 0;
   return CreateRPSBracketPlayerPayload(
       _fbb,
       choice,
       opponent_choice,
       opponent_name__,
+      winner__,
       remaining_time);
 }
 
@@ -2696,7 +2710,7 @@ struct RPSBracketPlayerInputPayloadBuilder {
 
 inline ::flatbuffers::Offset<RPSBracketPlayerInputPayload> CreateRPSBracketPlayerInputPayload(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    FB_RPSChoice choice = FB_RPSChoice_ROCK) {
+    FB_RPSChoice choice = FB_RPSChoice_NONE) {
   RPSBracketPlayerInputPayloadBuilder builder_(_fbb);
   builder_.add_choice(choice);
   return builder_.Finish();

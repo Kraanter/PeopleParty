@@ -3,8 +3,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 export enum FB_RPSChoice {
-  ROCK = 0,
-  PAPER = 1,
-  SCISSORS = 2,
-  NONE = 3
+  NONE = 0,
+  ROCK = 1,
+  PAPER = 2,
+  SCISSORS = 3
 }

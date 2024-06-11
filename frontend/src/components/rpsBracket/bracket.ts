@@ -1,6 +1,5 @@
 export type PlayerRPS = {
   name: string
-  move: 'rock' | 'paper' | 'scissors' | null
 }
 
 export type BracketMatch = {

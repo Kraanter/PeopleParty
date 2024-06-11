@@ -7,8 +7,8 @@ import {
   MiniGameIntroductionPayload,
   MiniGamePayloadType,
   FB_RPSChoice,
-RPSBracketPlayerPayload,
-RPSBracketPlayerInputPayload
+  RPSBracketPlayerPayload,
+  RPSBracketPlayerInputPayload
 } from '@/flatbuffers/messageClass'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import TimeComponent from '../TimeComponent.vue'
@@ -35,23 +35,25 @@ const intro = ref<IntroductionData>({
   time_left: 0
 })
 enum RPSChoice {
+  None,
   Rock,
   Paper,
   Scissors,
-  None
 }
 interface playerDataPayload {
   choice: RPSChoice
   opponentChoice: RPSChoice
   opponentName: string
+  winner: string
   time_left: number
 }
-  
+
 // game data
 const playerData = ref<playerDataPayload>({
   choice: RPSChoice.None,
   opponentChoice: RPSChoice.None,
   opponentName: '',
+  winner: '',
   time_left: 0
 })
 
@@ -75,9 +77,10 @@ function update(payload: MiniGamePayloadType) {
       const input: RPSBracketPlayerPayload = payload.gamestatepayload(new RPSBracketPlayerPayload())
 
       playerData.value = {
-        choice: RPSChoice[input.choice() || 3] as unknown as RPSChoice,
-        opponentChoice: RPSChoice[input.opponentChoice() || 3] as unknown as RPSChoice,
+        choice: RPSChoice[input.choice() || 0] as unknown as RPSChoice,
+        opponentChoice: RPSChoice[input.opponentChoice() || 0] as unknown as RPSChoice,
         opponentName: decodeURI(input.opponentName() || ''),
+        winner: decodeURI(input.winner() || ''),
         time_left: Number(input.remainingTime())
       }
     }
@@ -99,8 +102,8 @@ function player_action(action: FB_RPSChoice) {
   let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
     builder,
     miniGame,
-    GameStateType.BusinessBailoutPlayerInput,
-    GameStatePayload.BusinessBailoutPlayerInputPayload,
+    GameStateType.RPSBracketPlayerInput,
+    GameStatePayload.RPSBracketPlayerInputPayload,
     input
   )
 
@@ -127,42 +130,55 @@ defineExpose({ update })
     </div>
   </template>
   <template v-else-if="viewState === ViewState.MiniGame">
-      <div class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
-        <div class="w-full flex justify-center px-8">
+    <div class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
+      <div v-if="playerData.winner != '' && playerData.winner == playerData.opponentName">
+        <div class="w-full h-full mt-16">
+          <p class="text-4xl text-white">You Lost</p>
+          <p class="text-4xl text-white">You are elliminated from the game</p>
+        </div>
+      </div>
+      <div v-else-if="playerData.winner != ''">
+        <div class="w-full h-full mt-16">
+          <p class="text-4xl text-white">You Won</p>
+          <p class="text-4xl text-white">Waiting for opponent...</p>
+        </div>
+      </div>
+      <div v-else class="w-full">
+        <div>
+          <p class="text-1xl">your name: {{  webscoketStore.clientName }}</p>
+        </div>
+        <div class="justify-center flex px-8 mb-16">
           <div>
             <TimeComponent :timeLeft="playerData.time_left" />
           </div>
         </div>
         <div>
-          <div class="w-full h-full mt-16">
-            <p class="text-4xl text-white">opponentName {{ playerData.opponentName }}</p>
+          <div class="w-full mt-4">
+            <p class="text-2xl text-white">opponentName {{ playerData.opponentName }}</p>
           </div>
         </div>
         <div>
-          <div class="w-full h-full mt-16">
-            <p class="text-4xl text-white">opponent choice {{ playerData.opponentChoice }}</p>
+          <div class="w-full mt-4">
+            <p class="text-2xl text-white">opponent choice {{ playerData.opponentChoice }}</p>
           </div>
         </div>
-        <div class="w-full h-full mt-16">
-          <p class="text-4xl text-white">your choise {{ playerData.choice }}</p>
+        <div class="w-full mt-4">
+          <p class="text-2xl text-white">your choise {{ playerData.choice }}</p>
         </div>
-        <div class="w-full flex flex-rows">
-          <div>
-            <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.ROCK)">
-              Rock
-            </n-button>
-          </div>
-          <div>
-            <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.PAPER)">
-              Paper
-            </n-button>
-          </div>
-          <div>
-            <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.SCISSORS)">
-              Scissors
-            </n-button>
+        <div class="w-full mt-4">
+          <div class="flex flex-rows justify-center gap-4">
+            <div>
+              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.ROCK)">Rock</n-button>
+            </div>
+            <div>
+              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.PAPER)">Paper</n-button>
+            </div>
+            <div>
+              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.SCISSORS)">Scissors</n-button>
+            </div>
           </div>
         </div>
       </div>
+    </div>
   </template>
 </template>

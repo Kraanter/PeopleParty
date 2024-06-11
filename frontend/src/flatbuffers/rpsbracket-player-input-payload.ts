@@ -27,7 +27,7 @@ static getSizePrefixedRootAsRPSBracketPlayerInputPayload(bb:flatbuffers.ByteBuff
 
 choice():FB_RPSChoice {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt8(this.bb_pos + offset) : FB_RPSChoice.ROCK;
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : FB_RPSChoice.NONE;
 }
 
 static startRPSBracketPlayerInputPayload(builder:flatbuffers.Builder) {
@@ -35,7 +35,7 @@ static startRPSBracketPlayerInputPayload(builder:flatbuffers.Builder) {
 }
 
 static addChoice(builder:flatbuffers.Builder, choice:FB_RPSChoice) {
-  builder.addFieldInt8(0, choice, FB_RPSChoice.ROCK);
+  builder.addFieldInt8(0, choice, FB_RPSChoice.NONE);
 }
 
 static endRPSBracketPlayerInputPayload(builder:flatbuffers.Builder):flatbuffers.Offset {

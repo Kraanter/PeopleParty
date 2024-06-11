@@ -7,6 +7,8 @@ import { GameStateType } from '@/flatbuffers/game-state-type'
 import { MiniGameIntroductionPayload } from '@/flatbuffers/mini-game-introduction-payload'
 import { RPSBracketHostPayload } from '@/flatbuffers/rpsbracket-host-payload'
 import type { MiniGamePayloadType } from '@/flatbuffers/mini-game-payload-type'
+import type { IntroductionData } from '../introduction/Introduction.vue'
+import Introduction from '@/components/introduction/Introduction.vue'
 
 const props = defineProps<{
   width: number
@@ -21,6 +23,13 @@ enum ViewState {
   MiniGame,
   Results
 }
+
+// introduction
+const intro = ref<IntroductionData>({
+  title: '',
+  description: '',
+  time_left: 0
+})
 
 const viewState = ref<ViewState>(ViewState.None);
 
@@ -41,7 +50,7 @@ const calcBracketWidth = (cols: number): number => (width.value - xMargin * 2) /
 
 function getCircleColor(match: BracketMatch, right: boolean) {
   const toCheckProp = right ? 'right' : 'left'
-  if (!match ) return 0x000000
+  if (!match) return 0x000000
 
   if (!match.winner?.name) {
     return match[toCheckProp]?.name ? 0xffffff : 0x000000
@@ -173,12 +182,21 @@ function update(payload: MiniGamePayloadType) {
     case GameStateType.RPSBracketHost: {
       if (viewState.value === ViewState.Results) break
       viewState.value = ViewState.MiniGame
-      const input : RPSBracketHostPayload = payload.gamestatepayload(new RPSBracketHostPayload());
+      const input: RPSBracketHostPayload = payload.gamestatepayload(new RPSBracketHostPayload());
 
-      const matches : BracketMatch[] = [];
+      const matches: BracketMatch[] = [];
       for (let i = 0; i < input.matchesLength(); i++) {
         const matchfb = input.matches(i);
-        const match = { left: { name: matchfb?.player1() }, right: { name: matchfb?.player2() }, winner: { name: matchfb?.winner() } };
+        const match = { 
+          left: { 
+            name: decodeURI(matchfb?.player1() || ''),
+          }, 
+          right: { 
+            name: decodeURI(matchfb?.player2() || '')
+          }, winner: { 
+            name: decodeURI(matchfb?.winner() || '')
+          } 
+        };
         matches.push(match);
       }
       console.log(matches);
@@ -193,60 +211,48 @@ function update(payload: MiniGamePayloadType) {
 defineExpose({ update })
 </script>
 <template>
-  <div>
-    <div
-      v-if="bracket.matches[0]?.winner?.name"
-      class="absolute text-8xl bg-black/75 z-20 w-full h-full text-center text-secondary"
-    >
-      <span class="mt-auto">Winner: {{ bracket.matches[0].winner?.name }}</span>
+  <template v-if="viewState == ViewState.Introduction">
+    <div>
+      <Introduction :data="intro" logoSVG="/assets/games/memoryMixer/memoryMixerLogo.svg" />
     </div>
-    <div
-      class="absolute h-full w-full grid"
-      :style="{
-        gridTemplateColumns: `repeat(${bracketCols}, 1fr)`,
-        padding: `${yMargin}px ${xMargin}px`
-      }"
-    >
-      <div
-        :key="col"
-        v-for="(i, col) in bracketCols"
-        class="text-white text-center w-full h-full grid px-2"
-        :style="{
-          gridTemplateRows: `repeat(${getRowsInRound(getRoundNumber(col))}, 1fr)`
-        }"
-      >
-        <span
-          :key="row * col"
-          v-for="(i, row) in bracketRows"
-          class="text-white text-center text-nowrap overflow-hidden w-full h-full grid grid-rows-4"
-          :class="{ hidden: row + 1 > getRowsInRound(getRoundNumber(col)) }"
-          :style="{
-            fontSize: `${Math.min(calcBracketHeight(getRowsInRound(getRoundNumber(col))) / 8, height / 30)}px`,
-            rotate: getRoundNumber(col) > 3 ? '90deg' : '0deg'
-          }"
-        >
-          <p
-            class="m-auto text-primary font-bold"
-            :style="{ gridRowStart: isRightSide(col) ? 3 : 2 }"
-          >
-            {{
-              bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name
-            }}
-          </p>
-          <p
-            class="m-auto text-primary font-bold"
-            :style="{ gridRowStart: isRightSide(col) ? 2 : 3 }"
-          >
-            {{
-              bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right
-                ?.name
-            }}
-          </p>
-        </span>
+  </template>
+  <template v-else-if="viewState == ViewState.MiniGame">
+
+    <div>
+      <div v-if="bracket.matches[0]?.winner?.name"
+        class="absolute text-8xl bg-black/75 z-20 w-full h-full text-center text-secondary">
+        <span class="mt-auto">Winner: {{ bracket.matches[0].winner?.name }}</span>
       </div>
+      <div class="absolute h-full w-full grid" :style="{
+    gridTemplateColumns: `repeat(${bracketCols}, 1fr)`,
+    padding: `${yMargin}px ${xMargin}px`
+  }">
+        <div :key="col" v-for="(i, col) in bracketCols" class="text-white text-center w-full h-full grid px-2" :style="{
+    gridTemplateRows: `repeat(${getRowsInRound(getRoundNumber(col))}, 1fr)`
+  }">
+          <span :key="row * col" v-for="(i, row) in bracketRows"
+            class="text-white text-center text-nowrap overflow-hidden w-full h-full grid grid-rows-4"
+            :class="{ hidden: row + 1 > getRowsInRound(getRoundNumber(col)) }" :style="{
+    fontSize: `${Math.min(calcBracketHeight(getRowsInRound(getRoundNumber(col))) / 8, height / 30)}px`,
+    rotate: getRoundNumber(col) > 3 ? '90deg' : '0deg'
+  }">
+            <p class="m-auto text-primary font-bold" :style="{ gridRowStart: isRightSide(col) ? 3 : 2 }">
+              {{
+    bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name
+  }}
+            </p>
+            <p class="m-auto text-primary font-bold" :style="{ gridRowStart: isRightSide(col) ? 2 : 3 }">
+              {{
+    bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right
+      ?.name
+  }}
+            </p>
+          </span>
+        </div>
+      </div>
+      <Application :width :height>
+        <Graphics :x="0" :y="0" @render="render" />
+      </Application>
     </div>
-    <Application :width :height>
-      <Graphics :x="0" :y="0" @render="render" />
-    </Application>
-  </div>
+  </template>
 </template>

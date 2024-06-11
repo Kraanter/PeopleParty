@@ -25,11 +25,6 @@ void RPSBracket_MiniGame::start_minigame() {
 }
 
 void RPSBracket_MiniGame::create_matches(std::vector<Client *> players) {
-    players.clear();
-    for (int i = 0; i < 20; ++i) {
-        auto player = new Client("Player " + std::to_string(i), nullptr);
-        players.push_back(player);
-    }
     const int pn = players.size();
     const int rn = (int) ceil(log2(pn));
     const int mn = pow(2, rn) - 1;
@@ -116,6 +111,7 @@ void RPSBracket_MiniGame::evaluate_match(RPS_Match* match) {
         match->remaining_time = match_time;
         match->player1_choice = NONE;
         match->player2_choice = NONE;
+        return;
     } else if (match->player1_choice == ROCK && match->player2_choice == SCISSORS) {
         match->winner = match->player1;
         minigame_result.push(match->player2);
@@ -146,6 +142,14 @@ void RPSBracket_MiniGame::promote_winners() {
         }
         match.player1 = matches[p1i].winner;
         match.player2 = matches[p2i].winner;
+
+        // send match result to show who won or lost
+        if (matches[p1i].winner != nullptr) {
+            send_match_update(matches[p1i]);
+        }
+        if (matches[p2i].winner != nullptr) {
+            send_match_update(matches[p2i]);
+        }
     }
 }
 
@@ -212,11 +216,6 @@ void RPSBracket_MiniGame::introduction_update(int dt) {
 }
 
 void RPSBracket_MiniGame::start_result() {
-    auto res = getMinigameResult();
-    for (auto client : res) {
-        std::cout << client->name << std::endl;
-    }
-
     result_timer.setTimeout([this]() {
         finished();
     }, 5 SECONDS);
@@ -236,10 +235,14 @@ void RPSBracket_MiniGame::process_input(const MiniGamePayloadType *payload, Clie
         case GameStateType_RPSBracketPlayerInput: {
             auto input = payload->gamestatepayload_as_RPSBracketPlayerInputPayload();
             for (RPS_Match &match : matches) {
-                if (match.player1 == from) {
-                    match.player1_choice = (RPS_Choice) input->choice();
-                } else if (match.player2 == from) {
-                    match.player2_choice = (RPS_Choice) input->choice();
+                if (match.winner == nullptr) {
+                    if (match.player1 == from) {
+                        match.player1_choice = (RPS_Choice) input->choice();
+                        send_match_update(match);
+                    } else if (match.player2 == from) {
+                        match.player2_choice = (RPS_Choice) input->choice();
+                        send_match_update(match);
+                    }
                 }
             }
             break;
@@ -249,7 +252,8 @@ void RPSBracket_MiniGame::process_input(const MiniGamePayloadType *payload, Clie
 
 void RPSBracket_MiniGame::send_players_update() {
     for (auto match : matches) {
-        if (match.player1 != nullptr || match.player2 != nullptr) {
+        // also only send when match remaining time is under 10, gives time to show the previous match result
+        if (match.remaining_time > 0 && match.remaining_time < 10 SECONDS && (match.player1 != nullptr || match.player2 != nullptr)) {
             send_match_update(match);
         }
     }
@@ -258,15 +262,17 @@ void RPSBracket_MiniGame::send_players_update() {
 void RPSBracket_MiniGame::send_match_update(const RPS_Match match) {
     if (match.player1 != nullptr) {
         flatbuffers::FlatBufferBuilder builder;
+        auto winner = builder.CreateString(match.winner != nullptr ? match.winner->name : "");
         auto opponent_name = match.player2 != nullptr ? match.player2->name : "";
-        auto payload = CreateRPSBracketPlayerPayload(builder, (FB_RPSChoice) match.player1_choice, (FB_RPSChoice) match.player2_choice, builder.CreateString(opponent_name));
+        auto payload = CreateRPSBracketPlayerPayload(builder, (FB_RPSChoice) match.player1_choice, (FB_RPSChoice) match.player2_choice, builder.CreateString(opponent_name), winner, match.remaining_time);
         auto gamestatePayload = CreateMiniGamePayloadType(builder, builder.CreateString(get_camel_case_name()), GameStateType_RPSBracketPlayer, GameStatePayload_RPSBracketPlayerPayload, payload.Union());
         this->game->party->send_gamestate([match](Client* c){ return c->client_id == match.player1->client_id;}, builder, gamestatePayload.Union());
     }
     if (match.player2 != nullptr) {
         flatbuffers::FlatBufferBuilder builder;
+        auto winner = builder.CreateString(match.winner != nullptr ? match.winner->name : "");
         auto opponent_name = match.player1 != nullptr ? match.player1->name : "";
-        auto payload = CreateRPSBracketPlayerPayload(builder, (FB_RPSChoice) match.player2_choice, (FB_RPSChoice) match.player1_choice, builder.CreateString(opponent_name));
+        auto payload = CreateRPSBracketPlayerPayload(builder, (FB_RPSChoice) match.player2_choice, (FB_RPSChoice) match.player1_choice, builder.CreateString(opponent_name), winner, match.remaining_time);
         auto gamestatePayload = CreateMiniGamePayloadType(builder, builder.CreateString(get_camel_case_name()), GameStateType_RPSBracketPlayer, GameStatePayload_RPSBracketPlayerPayload, payload.Union());
         this->game->party->send_gamestate([match](Client* c){ return c->client_id == match.player2->client_id;}, builder, gamestatePayload.Union());
     }

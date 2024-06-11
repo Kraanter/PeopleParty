@@ -27,12 +27,12 @@ static getSizePrefixedRootAsRPSBracketPlayerPayload(bb:flatbuffers.ByteBuffer, o
 
 choice():FB_RPSChoice {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt8(this.bb_pos + offset) : FB_RPSChoice.ROCK;
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : FB_RPSChoice.NONE;
 }
 
 opponentChoice():FB_RPSChoice {
   const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.readInt8(this.bb_pos + offset) : FB_RPSChoice.ROCK;
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : FB_RPSChoice.NONE;
 }
 
 opponentName():string|null
@@ -42,29 +42,40 @@ opponentName(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-remainingTime():number {
+winner():string|null
+winner(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+winner(optionalEncoding?:any):string|Uint8Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+remainingTime():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
 static startRPSBracketPlayerPayload(builder:flatbuffers.Builder) {
-  builder.startObject(4);
+  builder.startObject(5);
 }
 
 static addChoice(builder:flatbuffers.Builder, choice:FB_RPSChoice) {
-  builder.addFieldInt8(0, choice, FB_RPSChoice.ROCK);
+  builder.addFieldInt8(0, choice, FB_RPSChoice.NONE);
 }
 
 static addOpponentChoice(builder:flatbuffers.Builder, opponentChoice:FB_RPSChoice) {
-  builder.addFieldInt8(1, opponentChoice, FB_RPSChoice.ROCK);
+  builder.addFieldInt8(1, opponentChoice, FB_RPSChoice.NONE);
 }
 
 static addOpponentName(builder:flatbuffers.Builder, opponentNameOffset:flatbuffers.Offset) {
   builder.addFieldOffset(2, opponentNameOffset, 0);
 }
 
+static addWinner(builder:flatbuffers.Builder, winnerOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, winnerOffset, 0);
+}
+
 static addRemainingTime(builder:flatbuffers.Builder, remainingTime:number) {
-  builder.addFieldInt32(3, remainingTime, 0);
+  builder.addFieldInt32(4, remainingTime, 0);
 }
 
 static endRPSBracketPlayerPayload(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -72,11 +83,12 @@ static endRPSBracketPlayerPayload(builder:flatbuffers.Builder):flatbuffers.Offse
   return offset;
 }
 
-static createRPSBracketPlayerPayload(builder:flatbuffers.Builder, choice:FB_RPSChoice, opponentChoice:FB_RPSChoice, opponentNameOffset:flatbuffers.Offset, remainingTime:number):flatbuffers.Offset {
+static createRPSBracketPlayerPayload(builder:flatbuffers.Builder, choice:FB_RPSChoice, opponentChoice:FB_RPSChoice, opponentNameOffset:flatbuffers.Offset, winnerOffset:flatbuffers.Offset, remainingTime:number):flatbuffers.Offset {
   RPSBracketPlayerPayload.startRPSBracketPlayerPayload(builder);
   RPSBracketPlayerPayload.addChoice(builder, choice);
   RPSBracketPlayerPayload.addOpponentChoice(builder, opponentChoice);
   RPSBracketPlayerPayload.addOpponentName(builder, opponentNameOffset);
+  RPSBracketPlayerPayload.addWinner(builder, winnerOffset);
   RPSBracketPlayerPayload.addRemainingTime(builder, remainingTime);
   return RPSBracketPlayerPayload.endRPSBracketPlayerPayload(builder);
 }
