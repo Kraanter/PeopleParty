@@ -135,7 +135,7 @@ void BusinessBailout_Minigame::send_player_data(Client* player) {
 
 std::vector<Client *> BusinessBailout_Minigame::getMinigameResult() {
     sort(players.begin(), players.end(), [&](Client *a, Client *b) {
-        if (player_bail_values[a] == player_bail_values[b]) return rand() % 2 == 0;
+        if (player_bail_values[a] == player_bail_values[b]) return true;
         return player_bail_values[a] > player_bail_values[b];
     });
     return players;
