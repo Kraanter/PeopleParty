@@ -171,13 +171,13 @@ defineExpose({
         <div v-if="lightsData.lights != -1" class="mt-4">
           <LightsComponent :value="lightsData.lights" />
         </div>
-        <div class="m-auto mt-4">
+        <div class="m-auto mt-3">
           <PartyButton @click="sendPlayerAction(true)" :disabled="playerFeedback.reaction_time != -10000">
             <p class="text-4xl m-6">Launch!</p>
           </PartyButton>
         </div>
         <div v-if="lightsData.practice_round">
-          <p class="text-3xl w-full text-center text-white mt-4">Warmup round, no points are given!</p>
+          <p class="text-2xl w-full text-center text-white mt-4">Warmup round, no points are given!</p>
         </div>
         <div v-if="playerFeedback.reaction_time != -10000" class="mt-4">
           <p class="text-3xl text-center text-white mt-2">
