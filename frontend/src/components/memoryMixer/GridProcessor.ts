@@ -6,6 +6,8 @@ enum MemoryMixerIcon {
     Confetti = "assets/games/memoryMixer/confettiball.svg",
     Popper = "assets/games/memoryMixer/partypopper.svg",
     Face = "assets/games/memoryMixer/partyface.svg",
+    Candle = "assets/games/memoryMixer/candle.svg",
+    Hat = "assets/games/memoryMixer/partyhat.svg",
     //Empty = "",
 };
 

@@ -247,30 +247,36 @@ enum MemoryMixerIconType : int8_t {
   MemoryMixerIconType_CONFETTI = 2,
   MemoryMixerIconType_CONFETTI2 = 3,
   MemoryMixerIconType_SMILEY = 4,
-  MemoryMixerIconType_EMPTY = 5,
+  MemoryMixerIconType_CANDLE = 5,
+  MemoryMixerIconType_HAT = 6,
+  MemoryMixerIconType_EMPTY = 7,
   MemoryMixerIconType_MIN = MemoryMixerIconType_BALLOON,
   MemoryMixerIconType_MAX = MemoryMixerIconType_EMPTY
 };
 
-inline const MemoryMixerIconType (&EnumValuesMemoryMixerIconType())[6] {
+inline const MemoryMixerIconType (&EnumValuesMemoryMixerIconType())[8] {
   static const MemoryMixerIconType values[] = {
     MemoryMixerIconType_BALLOON,
     MemoryMixerIconType_CAKE,
     MemoryMixerIconType_CONFETTI,
     MemoryMixerIconType_CONFETTI2,
     MemoryMixerIconType_SMILEY,
+    MemoryMixerIconType_CANDLE,
+    MemoryMixerIconType_HAT,
     MemoryMixerIconType_EMPTY
   };
   return values;
 }
 
 inline const char * const *EnumNamesMemoryMixerIconType() {
-  static const char * const names[7] = {
+  static const char * const names[9] = {
     "BALLOON",
     "CAKE",
     "CONFETTI",
     "CONFETTI2",
     "SMILEY",
+    "CANDLE",
+    "HAT",
     "EMPTY",
     nullptr
   };
