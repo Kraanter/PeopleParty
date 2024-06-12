@@ -8,5 +8,7 @@ export enum MemoryMixerIconType {
   CONFETTI = 2,
   CONFETTI2 = 3,
   SMILEY = 4,
-  EMPTY = 5
+  CANDLE = 5,
+  HAT = 6,
+  EMPTY = 7
 }

@@ -4,6 +4,8 @@ enum MemoryMixerIconType: byte {
     CONFETTI,
     CONFETTI2,
     SMILEY,
+    CANDLE,
+    HAT,
     EMPTY,
 }
 

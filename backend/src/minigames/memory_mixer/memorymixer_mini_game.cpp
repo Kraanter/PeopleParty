@@ -39,17 +39,19 @@ void MemoryMixer_MiniGame::create_grid() {
 
     int correct_cards = 0;
     std::vector<MemoryMixer_card> card_list;
-    while (card_list.size() < grid_size * grid_size) {
-        if (correct_cards < max_correct) {
-            card_list.push_back(target_card);
-            correct_cards++;
-        } else {
-            int rnd = rand() % (unique_symbols);
-            while(rnd == target_card) {
-                rnd = rand() % (unique_symbols);
-            }
-            card_list.push_back(MemoryMixer_card(rnd));
+
+    for (int i = 0; i < unique_symbols; i++) {
+        for (int j = 0; j < max_correct; j++) {
+            card_list.push_back(MemoryMixer_card(i));
         }
+    }
+
+    while (card_list.size() < grid_size * grid_size) {
+        int rnd = rand() % (unique_symbols);
+        while(rnd == target_card) {
+            rnd = rand() % (unique_symbols);
+        }
+        card_list.push_back(MemoryMixer_card(rnd));
     }
 
     auto rd = std::random_device {}; 
@@ -72,27 +74,24 @@ void MemoryMixer_MiniGame::set_round_difficulty(int current_round, double amount
     // max 25% of players to round 6
     if (current_round == 1) {
         unique_symbols = 3;
-    } else if (current_round == 2 || current_round == 3) {
+    } else if (current_round == 2) {
         unique_symbols = 4;
-    } else if (current_round >= 4) {
-        unique_symbols = 5;
-    }
-
-    double max = (grid_size * grid_size) / unique_symbols;
-    if (current_round == 2 || current_round == 3) {
-        max_correct = max * 0.8;
     } else if (current_round == 3) {
-        max_correct = max * 0.6;
+        unique_symbols = 5;
     } else if (current_round == 4) {
-        max_correct = max * 0.5;
+        unique_symbols = 6;
     } else if (current_round >= 5) {
-        max_correct = max * 0.4;
-    } else {
-        max_correct = max;
+        unique_symbols = 7;
     }
 
-    if (amount_of_players > max_correct) {
-        max_on_card = std::ceil(amount_of_players / max_correct);
+    max_correct = (grid_size * grid_size) / unique_symbols;
+
+    if (amount_of_players > (max_correct / unique_symbols)) {
+        max_on_card = std::ceil(amount_of_players / (max_correct / unique_symbols));
+        if (max_on_card < 1) {
+            max_on_card = 1;
+        }
+        
     } else {
         max_on_card = 1;
     }
@@ -227,7 +226,7 @@ void MemoryMixer_MiniGame::next_round() {
 
     timer.pause(round_results_time);
     
-    if (active_players <= 1) {
+    if (active_players <= -1) {
         start_result();
         return;
     }

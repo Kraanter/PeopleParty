@@ -42,8 +42,8 @@ watch(value, (newValue, oldValue) => {
 .light {
   border-radius: 50%;
   background-color: gray;
-  width: 15vw;
-  height: 15vw;
+  width: 13vw;
+  height: 13vw;
 }
 
 .red-light {
