@@ -15,14 +15,15 @@ import TimeComponent from '../TimeComponent.vue'
 import { Builder } from 'flatbuffers'
 import { ref } from 'vue'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import { NButton } from 'naive-ui'
+import { NCard } from 'naive-ui'
+import PartyButton from '../PartyButton.vue'
 
 enum ViewState {
   None,
   Introduction,
   MiniGame
 }
-const viewState = ref<ViewState>(ViewState.None)
+const viewState = ref<ViewState>(ViewState.MiniGame)
 
 type IntroductionData = {
   title: string
@@ -35,14 +36,20 @@ const intro = ref<IntroductionData>({
   time_left: 0
 })
 enum RPSChoice {
-  None,
-  Rock,
-  Paper,
-  Scissors
+  None = 0,
+  Rock = 1,
+  Paper = 2,
+  Scissors = 3
 }
+
+const RPSChoiceMap = {
+  [RPSChoice.Rock]: 'Rock',
+  [RPSChoice.Paper]: 'Paper',
+  [RPSChoice.Scissors]: 'Scissors'
+}
+
 interface playerDataPayload {
   choice: RPSChoice
-  opponentChoice: RPSChoice
   opponentName: string
   winner: string
   time_left: number
@@ -51,10 +58,9 @@ interface playerDataPayload {
 // game data
 const playerData = ref<playerDataPayload>({
   choice: RPSChoice.None,
-  opponentChoice: RPSChoice.None,
-  opponentName: '',
+  opponentName: '[Enemy name]',
   winner: '',
-  time_left: 0
+  time_left: 10000
 })
 
 function update(payload: MiniGamePayloadType) {
@@ -77,7 +83,6 @@ function update(payload: MiniGamePayloadType) {
 
       playerData.value = {
         choice: RPSChoice[input.choice() || 0] as unknown as RPSChoice,
-        opponentChoice: RPSChoice[input.opponentChoice() || 0] as unknown as RPSChoice,
         opponentName: decodeURI(input.opponentName() || ''),
         winner: decodeURI(input.winner() || ''),
         time_left: Number(input.remainingTime())
@@ -88,10 +93,22 @@ function update(payload: MiniGamePayloadType) {
 
 const webscoketStore = useWebSocketStore()
 
-function player_action(action: FB_RPSChoice) {
+const FB_RPSChoiceMap = {
+  [RPSChoice.Rock]: FB_RPSChoice.ROCK,
+  [RPSChoice.Paper]: FB_RPSChoice.PAPER,
+  [RPSChoice.Scissors]: FB_RPSChoice.SCISSORS
+}
+
+function player_action(action: RPSChoice) {
+  playerData.value.choice = action
+
+  if (action === RPSChoice.None) return
   const builder = new Builder()
 
-  let input = RPSBracketPlayerInputPayload.createRPSBracketPlayerInputPayload(builder, action)
+  let input = RPSBracketPlayerInputPayload.createRPSBracketPlayerInputPayload(
+    builder,
+    FB_RPSChoiceMap[action]
+  )
 
   let miniGame = builder.createString('rpsBracket')
 
@@ -140,45 +157,50 @@ defineExpose({ update })
         </div>
       </div>
       <div v-else class="w-full">
-        <div>
+        <div class="mt-4 absolute aspect-square top-0 right-1 left-1">
+          <n-card class="text-2xl text-white">
+            <p class="text-xl mb-4">Selected weapon:</p>
+            <div v-if="playerData.choice">
+              <img
+                class="m-auto size-32 aspect-square"
+                :src="`/assets/games/rpsBracket/${RPSChoiceMap[playerData.choice].toLowerCase()}.svg`"
+              />
+              {{ RPSChoiceMap[playerData.choice] }}
+            </div>
+          </n-card>
+        </div>
+        <!-- <div>
           <p class="text-1xl">your name: {{ webscoketStore.clientName }}</p>
-        </div>
-        <div class="justify-center flex px-8 mb-16">
-          <div>
-            <TimeComponent :timeLeft="playerData.time_left" />
-          </div>
-        </div>
+        </div> -->
         <div>
           <div class="w-full mt-4">
-            <p class="text-2xl text-white">opponentName {{ playerData.opponentName }}</p>
+            <p class="text-2xl text-white">Playing against: {{ playerData.opponentName }}</p>
           </div>
         </div>
+        <div class="w-full mt-4 px-4">
+          <div class="grid grid-cols-3 gap-4">
+            <div v-for="(choice, i) in RPSChoiceMap" :key="choice">
+              <PartyButton
+                class="m-2 !text-lg"
+                :class="{
+                  'bg-sky-400': i === playerData.choice,
+                  'bg-primary': i !== playerData.choice
+                }"
+                @click="player_action(i)"
+              >
+                <img
+                  class="size-12 m-auto"
+                  :src="`/assets/games/rpsBracket/${choice.toLowerCase()}.svg`"
+                />
+                {{ choice }}
+              </PartyButton>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="absolute bottom-0 px-8 mb-16">
         <div>
-          <div class="w-full mt-4">
-            <p class="text-2xl text-white">opponent choice {{ playerData.opponentChoice }}</p>
-          </div>
-        </div>
-        <div class="w-full mt-4">
-          <p class="text-2xl text-white">your choise {{ playerData.choice }}</p>
-        </div>
-        <div class="w-full mt-4">
-          <div class="flex flex-rows justify-center gap-4">
-            <div>
-              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.ROCK)"
-                >Rock</n-button
-              >
-            </div>
-            <div>
-              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.PAPER)"
-                >Paper</n-button
-              >
-            </div>
-            <div>
-              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.SCISSORS)"
-                >Scissors</n-button
-              >
-            </div>
-          </div>
+          <TimeComponent :timeLeft="playerData.time_left" />
         </div>
       </div>
     </div>
