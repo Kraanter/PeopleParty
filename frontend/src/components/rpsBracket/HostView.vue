@@ -70,7 +70,7 @@ function drawMatch(
   round: number
 ) {
   g.lineStyle(4, 0xffffff)
-  if (round === 0 && !match.left && !match.right) {
+  if (round === 0 && !match.left?.name && !match.right?.name) {
     g.moveTo(x, y + height / 2)
     g.lineTo(x + width, y + height / 2)
     return

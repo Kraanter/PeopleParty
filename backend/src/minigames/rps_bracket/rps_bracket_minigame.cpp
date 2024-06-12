@@ -62,6 +62,8 @@ void RPSBracket_MiniGame::create_matches(std::vector<Client *> players) {
     for(int i = 0; i < matches.size(); i++) {
         if (matches[i].player1 == nullptr || matches[i].player2 == nullptr) {
             evaluate_match(&matches[i]);
+            matches[i].player1 = nullptr;
+            matches[i].player2 = nullptr;
         }
     }
 
