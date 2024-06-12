@@ -7,7 +7,7 @@ import App from './App.vue'
 import router from './router'
 
 // Make screen not sleep
-navigator.wakeLock.request('screen')
+navigator?.wakeLock?.request('screen')
 
 const app = createApp(App)
 
