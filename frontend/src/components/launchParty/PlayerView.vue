@@ -8,7 +8,7 @@ import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder';
 import { useWebSocketStore } from '@/stores/confettiStore';
 import LightsComponent from './LightsComponent.vue'
-import { NButton, NCard } from 'naive-ui'
+import PartyButton from '@/components/PartyButton.vue'
 
 const websocketStore = useWebSocketStore()
 
@@ -172,9 +172,9 @@ defineExpose({
           <LightsComponent :value="lightsData.lights" />
         </div>
         <div class="m-auto mt-4">
-          <n-button type="primary" @click="sendPlayerAction(true)" :disabled="playerFeedback.reaction_time != -10000">
-            <p class="text-4xl m-4">Start!</p>
-          </n-button>
+          <PartyButton @click="sendPlayerAction(true)" :disabled="playerFeedback.reaction_time != -10000">
+            <p class="text-4xl m-6">Launch!</p>
+          </PartyButton>
         </div>
         <div v-if="lightsData.practice_round">
           <p class="text-3xl w-full text-center text-white mt-4">Warmup round, no points are given!</p>

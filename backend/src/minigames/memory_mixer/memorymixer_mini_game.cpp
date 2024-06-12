@@ -156,34 +156,23 @@ void MemoryMixer_MiniGame::start_result() {
     }, 5 SECONDS);
 }
 
-void MemoryMixer_MiniGame::send_round_result(int client_id) {
+void MemoryMixer_MiniGame::send_round_result(int client_id, std::vector<std::string> wrong_names, std::vector<std::string> correct_names) {
     flatbuffers::FlatBufferBuilder builder;
 
     std::vector<flatbuffers::Offset<flatbuffers::String>> correct_names_buffer;
     std::vector<flatbuffers::Offset<flatbuffers::String>> wrong_names_buffer;
 
-    for (auto& [_, player] : players) {
-        if (player.eliminated) {
-            continue;
-        }
-        if (player.submitted_x == -1 || player.submitted_y == -1) {
-            wrong_names_buffer.push_back(builder.CreateString(client_repository[player.client_id]->name));
-            player.finished_round = round - 1;
-            player.eliminated = true;
-        } else if (grid[player.submitted_x][player.submitted_y] == target_card) {
-            correct_names_buffer.push_back(builder.CreateString(client_repository[player.client_id]->name));
-            player.finished_round = round;
-        } else {
-            wrong_names_buffer.push_back(builder.CreateString(client_repository[player.client_id]->name));
-            player.finished_round = round - 1;
-            player.eliminated = true;
-        }
+    for (std::string name : correct_names) {
+        correct_names_buffer.push_back(builder.CreateString(name));
+    }
+    for (std::string name : wrong_names) {
+        wrong_names_buffer.push_back(builder.CreateString(name));
     }
 
-    auto correct_names = builder.CreateVector(correct_names_buffer);
-    auto wrong_names = builder.CreateVector(wrong_names_buffer);
+    auto correct_names_vector = builder.CreateVector(correct_names_buffer);
+    auto wrong_names_vector = builder.CreateVector(wrong_names_buffer);
 
-    auto payload = CreateMemoryMixerRoundResultPayload(builder, round, correct_names, wrong_names);
+    auto payload = CreateMemoryMixerRoundResultPayload(builder, round, correct_names_vector, wrong_names_vector);
 
     auto miniGame = builder.CreateString(get_camel_case_name());
 
@@ -198,9 +187,31 @@ void MemoryMixer_MiniGame::next_round() {
     mini_game_phase = 0;
     remaining_time = memorise_time;
 
-    send_round_result(host->client_id);
+    // calculate round score
+    std::vector<std::string> correct_names_buffer;
+    std::vector<std::string> wrong_names_buffer;
+
     for (auto& [_, player] : players) {
-        send_round_result(player.client_id);
+        if (player.eliminated) {
+            continue;
+        }
+        if (player.submitted_x == -1 || player.submitted_y == -1) {
+            wrong_names_buffer.push_back(client_repository[player.client_id]->name);
+            player.finished_round = round - 1;
+            player.eliminated = true;
+        } else if (grid[player.submitted_x][player.submitted_y] == target_card) {
+            correct_names_buffer.push_back(client_repository[player.client_id]->name);
+            player.finished_round = round;
+        } else {
+            wrong_names_buffer.push_back(client_repository[player.client_id]->name);
+            player.finished_round = round - 1;
+            player.eliminated = true;
+        }
+    }
+
+    send_round_result(host->client_id, wrong_names_buffer, correct_names_buffer);
+    for (auto& [_, player] : players) {
+        send_round_result(player.client_id, wrong_names_buffer, correct_names_buffer);
     }
 
     int current_players = 0;
@@ -249,12 +260,16 @@ void MemoryMixer_MiniGame::update(int delta_time) {
     if (mini_game_phase == 0 || mini_game_phase == 1) {
         send_grid(host->client_id);
         for (auto& [_, player] : players) {
-            send_grid(player.client_id);
+            if (!player.eliminated) {
+                send_grid(player.client_id);
+            }
         }
     } else if (mini_game_phase == 2) {
         send_grid(host->client_id, true);
         for (auto& [_, player] : players) {
-            send_grid(player.client_id, true);
+            if (!player.eliminated) {
+                send_grid(player.client_id, true);
+            }
         }
     }
 }
