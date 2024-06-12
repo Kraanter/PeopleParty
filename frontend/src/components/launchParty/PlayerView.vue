@@ -172,7 +172,7 @@ defineExpose({
           <LightsComponent :value="lightsData.lights" />
         </div>
         <div class="m-auto mt-3">
-          <PartyButton @click="sendPlayerAction(true)" :disabled="playerFeedback.reaction_time != -10000">
+          <PartyButton @mousedown="sendPlayerAction(true)" :disabled="playerFeedback.reaction_time != -10000">
             <p class="text-4xl m-6">Launch!</p>
           </PartyButton>
         </div>
@@ -192,7 +192,7 @@ defineExpose({
     <div class="h-full w-full flex flex-cols mr-auto justify-center text-center mt-40">
       <p v-if="personalResult" class="text-4xl text-center text-white mt-4">
         <span v-if="personalResult.reaction_time >= 5000 && personalResult.reaction_time < 10000">Too early</span>
-        <span v-else-if="personalResult.reaction_time >= 10000">Too late</span>
+        <span v-else-if="personalResult.reaction_time >= 10000 || personalResult.reaction_time == -10000">Too late</span>
         <span v-else>reaction time: <span class="font-bold">{{ personalResult.reaction_time }}</span>ms</span>
       </p>
     </div>
