@@ -20,7 +20,7 @@ import { NButton } from 'naive-ui'
 enum ViewState {
   None,
   Introduction,
-  MiniGame,
+  MiniGame
 }
 const viewState = ref<ViewState>(ViewState.None)
 
@@ -38,7 +38,7 @@ enum RPSChoice {
   None,
   Rock,
   Paper,
-  Scissors,
+  Scissors
 }
 interface playerDataPayload {
   choice: RPSChoice
@@ -56,7 +56,6 @@ const playerData = ref<playerDataPayload>({
   winner: '',
   time_left: 0
 })
-
 
 function update(payload: MiniGamePayloadType) {
   switch (payload.gamestatetype()) {
@@ -92,10 +91,7 @@ const webscoketStore = useWebSocketStore()
 function player_action(action: FB_RPSChoice) {
   const builder = new Builder()
 
-  let input = RPSBracketPlayerInputPayload.createRPSBracketPlayerInputPayload(
-    builder,
-    action
-  )
+  let input = RPSBracketPlayerInputPayload.createRPSBracketPlayerInputPayload(builder, action)
 
   let miniGame = builder.createString('rpsBracket')
 
@@ -145,7 +141,7 @@ defineExpose({ update })
       </div>
       <div v-else class="w-full">
         <div>
-          <p class="text-1xl">your name: {{  webscoketStore.clientName }}</p>
+          <p class="text-1xl">your name: {{ webscoketStore.clientName }}</p>
         </div>
         <div class="justify-center flex px-8 mb-16">
           <div>
@@ -168,13 +164,19 @@ defineExpose({ update })
         <div class="w-full mt-4">
           <div class="flex flex-rows justify-center gap-4">
             <div>
-              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.ROCK)">Rock</n-button>
+              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.ROCK)"
+                >Rock</n-button
+              >
             </div>
             <div>
-              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.PAPER)">Paper</n-button>
+              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.PAPER)"
+                >Paper</n-button
+              >
             </div>
             <div>
-              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.SCISSORS)">Scissors</n-button>
+              <n-button type="primary" size="large" @click="player_action(FB_RPSChoice.SCISSORS)"
+                >Scissors</n-button
+              >
             </div>
           </div>
         </div>
