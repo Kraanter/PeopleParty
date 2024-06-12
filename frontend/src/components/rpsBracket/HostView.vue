@@ -43,12 +43,10 @@ const bracket = ref()
 const xMargin = 0 / 2
 const yMargin = 30 / 2
 const bracketRows = computed(() =>
-  bracket.value.matches.length === 1 ? 1 : Math.ceil(bracket.value.matches.length / 8) * 2
+  bracket.value.length === 1 ? 1 : Math.ceil(bracket.value.length / 8) * 2
 )
 const bracketCols = computed(() =>
-  bracket.value.matches.length === 1
-    ? 1
-    : Math.ceil(Math.log2(bracket.value.matches.length)) * 2 - 1
+  bracket.value.length === 1 ? 1 : Math.ceil(Math.log2(bracket.value.length)) * 2 - 1
 )
 
 const calcBracketHeight = (rows: number): number => (height.value - yMargin * 2) / rows
@@ -114,8 +112,8 @@ function drawMatch(
 }
 
 function getMatchIndex(round: number, row: number, rightSide: boolean = false) {
-  const roundStart = Math.floor(bracket.value.matches.length / Math.pow(2, round + 1))
-  const roundEnd = Math.floor(bracket.value.matches.length / Math.pow(2, round))
+  const roundStart = Math.floor(bracket.value.length / Math.pow(2, round + 1))
+  const roundEnd = Math.floor(bracket.value.length / Math.pow(2, round))
   const roundLength = roundEnd - roundStart
   const roundIndex = roundStart + row
   return rightSide ? roundIndex + roundLength / 2 : roundIndex
@@ -154,7 +152,7 @@ function render(graphics: Graphics) {
     const currentBracketHeight = calcBracketHeight(rowAmount)
     for (let row = 0; row < rowAmount; row++) {
       const curMatchIndex = getMatchIndex(roundNr, row, flip)
-      const match = bracket.value.matches[curMatchIndex]
+      const match = bracket.value[curMatchIndex]
       const x = xMargin + col * bracketWidth
       const y = yMargin + row * currentBracketHeight
 
@@ -207,7 +205,7 @@ function update(payload: MiniGamePayloadType) {
         }
         matches.push(match)
       }
-      bracket.value.matches = matches
+      bracket.value = matches
       break
     }
     default:
@@ -226,10 +224,10 @@ defineExpose({ update })
   <template v-else-if="viewState == ViewState.MiniGame">
     <div>
       <div
-        v-if="bracket.matches[0]?.winner?.name"
+        v-if="bracket[0]?.winner?.name"
         class="absolute text-8xl bg-black/75 z-20 w-full h-full text-center text-secondary"
       >
-        <span class="mt-auto">Winner: {{ bracket.matches[0].winner?.name }}</span>
+        <span class="mt-auto">Winner: {{ bracket[0].winner?.name }}</span>
       </div>
       <div
         class="absolute h-full w-full grid"
@@ -263,19 +261,13 @@ defineExpose({ update })
                 gridRowStart: isRightSide(col) ? 3 : 2
               }"
             >
-              {{
-                bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left
-                  ?.name
-              }}
+              {{ bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name }}
             </p>
             <p
               class="m-auto text-primary font-bold"
               :style="{ gridRowStart: isRightSide(col) ? 2 : 3 }"
             >
-              {{
-                bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right
-                  ?.name
-              }}
+              {{ bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right?.name }}
             </p>
           </span>
         </div>
