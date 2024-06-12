@@ -276,9 +276,9 @@ const join = () => {
         </n-collapse-transition>
       </n-card>
 
-      <div class="grid grid-cols-3 justify-between w-full bottom-0 m-auto mb-10">
+      <div class="grid grid-cols-4 justify-between w-full bottom-0 m-auto mb-10">
         <p class="flex">{{ versionNumber }}</p>
-        <div class="flex col-span-2 justify-start items-center">
+        <div class="flex col-span-2 justify-center items-center">
           <router-link v-if="!(joining || joined)" to="/host" class="underline">
             Host your own party!
           </router-link>

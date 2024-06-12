@@ -5,7 +5,18 @@
 #include "globals.h"
 #include "socketdata.h"
 
-WebSocket::WebSocket() { this->init(); }
+void send_heart_beats() {
+  std::vector<Party*> parties = party_repository.GetParties();
+
+  for (auto &party : parties) {
+    party->send_message([](Client* client) { return true; }, "");
+  }
+}
+
+WebSocket::WebSocket() { 
+  timer.setInterval([this]() { send_heart_beats(); }, 45 SECONDS);
+  this->init();
+}
 
 void send_host_message(WS *ws) {
   std::string output = FlatbufferMessageBuilder::buildHostMessage(ws->getUserData()->party_id);

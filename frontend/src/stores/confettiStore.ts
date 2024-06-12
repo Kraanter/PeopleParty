@@ -73,6 +73,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
       }
 
       websocket.value.onmessage = (event) => {
+        if (event.data == '') return;
         const uintarray = new Uint8Array(event.data)
         handleMessage(uintarray)
       }
