@@ -226,7 +226,7 @@ void MemoryMixer_MiniGame::next_round() {
 
     timer.pause(round_results_time);
     
-    if (active_players <= -1) {
+    if (active_players <= 1) {
         start_result();
         return;
     }
