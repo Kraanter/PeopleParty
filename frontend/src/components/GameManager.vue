@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { MiniGamePayloadType } from '@/flatbuffers/messageClass'
 import { defineAsyncComponent, ref, watch, defineProps, onMounted, shallowRef, toRefs } from 'vue'
+import { debounce } from '@/util/funcs'
 import PeoplePartyHeader from './PeoplePartyHeader.vue'
 
 const props = defineProps<{
@@ -9,17 +10,7 @@ const props = defineProps<{
 }>()
 const { data } = toRefs(props)
 
-const gameName = ref('')
-
-const debounce = (func: Function, wait: number) => {
-  let timeout: number | undefined
-  return (...args: any[]) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      func(...args)
-    }, wait)
-  }
-}
+const gameName = ref('rpsBracket')
 
 const componentName = props.isHost ? 'Host' : 'Player'
 
