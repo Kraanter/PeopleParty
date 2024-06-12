@@ -31,19 +31,25 @@ const intro = ref<IntroductionData>({
   time_left: 0
 })
 
-const viewState = ref<ViewState>(ViewState.None);
+const viewState = ref<ViewState>(ViewState.None)
 
 // The single elimination bracket has all matches and the matches have the teams
 // The last match is the final, the second to last is the semi-final, etc.
 // The first match is the first round of the bracket
 // The first match has the first two teams, the second match has the next two teams, etc.
 // This means the first half of the matches are the first round, the first half of second half of the matches is the second round, etc.
-const bracket = ref(createBracket(12))
+const bracket = ref()
 
 const xMargin = 0 / 2
 const yMargin = 30 / 2
-const bracketRows = computed(() => Math.ceil(bracket.value.matches.length / 8) * 2)
-const bracketCols = computed(() => Math.ceil(Math.log2(bracket.value.matches.length)) * 2 - 1)
+const bracketRows = computed(() =>
+  bracket.value.matches.length === 1 ? 1 : Math.ceil(bracket.value.matches.length / 8) * 2
+)
+const bracketCols = computed(() =>
+  bracket.value.matches.length === 1
+    ? 1
+    : Math.ceil(Math.log2(bracket.value.matches.length)) * 2 - 1
+)
 
 const calcBracketHeight = (rows: number): number => (height.value - yMargin * 2) / rows
 const calcBracketWidth = (cols: number): number => (width.value - xMargin * 2) / cols
@@ -70,7 +76,7 @@ function drawMatch(
   round: number
 ) {
   g.lineStyle(4, 0xffffff)
-  if (round === 0 && !match.left?.name && !match.right?.name) {
+  if (round === 0 && !match?.left?.name && !match?.right?.name) {
     g.moveTo(x, y + height / 2)
     g.lineTo(x + width, y + height / 2)
     return
@@ -78,9 +84,9 @@ function drawMatch(
 
   if (flip) {
     ;[x, y, width, height] = [x + width, y + height, -width, -height]
-    let temp = match.left;
-    match.left = match.right;
-    match.right = temp;
+    let temp = match.left
+    match.left = match.right
+    match.right = temp
   }
   // top line
   if (round > 0 || match.left) {
@@ -124,7 +130,8 @@ function getRoundNumber(col: number) {
 }
 
 function getRowsInRound(round: number) {
-  return bracketRows.value / Math.pow(2, round)
+  if (bracketCols.value === 3) return 1
+  return Math.ceil(bracketRows.value / Math.pow(2, round))
 }
 
 function render(graphics: Graphics) {
@@ -182,25 +189,25 @@ function update(payload: MiniGamePayloadType) {
     case GameStateType.RPSBracketHost: {
       if (viewState.value === ViewState.Results) break
       viewState.value = ViewState.MiniGame
-      const input: RPSBracketHostPayload = payload.gamestatepayload(new RPSBracketHostPayload());
+      const input: RPSBracketHostPayload = payload.gamestatepayload(new RPSBracketHostPayload())
 
-      const matches: BracketMatch[] = [];
+      const matches: BracketMatch[] = []
       for (let i = 0; i < input.matchesLength(); i++) {
-        const matchfb = input.matches(i);
-        const match = { 
-          left: { 
-            name: decodeURI(matchfb?.player1() || ''),
-          }, 
-          right: { 
+        const matchfb = input.matches(i)
+        const match = {
+          left: {
+            name: decodeURI(matchfb?.player1() || '')
+          },
+          right: {
             name: decodeURI(matchfb?.player2() || '')
-          }, winner: { 
+          },
+          winner: {
             name: decodeURI(matchfb?.winner() || '')
-          } 
-        };
-        matches.push(match);
+          }
+        }
+        matches.push(match)
       }
-      console.log(matches);
-      bracket.value.matches = matches;
+      bracket.value.matches = matches
       break
     }
     default:
@@ -217,35 +224,58 @@ defineExpose({ update })
     </div>
   </template>
   <template v-else-if="viewState == ViewState.MiniGame">
-
     <div>
-      <div v-if="bracket.matches[0]?.winner?.name"
-        class="absolute text-8xl bg-black/75 z-20 w-full h-full text-center text-secondary">
+      <div
+        v-if="bracket.matches[0]?.winner?.name"
+        class="absolute text-8xl bg-black/75 z-20 w-full h-full text-center text-secondary"
+      >
         <span class="mt-auto">Winner: {{ bracket.matches[0].winner?.name }}</span>
       </div>
-      <div class="absolute h-full w-full grid" :style="{
-    gridTemplateColumns: `repeat(${bracketCols}, 1fr)`,
-    padding: `${yMargin}px ${xMargin}px`
-  }">
-        <div :key="col" v-for="(i, col) in bracketCols" class="text-white text-center w-full h-full grid px-2" :style="{
-    gridTemplateRows: `repeat(${getRowsInRound(getRoundNumber(col))}, 1fr)`
-  }">
-          <span :key="row * col" v-for="(i, row) in bracketRows"
+      <div
+        class="absolute h-full w-full grid"
+        :style="{
+          gridTemplateColumns: `repeat(${bracketCols}, 1fr)`,
+          padding: `${yMargin}px ${xMargin}px`
+        }"
+      >
+        <div
+          :key="col"
+          v-for="(i, col) in bracketCols"
+          class="text-white text-center w-full h-full grid px-2"
+          :style="{
+            gridTemplateRows: `repeat(${getRowsInRound(getRoundNumber(col))}, 1fr)`
+          }"
+        >
+          <span
+            :key="row * col"
+            v-for="(i, row) in bracketRows"
             class="text-white text-center text-nowrap overflow-hidden w-full h-full grid grid-rows-4"
-            :class="{ hidden: row + 1 > getRowsInRound(getRoundNumber(col)) }" :style="{
-    fontSize: `${Math.min(calcBracketHeight(getRowsInRound(getRoundNumber(col))) / 8, height / 30)}px`,
-    rotate: getRoundNumber(col) > 3 ? '90deg' : '0deg'
-  }">
-            <p class="m-auto text-primary font-bold" :style="{ gridRowStart: isRightSide(col) ? 3 : 2 }">
+            :class="{
+              hidden: row + 1 > getRowsInRound(getRoundNumber(col))
+            }"
+            :style="{
+              fontSize: `${Math.min(calcBracketHeight(getRowsInRound(getRoundNumber(col))) / 8, height / 30)}px`
+            }"
+          >
+            <p
+              class="m-auto text-primary font-bold"
+              :style="{
+                gridRowStart: isRightSide(col) ? 3 : 2
+              }"
+            >
               {{
-    bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name
-  }}
+                bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left
+                  ?.name
+              }}
             </p>
-            <p class="m-auto text-primary font-bold" :style="{ gridRowStart: isRightSide(col) ? 2 : 3 }">
+            <p
+              class="m-auto text-primary font-bold"
+              :style="{ gridRowStart: isRightSide(col) ? 2 : 3 }"
+            >
               {{
-    bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right
-      ?.name
-  }}
+                bracket.matches[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right
+                  ?.name
+              }}
             </p>
           </span>
         </div>

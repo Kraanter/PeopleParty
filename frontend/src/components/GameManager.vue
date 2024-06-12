@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 const { data } = toRefs(props)
 
-const gameName = ref('rpsBracket')
+const gameName = ref('')
 
 const debounce = (func: Function, wait: number) => {
   let timeout: number | undefined
