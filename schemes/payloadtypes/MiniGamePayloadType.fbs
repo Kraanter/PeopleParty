@@ -2,36 +2,63 @@
 // Include all gamestate types to build the MiniGamePayloadType scheme
 
 include "minigamedata/BusinessBailout/BusinessBailoutHostPayload.fbs";
-include "minigamedata/BusinessBailout/BusinessBailoutResultPayload.fbs";
-include "minigamedata/BusinessBailout/BusinessBailoutPlayerPayload.fbs";
 include "minigamedata/BusinessBailout/BusinessBailoutPlayerInputPayload.fbs";
-include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
+include "minigamedata/BusinessBailout/BusinessBailoutPlayerPayload.fbs";
+include "minigamedata/BusinessBailout/BusinessBailoutResultPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingHostEntitiesPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingPlayerInputPayload.fbs";
+include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingResultPayload.fbs";
+include "minigamedata/LaunchParty/LaunchPartyLightsPayload.fbs";
+include "minigamedata/LaunchParty/LaunchPartyPlayerInputPayload.fbs";
+include "minigamedata/LaunchParty/LaunchPartyPlayerTimePayload.fbs";
+include "minigamedata/LaunchParty/LaunchPartyResultPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerGridPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerPlayerInputPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerPlayerSubmittedPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerResultPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerRoundResultPayload.fbs";
 include "minigamedata/MiniGameIntroductionPayload.fbs";
 
 enum GameStateType: byte {
     BusinessBailoutHost,
-    BusinessBailoutResult,
-    BusinessBailoutPlayer,
     BusinessBailoutPlayerInput,
-    CrazyCountingPlayerUpdate,
+    BusinessBailoutPlayer,
+    BusinessBailoutResult,
     CrazyCountingHostEntities,
     CrazyCountingPlayerInput,
+    CrazyCountingPlayerUpdate,
     CrazyCountingResult,
+    LaunchPartyLights,
+    LaunchPartyPlayerInput,
+    LaunchPartyPlayerTime,
+    LaunchPartyResult,
+    MemoryMixerGrid,
+    MemoryMixerPlayerInput,
+    MemoryMixerPlayerSubmitted,
+    MemoryMixerResult,
+    MemoryMixerRoundResult,
     MiniGameIntroduction,
 }
 
 union GameStatePayload {
     BusinessBailoutHostPayload,
-    BusinessBailoutResultPayload,
-    BusinessBailoutPlayerPayload,
     BusinessBailoutPlayerInputPayload,
-    CrazyCountingPlayerUpdatePayload,
+    BusinessBailoutPlayerPayload,
+    BusinessBailoutResultPayload,
     CrazyCountingHostEntitiesPayload,
     CrazyCountingPlayerInputPayload,
+    CrazyCountingPlayerUpdatePayload,
     CrazyCountingResultPayload,
+    LaunchPartyLightsPayload,
+    LaunchPartyPlayerInputPayload,
+    LaunchPartyPlayerTimePayload,
+    LaunchPartyResultPayload,
+    MemoryMixerGridPayload,
+    MemoryMixerPlayerInputPayload,
+    MemoryMixerPlayerSubmittedPayload,
+    MemoryMixerResultPayload,
+    MemoryMixerRoundResultPayload,
     MiniGameIntroductionPayload,
 }
 

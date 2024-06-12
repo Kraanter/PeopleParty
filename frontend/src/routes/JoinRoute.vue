@@ -15,7 +15,7 @@ const websocketStore = useWebSocketStore()
 const { partyCode } = storeToRefs(websocketStore)
 
 const viewStore = useViewStore()
-const { viewState, viewData } = storeToRefs(viewStore)
+const { viewState, viewData, versionNumber } = storeToRefs(viewStore)
 
 const onlyAllowNumber = (value: string) => !value || /^\d+$/.test(value)
 
@@ -43,7 +43,7 @@ onMounted(() => {
       error.value = ''
     } else {
       joinPromise.value = undefined
-      error.value = 'Failed to join party. Please check the code and try again.'
+      error.value = 'Failed to join party. Please check the code or try a different name.'
     }
   })
 
@@ -59,7 +59,7 @@ watch(() => getCodeString(), debounceCodeString)
 
 const codeString = ref(getCodeString())
 const joinable = computed(
-  () => codeString.value?.length === partyCodeLength && username.value.length > 3
+  () => codeString.value?.length === partyCodeLength && username.value.length > 1
 )
 
 const joining = computed(() => !!joinPromise.value)
@@ -276,10 +276,15 @@ const join = () => {
         </n-collapse-transition>
       </n-card>
 
-      <!-- Redirect link to /host -->
-      <router-link v-if="!(joining || joined)" to="/host" class="bottom-0 m-auto mb-10 underline">
-        Host your own party!
-      </router-link>
+      <div class="grid grid-cols-4 justify-between w-full bottom-0 m-auto mb-10">
+        <p class="flex">{{ versionNumber }}</p>
+        <div class="flex col-span-2 justify-center items-center">
+          <router-link v-if="!(joining || joined)" to="/host" class="underline">
+            Host your own party!
+          </router-link>
+        </div>
+      </div>
+      
     </template>
   </div>
 </template>

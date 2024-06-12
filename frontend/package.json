@@ -18,17 +18,19 @@
     "prepare": "cd .. && husky"
   },
   "dependencies": {
+    "e": "^0.2.33",
     "flatbuffers": "^24.3.25",
     "pinia": "^2.1.7",
     "pixi.js": "^7.*",
     "vue": "^3.4.21",
+    "vue-flip": "^3.0.2",
     "vue-router": "^4.3.0",
     "vue3-pixi": "^0.9.1"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
     "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20.12.5",
+    "@types/node": "^20.14.2",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^13.0.0",
@@ -39,7 +41,7 @@
     "eslint-plugin-cypress": "^2.15.1",
     "eslint-plugin-vue": "^9.23.0",
     "husky": "^9.0.11",
-    "naive-ui": "^2.38.1",
+    "naive-ui": "^2.38.2",
     "npm-run-all2": "^6.1.2",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",

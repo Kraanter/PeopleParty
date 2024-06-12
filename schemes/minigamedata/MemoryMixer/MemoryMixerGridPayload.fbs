@@ -1,0 +1,32 @@
+enum MemoryMixerIconType: byte { 
+    BALLOON,
+    CAKE,
+    CONFETTI,
+    CONFETTI2,
+    SMILEY,
+    CANDLE,
+    HAT,
+    EMPTY,
+}
+
+table MemoryMixerGridRow {
+    row: [MemoryMixerGridCell];
+}
+
+table MemoryMixerGridCell {
+  icon: MemoryMixerIconType;
+  players_on_card: short;
+  is_highlighted: bool;
+}
+
+table MemoryMixerGridPayload {
+  time_left: ulong;
+  max_on_card: short;
+  phase: short;
+  round: short;
+  players_left: short;
+  names: [string];
+  grid: [MemoryMixerGridRow];
+}
+
+root_type MemoryMixerGridPayload;

@@ -1,0 +1,7 @@
+table MemoryMixerRoundResultPayload {
+    round: short;
+    correct_names: [string];
+    wrong_names: [string];
+}
+
+root_type MemoryMixerRoundResultPayload;

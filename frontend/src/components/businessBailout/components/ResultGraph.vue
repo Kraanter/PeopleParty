@@ -97,5 +97,14 @@ function render(graphics: Graphics) {
       :text="bailedPlayer.name"
       :rotation="Math.PI * 0.25"
     />
+    <Sprite
+      :position-x="interpPosition(points[points.length - 1])[0]"
+      :position-y="interpPosition(points[points.length - 1])[1]"
+      :width="75"
+      :anchor-x="0.5"
+      :height="75 * 2"
+      :rotation="Math.PI"
+      texture="/assets/games/businessBailout/rocket.svg"
+    />
   </Application>
 </template>

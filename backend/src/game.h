@@ -12,9 +12,13 @@
 #include "leaderboard/leaderboard.h"
 #include "party.h"
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
+#include "minigames/memory_mixer/memorymixer_mini_game.h"
 #include "minigames/business_bailout/business_bailout_minigame.h"
+#include "minigames/launch_party/launch_party_mini_game.h"
 #include <queue>
 #include <map>
+#include <algorithm>
+#include <random>
 
 class PartyPrep;
 class Leaderboard;
@@ -45,16 +49,27 @@ public:
                 current_gamestate = (GameState *)miniGames.front();
                 miniGames.pop();
                 ((MiniGame*)current_gamestate)->start();
+                last_minigame = ((MiniGame*)current_gamestate)->get_camel_case_name();
 
-                // fixme: find a better way of selecting a random minigame
-                MiniGame* minigame;
-                if (rand() % 2 == 0) {
-                    minigame = new CrazyCounting_MiniGame(this);
-                } else {
-                    minigame = new BusinessBailout_Minigame(this);
+                if (miniGames.size() < 2) {
+                    std::vector<MiniGame*> temp_minigames;
+                    temp_minigames.push_back(new CrazyCounting_MiniGame(this));
+                    temp_minigames.push_back(new BusinessBailout_Minigame(this));
+                    temp_minigames.push_back(new MemoryMixer_MiniGame(this));
+                    temp_minigames.push_back(new LaunchParty_Minigame(this));
+
+                    auto rd = std::random_device {}; 
+                    auto rng = std::default_random_engine { rd() };
+                    std::shuffle(std::begin(temp_minigames), std::end(temp_minigames), rng);
+
+                    if (last_minigame == temp_minigames.front()->get_camel_case_name()) {
+                        std::reverse(temp_minigames.begin(), temp_minigames.end());
+                    }
+
+                    for (auto minigame : temp_minigames) {
+                        miniGames.push(minigame);
+                    }
                 }
-                miniGames.push(minigame);
-                return;
             }
         }
     }
@@ -70,6 +85,7 @@ public:
 private:
     GameState* current_gamestate;
     std::queue<MiniGame*> miniGames;
+    std::string last_minigame;
 };
 
 #endif //PEOPLEPARTY_BACKEND_GAME_H
