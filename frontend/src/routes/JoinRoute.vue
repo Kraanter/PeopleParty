@@ -43,7 +43,7 @@ onMounted(() => {
       error.value = ''
     } else {
       joinPromise.value = undefined
-      error.value = 'Failed to join party. Please check the code and try again.'
+      error.value = 'Failed to join party. Please check the code or try a different name.'
     }
   })
 
