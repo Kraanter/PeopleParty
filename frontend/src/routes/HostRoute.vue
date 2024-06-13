@@ -21,7 +21,6 @@ import {
 const audio = new Audio('/soundtrack.wav')
 audio.loop = true
 
-
 const websocketStore = useWebSocketStore()
 const { partyCode } = storeToRefs(websocketStore)
 

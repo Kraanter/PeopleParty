@@ -29,21 +29,48 @@ name(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-score():bigint {
+position():number {
   const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
+score():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
+deltaScore():bigint {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
+}
+
+deltaPosition():number {
+  const offset = this.bb!.__offset(this.bb_pos, 12);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+}
+
 static startFBLeaderboardPlayer(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(5);
 }
 
 static addName(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset) {
   builder.addFieldOffset(0, nameOffset, 0);
 }
 
+static addPosition(builder:flatbuffers.Builder, position:number) {
+  builder.addFieldInt32(1, position, 0);
+}
+
 static addScore(builder:flatbuffers.Builder, score:bigint) {
-  builder.addFieldInt64(1, score, BigInt('0'));
+  builder.addFieldInt64(2, score, BigInt('0'));
+}
+
+static addDeltaScore(builder:flatbuffers.Builder, deltaScore:bigint) {
+  builder.addFieldInt64(3, deltaScore, BigInt('0'));
+}
+
+static addDeltaPosition(builder:flatbuffers.Builder, deltaPosition:number) {
+  builder.addFieldInt32(4, deltaPosition, 0);
 }
 
 static endFBLeaderboardPlayer(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -51,10 +78,13 @@ static endFBLeaderboardPlayer(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createFBLeaderboardPlayer(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, score:bigint):flatbuffers.Offset {
+static createFBLeaderboardPlayer(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, position:number, score:bigint, deltaScore:bigint, deltaPosition:number):flatbuffers.Offset {
   FBLeaderboardPlayer.startFBLeaderboardPlayer(builder);
   FBLeaderboardPlayer.addName(builder, nameOffset);
+  FBLeaderboardPlayer.addPosition(builder, position);
   FBLeaderboardPlayer.addScore(builder, score);
+  FBLeaderboardPlayer.addDeltaScore(builder, deltaScore);
+  FBLeaderboardPlayer.addDeltaPosition(builder, deltaPosition);
   return FBLeaderboardPlayer.endFBLeaderboardPlayer(builder);
 }
 }

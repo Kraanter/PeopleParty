@@ -17,6 +17,8 @@ export { FBLaunchPartyResultPair } from './fblaunch-party-result-pair.js';
 export { FBLeaderboardPlayer } from './fbleaderboard-player.js';
 export { FBMemoryMixerResultPair } from './fbmemory-mixer-result-pair.js';
 export { FBPlayer } from './fbplayer.js';
+export { FB_RPSChoice } from './fb-rpschoice.js';
+export { FB_RPSMatch } from './fb-rpsmatch.js';
 export { GameStatePayload } from './game-state-payload.js';
 export { GameStateType } from './game-state-type.js';
 export { HostPayloadType } from './host-payload-type.js';
@@ -51,3 +53,6 @@ export { PartyPrepPlayerInformationPayload } from './party-prep-player-informati
 export { PartyPrepType } from './party-prep-type.js';
 export { Payload } from './payload.js';
 export { PlayerBailout } from './player-bailout.js';
+export { RPSBracketHostPayload } from './rpsbracket-host-payload.js';
+export { RPSBracketPlayerInputPayload } from './rpsbracket-player-input-payload.js';
+export { RPSBracketPlayerPayload } from './rpsbracket-player-payload.js';

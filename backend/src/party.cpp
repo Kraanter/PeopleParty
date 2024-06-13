@@ -33,6 +33,18 @@ const std::vector<Client *> Party::get_clients() {
     });
 }
 
+Client* Party::get_client(int client_id) {
+    std::vector<Client *> clients =  client_repository.Find([&] (Client* client) {
+        return client->party->party_id == this->party_id && client->client_id == client_id;
+    });
+
+    if (clients.size() == 0) {
+        return nullptr;
+    } else {
+        return clients.front();
+    }
+}
+
 const void Party::send_message(const std::function<bool(Client *)> &expression, const std::string &message) {
     std::vector<Client*> filtered_clients;
     std::vector<Client*> clients = get_clients();

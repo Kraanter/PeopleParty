@@ -30,7 +30,10 @@ export type Leaderboard = {
 
 export type LeaderboardPlayer = {
   name: string
+  position: number
   score: number
+  deltaScore: number
+  deltaPosition: number
 }
 
 export const useWebSocketStore = defineStore('websocket', () => {
@@ -73,7 +76,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
       }
 
       websocket.value.onmessage = (event) => {
-        if (event.data == '') return;
+        if (event.data == '') return
         const uintarray = new Uint8Array(event.data)
         handleMessage(uintarray)
       }
@@ -167,7 +170,10 @@ export const useWebSocketStore = defineStore('websocket', () => {
             for (let i = 0; i < payload.leaderboardLength(); i++) {
               newEntries.push({
                 name: decodeURI(payload.leaderboard(i)?.name() ?? ''),
-                score: Number(payload.leaderboard(i)?.score()) ?? 0
+                position: Number(payload.leaderboard(i)?.position()) ?? 0,
+                score: Number(payload.leaderboard(i)?.score()) ?? 0,
+                deltaScore: Number(payload.leaderboard(i)?.deltaScore()) ?? 0,
+                deltaPosition: Number(payload.leaderboard(i)?.deltaPosition()) ?? 0
               })
             }
             viewStore.setViewData({
