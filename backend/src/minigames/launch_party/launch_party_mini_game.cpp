@@ -220,7 +220,9 @@ std::vector<Client *> LaunchParty_Minigame::getMinigameResult() {
     }
 
     sort(local_players.begin(), local_players.end(), [&](Client *a, Client *b) {
-        if (players[a].reaction_time == players[b].reaction_time) return rand() % 2 == 0;
+        if (players[a].reaction_time == players[b].reaction_time)  {
+            return true;
+        }
         return players[a].reaction_time < players[b].reaction_time;
     });
     return local_players;
