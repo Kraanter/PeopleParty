@@ -10,6 +10,10 @@ import { CrazyCountingHostEntitiesPayload } from './crazy-counting-host-entities
 import { CrazyCountingPlayerInputPayload } from './crazy-counting-player-input-payload.js';
 import { CrazyCountingPlayerUpdatePayload } from './crazy-counting-player-update-payload.js';
 import { CrazyCountingResultPayload } from './crazy-counting-result-payload.js';
+import { LaunchPartyLightsPayload } from './launch-party-lights-payload.js';
+import { LaunchPartyPlayerInputPayload } from './launch-party-player-input-payload.js';
+import { LaunchPartyPlayerTimePayload } from './launch-party-player-time-payload.js';
+import { LaunchPartyResultPayload } from './launch-party-result-payload.js';
 import { MemoryMixerGridPayload } from './memory-mixer-grid-payload.js';
 import { MemoryMixerPlayerInputPayload } from './memory-mixer-player-input-payload.js';
 import { MemoryMixerPlayerSubmittedPayload } from './memory-mixer-player-submitted-payload.js';
@@ -24,75 +28,87 @@ import { RPSBracketPlayerPayload } from './rpsbracket-player-payload.js';
 export enum GameStatePayload {
   NONE = 0,
   BusinessBailoutHostPayload = 1,
-  BusinessBailoutPlayerInputPayload = 2,
+  BusinessBailoutResultPayload = 2,
   BusinessBailoutPlayerPayload = 3,
-  BusinessBailoutResultPayload = 4,
-  CrazyCountingHostEntitiesPayload = 5,
-  CrazyCountingPlayerInputPayload = 6,
-  CrazyCountingPlayerUpdatePayload = 7,
-  CrazyCountingResultPayload = 8,
-  MemoryMixerGridPayload = 9,
-  MemoryMixerPlayerInputPayload = 10,
-  MemoryMixerPlayerSubmittedPayload = 11,
-  MemoryMixerResultPayload = 12,
-  MemoryMixerRoundResultPayload = 13,
-  MiniGameIntroductionPayload = 14,
-  RPSBracketHostPayload = 15,
-  RPSBracketPlayerInputPayload = 16,
-  RPSBracketPlayerPayload = 17
+  BusinessBailoutPlayerInputPayload = 4,
+  MemoryMixerGridPayload = 5,
+  MemoryMixerRoundResultPayload = 6,
+  MemoryMixerResultPayload = 7,
+  MemoryMixerPlayerSubmittedPayload = 8,
+  MemoryMixerPlayerInputPayload = 9,
+  RPSBracketPlayerPayload = 10,
+  RPSBracketPlayerInputPayload = 11,
+  RPSBracketHostPayload = 12,
+  LaunchPartyResultPayload = 13,
+  LaunchPartyPlayerInputPayload = 14,
+  LaunchPartyLightsPayload = 15,
+  LaunchPartyPlayerTimePayload = 16,
+  CrazyCountingPlayerUpdatePayload = 17,
+  CrazyCountingHostEntitiesPayload = 18,
+  CrazyCountingPlayerInputPayload = 19,
+  CrazyCountingResultPayload = 20,
+  MiniGameIntroductionPayload = 21
 }
 
 export function unionToGameStatePayload(
   type: GameStatePayload,
-  accessor: (obj:BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload) => BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload|null
-): BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload|null {
+  accessor: (obj:BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|LaunchPartyLightsPayload|LaunchPartyPlayerInputPayload|LaunchPartyPlayerTimePayload|LaunchPartyResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload) => BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|LaunchPartyLightsPayload|LaunchPartyPlayerInputPayload|LaunchPartyPlayerTimePayload|LaunchPartyResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload|null
+): BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|LaunchPartyLightsPayload|LaunchPartyPlayerInputPayload|LaunchPartyPlayerTimePayload|LaunchPartyResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
     case 'BusinessBailoutHostPayload': return accessor(new BusinessBailoutHostPayload())! as BusinessBailoutHostPayload;
-    case 'BusinessBailoutPlayerInputPayload': return accessor(new BusinessBailoutPlayerInputPayload())! as BusinessBailoutPlayerInputPayload;
-    case 'BusinessBailoutPlayerPayload': return accessor(new BusinessBailoutPlayerPayload())! as BusinessBailoutPlayerPayload;
     case 'BusinessBailoutResultPayload': return accessor(new BusinessBailoutResultPayload())! as BusinessBailoutResultPayload;
+    case 'BusinessBailoutPlayerPayload': return accessor(new BusinessBailoutPlayerPayload())! as BusinessBailoutPlayerPayload;
+    case 'BusinessBailoutPlayerInputPayload': return accessor(new BusinessBailoutPlayerInputPayload())! as BusinessBailoutPlayerInputPayload;
+    case 'MemoryMixerGridPayload': return accessor(new MemoryMixerGridPayload())! as MemoryMixerGridPayload;
+    case 'MemoryMixerRoundResultPayload': return accessor(new MemoryMixerRoundResultPayload())! as MemoryMixerRoundResultPayload;
+    case 'MemoryMixerResultPayload': return accessor(new MemoryMixerResultPayload())! as MemoryMixerResultPayload;
+    case 'MemoryMixerPlayerSubmittedPayload': return accessor(new MemoryMixerPlayerSubmittedPayload())! as MemoryMixerPlayerSubmittedPayload;
+    case 'MemoryMixerPlayerInputPayload': return accessor(new MemoryMixerPlayerInputPayload())! as MemoryMixerPlayerInputPayload;
+    case 'RPSBracketPlayerPayload': return accessor(new RPSBracketPlayerPayload())! as RPSBracketPlayerPayload;
+    case 'RPSBracketPlayerInputPayload': return accessor(new RPSBracketPlayerInputPayload())! as RPSBracketPlayerInputPayload;
+    case 'RPSBracketHostPayload': return accessor(new RPSBracketHostPayload())! as RPSBracketHostPayload;
+    case 'LaunchPartyResultPayload': return accessor(new LaunchPartyResultPayload())! as LaunchPartyResultPayload;
+    case 'LaunchPartyPlayerInputPayload': return accessor(new LaunchPartyPlayerInputPayload())! as LaunchPartyPlayerInputPayload;
+    case 'LaunchPartyLightsPayload': return accessor(new LaunchPartyLightsPayload())! as LaunchPartyLightsPayload;
+    case 'LaunchPartyPlayerTimePayload': return accessor(new LaunchPartyPlayerTimePayload())! as LaunchPartyPlayerTimePayload;
+    case 'CrazyCountingPlayerUpdatePayload': return accessor(new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     case 'CrazyCountingHostEntitiesPayload': return accessor(new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
     case 'CrazyCountingPlayerInputPayload': return accessor(new CrazyCountingPlayerInputPayload())! as CrazyCountingPlayerInputPayload;
-    case 'CrazyCountingPlayerUpdatePayload': return accessor(new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     case 'CrazyCountingResultPayload': return accessor(new CrazyCountingResultPayload())! as CrazyCountingResultPayload;
-    case 'MemoryMixerGridPayload': return accessor(new MemoryMixerGridPayload())! as MemoryMixerGridPayload;
-    case 'MemoryMixerPlayerInputPayload': return accessor(new MemoryMixerPlayerInputPayload())! as MemoryMixerPlayerInputPayload;
-    case 'MemoryMixerPlayerSubmittedPayload': return accessor(new MemoryMixerPlayerSubmittedPayload())! as MemoryMixerPlayerSubmittedPayload;
-    case 'MemoryMixerResultPayload': return accessor(new MemoryMixerResultPayload())! as MemoryMixerResultPayload;
-    case 'MemoryMixerRoundResultPayload': return accessor(new MemoryMixerRoundResultPayload())! as MemoryMixerRoundResultPayload;
     case 'MiniGameIntroductionPayload': return accessor(new MiniGameIntroductionPayload())! as MiniGameIntroductionPayload;
-    case 'RPSBracketHostPayload': return accessor(new RPSBracketHostPayload())! as RPSBracketHostPayload;
-    case 'RPSBracketPlayerInputPayload': return accessor(new RPSBracketPlayerInputPayload())! as RPSBracketPlayerInputPayload;
-    case 'RPSBracketPlayerPayload': return accessor(new RPSBracketPlayerPayload())! as RPSBracketPlayerPayload;
     default: return null;
   }
 }
 
 export function unionListToGameStatePayload(
   type: GameStatePayload, 
-  accessor: (index: number, obj:BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload) => BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload|null, 
+  accessor: (index: number, obj:BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|LaunchPartyLightsPayload|LaunchPartyPlayerInputPayload|LaunchPartyPlayerTimePayload|LaunchPartyResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload) => BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|LaunchPartyLightsPayload|LaunchPartyPlayerInputPayload|LaunchPartyPlayerTimePayload|LaunchPartyResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload|null, 
   index: number
-): BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload|null {
+): BusinessBailoutHostPayload|BusinessBailoutPlayerInputPayload|BusinessBailoutPlayerPayload|BusinessBailoutResultPayload|CrazyCountingHostEntitiesPayload|CrazyCountingPlayerInputPayload|CrazyCountingPlayerUpdatePayload|CrazyCountingResultPayload|LaunchPartyLightsPayload|LaunchPartyPlayerInputPayload|LaunchPartyPlayerTimePayload|LaunchPartyResultPayload|MemoryMixerGridPayload|MemoryMixerPlayerInputPayload|MemoryMixerPlayerSubmittedPayload|MemoryMixerResultPayload|MemoryMixerRoundResultPayload|MiniGameIntroductionPayload|RPSBracketHostPayload|RPSBracketPlayerInputPayload|RPSBracketPlayerPayload|null {
   switch(GameStatePayload[type]) {
     case 'NONE': return null; 
     case 'BusinessBailoutHostPayload': return accessor(index, new BusinessBailoutHostPayload())! as BusinessBailoutHostPayload;
-    case 'BusinessBailoutPlayerInputPayload': return accessor(index, new BusinessBailoutPlayerInputPayload())! as BusinessBailoutPlayerInputPayload;
-    case 'BusinessBailoutPlayerPayload': return accessor(index, new BusinessBailoutPlayerPayload())! as BusinessBailoutPlayerPayload;
     case 'BusinessBailoutResultPayload': return accessor(index, new BusinessBailoutResultPayload())! as BusinessBailoutResultPayload;
+    case 'BusinessBailoutPlayerPayload': return accessor(index, new BusinessBailoutPlayerPayload())! as BusinessBailoutPlayerPayload;
+    case 'BusinessBailoutPlayerInputPayload': return accessor(index, new BusinessBailoutPlayerInputPayload())! as BusinessBailoutPlayerInputPayload;
+    case 'MemoryMixerGridPayload': return accessor(index, new MemoryMixerGridPayload())! as MemoryMixerGridPayload;
+    case 'MemoryMixerRoundResultPayload': return accessor(index, new MemoryMixerRoundResultPayload())! as MemoryMixerRoundResultPayload;
+    case 'MemoryMixerResultPayload': return accessor(index, new MemoryMixerResultPayload())! as MemoryMixerResultPayload;
+    case 'MemoryMixerPlayerSubmittedPayload': return accessor(index, new MemoryMixerPlayerSubmittedPayload())! as MemoryMixerPlayerSubmittedPayload;
+    case 'MemoryMixerPlayerInputPayload': return accessor(index, new MemoryMixerPlayerInputPayload())! as MemoryMixerPlayerInputPayload;
+    case 'RPSBracketPlayerPayload': return accessor(index, new RPSBracketPlayerPayload())! as RPSBracketPlayerPayload;
+    case 'RPSBracketPlayerInputPayload': return accessor(index, new RPSBracketPlayerInputPayload())! as RPSBracketPlayerInputPayload;
+    case 'RPSBracketHostPayload': return accessor(index, new RPSBracketHostPayload())! as RPSBracketHostPayload;
+    case 'LaunchPartyResultPayload': return accessor(index, new LaunchPartyResultPayload())! as LaunchPartyResultPayload;
+    case 'LaunchPartyPlayerInputPayload': return accessor(index, new LaunchPartyPlayerInputPayload())! as LaunchPartyPlayerInputPayload;
+    case 'LaunchPartyLightsPayload': return accessor(index, new LaunchPartyLightsPayload())! as LaunchPartyLightsPayload;
+    case 'LaunchPartyPlayerTimePayload': return accessor(index, new LaunchPartyPlayerTimePayload())! as LaunchPartyPlayerTimePayload;
+    case 'CrazyCountingPlayerUpdatePayload': return accessor(index, new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     case 'CrazyCountingHostEntitiesPayload': return accessor(index, new CrazyCountingHostEntitiesPayload())! as CrazyCountingHostEntitiesPayload;
     case 'CrazyCountingPlayerInputPayload': return accessor(index, new CrazyCountingPlayerInputPayload())! as CrazyCountingPlayerInputPayload;
-    case 'CrazyCountingPlayerUpdatePayload': return accessor(index, new CrazyCountingPlayerUpdatePayload())! as CrazyCountingPlayerUpdatePayload;
     case 'CrazyCountingResultPayload': return accessor(index, new CrazyCountingResultPayload())! as CrazyCountingResultPayload;
-    case 'MemoryMixerGridPayload': return accessor(index, new MemoryMixerGridPayload())! as MemoryMixerGridPayload;
-    case 'MemoryMixerPlayerInputPayload': return accessor(index, new MemoryMixerPlayerInputPayload())! as MemoryMixerPlayerInputPayload;
-    case 'MemoryMixerPlayerSubmittedPayload': return accessor(index, new MemoryMixerPlayerSubmittedPayload())! as MemoryMixerPlayerSubmittedPayload;
-    case 'MemoryMixerResultPayload': return accessor(index, new MemoryMixerResultPayload())! as MemoryMixerResultPayload;
-    case 'MemoryMixerRoundResultPayload': return accessor(index, new MemoryMixerRoundResultPayload())! as MemoryMixerRoundResultPayload;
     case 'MiniGameIntroductionPayload': return accessor(index, new MiniGameIntroductionPayload())! as MiniGameIntroductionPayload;
-    case 'RPSBracketHostPayload': return accessor(index, new RPSBracketHostPayload())! as RPSBracketHostPayload;
-    case 'RPSBracketPlayerInputPayload': return accessor(index, new RPSBracketPlayerInputPayload())! as RPSBracketPlayerInputPayload;
-    case 'RPSBracketPlayerPayload': return accessor(index, new RPSBracketPlayerPayload())! as RPSBracketPlayerPayload;
     default: return null;
   }
 }

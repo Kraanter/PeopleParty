@@ -2,73 +2,73 @@
 // Include all gamestate types to build the MiniGamePayloadType scheme
 
 include "minigamedata/BusinessBailout/BusinessBailoutHostPayload.fbs";
-include "minigamedata/BusinessBailout/BusinessBailoutPlayerInputPayload.fbs";
-include "minigamedata/BusinessBailout/BusinessBailoutPlayerPayload.fbs";
 include "minigamedata/BusinessBailout/BusinessBailoutResultPayload.fbs";
+include "minigamedata/BusinessBailout/BusinessBailoutPlayerPayload.fbs";
+include "minigamedata/BusinessBailout/BusinessBailoutPlayerInputPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerGridPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerRoundResultPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerResultPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerPlayerSubmittedPayload.fbs";
+include "minigamedata/MemoryMixer/MemoryMixerPlayerInputPayload.fbs";
+include "minigamedata/RPSBracket/RPSBracketPlayerPayload.fbs";
+include "minigamedata/RPSBracket/RPSBracketPlayerInputPayload.fbs";
+include "minigamedata/RPSBracket/RPSBracketHostPayload.fbs";
+include "minigamedata/LaunchParty/LaunchPartyResultPayload.fbs";
+include "minigamedata/LaunchParty/LaunchPartyPlayerInputPayload.fbs";
+include "minigamedata/LaunchParty/LaunchPartyLightsPayload.fbs";
+include "minigamedata/LaunchParty/LaunchPartyPlayerTimePayload.fbs";
+include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingHostEntitiesPayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingPlayerInputPayload.fbs";
-include "minigamedata/CrazyCounting/CrazyCountingPlayerUpdatePayload.fbs";
 include "minigamedata/CrazyCounting/CrazyCountingResultPayload.fbs";
-include "minigamedata/LaunchParty/LaunchPartyLightsPayload.fbs";
-include "minigamedata/LaunchParty/LaunchPartyPlayerInputPayload.fbs";
-include "minigamedata/LaunchParty/LaunchPartyPlayerTimePayload.fbs";
-include "minigamedata/LaunchParty/LaunchPartyResultPayload.fbs";
-include "minigamedata/MemoryMixer/MemoryMixerGridPayload.fbs";
-include "minigamedata/MemoryMixer/MemoryMixerPlayerInputPayload.fbs";
-include "minigamedata/MemoryMixer/MemoryMixerPlayerSubmittedPayload.fbs";
-include "minigamedata/MemoryMixer/MemoryMixerResultPayload.fbs";
-include "minigamedata/MemoryMixer/MemoryMixerRoundResultPayload.fbs";
 include "minigamedata/MiniGameIntroductionPayload.fbs";
-include "minigamedata/RPSBracket/RPSBracketHostPayload.fbs";
-include "minigamedata/RPSBracket/RPSBracketPlayerInputPayload.fbs";
-include "minigamedata/RPSBracket/RPSBracketPlayerPayload.fbs";
 
 enum GameStateType: byte {
     BusinessBailoutHost,
-    BusinessBailoutPlayerInput,
-    BusinessBailoutPlayer,
     BusinessBailoutResult,
+    BusinessBailoutPlayer,
+    BusinessBailoutPlayerInput,
+    MemoryMixerGrid,
+    MemoryMixerRoundResult,
+    MemoryMixerResult,
+    MemoryMixerPlayerSubmitted,
+    MemoryMixerPlayerInput,
+    RPSBracketPlayer,
+    RPSBracketPlayerInput,
+    RPSBracketHost,
+    LaunchPartyResult,
+    LaunchPartyPlayerInput,
+    LaunchPartyLights,
+    LaunchPartyPlayerTime,
+    CrazyCountingPlayerUpdate,
     CrazyCountingHostEntities,
     CrazyCountingPlayerInput,
-    CrazyCountingPlayerUpdate,
     CrazyCountingResult,
-    LaunchPartyLights,
-    LaunchPartyPlayerInput,
-    LaunchPartyPlayerTime,
-    LaunchPartyResult,
-    MemoryMixerGrid,
-    MemoryMixerPlayerInput,
-    MemoryMixerPlayerSubmitted,
-    MemoryMixerResult,
-    MemoryMixerRoundResult,
     MiniGameIntroduction,
-    RPSBracketHost,
-    RPSBracketPlayerInput,
-    RPSBracketPlayer,
 }
 
 union GameStatePayload {
     BusinessBailoutHostPayload,
-    BusinessBailoutPlayerInputPayload,
-    BusinessBailoutPlayerPayload,
     BusinessBailoutResultPayload,
+    BusinessBailoutPlayerPayload,
+    BusinessBailoutPlayerInputPayload,
+    MemoryMixerGridPayload,
+    MemoryMixerRoundResultPayload,
+    MemoryMixerResultPayload,
+    MemoryMixerPlayerSubmittedPayload,
+    MemoryMixerPlayerInputPayload,
+    RPSBracketPlayerPayload,
+    RPSBracketPlayerInputPayload,
+    RPSBracketHostPayload,
+    LaunchPartyResultPayload,
+    LaunchPartyPlayerInputPayload,
+    LaunchPartyLightsPayload,
+    LaunchPartyPlayerTimePayload,
+    CrazyCountingPlayerUpdatePayload,
     CrazyCountingHostEntitiesPayload,
     CrazyCountingPlayerInputPayload,
-    CrazyCountingPlayerUpdatePayload,
     CrazyCountingResultPayload,
-    LaunchPartyLightsPayload,
-    LaunchPartyPlayerInputPayload,
-    LaunchPartyPlayerTimePayload,
-    LaunchPartyResultPayload,
-    MemoryMixerGridPayload,
-    MemoryMixerPlayerInputPayload,
-    MemoryMixerPlayerSubmittedPayload,
-    MemoryMixerResultPayload,
-    MemoryMixerRoundResultPayload,
     MiniGameIntroductionPayload,
-    RPSBracketHostPayload,
-    RPSBracketPlayerInputPayload,
-    RPSBracketPlayerPayload,
 }
 
 table MiniGamePayloadType {
