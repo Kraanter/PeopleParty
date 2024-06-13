@@ -19,7 +19,6 @@ Game::Game(Party* party) {
     } else if (rnd == 3) {
         minigame = new LaunchParty_Minigame(this);
     }
-    minigame = new CrazyCounting_MiniGame(this);
     miniGames.push(minigame);
     last_minigame = minigame->get_camel_case_name();
 
@@ -63,6 +62,9 @@ void Game::clients_changed(int client_id, bool joined) {
     if (joined) {
         leaderboard[client] = std::pair<int, int>(0, 1000);
         previous_leaderboard[client] = std::pair<int, int>(0, 0);
+    } else {
+        leaderboard.erase(client);
+        previous_leaderboard.erase(client);
     }
 }
 

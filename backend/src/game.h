@@ -54,9 +54,9 @@ public:
                 if (miniGames.size() < 2) {
                     std::vector<MiniGame*> temp_minigames;
                     temp_minigames.push_back(new CrazyCounting_MiniGame(this));
-                    //temp_minigames.push_back(new BusinessBailout_Minigame(this));
-                    //temp_minigames.push_back(new MemoryMixer_MiniGame(this));
-                    //temp_minigames.push_back(new LaunchParty_Minigame(this));
+                    temp_minigames.push_back(new BusinessBailout_Minigame(this));
+                    temp_minigames.push_back(new MemoryMixer_MiniGame(this));
+                    temp_minigames.push_back(new LaunchParty_Minigame(this));
 
                     auto rd = std::random_device {}; 
                     auto rng = std::default_random_engine { rd() };
