@@ -181,7 +181,7 @@ defineExpose({ update })
         </div>
         <div class="w-full mt-4 px-4">
           <div class="grid grid-cols-3 gap-4">
-            <div v-for="(choice, i) in RPSMap" :key="choice">
+            <div v-for="(choice, i) in RPSMap" @click="player_action(i)" :key="choice">
               <PartyButton
                 class="m-2 !text-lg"
                 :class="{
@@ -191,6 +191,7 @@ defineExpose({ update })
                 @click="player_action(i)"
               >
                 <img
+                  @click="player_action(i)"
                   class="size-12 m-auto"
                   :src="`/assets/games/rpsBracket/${choice.toLowerCase()}.svg`"
                 />
