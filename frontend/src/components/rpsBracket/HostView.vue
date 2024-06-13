@@ -218,7 +218,7 @@ defineExpose({ update })
 <template>
   <template v-if="viewState == ViewState.Introduction">
     <div>
-      <Introduction :data="intro" logoSVG="/assets/games/memoryMixer/memoryMixerLogo.svg" />
+      <Introduction :data="intro" logoSVG="/assets/games/rpsBracket/rpsBracketLogo.svg" />
     </div>
   </template>
   <template v-else-if="viewState == ViewState.MiniGame">
