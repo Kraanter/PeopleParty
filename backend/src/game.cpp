@@ -19,7 +19,6 @@ Game::Game(Party* party) {
     } else if (rnd == 3) {
         minigame = new LaunchParty_Minigame(this);
     }
-    minigame = new RPSBracket_MiniGame(this);
     miniGames.push(minigame);
     last_minigame = minigame->get_camel_case_name();
 
