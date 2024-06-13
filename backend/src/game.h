@@ -65,7 +65,7 @@ public:
                     temp_minigames.push_back(new BusinessBailout_Minigame(this));
                     temp_minigames.push_back(new MemoryMixer_MiniGame(this));
                     temp_minigames.push_back(new LaunchParty_Minigame(this));
-                    temp_minigames.push_back(new RPSBracket_MiniGame(this));
+                    //temp_minigames.push_back(new RPSBracket_MiniGame(this));
 
                     auto rd = std::random_device{};
                     auto rng = std::default_random_engine{rd()};
