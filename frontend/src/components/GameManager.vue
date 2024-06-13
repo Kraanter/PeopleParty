@@ -35,6 +35,9 @@ onMounted(() => {
     const { width: wid, height: hei } = entries[0].contentRect
     height.value = hei
     width.value = wid
+
+    // Scroll the app into view
+    container.scrollIntoView({ behavior: 'smooth' })
   })
 
   resizeObserver.observe(container)
