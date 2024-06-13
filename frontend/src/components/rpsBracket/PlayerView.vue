@@ -43,6 +43,13 @@ enum RPSChoice {
 }
 
 const RPSChoiceMap = {
+  [RPSChoice.None]: 'Surrender',
+  [RPSChoice.Rock]: 'Rock',
+  [RPSChoice.Paper]: 'Paper',
+  [RPSChoice.Scissors]: 'Scissors'
+}
+
+const RPSMap = {
   [RPSChoice.Rock]: 'Rock',
   [RPSChoice.Paper]: 'Paper',
   [RPSChoice.Scissors]: 'Scissors'
@@ -56,12 +63,7 @@ interface playerDataPayload {
 }
 
 // game data
-const playerData = ref<playerDataPayload>({
-  choice: RPSChoice.None,
-  opponentName: '[Enemy name]',
-  winner: '',
-  time_left: 10000
-})
+const playerData = ref<playerDataPayload>()
 
 function update(payload: MiniGamePayloadType) {
   switch (payload.gamestatetype()) {
@@ -81,8 +83,10 @@ function update(payload: MiniGamePayloadType) {
       viewState.value = ViewState.MiniGame
       const input: RPSBracketPlayerPayload = payload.gamestatepayload(new RPSBracketPlayerPayload())
 
+      console.log(input.choice() || 0)
+
       playerData.value = {
-        choice: RPSChoice[input.choice() || 0] as unknown as RPSChoice,
+        choice: (input.choice() || 0) as RPSChoice,
         opponentName: decodeURI(input.opponentName() || ''),
         winner: decodeURI(input.winner() || ''),
         time_left: Number(input.remainingTime())
@@ -100,8 +104,6 @@ const FB_RPSChoiceMap = {
 }
 
 function player_action(action: RPSChoice) {
-  playerData.value.choice = action
-
   if (action === RPSChoice.None) return
   const builder = new Builder()
 
@@ -142,7 +144,7 @@ defineExpose({ update })
       </div>
     </div>
   </template>
-  <template v-else-if="viewState === ViewState.MiniGame">
+  <template v-else-if="viewState === ViewState.MiniGame && playerData">
     <div class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
       <div v-if="playerData.winner != '' && playerData.winner == playerData.opponentName">
         <div class="w-full h-full mt-16">
@@ -160,10 +162,10 @@ defineExpose({ update })
         <div class="mt-4 absolute aspect-square top-0 right-1 left-1">
           <n-card class="text-2xl text-white">
             <p class="text-xl mb-4">Selected weapon:</p>
-            <div v-if="playerData.choice">
+            <div v-if="!Number.isNaN(playerData.choice)">
               <img
                 class="m-auto size-32 aspect-square"
-                :src="`/assets/games/rpsBracket/${RPSChoiceMap[playerData.choice].toLowerCase()}.svg`"
+                :src="`/assets/games/rpsBracket/${RPSChoiceMap[playerData.choice]?.toLowerCase()}.svg`"
               />
               {{ RPSChoiceMap[playerData.choice] }}
             </div>
@@ -179,12 +181,12 @@ defineExpose({ update })
         </div>
         <div class="w-full mt-4 px-4">
           <div class="grid grid-cols-3 gap-4">
-            <div v-for="(choice, i) in RPSChoiceMap" :key="choice">
+            <div v-for="(choice, i) in RPSMap" :key="choice">
               <PartyButton
                 class="m-2 !text-lg"
                 :class="{
-                  'bg-sky-400': i === playerData.choice,
-                  'bg-primary': i !== playerData.choice
+                  '!bg-sky-400': i == playerData.choice,
+                  'bg-primary': i != playerData.choice
                 }"
                 @click="player_action(i)"
               >
@@ -197,10 +199,10 @@ defineExpose({ update })
             </div>
           </div>
         </div>
-      </div>
-      <div class="absolute bottom-0 px-8 mb-16">
-        <div>
-          <TimeComponent :timeLeft="playerData.time_left" />
+        <div class="absolute bottom-0 px-8 mb-16">
+          <div>
+            <TimeComponent :timeLeft="playerData.time_left" />
+          </div>
         </div>
       </div>
     </div>
