@@ -23,6 +23,7 @@ public:
     std::string get_description() override;
 private:
     std::map<int, MemoryMixer_Player> players;
+    Client* host;
     ThreadTimer introduction_timer;
     ThreadTimer results_timer;
     int remaining_time;
@@ -41,11 +42,11 @@ private:
 private:
     void set_round_difficulty(int current_round, double amount_of_players);
     void create_grid();
-    void send_grid(bool highlight_correct = false);
+    void send_grid(int client_id, bool highlight_correct = false);
     void next_round();
     flatbuffers::Offset<MiniGamePayloadType> build_grid(flatbuffers::FlatBufferBuilder &builder, int phase, bool to_host = true, bool highlight_correct = false);
-    void send_round_result();
-    void send_results();
+    void send_round_result(int client_id, std::vector<std::string> wrong_names, std::vector<std::string> correct_names);
+    void send_results(int client_id);
     void send_player_submitted(int client_id, bool submitted);
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
 };

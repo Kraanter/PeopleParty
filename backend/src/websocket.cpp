@@ -5,7 +5,18 @@
 #include "globals.h"
 #include "socketdata.h"
 
-WebSocket::WebSocket() { this->init(); }
+void send_heart_beats() {
+  std::vector<Party*> parties = party_repository.GetParties();
+
+  for (auto &party : parties) {
+    party->send_message([](Client* client) { return true; }, "");
+  }
+}
+
+WebSocket::WebSocket() { 
+  timer.setInterval([this]() { send_heart_beats(); }, 45 SECONDS);
+  this->init();
+}
 
 void send_host_message(WS *ws) {
   std::string output = FlatbufferMessageBuilder::buildHostMessage(ws->getUserData()->party_id);
@@ -68,9 +79,24 @@ void WebSocket::init() {
 
                  int party_id = std::stoi(room);
 
-                 if (!party_repository.contains(party_id)) {
+                 if(!party_repository.contains(party_id)) {
+                     res->writeStatus("400");
+                     res->write("Invalid room code");
+                     res->end();
+                     return;
+                 }
+
+                 bool uniuqeName = true;
+                  for (auto &client : party_repository[party_id]->get_clients()) {
+                    if (client->name == name) {
+                      uniuqeName = false;
+                      break;
+                    }
+                  }
+                 
+                 if (!uniuqeName) {
                    res->writeStatus("400");
-                   res->write("Invalid room code");
+                   res->write("Invalid name, already in use");
                    res->end();
                    return;
                  };

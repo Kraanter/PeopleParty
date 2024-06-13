@@ -7,19 +7,21 @@
 Game::Game(Party* party) {
     this->party = party;
 
-    // For now adds all minigames
     MiniGame* minigame;
-
-    int rnd = rand() % 3;
+  
+    int rnd = rand() % 4;
     if (rnd == 0) {
         minigame = new CrazyCounting_MiniGame(this);
     } else if (rnd == 1) {
         minigame = new BusinessBailout_Minigame(this);
     } else if (rnd == 2) {
         minigame = new MemoryMixer_MiniGame(this);
+    } else if (rnd == 3) {
+        minigame = new LaunchParty_Minigame(this);
     }
     minigame = new RPSBracket_MiniGame(this);
     miniGames.push(minigame);
+    last_minigame = minigame->get_camel_case_name();
 
     current_gamestate = new PartyPrep(this);
 }

@@ -7,11 +7,9 @@
 #include "../../game.h"
 
 BusinessBailout_Minigame::BusinessBailout_Minigame(Game *game) : MiniGame(game) {
-    std::mt19937 rng(std::random_device{}());
-    std::binomial_distribution distribution(mean, stddev);
-    while (minigame_time < min_duration) {
-        minigame_time = distribution(rng);
-    }
+    minigame_time = min_duration + (std::rand() % (max_duration - min_duration + 1));
+    minigame_time = minigame_time / 1000 * 1000;
+
     int points = minigame_time / dt;
     for (int i = 0; i < points; ++i) {
         const double d = i;
@@ -19,6 +17,9 @@ BusinessBailout_Minigame::BusinessBailout_Minigame(Game *game) : MiniGame(game) 
         int y = pow(e, d / 10.0f) * 1000 - 1000;
         path.push_back(abs(y));
     }
+
+    path.push_back(0);
+    path.push_back(0);
 }
 
 BusinessBailout_Minigame::~BusinessBailout_Minigame() {
@@ -134,7 +135,7 @@ void BusinessBailout_Minigame::send_player_data(Client* player) {
 
 std::vector<Client *> BusinessBailout_Minigame::getMinigameResult() {
     sort(players.begin(), players.end(), [&](Client *a, Client *b) {
-        if (player_bail_values[a] == player_bail_values[b]) return rand() % 2 == 0;
+        if (player_bail_values[a] == player_bail_values[b]) return true;
         return player_bail_values[a] > player_bail_values[b];
     });
     return players;

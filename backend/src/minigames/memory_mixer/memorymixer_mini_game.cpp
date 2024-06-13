@@ -8,7 +8,12 @@ MemoryMixer_MiniGame::MemoryMixer_MiniGame(Game* game) : MiniGame(game) {
 
     active_players = -1;
 
-    create_grid();
+    std::vector<Client*> clients = game->get_clients();
+    for (Client* client : clients) {
+        if (client->isHost) {
+            host = client;
+        }
+    }
 }
 
 MemoryMixer_MiniGame::~MemoryMixer_MiniGame() {
@@ -33,20 +38,30 @@ void MemoryMixer_MiniGame::create_grid() {
     target_card = MemoryMixer_card(rand() % (unique_symbols));
 
     int correct_cards = 0;
+    std::vector<MemoryMixer_card> card_list;
+
+    for (int i = 0; i < unique_symbols; i++) {
+        for (int j = 0; j < max_correct; j++) {
+            card_list.push_back(MemoryMixer_card(i));
+        }
+    }
+
+    while (card_list.size() < grid_size * grid_size) {
+        int rnd = rand() % (unique_symbols);
+        while(rnd == target_card) {
+            rnd = rand() % (unique_symbols);
+        }
+        card_list.push_back(MemoryMixer_card(rnd));
+    }
+
+    auto rd = std::random_device {}; 
+    auto rng = std::default_random_engine { rd() };
+    std::shuffle(std::begin(card_list), std::end(card_list), rng);
+    
     grid = std::vector<std::vector<MemoryMixer_card>>(grid_size, std::vector<MemoryMixer_card>(grid_size));
     for (int i = 0; i < grid_size; i++) {
         for (int j = 0; j < grid_size; j++) {
-            int rnd = rand() % (unique_symbols);
-            if (max_correct == correct_cards) {
-                while(rnd == target_card) {
-                    rnd = rand() % (unique_symbols);
-                }
-            }
-            grid[i][j] = MemoryMixer_card(rnd);
-
-            if (grid[i][j] == target_card) {
-                correct_cards++;
-            }
+            grid[i][j] = card_list[i * 5 + j];
         }
     }
 }
@@ -59,27 +74,24 @@ void MemoryMixer_MiniGame::set_round_difficulty(int current_round, double amount
     // max 25% of players to round 6
     if (current_round == 1) {
         unique_symbols = 3;
-    } else if (current_round == 2 || current_round == 3) {
+    } else if (current_round == 2) {
         unique_symbols = 4;
-    } else if (current_round >= 4) {
-        unique_symbols = 5;
-    }
-
-    double max = (grid_size * grid_size) / unique_symbols;
-    if (current_round == 2 || current_round == 3) {
-        max_correct = max * 0.8;
     } else if (current_round == 3) {
-        max_correct = max * 0.6;
+        unique_symbols = 5;
     } else if (current_round == 4) {
-        max_correct = max * 0.5;
+        unique_symbols = 6;
     } else if (current_round >= 5) {
-        max_correct = max * 0.4;
-    } else {
-        max_correct = max;
+        unique_symbols = 7;
     }
 
-    if (amount_of_players > max_correct) {
-        max_on_card = std::ceil(amount_of_players / max_correct);
+    max_correct = (grid_size * grid_size) / unique_symbols;
+
+    if (amount_of_players > (max_correct / unique_symbols)) {
+        max_on_card = std::ceil(amount_of_players / (max_correct / unique_symbols));
+        if (max_on_card < 1) {
+            max_on_card = 1;
+        }
+        
     } else {
         max_on_card = 1;
     }
@@ -124,46 +136,42 @@ void MemoryMixer_MiniGame::start_minigame() {
     active_players = players.size();
     set_round_difficulty(round, players.size());
 
+    create_grid();
+
     timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
 
 void MemoryMixer_MiniGame::start_result() {
     timer.clear();
-    send_results();
+
+    send_results(host->client_id);
+    for (auto& [_, player] : players)
+    {
+        send_results(player.client_id);
+    }
 
     results_timer.setTimeout([this]() {
         finished();
     }, 5 SECONDS);
 }
 
-void MemoryMixer_MiniGame::send_round_result() {
+void MemoryMixer_MiniGame::send_round_result(int client_id, std::vector<std::string> wrong_names, std::vector<std::string> correct_names) {
     flatbuffers::FlatBufferBuilder builder;
 
     std::vector<flatbuffers::Offset<flatbuffers::String>> correct_names_buffer;
     std::vector<flatbuffers::Offset<flatbuffers::String>> wrong_names_buffer;
 
-    for (auto& [_, player] : players) {
-        if (player.eliminated) {
-            continue;
-        }
-        if (player.submitted_x == -1 || player.submitted_y == -1) {
-            wrong_names_buffer.push_back(builder.CreateString(client_repository[player.client_id]->name));
-            player.finished_round = round - 1;
-            player.eliminated = true;
-        } else if (grid[player.submitted_x][player.submitted_y] == target_card) {
-            correct_names_buffer.push_back(builder.CreateString(client_repository[player.client_id]->name));
-            player.finished_round = round;
-        } else {
-            wrong_names_buffer.push_back(builder.CreateString(client_repository[player.client_id]->name));
-            player.finished_round = round - 1;
-            player.eliminated = true;
-        }
+    for (std::string name : correct_names) {
+        correct_names_buffer.push_back(builder.CreateString(name));
+    }
+    for (std::string name : wrong_names) {
+        wrong_names_buffer.push_back(builder.CreateString(name));
     }
 
-    auto correct_names = builder.CreateVector(correct_names_buffer);
-    auto wrong_names = builder.CreateVector(wrong_names_buffer);
+    auto correct_names_vector = builder.CreateVector(correct_names_buffer);
+    auto wrong_names_vector = builder.CreateVector(wrong_names_buffer);
 
-    auto payload = CreateMemoryMixerRoundResultPayload(builder, round, correct_names, wrong_names);
+    auto payload = CreateMemoryMixerRoundResultPayload(builder, round, correct_names_vector, wrong_names_vector);
 
     auto miniGame = builder.CreateString(get_camel_case_name());
 
@@ -171,14 +179,39 @@ void MemoryMixer_MiniGame::send_round_result() {
                                                       GameStatePayload_MemoryMixerRoundResultPayload, payload.Union());
 
 
-    game->party->send_gamestate([](Client* client) { return true; }, builder, gameStatePayload.Union());
+    game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 }
 
 void MemoryMixer_MiniGame::next_round() {
     mini_game_phase = 0;
     remaining_time = memorise_time;
 
-    send_round_result();
+    // calculate round score
+    std::vector<std::string> correct_names_buffer;
+    std::vector<std::string> wrong_names_buffer;
+
+    for (auto& [_, player] : players) {
+        if (player.eliminated) {
+            continue;
+        }
+        if (player.submitted_x == -1 || player.submitted_y == -1) {
+            wrong_names_buffer.push_back(client_repository[player.client_id]->name);
+            player.finished_round = round - 1;
+            player.eliminated = true;
+        } else if (grid[player.submitted_x][player.submitted_y] == target_card) {
+            correct_names_buffer.push_back(client_repository[player.client_id]->name);
+            player.finished_round = round;
+        } else {
+            wrong_names_buffer.push_back(client_repository[player.client_id]->name);
+            player.finished_round = round - 1;
+            player.eliminated = true;
+        }
+    }
+
+    send_round_result(host->client_id, wrong_names_buffer, correct_names_buffer);
+    for (auto& [_, player] : players) {
+        send_round_result(player.client_id, wrong_names_buffer, correct_names_buffer);
+    }
 
     int current_players = 0;
     for (auto& [_, player] : players) {
@@ -224,29 +257,41 @@ void MemoryMixer_MiniGame::update(int delta_time) {
     }
 
     if (mini_game_phase == 0 || mini_game_phase == 1) {
-        send_grid();
+        send_grid(host->client_id);
+        for (auto& [_, player] : players) {
+            if (!player.eliminated) {
+                send_grid(player.client_id);
+            }
+        }
     } else if (mini_game_phase == 2) {
-        send_grid(true);
+        send_grid(host->client_id, true);
+        for (auto& [_, player] : players) {
+            if (!player.eliminated) {
+                send_grid(player.client_id, true);
+            }
+        }
     }
 }
 
-void MemoryMixer_MiniGame::send_grid(bool highlight_correct) {
+void MemoryMixer_MiniGame::send_grid(int client_id, bool highlight_correct) {
     if (mini_game_phase == 0 || mini_game_phase == 2) {
         flatbuffers::FlatBufferBuilder builder;
 
         auto gameStatePayload = build_grid(builder, mini_game_phase, false, highlight_correct);
 
         // Send payload to client
-        game->party->send_gamestate([](Client* client) { return true; }, builder, gameStatePayload.Union());
+        game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
     } else if (mini_game_phase == 1) {
-        flatbuffers::FlatBufferBuilder builder;
-        flatbuffers::FlatBufferBuilder builder2;
-
-        auto gameStatePayloadHost = build_grid(builder, mini_game_phase, true, highlight_correct);
-        auto gameStatePayloadPlayer = build_grid(builder2, mini_game_phase, false, highlight_correct);
-
-        game->party->send_gamestate([](Client* client) { return client->isHost; }, builder, gameStatePayloadHost.Union());
-        game->party->send_gamestate([](Client* client) { return !client->isHost; }, builder2, gameStatePayloadPlayer.Union());
+        Client* client = client_repository[client_id];
+        if (client->isHost) {
+            flatbuffers::FlatBufferBuilder builder;
+            auto gameStatePayloadHost = build_grid(builder, mini_game_phase, true, highlight_correct);
+            game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayloadHost.Union());
+        } else {
+            flatbuffers::FlatBufferBuilder builder;
+            auto gameStatePayloadPlayer = build_grid(builder, mini_game_phase, false, highlight_correct);
+            game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayloadPlayer.Union());
+        }
     }
 }
 
@@ -332,7 +377,7 @@ void MemoryMixer_MiniGame::send_player_submitted(int client_id, bool submitted) 
     game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 }
 
-void MemoryMixer_MiniGame::send_results() {
+void MemoryMixer_MiniGame::send_results(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
     std::vector<Client*> clientRanking = getMinigameResult();
@@ -354,7 +399,7 @@ void MemoryMixer_MiniGame::send_results() {
     auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MemoryMixerResult,
                                                       GameStatePayload_MemoryMixerResultPayload, payload.Union());
 
-    game->party->send_gamestate([](Client* client) { return true; }, builder, gameStatePayload.Union());
+    game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 
 }
 

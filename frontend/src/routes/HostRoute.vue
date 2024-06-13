@@ -18,14 +18,19 @@ import {
   Payload
 } from '@/flatbuffers/messageClass'
 
+const audio = new Audio('/soundtrack.wav')
+audio.loop = true
+
+
 const websocketStore = useWebSocketStore()
 const { partyCode } = storeToRefs(websocketStore)
 
 const viewStore = useViewStore()
-const { viewState, viewData } = storeToRefs(viewStore)
+const { viewState, viewData, versionNumber } = storeToRefs(viewStore)
 
 const host = () => {
   websocketStore.host()
+  audio.play()
 }
 
 const startGame = () => {
@@ -82,7 +87,12 @@ const skipLeaderboard = () => {
         <PartyButton class="py-8 px-12" @click="host()">Host a party!</PartyButton>
       </div>
 
-      <router-link to="/join" class="underline">Join a party!</router-link>
+      <div class="grid grid-cols-3 justify-between w-full">
+        <p class="flex">{{ versionNumber }}</p>
+        <div class="flex justify-center items-center">
+          <router-link to="/join" class="underline">Join a party!</router-link>
+        </div>
+      </div>
     </div>
   </div>
 </template>

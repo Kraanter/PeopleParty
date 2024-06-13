@@ -1,0 +1,6 @@
+table LaunchPartyLightsPayload {
+    pratice: bool;
+    lights: short;
+}
+
+root_type LaunchPartyLightsPayload;

@@ -27,7 +27,16 @@ const router = createRouter({
       path: '/join',
       name: 'join',
       component: () => import('../routes/JoinRoute.vue')
-    }
+    },
+    {
+      path: '/info',
+      name: 'info',
+      component: () => import('../routes/InfoRoute.vue')
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/',
+    },
   ]
 })
 

@@ -31,3 +31,11 @@ bool PartyRepository::contains(int party_id) {
 }
 
 Party* PartyRepository::operator[](int party_id) { return &parties[party_id]; }
+
+std::vector<Party*> PartyRepository::GetParties() {
+  std::vector<Party*> party_list;
+  for (auto& party : parties) {
+    party_list.push_back(&party.second);
+  }
+  return party_list;
+}

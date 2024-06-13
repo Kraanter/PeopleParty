@@ -6,13 +6,15 @@ import type {
 } from '@/flatbuffers/messageClass'
 
 enum MemoryMixerIcon {
-  Balloon = 'assets/games/memoryMixer/balloon.svg',
-  Cake = 'assets/games/memoryMixer/birthdaycake.svg',
-  Confetti = 'assets/games/memoryMixer/confettiball.svg',
-  Popper = 'assets/games/memoryMixer/partypopper.svg',
-  Face = 'assets/games/memoryMixer/partyface.svg'
+  Balloon = "assets/games/memoryMixer/balloon.svg",
+  Cake = "assets/games/memoryMixer/birthdaycake.svg",
+  Confetti = "assets/games/memoryMixer/confettiball.svg",
+  Popper = "assets/games/memoryMixer/partypopper.svg",
+  Face = "assets/games/memoryMixer/partyface.svg",
+  Candle = "assets/games/memoryMixer/candle.svg",
+  Hat = "assets/games/memoryMixer/partyhat.svg",
   //Empty = "",
-}
+};
 
 interface MemoryMixerCell {
   icon: MemoryMixerIcon
@@ -56,12 +58,12 @@ export interface MiniGameResult {
 export const processRoundResult = (payload: MemoryMixerRoundResultPayload): RoundResult => {
   const correctNames: string[] = []
   for (let i = 0; i < payload.correctNamesLength(); i++) {
-    correctNames.push(payload.correctNames(i)!)
+    correctNames.push(decodeURI(payload.correctNames(i)!))
   }
 
   const wrongNames: string[] = []
   for (let i = 0; i < payload.wrongNamesLength(); i++) {
-    wrongNames.push(payload.wrongNames(i)!)
+    wrongNames.push(decodeURI(payload.wrongNames(i)!))
   }
 
   return {
@@ -77,7 +79,7 @@ export const processMiniGameResult = (payload: MemoryMixerResultPayload): MiniGa
     const result = payload.minigameResults(i)
     results.push({
       placement: result?.placement() || 0,
-      name: result?.name() || '',
+      name: decodeURI(result?.name()) || "",
       rounds_won: result?.roundsWon() || 0
     })
   }
@@ -104,7 +106,7 @@ export const processGrid = (payload: MemoryMixerGridPayload): MemoryMixerGrid =>
 
   const names: string[] = []
   for (let i = 0; i < payload.namesLength(); i++) {
-    names.push(payload.names(i)!)
+    names.push(decodeURI(payload.names(i)!))
   }
   return {
     timeLeft: Number(payload.timeLeft()),
