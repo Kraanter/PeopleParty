@@ -1,25 +1,33 @@
 <script lang="ts" setup>
 import { ref, toRefs, defineProps } from 'vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
-import { 
+import {
   GameStatePayload,
-  GameStateType, 
-  MemoryMixerGridPayload, 
-  MemoryMixerPlayerInputPayload, 
-  MemoryMixerPlayerSubmittedPayload, 
-  MemoryMixerResultPayload, 
-  MemoryMixerRoundResultPayload, 
-  MessageType, 
-  MiniGameIntroductionPayload, 
-  MiniGamePayloadType, 
-  Payload 
-} from '@/flatbuffers/messageClass';
+  GameStateType,
+  MemoryMixerGridPayload,
+  MemoryMixerPlayerInputPayload,
+  MemoryMixerPlayerSubmittedPayload,
+  MemoryMixerResultPayload,
+  MemoryMixerRoundResultPayload,
+  MessageType,
+  MiniGameIntroductionPayload,
+  MiniGamePayloadType,
+  Payload
+} from '@/flatbuffers/messageClass'
 import TimeComponent from '../TimeComponent.vue'
 import GridView from './GridView.vue'
-import { processGrid, processRoundResult, type MemoryMixerGrid, type PlayerSubmittedData, type MiniGameResult, type RoundResult, processMiniGameResult } from './GridProcessor';
+import {
+  processGrid,
+  processRoundResult,
+  type MemoryMixerGrid,
+  type PlayerSubmittedData,
+  type MiniGameResult,
+  type RoundResult,
+  processMiniGameResult
+} from './GridProcessor'
 import * as flatbuffers from 'flatbuffers'
-import { useWebSocketStore } from '@/stores/confettiStore';
-import { buildMessage } from '@/util/flatbufferMessageBuilder';
+import { useWebSocketStore } from '@/stores/confettiStore'
+import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import { NCard } from 'naive-ui'
 import PeoplePartyLogo from '../PeoplePartyLogo.vue'
 
@@ -54,14 +62,14 @@ const grid = ref<MemoryMixerGrid>({
   round: -1,
   active_players: -1,
   submittedNames: [],
-  grid: [],
+  grid: []
 })
 
 //round result
 const roundResult = ref<RoundResult>({
   round: -1,
   correctNames: [],
-  wrongNames: [],
+  wrongNames: []
 })
 const eliminatedPlayers = ref<string[]>([])
 
@@ -87,7 +95,7 @@ const update = (data: MiniGamePayloadType) => {
       )
 
       grid.value = processGrid(hostEntitiesPayload)
-      return null;
+      return null
     }
     case GameStateType.MemoryMixerRoundResult: {
       viewState.value = ViewState.RoundResults
@@ -98,7 +106,7 @@ const update = (data: MiniGamePayloadType) => {
       roundResult.value = processRoundResult(roundResultPayload)
 
       eliminatedPlayers.value.push(...roundResult.value.wrongNames)
-      
+
       return roundResultPayload
     }
     case GameStateType.MemoryMixerPlayerSubmitted: {
@@ -112,7 +120,7 @@ const update = (data: MiniGamePayloadType) => {
         y: playerSumbitted.y()
       }
 
-      return null;
+      return null
     }
     case GameStateType.MiniGameIntroduction: {
       viewState.value = ViewState.Introduction
@@ -128,7 +136,9 @@ const update = (data: MiniGamePayloadType) => {
     }
     case GameStateType.MemoryMixerResult: {
       viewState.value = ViewState.Results
-      const miniGameResultPayload: MemoryMixerResultPayload = data.gamestatepayload(new MemoryMixerResultPayload())
+      const miniGameResultPayload: MemoryMixerResultPayload = data.gamestatepayload(
+        new MemoryMixerResultPayload()
+      )
 
       miniGameResult.value = processMiniGameResult(miniGameResultPayload)
 
@@ -141,11 +151,7 @@ const update = (data: MiniGamePayloadType) => {
 const sendPlayerAction = (x: number, y: number) => {
   let builder = new flatbuffers.Builder()
 
-  let playerInput = MemoryMixerPlayerInputPayload.createMemoryMixerPlayerInputPayload(
-    builder,
-    x,
-    y
-  )
+  let playerInput = MemoryMixerPlayerInputPayload.createMemoryMixerPlayerInputPayload(builder, x, y)
 
   let miniGame = builder.createString('memoryMixer')
 
@@ -167,37 +173,46 @@ defineExpose({
 })
 </script>
 <template>
-  <div 
-    v-if="viewState == ViewState.Introduction" 
+  <div
+    v-if="viewState == ViewState.Introduction"
     class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center"
-    >
-      <div class="w-full flex justify-center px-8">
-          <div>
-              <TimeComponent :timeLeft="intro.time_left" />
-          </div>
-      </div>
+  >
+    <div class="w-full flex justify-center px-8">
       <div>
-          <div class="w-full h-full mt-4">
-              <p class="text-4xl text-white">{{ intro.description }}</p>
-          </div>
+        <TimeComponent :timeLeft="intro.time_left" />
       </div>
+    </div>
+    <div>
+      <div class="w-full h-full mt-4">
+        <p class="text-4xl text-white">{{ intro.description }}</p>
+      </div>
+    </div>
   </div>
-  <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.RoundResults" class="flex justify-stretch">
+  <div
+    v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.RoundResults"
+    class="flex justify-stretch"
+  >
     <div class="w-full h-screen flex flex-col justify-center items-center">
       <div v-if="eliminatedPlayers.includes(websocketStore.clientName)">
         <n-card class="mb-4">
-            <p class="font-bold text-2xl w-full text-center overflow-ellipsis">
-              You have been eliminated :&#40; <br>Better luck next time!
-            </p>
+          <p class="font-bold text-2xl w-full text-center overflow-ellipsis">
+            You have been eliminated :&#40; <br />Better luck next time!
+          </p>
         </n-card>
       </div>
       <div v-else>
         <div class="w-full flex justify-center px-8">
-        <div class="mx-auto mb-8">
-          <TimeComponent :time-left="grid.timeLeft" />
+          <div class="mx-auto mb-8">
+            <TimeComponent :time-left="grid.timeLeft" />
+          </div>
         </div>
-      </div>
-      <GridView :grid="grid" :player-submitted="playerSubmitted" :eliminated-players="eliminatedPlayers" :isHost="false" @click="sendPlayerAction"></GridView>
+        <GridView
+          :grid="grid"
+          :player-submitted="playerSubmitted"
+          :eliminated-players="eliminatedPlayers"
+          :isHost="false"
+          @click="sendPlayerAction"
+        ></GridView>
       </div>
       <div class="h-48 w-48 -mt-8">
         <PeoplePartyLogo />
@@ -210,12 +225,13 @@ defineExpose({
       <n-scrollbar class="-mb-4">
         <div class="grid gap-4">
           <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in miniGameResult.results" :key="i">
-            <n-card 
-            :style="
-            player.name === websocketStore.clientName
-              ? 'background-color: var(--color-primary-dark); color: white'
-              : ''
-            ">
+            <n-card
+              :style="
+                player.name === websocketStore.clientName
+                  ? 'background-color: var(--color-primary-dark); color: white'
+                  : ''
+              "
+            >
               <div class="w-full inline-flex justify-between text-2xl px-1">
                 <p class="inline-flex">
                   <span class="w-16">{{ player.placement }}.</span

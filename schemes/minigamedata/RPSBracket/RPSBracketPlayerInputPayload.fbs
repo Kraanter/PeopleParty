@@ -1,0 +1,7 @@
+include "RPSBracketPlayerPayload.fbs";
+
+table RPSBracketPlayerInputPayload {
+    choice: FB_RPSChoice;
+}
+
+root_type RPSBracketPlayerInputPayload;
