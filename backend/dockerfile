@@ -25,4 +25,9 @@ RUN cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Deb
 WORKDIR /app
 RUN cmake --build build/. 
 
+FROM alpine:3.17.0
+RUN apk update && \
+    apk add --no-cache \
+    libstdc++
+COPY --from=build /app/build/PeopleParty-Backend /build/PeopleParty-Backend
 CMD ["./build/PeopleParty-Backend"]

@@ -1,0 +1,10 @@
+table FBLaunchPartyResultPair {
+    name: string;
+    reaction_time: ulong;
+}
+
+table LaunchPartyResultPayload {
+    minigame_results: [FBLaunchPartyResultPair];
+}
+
+root_type LaunchPartyResultPayload;

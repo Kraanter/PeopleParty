@@ -7,6 +7,8 @@ enum MemoryMixer_card {
     CARD_CONFETTI,
     CARD_CONFETTI2,
     CARD_SMILEY,
+    CARD_CANDLE,
+    CARD_HAT,
     CARD_EMPTY,
 };
 

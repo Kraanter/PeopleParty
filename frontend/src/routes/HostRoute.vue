@@ -18,6 +18,10 @@ import {
   Payload
 } from '@/flatbuffers/messageClass'
 
+const audio = new Audio('/soundtrack.wav')
+audio.loop = true
+
+
 const websocketStore = useWebSocketStore()
 const { partyCode } = storeToRefs(websocketStore)
 
@@ -26,6 +30,7 @@ const { viewState, viewData, versionNumber } = storeToRefs(viewStore)
 
 const host = () => {
   websocketStore.host()
+  audio.play()
 }
 
 const startGame = () => {

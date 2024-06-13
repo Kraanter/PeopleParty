@@ -47,7 +47,7 @@ bool CrazyCounting_Player::operator<(const CrazyCounting_Player &other) const {
     if (last_changed != other.last_changed) {
         return last_changed < other.last_changed;
     }
-    return rand() % 2 == 0;
+    return true;
 }
 
 

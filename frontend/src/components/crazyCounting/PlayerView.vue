@@ -143,7 +143,7 @@ const sendPlayerAction = (action: Input) => {
   </div>
   <div
     v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results"
-    class="w-full h-full grid grid-cols-1 grid-rows-5 max-w-screen-md mx-auto"
+    class="w-full h-full grid grid-cols-1 grid-rows-5 max-w-sm mx-auto"
   >
     <div class="w-full h-full flex justify-center items-center row-span-3 bg-black">
       <div

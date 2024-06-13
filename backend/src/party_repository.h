@@ -14,6 +14,7 @@ class PartyRepository {
   bool contains(int party_id);
   bool contains(Party party);
   Party* operator[](int party);
+  std::vector<Party*> GetParties();
 };
 
 #endif  // PARTY_REPOSITORY_H

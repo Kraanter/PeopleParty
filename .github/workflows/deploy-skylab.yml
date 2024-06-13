@@ -34,3 +34,4 @@ jobs:
         script: |
           docker compose pull
           docker compose -f docker-compose.yml up --build -d --force-recreate
+          docker image prune -f
