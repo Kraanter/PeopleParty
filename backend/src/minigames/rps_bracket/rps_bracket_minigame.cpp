@@ -265,7 +265,10 @@ void RPSBracket_MiniGame::process_input(const MiniGamePayloadType *payload, Clie
 void RPSBracket_MiniGame::send_players_update() {
     for (auto match : matches) {
         // also only send when match remaining time is under 10, gives time to show the previous match result
-        if (match.remaining_time > 0 && match.remaining_time < 10 SECONDS && (match.player1 != nullptr || match.player2 != nullptr)) {
+        if (match.remaining_time > 0 
+            && match.remaining_time < 10 SECONDS 
+            && (match.player1 != nullptr || match.player2 != nullptr) 
+            && match.winner == nullptr) {
             send_match_update(match);
         }
     }
