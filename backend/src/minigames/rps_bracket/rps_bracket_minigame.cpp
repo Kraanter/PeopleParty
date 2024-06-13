@@ -43,6 +43,12 @@ void RPSBracket_MiniGame::create_matches(std::vector<Client *> players) {
         matches[i].remaining_time = match_time;
     }
 
+    if (mn == 1) {
+        matches[0].player1 = players[0];
+        matches[0].player2 = players[1];
+        return;
+    }
+
     int matches_in_outer_round = mn / 2 + 1;
     int start_index = matches_in_outer_round - 1;
     std::vector<int> population_order;
