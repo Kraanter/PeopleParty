@@ -91,7 +91,8 @@ public:
     void update_leaderboard(std::vector<Client *> minigame_result);
 
 public:
-    std::map<const Client *, int> leaderboard;
+    std::map<const Client*, std::pair<int, int>> leaderboard; // first is score, seccond is placement
+    std::map<const Client*, std::pair<int, int>> previous_leaderboard;
     Party *party;
 
 private:

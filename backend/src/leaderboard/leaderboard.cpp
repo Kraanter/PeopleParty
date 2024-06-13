@@ -1,9 +1,8 @@
 #include "leaderboard.h"
 #include "../game.h"
-
 Leaderboard::Leaderboard(Game *game) : GameState(game) {
     update_interval = 1 SECONDS;
-    remaining_time = 15 SECONDS;
+    remaining_time = 10 SECONDS;
 }
 
 void Leaderboard::start() {
@@ -41,9 +40,22 @@ void Leaderboard::send_leaderboard_information() {
 
     for (Client* client: game->get_clients()) {
         if (client->isHost) continue;
+        if (client == nullptr) continue;
+
         auto name = builder.CreateString(client->name.c_str());
-        players_buffer.push_back(CreateFBLeaderboardPlayer(builder, name, game->leaderboard[client]));
+        int delta_score = game->leaderboard[client].first - game->previous_leaderboard[client].first;
+
+        int delta_position;
+        if (game->previous_leaderboard[client].second == 0 || game->previous_leaderboard[client].second == 1000 
+            || game->leaderboard[client].second == 1000) {
+            delta_position = 0;
+        } else {
+            delta_position = game->previous_leaderboard[client].second - game->leaderboard[client].second;
+        }
+
+        players_buffer.push_back(CreateFBLeaderboardPlayer(builder, name, game->leaderboard[client].second, game->leaderboard[client].first, delta_score, delta_position));
     }
+
     auto entities_vector = builder.CreateVector(players_buffer);
 
     // Encode payload to binary
@@ -55,6 +67,7 @@ void Leaderboard::send_leaderboard_information() {
     // Send payload to host
     game->party->send_leaderboard([](Client* client) { return true; }, builder, leaderboardPayload.Union());
 }
+
 
 void Leaderboard::update(int delta_time) {
     remaining_time -= delta_time;

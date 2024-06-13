@@ -887,19 +887,34 @@ struct FBLeaderboardPlayer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   typedef FBLeaderboardPlayerBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
-    VT_SCORE = 6
+    VT_POSITION = 6,
+    VT_SCORE = 8,
+    VT_DELTA_SCORE = 10,
+    VT_DELTA_POSITION = 12
   };
   const ::flatbuffers::String *name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
   }
+  int32_t position() const {
+    return GetField<int32_t>(VT_POSITION, 0);
+  }
   uint64_t score() const {
     return GetField<uint64_t>(VT_SCORE, 0);
+  }
+  uint64_t delta_score() const {
+    return GetField<uint64_t>(VT_DELTA_SCORE, 0);
+  }
+  int32_t delta_position() const {
+    return GetField<int32_t>(VT_DELTA_POSITION, 0);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
+           VerifyField<int32_t>(verifier, VT_POSITION, 4) &&
            VerifyField<uint64_t>(verifier, VT_SCORE, 8) &&
+           VerifyField<uint64_t>(verifier, VT_DELTA_SCORE, 8) &&
+           VerifyField<int32_t>(verifier, VT_DELTA_POSITION, 4) &&
            verifier.EndTable();
   }
 };
@@ -911,8 +926,17 @@ struct FBLeaderboardPlayerBuilder {
   void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
     fbb_.AddOffset(FBLeaderboardPlayer::VT_NAME, name);
   }
+  void add_position(int32_t position) {
+    fbb_.AddElement<int32_t>(FBLeaderboardPlayer::VT_POSITION, position, 0);
+  }
   void add_score(uint64_t score) {
     fbb_.AddElement<uint64_t>(FBLeaderboardPlayer::VT_SCORE, score, 0);
+  }
+  void add_delta_score(uint64_t delta_score) {
+    fbb_.AddElement<uint64_t>(FBLeaderboardPlayer::VT_DELTA_SCORE, delta_score, 0);
+  }
+  void add_delta_position(int32_t delta_position) {
+    fbb_.AddElement<int32_t>(FBLeaderboardPlayer::VT_DELTA_POSITION, delta_position, 0);
   }
   explicit FBLeaderboardPlayerBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -928,9 +952,15 @@ struct FBLeaderboardPlayerBuilder {
 inline ::flatbuffers::Offset<FBLeaderboardPlayer> CreateFBLeaderboardPlayer(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
-    uint64_t score = 0) {
+    int32_t position = 0,
+    uint64_t score = 0,
+    uint64_t delta_score = 0,
+    int32_t delta_position = 0) {
   FBLeaderboardPlayerBuilder builder_(_fbb);
+  builder_.add_delta_score(delta_score);
   builder_.add_score(score);
+  builder_.add_delta_position(delta_position);
+  builder_.add_position(position);
   builder_.add_name(name);
   return builder_.Finish();
 }
@@ -938,12 +968,18 @@ inline ::flatbuffers::Offset<FBLeaderboardPlayer> CreateFBLeaderboardPlayer(
 inline ::flatbuffers::Offset<FBLeaderboardPlayer> CreateFBLeaderboardPlayerDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *name = nullptr,
-    uint64_t score = 0) {
+    int32_t position = 0,
+    uint64_t score = 0,
+    uint64_t delta_score = 0,
+    int32_t delta_position = 0) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   return CreateFBLeaderboardPlayer(
       _fbb,
       name__,
-      score);
+      position,
+      score,
+      delta_score,
+      delta_position);
 }
 
 struct LeaderboardInformationPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
