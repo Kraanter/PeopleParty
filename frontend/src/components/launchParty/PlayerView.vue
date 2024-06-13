@@ -2,11 +2,27 @@
 import { ref, defineProps } from 'vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import TimeComponent from '../TimeComponent.vue'
-import { GameStatePayload, GameStateType, LaunchPartyLightsPayload, LaunchPartyPlayerInputPayload, LaunchPartyPlayerTimePayload, LaunchPartyResultPayload, MessageType, MiniGameIntroductionPayload, MiniGamePayloadType, Payload } from '@/flatbuffers/messageClass';
-import { type LauncPartyResultPair, type LaunchPartyLights, type LaunchPartyPlayerFeedback, type LaunchPartyResults } from './LaunchPartyProcessor';
+import {
+  GameStatePayload,
+  GameStateType,
+  LaunchPartyLightsPayload,
+  LaunchPartyPlayerInputPayload,
+  LaunchPartyPlayerTimePayload,
+  LaunchPartyResultPayload,
+  MessageType,
+  MiniGameIntroductionPayload,
+  MiniGamePayloadType,
+  Payload
+} from '@/flatbuffers/messageClass'
+import {
+  type LauncPartyResultPair,
+  type LaunchPartyLights,
+  type LaunchPartyPlayerFeedback,
+  type LaunchPartyResults
+} from './LaunchPartyProcessor'
 import * as flatbuffers from 'flatbuffers'
-import { buildMessage } from '@/util/flatbufferMessageBuilder';
-import { useWebSocketStore } from '@/stores/confettiStore';
+import { buildMessage } from '@/util/flatbufferMessageBuilder'
+import { useWebSocketStore } from '@/stores/confettiStore'
 import LightsComponent from './LightsComponent.vue'
 import PartyButton from '@/components/PartyButton.vue'
 
@@ -35,7 +51,7 @@ const intro = ref<IntroductionData>({
 
 const lightsData = ref<LaunchPartyLights>({
   practice_round: true,
-  lights: -1,
+  lights: -1
 })
 
 const playerFeedback = ref<LaunchPartyPlayerFeedback>({
@@ -51,15 +67,13 @@ const personalResult = ref<LauncPartyResultPair>({
   reaction_time: -10000
 })
 
-let hasSendLag: boolean = false;
+let hasSendLag: boolean = false
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
     case GameStateType.LaunchPartyLights: {
       viewState.value = ViewState.MiniGame
-      const lights: LaunchPartyLightsPayload = data.gamestatepayload(
-        new LaunchPartyLightsPayload()
-      )
+      const lights: LaunchPartyLightsPayload = data.gamestatepayload(new LaunchPartyLightsPayload())
 
       if (lights.lights() == 4 && !hasSendLag) {
         hasSendLag = true
@@ -84,7 +98,9 @@ const update = (data: MiniGamePayloadType) => {
     }
     case GameStateType.LaunchPartyResult: {
       viewState.value = ViewState.Results
-      const miniGameResultPayload: LaunchPartyResultPayload = data.gamestatepayload(new LaunchPartyResultPayload())
+      const miniGameResultPayload: LaunchPartyResultPayload = data.gamestatepayload(
+        new LaunchPartyResultPayload()
+      )
 
       const results: LauncPartyResultPair[] = []
       for (let i = 0; i < miniGameResultPayload.minigameResultsLength(); i++) {
@@ -126,7 +142,10 @@ const update = (data: MiniGamePayloadType) => {
 const sendPlayerAction = (pressed: boolean) => {
   let builder = new flatbuffers.Builder()
 
-  let playerInput = LaunchPartyPlayerInputPayload.createLaunchPartyPlayerInputPayload(builder, pressed)
+  let playerInput = LaunchPartyPlayerInputPayload.createLaunchPartyPlayerInputPayload(
+    builder,
+    pressed
+  )
 
   let miniGame = builder.createString('launchParty')
 
@@ -166,23 +185,33 @@ defineExpose({
     <div class="mt-32">
       <div class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
         <div class="m-auto w-full">
-          <p class="text-3xl text-center text-white mt-4">Press the button when all the lights hit green!</p>
+          <p class="text-3xl text-center text-white mt-4">
+            Press the button when all the lights hit green!
+          </p>
         </div>
         <div v-if="lightsData.lights != -1" class="mt-4">
           <LightsComponent :value="lightsData.lights" />
         </div>
         <div class="m-auto mt-3">
-          <PartyButton @mousedown="sendPlayerAction(true)" :disabled="playerFeedback.reaction_time != -10000">
+          <PartyButton
+            @mousedown="sendPlayerAction(true)"
+            :disabled="playerFeedback.reaction_time != -10000"
+          >
             <p class="text-4xl m-6">Launch!</p>
           </PartyButton>
         </div>
         <div v-if="lightsData.practice_round">
-          <p class="text-2xl w-full text-center text-white mt-4">Warmup round, no points are given!</p>
+          <p class="text-2xl w-full text-center text-white mt-4">
+            Warmup round, no points are given!
+          </p>
         </div>
         <div v-if="playerFeedback.reaction_time != -10000" class="mt-4">
           <p class="text-3xl text-center text-white mt-2">
             <span v-if="playerFeedback.reaction_time < 0">Too early!</span>
-            <span v-else>reaction time: <span class="font-bold">{{ playerFeedback.reaction_time }}</span>ms</span>
+            <span v-else
+              >reaction time: <span class="font-bold">{{ playerFeedback.reaction_time }}</span
+              >ms</span
+            >
           </p>
         </div>
       </div>
@@ -191,9 +220,19 @@ defineExpose({
   <template v-else-if="viewState == ViewState.Results">
     <div class="h-full w-full flex flex-cols mr-auto justify-center text-center mt-40">
       <p v-if="personalResult" class="text-4xl text-center text-white mt-4">
-        <span v-if="personalResult.reaction_time >= 5000 && personalResult.reaction_time < 10000">Too early</span>
-        <span v-else-if="personalResult.reaction_time >= 10000 || personalResult.reaction_time == -10000">Too late</span>
-        <span v-else>reaction time: <span class="font-bold">{{ personalResult.reaction_time }}</span>ms</span>
+        <span v-if="personalResult.reaction_time >= 5000 && personalResult.reaction_time < 10000"
+          >Too early</span
+        >
+        <span
+          v-else-if="
+            personalResult.reaction_time >= 10000 || personalResult.reaction_time == -10000
+          "
+          >Too late</span
+        >
+        <span v-else
+          >reaction time: <span class="font-bold">{{ personalResult.reaction_time }}</span
+          >ms</span
+        >
       </p>
     </div>
   </template>

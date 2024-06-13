@@ -30,49 +30,74 @@ const emit = defineEmits(['click'])
       <div v-for="(row, i) in grid.grid" :key="i" class="mr-3 grid grid-rows-5 h-full">
         <div v-for="(cell, j) in row" :key="j" class="mb-3 h-full w-full">
           <div v-if="isHost">
-            <n-card :style="{
-              width: isGuessPhase ? '440px' : '90px',
-              height: isGuessPhase ? '440px' : '90px',
-              backgroundImage: 'url(' + cell.icon + ')',
-              backgroundPosition: 'center',
-              backgroundSize: '70%',
-              backgroundRepeat: 'no-repeat',
-              borderRadius: isGuessPhase ? '40px' : '20px'
-            }"
+            <n-card
+              :style="{
+                width: isGuessPhase ? '440px' : '90px',
+                height: isGuessPhase ? '440px' : '90px',
+                backgroundImage: 'url(' + cell.icon + ')',
+                backgroundPosition: 'center',
+                backgroundSize: '70%',
+                backgroundRepeat: 'no-repeat',
+                borderRadius: isGuessPhase ? '40px' : '20px'
+              }"
               :class="[
-                cell.is_highlighted ? ['outline', '-outline-offset-8', 'outline-8', 'outline-green-500'] : '']">
+                cell.is_highlighted
+                  ? ['outline', '-outline-offset-8', 'outline-8', 'outline-green-500']
+                  : ''
+              ]"
+            >
             </n-card>
           </div>
           <div v-else>
-            <vue-flip :active-hover="false" v-model="isGuessPhase" width="60px" height="60px" transition="1s">
+            <vue-flip
+              :active-hover="false"
+              v-model="isGuessPhase"
+              width="60px"
+              height="60px"
+              transition="1s"
+            >
               <template v-slot:front>
-                <n-card :style="{
-                  width: '60px',
-                  height: '60px',
-                  backgroundImage: 'url(' + cell.icon + ')',
-                  backgroundPosition: 'center',
-                  backgroundSize: '70%',
-                  backgroundRepeat: 'no-repeat',
-                  borderRadius: '20px'
-                }"
+                <n-card
+                  :style="{
+                    width: '60px',
+                    height: '60px',
+                    backgroundImage: 'url(' + cell.icon + ')',
+                    backgroundPosition: 'center',
+                    backgroundSize: '70%',
+                    backgroundRepeat: 'no-repeat',
+                    borderRadius: '20px'
+                  }"
                   :class="[
-                    cell.is_highlighted ? ['outline', '-outline-offset-8', 'outline-8', 'outline-green-500'] : playerSubmitted.x == i && playerSubmitted.y == j ? ['outline', '-outline-offset-8', 'outline-8', 'outline-secondary'] : '']">
+                    cell.is_highlighted
+                      ? ['outline', '-outline-offset-8', 'outline-8', 'outline-green-500']
+                      : playerSubmitted.x == i && playerSubmitted.y == j
+                        ? ['outline', '-outline-offset-8', 'outline-8', 'outline-secondary']
+                        : ''
+                  ]"
+                >
                 </n-card>
               </template>
               <template v-slot:back>
-                <PartyButton @click="emit('click', i, j)"
-                  :style="{ width: '60px', height: '60px', borderRadius: '20px' }" :disabled="(grid.maxOnCard <= cell.players_on_card
-                    && (playerSubmitted.x != i || playerSubmitted.y != j))
-                    || (playerSubmitted.playerSubmitted
-                      && (playerSubmitted.x != i || playerSubmitted.y != j)
-                      || eliminatedPlayers.includes(websocketStore.clientName))"
+                <PartyButton
+                  @click="emit('click', i, j)"
+                  :style="{ width: '60px', height: '60px', borderRadius: '20px' }"
+                  :disabled="
+                    (grid.maxOnCard <= cell.players_on_card &&
+                      (playerSubmitted.x != i || playerSubmitted.y != j)) ||
+                    (playerSubmitted.playerSubmitted &&
+                      (playerSubmitted.x != i || playerSubmitted.y != j)) ||
+                    eliminatedPlayers.includes(websocketStore.clientName)
+                  "
                   :class="[
-                    (playerSubmitted.x == i && playerSubmitted.y == j) ? 'bg-secondary' : 'bg-white', 'text-white']">
+                    playerSubmitted.x == i && playerSubmitted.y == j ? 'bg-secondary' : 'bg-white',
+                    'text-white'
+                  ]"
+                >
                   <div v-if="playerSubmitted.x == i && playerSubmitted.y == j">
-                    {{ "X" }}
+                    {{ 'X' }}
                   </div>
                   <div v-else>
-                    {{ "?" }}
+                    {{ '?' }}
                   </div>
                 </PartyButton>
               </template>
@@ -81,7 +106,5 @@ const emit = defineEmits(['click'])
         </div>
       </div>
     </div>
-  </div>
-  </div>
   </div>
 </template>

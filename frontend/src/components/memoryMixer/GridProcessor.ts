@@ -6,15 +6,15 @@ import type {
 } from '@/flatbuffers/messageClass'
 
 enum MemoryMixerIcon {
-  Balloon = "assets/games/memoryMixer/balloon.svg",
-  Cake = "assets/games/memoryMixer/birthdaycake.svg",
-  Confetti = "assets/games/memoryMixer/confettiball.svg",
-  Popper = "assets/games/memoryMixer/partypopper.svg",
-  Face = "assets/games/memoryMixer/partyface.svg",
-  Candle = "assets/games/memoryMixer/candle.svg",
-  Hat = "assets/games/memoryMixer/partyhat.svg",
+  Balloon = 'assets/games/memoryMixer/balloon.svg',
+  Cake = 'assets/games/memoryMixer/birthdaycake.svg',
+  Confetti = 'assets/games/memoryMixer/confettiball.svg',
+  Popper = 'assets/games/memoryMixer/partypopper.svg',
+  Face = 'assets/games/memoryMixer/partyface.svg',
+  Candle = 'assets/games/memoryMixer/candle.svg',
+  Hat = 'assets/games/memoryMixer/partyhat.svg'
   //Empty = "",
-};
+}
 
 interface MemoryMixerCell {
   icon: MemoryMixerIcon
@@ -79,7 +79,7 @@ export const processMiniGameResult = (payload: MemoryMixerResultPayload): MiniGa
     const result = payload.minigameResults(i)
     results.push({
       placement: result?.placement() || 0,
-      name: decodeURI(result?.name()) || "",
+      name: decodeURI(result?.name()) || '',
       rounds_won: result?.roundsWon() || 0
     })
   }
