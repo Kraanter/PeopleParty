@@ -284,7 +284,6 @@ const join = () => {
           </router-link>
         </div>
       </div>
-      
     </template>
   </div>
 </template>

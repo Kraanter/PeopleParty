@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { MiniGamePayloadType } from '@/flatbuffers/messageClass'
 import { defineAsyncComponent, ref, watch, defineProps, onMounted, shallowRef, toRefs } from 'vue'
+import { debounce } from '@/util/funcs'
 import PeoplePartyHeader from './PeoplePartyHeader.vue'
 
 const props = defineProps<{
@@ -10,16 +11,6 @@ const props = defineProps<{
 const { data } = toRefs(props)
 
 const gameName = ref('')
-
-const debounce = (func: Function, wait: number) => {
-  let timeout: number | undefined
-  return (...args: any[]) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      func(...args)
-    }, wait)
-  }
-}
 
 const componentName = props.isHost ? 'Host' : 'Player'
 
@@ -44,6 +35,9 @@ onMounted(() => {
     const { width: wid, height: hei } = entries[0].contentRect
     height.value = hei
     width.value = wid
+
+    // Scroll the app into view
+    container.scrollIntoView({ behavior: 'smooth' })
   })
 
   resizeObserver.observe(container)
