@@ -3,13 +3,14 @@
 
 #include "../game_state.h"
 #include "../thread_timer.h"
+#include <map>
 
 class Game;
 
 class Leaderboard: public GameState {
 public:
     Leaderboard(Game *game);
-    void clients_changed(int client_id, bool joined) override {};
+    void clients_changed(int client_id, bool joined) override { };
     void start();
 protected:
     void finished() override;
@@ -21,5 +22,6 @@ private:
     ThreadTimer timer;
     int remaining_time;
 };
+
 
 #endif  // LEADERBOARD_H

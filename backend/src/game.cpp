@@ -19,6 +19,7 @@ Game::Game(Party* party) {
     } else if (rnd == 3) {
         minigame = new LaunchParty_Minigame(this);
     }
+    minigame = new CrazyCounting_MiniGame(this);
     miniGames.push(minigame);
     last_minigame = minigame->get_camel_case_name();
 
@@ -52,6 +53,17 @@ void Game::clients_changed(int client_id, bool joined) {
     if (current_gamestate != nullptr) {
         current_gamestate->clients_changed(client_id, joined);
     }
+
+    Client* client = party->get_client(client_id);
+
+    if (client == nullptr) {
+        return;
+    }
+
+    if (joined) {
+        leaderboard[client] = std::pair<int, int>(0, 1000);
+        previous_leaderboard[client] = std::pair<int, int>(0, 0);
+    }
 }
 
 int score(int place, int max_score, int players) {
@@ -59,10 +71,27 @@ int score(int place, int max_score, int players) {
     return (max_score / (players - 1)) * (players - place);
 }
 
+bool cmp(std::pair<const Client*, std::pair<int, int>>& a, std::pair<const Client*, std::pair<int, int>>& b) { 
+    return a.second.first > b.second.first; 
+} 
+
+void sort(std::map<const Client*, std::pair<int, int>>& M) { 
+    std::vector<std::pair<const Client*, std::pair<int, int>>> A; 
+    for (auto& it : M) { 
+        A.push_back(it); 
+    } 
+    std::sort(A.begin(), A.end(), cmp);
+
+    for (int i = 0; i < A.size(); i++) { 
+        M[A[i].first].second = i + 1; 
+    }
+} 
+
 void Game::update_leaderboard(std::vector<Client *> minigame_result) {
     previous_leaderboard = leaderboard;
     for (int i = 1; i <= minigame_result.size(); ++i) {
         Client* client = minigame_result[i - 1];
-        leaderboard[client] += score(i, 1000, minigame_result.size());
+        leaderboard[client].first += score(i, 1000, minigame_result.size());
     }
+    sort(leaderboard);
 }

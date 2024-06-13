@@ -30,6 +30,7 @@ export type Leaderboard = {
 
 export type LeaderboardPlayer = {
   name: string
+  position: number
   score: number
   deltaScore: number
   deltaPosition: number
@@ -169,6 +170,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
             for (let i = 0; i < payload.leaderboardLength(); i++) {
               newEntries.push({
                 name: decodeURI(payload.leaderboard(i)?.name() ?? ''),
+                position: Number(payload.leaderboard(i)?.position()) ?? 0,
                 score: Number(payload.leaderboard(i)?.score()) ?? 0,
                 deltaScore: Number(payload.leaderboard(i)?.deltaScore()) ?? 0,
                 deltaPosition: Number(payload.leaderboard(i)?.deltaPosition()) ?? 0

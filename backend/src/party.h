@@ -21,6 +21,7 @@ class Party {
   void start_game();
   void stop_game();
   const std::vector<Client*> get_clients();
+  Client* get_client(int client_id);
   const void send_message(const std::function<bool(Client*)>& expression, const std::string& message);
   const void
   send_gamestate(const std::function<bool(Client*)>& expression, flatbuffers::FlatBufferBuilder& builder, flatbuffers::Offset<> gamestate = 0);

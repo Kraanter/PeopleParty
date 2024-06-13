@@ -54,9 +54,9 @@ public:
                 if (miniGames.size() < 2) {
                     std::vector<MiniGame*> temp_minigames;
                     temp_minigames.push_back(new CrazyCounting_MiniGame(this));
-                    temp_minigames.push_back(new BusinessBailout_Minigame(this));
-                    temp_minigames.push_back(new MemoryMixer_MiniGame(this));
-                    temp_minigames.push_back(new LaunchParty_Minigame(this));
+                    //temp_minigames.push_back(new BusinessBailout_Minigame(this));
+                    //temp_minigames.push_back(new MemoryMixer_MiniGame(this));
+                    //temp_minigames.push_back(new LaunchParty_Minigame(this));
 
                     auto rd = std::random_device {}; 
                     auto rng = std::default_random_engine { rd() };
@@ -79,8 +79,8 @@ public:
     const std::vector<Client*> get_clients();
     void update_leaderboard(std::vector<Client*> minigame_result);
 public:
-    std::map<const Client*, int> leaderboard;
-    std::map<const Client*, int> previous_leaderboard;
+    std::map<const Client*, std::pair<int, int>> leaderboard; // first is score, seccond is placement
+    std::map<const Client*, std::pair<int, int>> previous_leaderboard;
     Party *party;
 private:
     GameState* current_gamestate;

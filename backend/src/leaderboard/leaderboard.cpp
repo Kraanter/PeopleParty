@@ -1,9 +1,8 @@
 #include "leaderboard.h"
 #include "../game.h"
-
 Leaderboard::Leaderboard(Game *game) : GameState(game) {
     update_interval = 1 SECONDS;
-    remaining_time = 15 SECONDS;
+    remaining_time = 10 SECONDS;
 }
 
 void Leaderboard::start() {
@@ -35,27 +34,28 @@ void Leaderboard::process_input(const Message *payload, Client *from) {
     }
 }
 
-int get_position(std::map<const Client*, int> leaderboard, const Client* client) {
-    int position = 1;
-    for (auto& [_, score] : leaderboard) {
-        if (score > leaderboard[client]) {
-            position++;
-        }
-    }
-    return position;
-}
-
 void Leaderboard::send_leaderboard_information() {
     flatbuffers::FlatBufferBuilder builder;
     std::vector<flatbuffers::Offset<FBLeaderboardPlayer>> players_buffer;
 
     for (Client* client: game->get_clients()) {
         if (client->isHost) continue;
+        if (client == nullptr) continue;
+
         auto name = builder.CreateString(client->name.c_str());
-        int delta_score = game->leaderboard[client] - game->previous_leaderboard[client];
-        int delta_position = get_position(game->leaderboard, client) - get_position(game->previous_leaderboard, client);
-        players_buffer.push_back(CreateFBLeaderboardPlayer(builder, name, game->leaderboard[client], delta_score, delta_position));
+        int delta_score = game->leaderboard[client].first - game->previous_leaderboard[client].first;
+
+        int delta_position;
+        if (game->previous_leaderboard[client].second == 0 || game->previous_leaderboard[client].second == 1000 
+            || game->leaderboard[client].second == 1000) {
+            delta_position = 0;
+        } else {
+            delta_position = game->previous_leaderboard[client].second - game->leaderboard[client].second;
+        }
+
+        players_buffer.push_back(CreateFBLeaderboardPlayer(builder, name, game->leaderboard[client].second, game->leaderboard[client].first, delta_score, delta_position));
     }
+
     auto entities_vector = builder.CreateVector(players_buffer);
 
     // Encode payload to binary
