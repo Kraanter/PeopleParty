@@ -23,7 +23,7 @@ enum ViewState {
   Introduction,
   MiniGame
 }
-const viewState = ref<ViewState>(ViewState.MiniGame)
+const viewState = ref<ViewState>(ViewState.None)
 
 type IntroductionData = {
   title: string

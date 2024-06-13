@@ -10,7 +10,7 @@ const props = defineProps<{
 }>()
 const { data } = toRefs(props)
 
-const gameName = ref('rpsBracket')
+const gameName = ref('')
 
 const componentName = props.isHost ? 'Host' : 'Player'
 
