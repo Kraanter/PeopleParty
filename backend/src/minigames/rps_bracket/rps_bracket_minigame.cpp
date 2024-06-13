@@ -20,6 +20,10 @@ void RPSBracket_MiniGame::start_minigame() {
         if (client->isHost) continue;
         players.push_back(client);
     }
+    if (players.size() < 2) {
+        finished();
+        return;
+    }
     create_matches(players);
     timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
