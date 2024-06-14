@@ -58,10 +58,10 @@ onMounted(() => {
                 </svg>
             </div>
         </div>
-        <div id="info" class="flex flex-col w-full bg-secondary text-2xl text-justify font-regular px-20 py-16 mt-4 rounded-xl gap-12">
+        <div id="info" class="flex flex-col w-full bg-secondary text-justify font-regular py-16 mt-4 rounded-xl gap-12" :class="isMobile() ? 'px-10 text-xl' : 'px-20 text-2xl'">
             <div id="How to Play" class="flex flex-col gap-4">
                 <n-h1 prefix="bar">
-                    <n-text type="primary" class="text-6xl !text-black font-bold">
+                    <n-text type="black" :class="isMobile() ? '!heading-mobile' : 'heading'">
                         🤔 How to Play
                     </n-text>
                 </n-h1>
@@ -78,7 +78,7 @@ onMounted(() => {
             
             <div id="Minigames" class="flex flex-col gap-4">
                 <n-h1 prefix="bar">
-                    <n-text type="primary" class="text-6xl !text-black font-bold">
+                    <n-text type="black" :class="isMobile() ? '!heading-mobile' : 'heading'">
                         👾 Minigames 
                     </n-text>
                 </n-h1>
@@ -86,7 +86,6 @@ onMounted(() => {
                 <div class="flex flex-col items-center">
                     <n-carousel 
                     autoplay
-                    mousewheel
                     trigger="hover"
                     effect="slide"
                     :style="{ width: isMobile() ? '100%' : '50%' }"
@@ -121,7 +120,7 @@ onMounted(() => {
             
             <div id="Contributors" class="flex flex-col gap-4 mb-8">
                 <n-h1 prefix="bar">
-                    <n-text type="primary" class="text-6xl !text-black font-bold">
+                    <n-text type="black" :class="isMobile() ? '!heading-mobile' : 'heading'">
                         🦸 Contributors 
                     </n-text>
                 </n-h1>
@@ -140,7 +139,7 @@ onMounted(() => {
 
             <div id="About Us" class="flex flex-col gap-4">
                 <n-h1 prefix="bar">
-                    <n-text type="primary" class="text-6xl !text-black font-bold">
+                    <n-text type="black" :class="isMobile() ? '!heading-mobile' : 'heading'">
                         🥳 About Us (the Party People) 
                     </n-text>
                 </n-h1>
@@ -160,5 +159,20 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+</style>
+
+<style scoped>
+.heading {
+  font-size: 60px;
+  font-weight: bold;
+}
+</style>
+
+<style scoped>
+.heading-mobile {
+  text-align: left;
+  font-size: 40px;
+  font-weight: bold;
 }
 </style>
