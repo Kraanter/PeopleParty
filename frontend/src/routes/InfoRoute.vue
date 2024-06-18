@@ -1,40 +1,29 @@
 <script lang="ts" setup>
 import { isMobile } from '@/util/detectmobilebrowser'
 import { useViewStore } from '@/stores/viewStore'
-import { storeToRefs } from 'pinia';
-import PartyButton from '@/components/PartyButton.vue';
-import { onMounted, ref } from 'vue';
-import { NCarousel, NText, NH1} from 'naive-ui'
+import { storeToRefs } from 'pinia'
+import PartyButton from '@/components/PartyButton.vue'
+import { onMounted, ref } from 'vue'
+import { NCarousel, NText, NH1 } from 'naive-ui'
 
 const viewStore = useViewStore()
 const { versionNumber } = storeToRefs(viewStore)
 
-const info = ref<HTMLElement | null>(null);
+const info = ref < HTMLElement | null > (null)
 const scrollToInfo = () => {
-    if (info.value) {
-        info.value.scrollIntoView({
-            behavior: 'smooth'
-        });
-    }
+  if (info.value) {
+    info.value.scrollIntoView({
+      behavior: 'smooth'
+    })
+  }
 }
 
 onMounted(() => {
-    info.value = document.getElementById('info');
-});
+  info.value = document.getElementById('info')
+})
 </script>
 
 <template>
-    <!--<div v-if="isMobile()">
-        <div class="h-full w-full grid grid-rows-8 grid-cols-1 justify-center overflow-y-auto">
-            <div class="row-start-1 row-span-7 max-h contain-content">
-                <img class="h-full w-full" src="./../../public/assets/info-phone.svg" />
-            </div>
-            <div class="m-auto row-start-8 justify-center text-center">
-                <router-link to="/join" class="underline mr-4 text-2xl">Join a party!</router-link>
-                <p class="mt-8">{{ versionNumber }}</p>
-            </div>
-        </div>
-    </div>-->
     <div class="container flex flex-col items-center overflow-y-auto">
         <div id="hero" class="min-h-screen">
             <div style="height: 50%; background: url('assets/logo.svg') no-repeat center; background-size: 100%;"></div>
@@ -45,7 +34,7 @@ onMounted(() => {
 
             <div id="ctaButtons" class="flex flex-col justify-center items-center p-4">
                 <div id="partyButton" class="mb-4">
-                    <router-link to="/host">
+                    <router-link :to="isMobile() ? '/join' : '/host'">
                         <PartyButton class="py-8 px-12">Play Now!</PartyButton>
                     </router-link>
                 </div>
@@ -75,16 +64,15 @@ onMounted(() => {
                     Tip: People Party works best when hosted on a big screen.
                 </div>
             </div>
-            
+
             <div id="Minigames" class="flex flex-col gap-4">
                 <n-h1 prefix="bar">
                     <n-text type="black" :class="isMobile() ? '!heading-mobile' : 'heading'">
-                        👾 Minigames 
+                        👾 Minigames
                     </n-text>
                 </n-h1>
-                <!--TOFIX: prev and next cards not showing, carousel width should be 50%-->
                 <div class="flex flex-col items-center">
-                    <n-carousel 
+                    <n-carousel
                     autoplay
                     trigger="hover"
                     effect="slide"
@@ -117,22 +105,25 @@ onMounted(() => {
                     Minigames are the heart of People Party. Each minigame is designed to be quick, easy to learn, and fun to play. Whether you're a seasoned gamer or a first-time player, you'll find something to enjoy in our ever-expanding collection of minigames. There's something for everyone!
                 </div>
             </div>
-            
+
             <div id="Contributors" class="flex flex-col gap-4 mb-8">
                 <n-h1 prefix="bar">
                     <n-text type="black" :class="isMobile() ? '!heading-mobile' : 'heading'">
-                        🦸 Contributors 
+                        🦸 Contributors
                     </n-text>
                 </n-h1>
                 <div>
                     Expandability is also a core part of People Party - our framework is designed for minigames to be easily developed and added without changing any core game files.
                 </div>
-                <div> 
+                <div>
                     Do you want to help us out and add your own minigame? Check out <a href="https://github.com/Kraanter/PeopleParty/wiki/How-to-add-a-game" target="_blank" class="text-primary underline">How to add a game</a> in our Wiki for more details.
                 </div>
-                <div class="flex flex-col items-start">
+                <div class="flex flex-row items-start gap-4">
                     <a href="https://github.com/Kraanter/PeopleParty" target="_blank">
                         <PartyButton class="py-4 px-8 bg-white !text-black !text-2xl !text-semibold">Visit our GitHub</PartyButton>
+                    </a>
+                    <a href="https://docs.peopleparty.nl" target="_blank">
+                        <PartyButton class="py-4 px-8 bg-white !text-black !text-2xl !text-semibold">Read our Wiki</PartyButton>
                     </a>
                 </div>
             </div>
@@ -140,14 +131,14 @@ onMounted(() => {
             <div id="About Us" class="flex flex-col gap-4">
                 <n-h1 prefix="bar">
                     <n-text type="black" :class="isMobile() ? '!heading-mobile' : 'heading'">
-                        🥳 About Us (the Party People) 
+                        🥳 About Us (the Party People)
                     </n-text>
                 </n-h1>
                 <div>
                     People Party was developed by a team of 4 passionate students from the Games Programming semester at Windesheim. We believe that games have the power to bring people together and create unforgettable experiences. That's why we've dedicated ourselves to creating a platform that's easy to use, fun to play, and accessible to everyone. We're constantly adding new features and minigames to keep People Party fresh and exciting, so be sure to check back often!
                 </div>
             </div>
-            
+
             <p class="flex text-xl">{{ versionNumber }}</p>
         </div>
     </div>
