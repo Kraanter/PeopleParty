@@ -1,9 +1,7 @@
 version: '3.8'
 services:
   nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
+    image: ghcr.io/kraanter/peoplepartywebserver
     ports:
       - 7789:80
     restart: always
