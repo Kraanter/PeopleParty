@@ -51,6 +51,11 @@ jobs:
           docker build --push \
             --tag ghcr.io/${{ env.IMAGE_NAME }}backend:${{ inputs.tag }} \
             --tag ghcr.io/${{ env.IMAGE_NAME }}backend:latest backend/.
+      - name: tag and push nginx image
+        run: |
+          docker build --push \
+            --tag ghcr.io/${{ env.IMAGE_NAME }}webserver:${{ inputs.tag }} \
+            --tag ghcr.io/${{ env.IMAGE_NAME }}webserver:latest nginx/.
       - name: Clean up dangling images
         run: docker image prune -f -a
       - name: Release
