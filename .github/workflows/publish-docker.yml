@@ -39,9 +39,14 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
       - name: tag and push frontend image
         run: |
           docker build --push \
+            --platform linux/arm64,linux/amd64 \
             --tag ghcr.io/${{ env.IMAGE_NAME }}portal:${{ inputs.tag }} \
             --tag ghcr.io/${{ env.IMAGE_NAME }}portal:latest frontend/.
       - name: Clean up dangling images
@@ -49,11 +54,13 @@ jobs:
       - name: tag and push backend image
         run: |
           docker build --push \
+            --platform linux/arm64,linux/amd64 \
             --tag ghcr.io/${{ env.IMAGE_NAME }}backend:${{ inputs.tag }} \
             --tag ghcr.io/${{ env.IMAGE_NAME }}backend:latest backend/.
       - name: tag and push nginx image
         run: |
           docker build --push \
+            --platform linux/arm64,linux/amd64 \
             --tag ghcr.io/${{ env.IMAGE_NAME }}webserver:${{ inputs.tag }} \
             --tag ghcr.io/${{ env.IMAGE_NAME }}webserver:latest nginx/.
       - name: Clean up dangling images
