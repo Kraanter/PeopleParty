@@ -43,6 +43,16 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: linux/amd64,linux/arm64
+      - name: Enable containerd image store for docker
+        uses: crazy-max/ghaction-setup-docker@v2
+        with:
+          version: v24.0.6
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            } 
       - name: tag and push frontend image
         run: |
           docker build --push \
