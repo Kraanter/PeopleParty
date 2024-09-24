@@ -124,8 +124,8 @@ const keyDown = (index: number, event: KeyboardEvent) => {
 }
 
 const join = () => {
-  if (username.value.length < 4) {
-    error.value = 'Username must be at least 4 characters long.'
+  if (username.value.length < 2) {
+    error.value = 'Username must be at least 2 characters long.'
   } else {
     if (joinPromise.value) return
     joinPromise.value = new Promise<void>(() => {
