@@ -12,6 +12,7 @@ public:
     int client_id;
     int submitted_x;
     int submitted_y;
+    bool hasSubmitted();
     int finished_round;
     bool eliminated;
     unsigned long submitted_time = std::chrono::system_clock::now().time_since_epoch().count();
