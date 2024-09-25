@@ -241,6 +241,20 @@ void MemoryMixer_MiniGame::next_round() {
 void MemoryMixer_MiniGame::update(int delta_time) {
     remaining_time -= delta_time;
 
+    // If all the players submitted, end the round
+    if (mini_game_phase == 1) {
+        bool all_submitted = true;
+        for (auto& [_, player] : players) {
+            if (!player.eliminated && !player.hasSubmitted()) {
+                all_submitted = false;
+                break;
+            }
+        }
+        if (all_submitted) {
+            remaining_time = 0;
+        }
+    }
+
     if (remaining_time <= 0) {
         if (mini_game_phase == 0) {
             mini_game_phase = 1;
@@ -346,7 +360,7 @@ flatbuffers::Offset<MiniGamePayloadType> MemoryMixer_MiniGame::build_grid(flatbu
 
     std::vector<flatbuffers::Offset<flatbuffers::String>> submitted_names_buffer;
     for (auto& [_, player] : players) {
-        if (player.submitted_x != -1 && player.submitted_y != -1) {
+        if (player.hasSubmitted()) {
             submitted_names_buffer.push_back(builder.CreateString(client_repository[player.client_id]->name));
         }
     }
