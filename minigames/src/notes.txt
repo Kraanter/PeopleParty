@@ -1,0 +1,18 @@
+Minigame wrapper is de core van de applicatie. Dit zit om de minigames heen en zorgt ervoor dat de minigame kan functioneren zonder te hoeven zorgen maken om wat er ook gebeurd met de communicatie.
+
+De minigames moeten werken doormiddel van een soort van game state en acties op deze gamestate. 
+
+De gamestate heeft de volgende structuur (in JSON uitgedrukt):
+
+{
+        host: <<HOSTDATA>>,
+        players: {
+                <<PLAYERNAME>>: <<PLAYERDATA>>
+        },
+        global: <<GLOBALDATA>>
+}
+
+Er is 1 functie genaamd process input en deze ontvangt de gamestate met een action en heeft als return type de gamestate. 
+
+Het idee is dat de game wordt gedraait als los proces en via stdIn en stdOut wordt gecomuniceerd met gamestates en actions die komen vanuit het host process.
+
