@@ -2,6 +2,7 @@
 #define INCLUDE_GPT_GAMEUPDATE_H_
 
 #include <string>
+#include <optional>
 
 enum GAME_UPDATE_REASON {
     PLAYERINPUT,

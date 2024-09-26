@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+message ProtoGameState {
+  string host = 1;
+  string global = 2;
+  map<string, string> players = 3;
+}
+
+enum PROTO_GAME_UPDATE_REASON {
+  GAME_TICK = 0;
+  PLAYER_INPUT = 1;
+}
+
+message Proto_GameUpdate {
+  PROTO_GAME_UPDATE_REASON reason = 1;
+  ProtoGameState gameState = 2;
+  string payload = 3;
+  int32 deltaTime = 4;
+  optional string playername = 5;
+}

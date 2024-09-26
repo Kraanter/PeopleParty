@@ -14,11 +14,19 @@ file(GLOB_RECURSE source_files
         ${minigame_source_dir}/*.h
 )
 
+
 # Ignore these games for now
 list(FILTER source_files EXCLUDE REGEX "rps_bracket.*")
 list(FILTER source_files EXCLUDE REGEX "memory_mixer.*")
 list(FILTER source_files EXCLUDE REGEX "launch_party.*")
 list(FILTER source_files EXCLUDE REGEX "crazy_counting.*")
 
+find_package(Protobuf REQUIRED)
+
+include_directories(${Protobuf_INCLUDE_DIRS})
+
 # Create main target
 add_executable(kokosnoot ${source_files})
+target_link_libraries(kokosnoot ${Protobuf_LIBRARIES})
+
+

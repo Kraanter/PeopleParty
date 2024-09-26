@@ -2,6 +2,8 @@
 #include "game_update.h"
 #include "debug.h"
 
+#include "gen/game_com.pb.h"
+
 auto main() -> int {
     BusinessBailout_Minigame game;
 
