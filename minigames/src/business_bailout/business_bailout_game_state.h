@@ -34,7 +34,7 @@ struct BB_MoneyMoment {
 	BB_MoneyMoment(double money, double time) : money(money), time(time) {}
 
 	std::string Serialize() const;
-	BB_MoneyMoment Deserialize(const std::string &data);
+	void Deserialize(const std::string &data);
 };
 
 class BB_GlobalData {
@@ -50,4 +50,4 @@ class BB_GlobalData {
 	void Deserialize(const std::string &date);
 };
 
-#endif  // INCLUDE_BUSINESS_BAILOUT_BUSINESS_BAILOUT_GAME_STATE_H_
+#endif // INCLUDE_BUSINESS_BAILOUT_BUSINESS_BAILOUT_GAME_STATE_H_
