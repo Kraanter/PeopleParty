@@ -1,8 +1,9 @@
 #ifndef INCLUDE_GPT_CUSTOM_H_
 #define INCLUDE_GPT_CUSTOM_H_
 
-#include "../game_state.h"
 #include "../debug.h"
+#include <iostream>
+#include <ostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -20,6 +21,7 @@ public:
     }
 
     void Deserialize(const std::string& data) {
+        std::cout << "host " << data << std::endl;
         minigame_time = std::stoi(data);
     }
 };

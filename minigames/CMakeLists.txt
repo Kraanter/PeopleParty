@@ -3,14 +3,15 @@ cmake_policy(SET CMP0091 NEW)
 
 project(PeopleParty-Backend)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# set(CMAKE_CXX_STANDARD 23)
+# set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Get source files
 set(minigame_source_dir ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 file(GLOB_RECURSE source_files
         ${minigame_source_dir}/*.cpp
+        ${minigame_source_dir}/*.cc
         ${minigame_source_dir}/*.h
 )
 
@@ -21,12 +22,9 @@ list(FILTER source_files EXCLUDE REGEX "memory_mixer.*")
 list(FILTER source_files EXCLUDE REGEX "launch_party.*")
 list(FILTER source_files EXCLUDE REGEX "crazy_counting.*")
 
-find_package(Protobuf REQUIRED)
-
-include_directories(${Protobuf_INCLUDE_DIRS})
+find_package(protobuf CONFIG REQUIRED)
 
 # Create main target
 add_executable(kokosnoot ${source_files})
-target_link_libraries(kokosnoot ${Protobuf_LIBRARIES})
-
+target_link_libraries(kokosnoot ${protobuf_LIBRARIES} protobuf::libprotobuf)
 

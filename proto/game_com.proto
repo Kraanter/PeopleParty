@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "gotest/protobuf";
+
 message ProtoGameState {
   string host = 1;
   string global = 2;

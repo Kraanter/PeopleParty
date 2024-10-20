@@ -2,7 +2,7 @@
 #include <vector>
 #include "business_bailout_minigame.h"
 
-BB_GAME BusinessBailout_Minigame::start(std::vector<std::string>& players) {
+BB_GAME BusinessBailout_Minigame::internalStart(std::vector<std::string>& players) {
     BB_GAME gameState;
 
     // Set a target time for the rocket to keep rising until
@@ -17,19 +17,26 @@ BB_GAME BusinessBailout_Minigame::start(std::vector<std::string>& players) {
     return gameState;
 };
 
-BB_GAME* BusinessBailout_Minigame::update(GameUpdate<BB_GAME>* gameUpdate) {
-    getMoneyMoments(gameUpdate->gameState, gameUpdate->deltaTime);
-    switch(gameUpdate->reason) {
-        case GAME_UPDATE_REASON::GAMETICK:
+void BusinessBailout_Minigame::update(Proto_GameUpdate* gameUpdate) {
+    std::cout << "UPDATE" << std::endl;
+    BB_GAME gameState;
+
+    gameState.Deserialize(gameUpdate->gamestate());
+
+    getMoneyMoments(&gameState, gameUpdate->deltatime());
+    switch(gameUpdate->reason()) {
+        case PROTO_GAME_UPDATE_REASON::GAME_TICK:
             break;
-        case GAME_UPDATE_REASON::PLAYERINPUT:
-            if (gameUpdate->playerName.has_value()) {
-                handlePlayerInput(gameUpdate->playerName.value(), gameUpdate->gameState);
+        case PROTO_GAME_UPDATE_REASON::PLAYER_INPUT:
+            if (gameUpdate->has_playername()) {
+                handlePlayerInput(gameUpdate->playername(), &gameState);
             }
+            break;
+        default: 
             break;
     }
 
-    return gameUpdate->gameState;
+    gameState.Serialize(gameUpdate->mutable_gamestate());
 }
 
 void BusinessBailout_Minigame::getMoneyMoments(BB_GAME* gameState, int deltaTime) {

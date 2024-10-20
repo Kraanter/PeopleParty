@@ -2,14 +2,16 @@
 #define PEOPLEPARTY_BACKEND_MINIGAME_H
 
 #include "game.h"
-#include "game_update.h"
 #include <vector>
+
+#include <google/protobuf/message.h>
+#include "gen/game_com.pb.h"
 
 template <typename H, typename P, typename G>
 class MiniGame {
 public:
-    virtual Game<H, P, G>* update(GameUpdate<Game<H, P, G>>* gameUpdate) = 0;
-    virtual Game<H, P, G> start(std::vector<std::string>& players) = 0;
+    virtual void update(Proto_GameUpdate* gameUpdate) = 0;
+    virtual Game<H, P, G> internalStart(std::vector<std::string>& players) = 0;
 };
 
 #endif //PEOPLEPARTY_BACKEND_MINIGAME_H

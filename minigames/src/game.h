@@ -1,9 +1,10 @@
 #ifndef INCLUDE_GPT_GAME_H_
 #define INCLUDE_GPT_GAME_H_
 
+#include <google/protobuf/message.h>
+#include "gen/game_com.pb.h"
 #include <map>
 #include <string>
-#include <sstream>
 
 template <typename THostData, typename TPlayerData, typename TGlobalData>
 class Game {
@@ -13,57 +14,32 @@ public:
   TGlobalData globalData;                     // Template voor GlobalData
 
   // Serialiseer het volledige spel
-  std::string Serialize() {
-    std::string result = host.Serialize() + "|\n";
+  void Serialize(ProtoGameState *serializedGameState) {
+    serializedGameState->set_host(host.Serialize());
     for (const auto &[name, player] : players) {
-      result += name + ":" + player.Serialize() + "\n";
+      (*serializedGameState->mutable_players())[name] = player.Serialize();
     }
-    result += "|\n" + globalData.Serialize() + "|\n";
-    return result;
+
+    serializedGameState->set_global(globalData.Serialize());
   }
 
   // Deserialiseer het volledige spel
-  void Deserialize(const std::string &data) {
-    size_t hostEnd = data.find("|\n");
-    size_t playersEnd =
-        data.find("|\n", hostEnd + 2); // Volgende scheiding voor players
-    size_t globalStart = data.rfind("|\n");
-
-    if (hostEnd == std::string::npos || playersEnd == std::string::npos ||
-        globalStart == std::string::npos || hostEnd >= playersEnd ||
-        playersEnd >= globalStart) {
-      throw std::runtime_error("Invalid serialized format");
-    }
-
+  void Deserialize(const ProtoGameState &data) {
     // Deel 1: Host Data
-    std::string hostData = data.substr(0, hostEnd);
+    std::string hostData = data.host();
     host.Deserialize(hostData);
 
     // Deel 2: Player Data
-    std::string playerData = data.substr(
-        hostEnd + 2, playersEnd - (hostEnd + 2)); // Pak de spelerdata
-    std::istringstream playerStream(playerData);
-    std::string line;
-    while (std::getline(playerStream, line)) {
-      size_t separator = line.find(':');
-      if (separator == std::string::npos) {
-        throw std::runtime_error("Invalid player format");
-      }
+    auto playerData = data.players();
 
-      std::string playerName = line.substr(0, separator);
-      std::string playerSerializedData = line.substr(separator + 1);
-
-      // Deserialiseer de speler
+    for (const auto& pair : playerData) {
       TPlayerData player;
-      player.Deserialize(playerSerializedData);
-      players[playerName] = player; // Voeg de speler toe aan de map
+      player.Deserialize(pair.second);
+      players[pair.first] = player;
     }
 
     // Deel 3: Global Data
-    std::string globalDataStr = data.substr(
-        playersEnd + 2,
-        globalStart - (playersEnd +
-                       2)); // Globale data tussen tweede en laatste scheiding
+    std::string globalDataStr = data.global();
     globalData.Deserialize(globalDataStr);
   }
 };

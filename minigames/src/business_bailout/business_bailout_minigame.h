@@ -3,7 +3,6 @@
 
 #include "../minigame.h"
 #include "../defines.h"
-#include "../game_update.h"
 #include "busniness_bailout_game_state.h"
 #include <vector>
 
@@ -16,8 +15,8 @@ private:
     const int dt = 100 MILLISECONDS;
 
 public:
-    BB_GAME start(std::vector<std::string>& players) override;
-    BB_GAME* update(GameUpdate<BB_GAME>* gameState) override;
+    BB_GAME internalStart(std::vector<std::string>& players) override;
+    void update(Proto_GameUpdate* gameUpdate) override;
 
 private:
     void getMoneyMoments(BB_GAME* gameState, int deltaTime);
