@@ -3,7 +3,7 @@
 
 #include "../minigame.h"
 #include "../defines.h"
-#include "busniness_bailout_game_state.h"
+#include "business_bailout_game_state.h"
 #include <vector>
 
 #define BB_GAME Game<BB_HostData, BB_PlayerData, BB_GlobalData>

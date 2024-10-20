@@ -32,7 +32,7 @@ void BusinessBailout_Minigame::update(Proto_GameUpdate* gameUpdate) {
                 handlePlayerInput(gameUpdate->playername(), &gameState);
             }
             break;
-        default: 
+        default:
             break;
     }
 
