@@ -16,7 +16,7 @@ bool readLengthPrefixedMessage(Proto_GameUpdate &incoming_update) {
     }
 
     // Debugging: Output the length we read
-    std::cout << "Received message length: " << messageLength << std::endl;
+    std::cerr << "Received message length: " << messageLength << std::endl;
 
     // Sanity check for message length
     if (messageLength <= 0 || messageLength > 1000000) {  // Arbitrary limit for safety
@@ -93,13 +93,13 @@ auto main() -> int {
     // Serialize the message to a binary string
     std::string outputBuffer;
     if (!incoming_update.SerializeToString(&outputBuffer)) {
-      std::cout << "Failed to serialize protobuf message" << std::endl;
+      std::cerr << "Failed to serialize protobuf message" << std::endl;
       return 1;
     }
 
     // Write the serialized message to stdout
     if (!writeToStdout(outputBuffer)) {
-      std::cout << "Failed to write message to stdout" << std::endl;
+      std::cerr << "Failed to write message to stdout" << std::endl;
       return 1;
     }
   }

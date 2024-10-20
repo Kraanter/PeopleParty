@@ -93,7 +93,7 @@ func startGame(path string) (*io.WriteCloser, error) {
 			if err != nil {
 				panic(err)
 			}
-			fmt.Printf("\033[31m----> ERR\033[0m: %v\n", string(s))
+			fmt.Printf("----> \033[44;1mINFO\033[0m: %v", string(s))
 		}
 	}()
 

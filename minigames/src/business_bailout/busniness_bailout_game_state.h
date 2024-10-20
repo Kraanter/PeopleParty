@@ -21,7 +21,7 @@ public:
     }
 
     void Deserialize(const std::string& data) {
-        std::cout << "host " << data << std::endl;
+        std::cerr << "host " << data << std::endl;
         minigame_time = std::stoi(data);
     }
 };

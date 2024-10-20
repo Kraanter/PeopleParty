@@ -18,7 +18,7 @@ BB_GAME BusinessBailout_Minigame::internalStart(std::vector<std::string>& player
 };
 
 void BusinessBailout_Minigame::update(Proto_GameUpdate* gameUpdate) {
-    std::cout << "UPDATE" << std::endl;
+    std::cerr << "UPDATE" << std::endl;
     BB_GAME gameState;
 
     gameState.Deserialize(gameUpdate->gamestate());
