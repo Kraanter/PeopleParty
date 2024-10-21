@@ -1,6 +1,7 @@
 #ifndef INCLUDE_GPT_GAME_H_
 #define INCLUDE_GPT_GAME_H_
 
+#include "debug.h"
 #include <google/protobuf/message.h>
 #include "gen/game_com.pb.h"
 #include <map>
@@ -17,7 +18,9 @@ public:
   void Serialize(ProtoGameState *serializedGameState) {
     serializedGameState->set_host(host.Serialize());
     for (const auto &[name, player] : players) {
-      (*serializedGameState->mutable_players())[name] = player.Serialize();
+      std::string playerSerial = player.Serialize();
+      D(playerSerial)
+      (*serializedGameState->mutable_players())[name] = playerSerial;
     }
 
     serializedGameState->set_global(globalData.Serialize());
