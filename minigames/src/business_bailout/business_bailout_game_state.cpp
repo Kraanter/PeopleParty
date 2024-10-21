@@ -1,4 +1,5 @@
 #include "business_bailout_game_state.h"
+#include "flat/BusinessBailoutHostPayload_generated.h"
 
 BB_GlobalData::BB_GlobalData() : moneyMoments() { }
 

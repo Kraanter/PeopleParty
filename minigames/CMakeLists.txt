@@ -23,8 +23,10 @@ list(FILTER source_files EXCLUDE REGEX "launch_party.*")
 list(FILTER source_files EXCLUDE REGEX "crazy_counting.*")
 
 find_package(protobuf CONFIG REQUIRED)
+find_package(flatbuffers CONFIG REQUIRED)
 
 # Create main target
 add_executable(kokosnoot ${source_files})
 target_link_libraries(kokosnoot ${protobuf_LIBRARIES} protobuf::libprotobuf)
+target_link_libraries(kokosnoot flatbuffers::flatbuffers)
 
