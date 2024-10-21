@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -76,18 +77,40 @@ func startGame(path string) (*io.WriteCloser, error) {
 	}
 
 	go func() {
-		in := bufio.NewReader(output)
 		for {
-			s, err := in.ReadBytes('\n')
+			// First 4 bytes are the count for the message
+			rawMessageLength := make([]byte, 4)
+			n, err := output.Read(rawMessageLength)
 			if err != nil {
-				panic(err)
+				panic(fmt.Errorf("Could not read game state message length"))
+			}
+
+			if n != 4 {
+				panic(fmt.Errorf("Could not read message size, recieved (%v) bytes", n))
+			}
+
+			messageLength := binary.LittleEndian.Uint32(rawMessageLength)
+			if messageLength <= 0 || messageLength >= 100000 {
+				panic(fmt.Errorf("Invalid message length: %v %v", messageLength, rawMessageLength))
+			}
+
+			rawMessage := make([]byte, messageLength)
+			n, err = output.Read(rawMessage)
+			if err != nil {
+				panic(fmt.Errorf("Could not read game state message"))
+			}
+
+			// HACK: I don't know if this is correct
+			// What if the message length is bigger than a signed int?
+			if n != int(messageLength) {
+				panic(fmt.Errorf("Could not read message size, recieved (%v) bytes", n))
 			}
 
 			gameUpdate := &pb.Proto_GameUpdate{}
-			if err = proto.Unmarshal(s, gameUpdate); err == nil {
-				fmt.Printf("====> %v", gameUpdate)
+			if err = proto.Unmarshal(rawMessage, gameUpdate); err == nil {
+				fmt.Printf("====> %v", gameUpdate.GameState)
 			} else {
-				fmt.Printf("----> %v", string(s))
+				fmt.Printf("----> %v", rawMessage)
 			}
 		}
 	}()
@@ -117,8 +140,6 @@ func sendProtobuf(message protoreflect.ProtoMessage, writer io.Writer) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("<---- %v len(%v)\n", serializedData, len(serializedData))
 
 	err = binary.Write(writer, binary.LittleEndian, uint32(len(serializedData)))
 	if err != nil {
@@ -156,7 +177,15 @@ func playGame(input io.Writer) error {
 			gameUpdate.Reason = pb.PROTO_GAME_UPDATE_REASON_GAME_TICK
 		}
 		gameUpdate.Payload = "1"
-		err := sendProtobuf(gameUpdate, input)
+		var b bytes.Buffer // capture output in b
+		err := sendProtobuf(gameUpdate, &b)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("<---- %v len(%v)\n", b.Bytes(), len(b.Bytes()))
+
+		err = sendProtobuf(gameUpdate, input)
 		if err != nil {
 			return err
 		}

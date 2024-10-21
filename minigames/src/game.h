@@ -18,9 +18,7 @@ public:
   void Serialize(ProtoGameState *serializedGameState) {
     serializedGameState->set_host(host.Serialize());
     for (const auto &[name, player] : players) {
-      std::string playerSerial = player.Serialize();
-      D(playerSerial)
-      (*serializedGameState->mutable_players())[name] = playerSerial;
+      (*serializedGameState->mutable_players())[name] = player.Serialize();
     }
 
     serializedGameState->set_global(globalData.Serialize());
