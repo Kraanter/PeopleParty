@@ -82,7 +82,13 @@ func startGame(path string) (*io.WriteCloser, error) {
 			if err != nil {
 				panic(err)
 			}
-			fmt.Printf("----> %v", string(s))
+
+			gameUpdate := &pb.Proto_GameUpdate{}
+			if err = proto.Unmarshal(s, gameUpdate); err == nil {
+				fmt.Printf("====> %v", gameUpdate)
+			} else {
+				fmt.Printf("----> %v", string(s))
+			}
 		}
 	}()
 
