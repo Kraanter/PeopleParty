@@ -12,14 +12,13 @@ var MinPartyCode = int(math.Pow10(PartyCodeLength - 1)) // With length 4 => 1000
 var MaxPartyCode = int(math.Pow10(PartyCodeLength)) - 1 // With length 4 => 9999
 var MaxPartyCount = MaxPartyCode - MinPartyCode         // => 8999
 
-func GeneratePartyCode() PartyCode {
+func generatePartyCode() PartyCode {
 	// example: 1000 + rand.IntN(8999) => min output: 1000 + 0 = 1000; max output: 1000 + (9999 - 1000) = 9999
 	return PartyCode(MinPartyCode + rand.IntN(MaxPartyCode-MinPartyCode))
 }
 
-// TODO: In theory this function can cause a stackoverflow
-// What if?
-func generateUniqueCode(notAllowedList []PartyCode) PartyCode {
+// TODO: In theory this function can cause a stackoverflow (I think) What then?
+func generateUniquePartyCode(notAllowedList []PartyCode) PartyCode {
 	if len(notAllowedList) == MaxPartyCount {
 		assert.Never("No more available party codes", MaxPartyCount)
 	}
@@ -35,7 +34,7 @@ func generateUniqueCode(notAllowedList []PartyCode) PartyCode {
 	}
 
 	for {
-		genCode := GeneratePartyCode()
+		genCode := generatePartyCode()
 
 		if isUsed(genCode) {
 			continue
