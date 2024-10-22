@@ -40,7 +40,7 @@ func (pm *PartyManager) GetActivePartyCodes() []PartyCode {
 }
 
 func (pm *PartyManager) AppendParty(context context.Context) (PartyCode, error) {
-	code := generateUniqueCode(pm.activePartyCodes)
+	code := generateUniquePartyCode(pm.activePartyCodes)
 
 	pm.partyDict[code] = party.CreateParty(context)
 	pm.activePartyCodes = append(pm.activePartyCodes, code)
