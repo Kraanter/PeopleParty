@@ -2,14 +2,15 @@ package party
 
 import (
 	"context"
-	"peopleparty_backend/pkg/assert"
 	"sync"
+
+	"peopleparty_backend/pkg/assert"
 )
 
 type Party struct {
 	Context     context.Context
-	currentGame *interface{}
-	clients     map[ClientID]client
+	gameManager *interface{}
+	clients     map[ClientID]Client
 	idCounter   ClientID
 	mutex       sync.Mutex
 }
@@ -17,12 +18,18 @@ type Party struct {
 func CreateParty(hostDisplayName string, ctx context.Context) *Party {
 	host := createClient(0, hostDisplayName, true, ctx)
 	party := Party{
-		currentGame: nil,
+		gameManager: nil,
 		Context:     host.Context,
-		clients:     make(map[ClientID]client),
+		clients:     make(map[ClientID]Client),
 		idCounter:   1,
 	}
 	party.clients[0] = host
+
+	go func() {
+		for data := range host.IO.Input {
+			party.updateGame(&host, data)
+		}
+	}()
 
 	go func() {
 		select {
@@ -37,7 +44,7 @@ func CreateParty(hostDisplayName string, ctx context.Context) *Party {
 }
 
 // Returns nil if client couldn't be added because id was invalid or already used
-func (p *Party) addClient(id ClientID, displayName string, ctx context.Context) *client {
+func (p *Party) addClient(id ClientID, displayName string, ctx context.Context) *Client {
 	if _, ok := p.clients[p.idCounter]; ok {
 		return nil
 	}
@@ -46,6 +53,12 @@ func (p *Party) addClient(id ClientID, displayName string, ctx context.Context) 
 
 	client := p.GetClient(p.idCounter)
 	assert.NotNil(client, "Could not get newly created client")
+
+	go func() {
+		for data := range client.IO.Input {
+			p.updateGame(client, data)
+		}
+	}()
 
 	go func() {
 		select {
@@ -68,7 +81,7 @@ func (p *Party) addClient(id ClientID, displayName string, ctx context.Context) 
 	return client
 }
 
-func (p *Party) AddClient(displayName string, ctx context.Context) *client {
+func (p *Party) AddClient(displayName string, ctx context.Context) *Client {
 	if ClientID(p.GetClientCount()) == ^ClientID(0) {
 		return nil
 	}
@@ -100,7 +113,7 @@ func (p *Party) removeCient(id ClientID) {
 	delete(p.clients, id)
 }
 
-func (p *Party) GetClient(id ClientID) *client {
+func (p *Party) GetClient(id ClientID) *Client {
 	if client, ok := p.clients[id]; ok {
 		return &client
 	}
@@ -110,4 +123,41 @@ func (p *Party) GetClient(id ClientID) *client {
 
 func (p *Party) GetClientCount() int {
 	return len(p.clients)
+}
+
+// TODO: implement gamemanager logic
+func (p *Party) updateGame(player *Client, data ChannelData) {
+	// p.gameManager
+	updateMap := make(map[string]ChannelData)
+
+	for _, client := range p.clients {
+		// TODO: Make sure no duplicate names
+		updateMap[client.DisplayName] = ChannelData(player.DisplayName + " to " + client.DisplayName + ": " + string(data))
+	}
+
+	p.broadCastData(ChannelData(player.DisplayName+"Called update"), updateMap)
+}
+
+func (p *Party) broadCastData(host ChannelData, clients map[string]ChannelData) {
+	hostClient := p.GetClient(0)
+	assert.NotNil(hostClient, "Could not broadcast to host because it is not defined this should not be possible")
+	hostClient.IO.Output <- host
+
+	nameMap := p.genDisplayNameToClientIDMap()
+	for name, data := range clients {
+		client := p.GetClient(nameMap[name])
+		if client != nil {
+			client.IO.Output <- data
+		}
+	}
+}
+
+func (p *Party) genDisplayNameToClientIDMap() map[string]ClientID {
+	nameMap := make(map[string]ClientID)
+
+	for ID, client := range p.clients {
+		nameMap[client.DisplayName] = ID
+	}
+
+	return nameMap
 }

@@ -1,10 +1,12 @@
 package api
 
 import (
-	"context"
 	"log/slog"
+	"net/http"
+	"strconv"
 
 	"peopleparty_backend/pkg/assert"
+	"peopleparty_backend/pkg/websocket"
 )
 
 type ServerConfig struct {
@@ -30,11 +32,17 @@ func CreateServer(config ServerConfig) *ApiServer {
 	}
 }
 
-func (s *ApiServer) Run(outerCtx context.Context) error {
+func (s *ApiServer) Run() {
 	// ctx, cancel := context.WithCancel(outerCtx)
 	s.logger.Warn("ApiServer#Run...")
 
 	// Create server and start it
+	router := http.NewServeMux()
 
-	return nil
+	websocket.InitWebsocket(router)
+
+	println("listening on port:", s.config.Port)
+	err := http.ListenAndServe(":"+strconv.Itoa(s.config.Port), router)
+
+	assert.NoError(err, "HTTP server crashed", err)
 }

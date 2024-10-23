@@ -18,9 +18,10 @@ func GetFreePort() (port int, err error) {
 }
 
 func GetHostAndPort() (string, int) {
-	port, err := GetFreePort()
-	if err != nil {
-		port = 42069
-	}
-	return "0.0.0.0", port
+	// port, err := GetFreePort()
+	// if err != nil {
+	// 	port = 42069
+	// }
+	// return "0.0.0.0", port
+	return "0.0.0.0", 42069
 }

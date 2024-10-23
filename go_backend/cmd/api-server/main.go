@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"peopleparty_backend/pkg/api"
 )
 
@@ -15,5 +14,5 @@ func main() {
 
 	server := api.CreateServer(cfg)
 
-	server.Run(context.Background())
+	server.Run()
 }

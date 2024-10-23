@@ -6,7 +6,7 @@ import (
 
 type ClientID = uint8
 
-type client struct {
+type Client struct {
 	ID          ClientID
 	IsHost      bool
 	DisplayName string
@@ -16,9 +16,9 @@ type client struct {
 	IO *IOChannel
 }
 
-func createClient(id ClientID, name string, isHost bool, ctx context.Context) client {
+func createClient(id ClientID, name string, isHost bool, ctx context.Context) Client {
 	clientContext, cancel := context.WithCancel(ctx)
-	return client{
+	return Client{
 		IsHost:      isHost,
 		DisplayName: name,
 		ID:          id,

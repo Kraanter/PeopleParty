@@ -2,15 +2,17 @@ package party
 
 import "context"
 
+type ChannelData = []byte
+
 type IOChannel struct {
-	input  chan []byte
-	output chan []byte
+	Input  chan ChannelData
+	Output chan ChannelData
 }
 
 func CreateIOChannel(ctx context.Context) *IOChannel {
 	ioChan := &IOChannel{
-		input:  make(chan []byte),
-		output: make(chan []byte),
+		Input:  make(chan ChannelData),
+		Output: make(chan ChannelData),
 	}
 
 	go func() {
@@ -22,6 +24,6 @@ func CreateIOChannel(ctx context.Context) *IOChannel {
 }
 
 func (ioc *IOChannel) close() {
-	close(ioc.input)
-	close(ioc.output)
+	close(ioc.Input)
+	close(ioc.Output)
 }
