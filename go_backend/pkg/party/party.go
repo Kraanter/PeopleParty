@@ -15,29 +15,21 @@ type Party struct {
 }
 
 func CreateParty(hostDisplayName string, ctx context.Context) *Party {
-	partyContext, cancel := context.WithCancel(ctx)
-
+	host := createClient(0, hostDisplayName, true, ctx)
 	party := Party{
 		currentGame: nil,
-		Context:     partyContext,
+		Context:     host.Context,
 		clients:     make(map[ClientID]client),
 		idCounter:   1,
 	}
-
-	party.clients[0] = client{
-		DisplayName: hostDisplayName,
-		IsHost:      true,
-		ID:          0,
-		Context:     partyContext,
-		disconnect:  cancel,
-	}
+	party.clients[0] = host
 
 	go func() {
 		select {
 		case <-ctx.Done():
-			cancel()
+			host.disconnect()
 			break
-		case <-partyContext.Done():
+		case <-party.Context.Done():
 		}
 	}()
 
@@ -50,16 +42,7 @@ func (p *Party) addClient(id ClientID, displayName string, ctx context.Context) 
 		return nil
 	}
 
-	clientContext, cancel := context.WithCancel(ctx)
-
-	p.clients[p.idCounter] = client{
-		DisplayName: displayName,
-		ID:          p.idCounter,
-		IsHost:      false,
-		Context:     ctx,
-		// To disconnect a client just stop the client context
-		disconnect: cancel,
-	}
+	p.clients[p.idCounter] = createClient(p.idCounter, displayName, false, ctx)
 
 	client := p.GetClient(p.idCounter)
 	assert.NotNil(client, "Could not get newly created client")
@@ -67,12 +50,11 @@ func (p *Party) addClient(id ClientID, displayName string, ctx context.Context) 
 	go func() {
 		select {
 		// If the creator context or the partycontext is done, remove the client
-		case <-ctx.Done():
 		case <-p.Context.Done():
-			cancel()
+			client.disconnect()
 			break
 		// Or the client is disconnected with client.disconnect()
-		case <-clientContext.Done():
+		case <-client.Context.Done():
 		}
 		p.mutex.Lock()
 		defer p.mutex.Unlock()

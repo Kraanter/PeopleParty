@@ -24,6 +24,10 @@ func CreatePartyManager() *PartyManager {
 
 }
 
+func (pm *PartyManager) PartyAvailable(partyCode PartyCode) bool {
+	return pm.GetParty(partyCode) != nil
+}
+
 func (pm *PartyManager) GetParty(partyCode PartyCode) *party.Party {
 	pm.mutex.Lock()
 	defer pm.mutex.Unlock()
