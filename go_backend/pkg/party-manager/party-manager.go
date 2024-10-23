@@ -43,14 +43,17 @@ func (pm *PartyManager) GetActivePartyCodes() []PartyCode {
 	return codes
 }
 
-func (pm *PartyManager) AppendParty(hostName string, context context.Context) (PartyCode, error) {
+func (pm *PartyManager) AppendParty(hostName string, ctx context.Context) (PartyCode, error) {
 	code := generateUniquePartyCode(pm.activePartyCodes)
 
-	pm.partyDict[code] = party.CreateParty(hostName, context)
+	createdParty := party.CreateParty(hostName, ctx)
+	pm.partyDict[code] = createdParty
 	pm.activePartyCodes = append(pm.activePartyCodes, code)
 
 	go func() {
-		<-context.Done()
+		// Remove the party if the party is done
+		<-createdParty.Context.Done()
+
 		if pm.GetParty(code) != nil {
 			pm.removeParty(code)
 		}

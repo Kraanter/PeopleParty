@@ -7,7 +7,7 @@ import (
 )
 
 type Party struct {
-	context     context.Context
+	Context     context.Context
 	currentGame *interface{}
 	clients     map[ClientID]client
 	idCounter   ClientID
@@ -19,7 +19,7 @@ func CreateParty(hostDisplayName string, ctx context.Context) *Party {
 
 	party := Party{
 		currentGame: nil,
-		context:     partyContext,
+		Context:     partyContext,
 		clients:     make(map[ClientID]client),
 		idCounter:   1,
 	}
@@ -68,7 +68,7 @@ func (p *Party) addClient(id ClientID, displayName string, ctx context.Context) 
 		select {
 		// If the creator context or the partycontext is done, remove the client
 		case <-ctx.Done():
-		case <-p.context.Done():
+		case <-p.Context.Done():
 			cancel()
 			break
 		// Or the client is disconnected with client.disconnect()
@@ -108,6 +108,10 @@ func (p *Party) DisconnectClient(id ClientID) {
 	if client != nil {
 		client.disconnect()
 	}
+}
+
+func (p *Party) Destory() {
+	p.DisconnectClient(0)
 }
 
 func (p *Party) removeCient(id ClientID) {

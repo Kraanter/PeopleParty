@@ -33,15 +33,25 @@ func main() {
 	allPartyContext, cancel := context.WithCancel(context.Background())
 	for i := 0; i < partymanager.MaxPartyCount; i++ {
 		manager.AppendParty("host", allPartyContext)
-		println("created", i)
 	}
 
 	assert.Assert(len(manager.GetActivePartyCodes()) == partymanager.MaxPartyCount, "Can't create the maximum amount of parties", len(manager.GetActivePartyCodes()), partymanager.MaxPartyCount)
 	fmt.Printf("Succesfully created %v parties\n", len(manager.GetActivePartyCodes()))
 
 	cancel()
-	time.Sleep(1000 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	assert.Assert(len(manager.GetActivePartyCodes()) == 0, "Cancelling all party context didn't remove all parties", len(manager.GetActivePartyCodes()))
 	fmt.Println("Succesfully removed all parties")
+
+	code, err = manager.AppendParty("host", context.Background())
+	party = manager.GetParty(code)
+	assert.NotNil(party, "Party was not created correctly, can't be found by using PartyCode", code, manager)
+	// Disconnect the host to delete party
+	party.Destory()
+	time.Sleep(10 * time.Millisecond)
+
+	party = manager.GetParty(code)
+	assert.Assert(party == nil, "Party was not removed from manager after destroy is called", party, manager)
+	assert.Assert(len(manager.GetActivePartyCodes()) == 0, "Party code was not removed from manager after destroy is called", party, manager)
 }
