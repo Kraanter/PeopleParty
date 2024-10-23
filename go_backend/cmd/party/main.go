@@ -10,7 +10,8 @@ import (
 
 func main() {
 	hostName := "host"
-	partyInstance := party.CreateParty(hostName, context.Background())
+	partyContext, cancelParty := context.WithCancel(context.Background())
+	partyInstance := party.CreateParty(hostName, partyContext)
 
 	host := partyInstance.GetClient(0)
 	assert.NotNil(host, "Couldn't get host client from party instantly after creating the party", host, partyInstance)
@@ -38,9 +39,8 @@ func main() {
 	nilClient = partyInstance.GetClient(clientId)
 	assert.Assert(nilClient == nil, "Getting context cancelled client returns a client", nilClient, clientId, partyInstance)
 
-	allClientContext, cancel := context.WithCancel(context.Background())
 	for i := party.ClientID(1); i < ^party.ClientID(0); i++ {
-		client := partyInstance.AddClient("client", allClientContext)
+		client := partyInstance.AddClient("client", context.Background())
 		assert.NotNil(client, "Failed to add client during mass client addition", i)
 	}
 
@@ -49,7 +49,7 @@ func main() {
 	nilClient = partyInstance.AddClient("client", context.Background())
 	assert.Assert(nilClient == nil, "Client not null after adding on full party", nilClient)
 
-	cancel()
+	cancelParty()
 	time.Sleep(1 * time.Millisecond)
 
 	clientCount := partyInstance.GetClientCount()

@@ -9,4 +9,5 @@ type client struct {
 	IsHost      bool
 	DisplayName string
 	Context     context.Context
+	disconnect  func()
 }
