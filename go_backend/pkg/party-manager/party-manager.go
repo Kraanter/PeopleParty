@@ -3,32 +3,36 @@ package partymanager
 import (
 	"context"
 	"peopleparty_backend/pkg/party"
+	"sync"
 )
 
 type PartyCode = uint32
 
 type PartyManager struct {
-	partyDict map[PartyCode]party.Party
+	mutex     sync.Mutex
+	partyDict map[PartyCode]*party.Party
 
 	// List of all active party codes
 	// This list should only be read from because it is crucial for the generation of new codes
 	activePartyCodes []PartyCode
 }
 
-func CreatePartyManager() PartyManager {
-	return PartyManager{
-		partyDict: make(map[PartyCode]party.Party),
+func CreatePartyManager() *PartyManager {
+	return &PartyManager{
+		partyDict: make(map[PartyCode]*party.Party),
 	}
 
 }
 
 func (pm *PartyManager) GetParty(partyCode PartyCode) *party.Party {
+	pm.mutex.Lock()
+	defer pm.mutex.Unlock()
 	party, ok := pm.partyDict[partyCode]
 	if !ok {
 		return nil
 	}
 
-	return &party
+	return party
 }
 
 // Returns a copy of the active party codes list
@@ -39,23 +43,26 @@ func (pm *PartyManager) GetActivePartyCodes() []PartyCode {
 	return codes
 }
 
-func (pm *PartyManager) AppendParty(context context.Context) (PartyCode, error) {
+func (pm *PartyManager) AppendParty(hostName string, context context.Context) (PartyCode, error) {
 	code := generateUniquePartyCode(pm.activePartyCodes)
 
-	pm.partyDict[code] = party.CreateParty(context)
+	pm.partyDict[code] = party.CreateParty(hostName, context)
 	pm.activePartyCodes = append(pm.activePartyCodes, code)
 
 	go func() {
 		<-context.Done()
 		if pm.GetParty(code) != nil {
-			pm.RemoveParty(code)
+			pm.removeParty(code)
 		}
 	}()
 
 	return code, nil
 }
 
-func (pm *PartyManager) RemoveParty(codeToRemove PartyCode) {
+// The only way a party can be removed is by stopping the context it is bound to
+func (pm *PartyManager) removeParty(codeToRemove PartyCode) {
+	pm.mutex.Lock()
+	defer pm.mutex.Unlock()
 	for index, code := range pm.activePartyCodes {
 		if code == codeToRemove {
 			// Remove the index of the party code form the array

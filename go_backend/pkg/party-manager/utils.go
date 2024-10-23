@@ -6,7 +6,7 @@ import (
 	"peopleparty_backend/pkg/assert"
 )
 
-const PartyCodeLength = 4
+const PartyCodeLength = 3
 
 var MinPartyCode = int(math.Pow10(PartyCodeLength - 1)) // With length 4 => 1000
 var MaxPartyCode = int(math.Pow10(PartyCodeLength)) - 1 // With length 4 => 9999
