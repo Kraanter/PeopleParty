@@ -31,6 +31,7 @@ private:
 
 inline void ThreadTimer::pause()
 {
+	if (!active || paused) return;
 	paused = true;
 	cv.notify_all();
 }
@@ -44,32 +45,50 @@ inline void ThreadTimer::pause(int timeout)
 
 inline void ThreadTimer::resume()
 {
+	if (!active || !paused) return;
 	paused = false;
 	cv.notify_all();
 }
 
-inline void ThreadTimer::threadProcessInterval(std::function<void()> handler,int timeout)
+inline void ThreadTimer::threadProcessInterval(std::function<void()> handler, int timeout)
 {
-	while(active){
-		std::unique_lock<std::mutex> lock(m);
-		auto status = cv.wait_for(lock,std::chrono::milliseconds(timeout));
-		if (status == std::cv_status::timeout){
-			if(!active || paused) return;
-			if (handler != nullptr)
-				handler();
-		}
-	}
-	
+    while (active) {
+        std::unique_lock<std::mutex> lock(m);
+        
+        // Wait while paused, or timeout for the interval duration
+        if (paused) {
+            cv.wait(lock, [this] { return !paused || !active; }); // Wait until unpaused or inactive
+        }
+        
+        // After pause, check if still active
+        if (!active) return;
+
+        // Wait for the interval duration
+        auto status = cv.wait_for(lock, std::chrono::milliseconds(timeout));
+        if (status == std::cv_status::timeout && !paused && active) {
+            if (handler != nullptr)
+                handler();
+        }
+    }
 }
-inline void ThreadTimer::threadProcessTimeout(std::function<void()> handler,int timeout)
+
+inline void ThreadTimer::threadProcessTimeout(std::function<void()> handler, int timeout)
 {
-		std::unique_lock<std::mutex> lock(m);
-		auto status = cv.wait_for(lock,std::chrono::milliseconds(timeout));
-		if (status == std::cv_status::timeout){
-			if(!active || paused) return;
-			if (handler != nullptr)
-				handler();
-		}
+    std::unique_lock<std::mutex> lock(m);
+    
+    // Wait while paused
+    if (paused) {
+        cv.wait(lock, [this] { return !paused || !active; });
+    }
+
+    if (!active) return;
+
+    // Wait for the timeout duration
+    auto status = cv.wait_for(lock, std::chrono::milliseconds(timeout));
+    if (status == std::cv_status::timeout && !paused && active) {
+        if (handler != nullptr)
+            handler();
+    }
 }
 
 inline void ThreadTimer::setInterval(std::function<void()> ptr, int timer)

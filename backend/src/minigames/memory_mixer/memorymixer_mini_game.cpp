@@ -34,6 +34,18 @@ std::string MemoryMixer_MiniGame::get_description() {
     return "Click the correct icon on your phone to win!";
 }
 
+void MemoryMixer_MiniGame::pause() {
+    timer.pause();
+    introduction_timer.pause();
+    results_timer.pause();
+}
+
+void MemoryMixer_MiniGame::resume() {
+    timer.resume();
+    introduction_timer.resume();
+    results_timer.resume();
+}
+
 void MemoryMixer_MiniGame::create_grid() {
     target_card = MemoryMixer_card(rand() % (unique_symbols));
 

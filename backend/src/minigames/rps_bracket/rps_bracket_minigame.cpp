@@ -28,6 +28,18 @@ void RPSBracket_MiniGame::start_minigame() {
     timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
 
+void RPSBracket_MiniGame::pause() {
+    timer.pause();
+    result_timer.pause();
+    introduction_timer.pause();
+}
+
+void RPSBracket_MiniGame::resume() {
+    timer.resume();
+    result_timer.resume();
+    introduction_timer.resume();
+}
+
 void RPSBracket_MiniGame::create_matches(std::vector<Client *> players) {
     const int pn = players.size();
     const int rn = (int) ceil(log2(pn));

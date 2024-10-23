@@ -11,7 +11,8 @@ import {
   MiniGamePayloadType,
   PartyPrepHostInformationPayload,
   PartyPrepPayloadType,
-  PartyPrepType
+  PartyPrepType,
+  PausePayloadType
 } from './../flatbuffers/messageClass'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -45,6 +46,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const clientName = ref<string>('')
   const viewStore = useViewStore()
   const isConnecting = ref(false)
+  const isPaused = ref(false)
 
   function host() {
     if (isConnecting.value) return
@@ -120,6 +122,12 @@ export const useWebSocketStore = defineStore('websocket', () => {
         viewStore.setViewState(ViewState.PartyPrep)
         const joinPayload = receivedMessage.payload(new JoinPayloadType())
         listeners.value.forEach((listener) => listener(joinPayload.success()))
+        break
+      }
+      case MessageType.Pause: {
+        const pausePayload = receivedMessage.payload(new PausePayloadType())
+        console.log('Pause Payload:', pausePayload.pause())
+        if (pausePayload) { isPaused.value = pausePayload.pause() }
         break
       }
       case MessageType.MiniGame: {
@@ -199,6 +207,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
     subscribe,
     partyCode,
     clientName,
-    isHosting
+    isHosting,
+    isPaused
   }
 })

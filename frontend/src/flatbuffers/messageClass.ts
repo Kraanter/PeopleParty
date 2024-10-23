@@ -51,6 +51,7 @@ export { PartyPrepPayload } from './party-prep-payload.js';
 export { PartyPrepPayloadType } from './party-prep-payload-type.js';
 export { PartyPrepPlayerInformationPayload } from './party-prep-player-information-payload.js';
 export { PartyPrepType } from './party-prep-type.js';
+export { PausePayloadType } from './pause-payload-type.js';
 export { Payload } from './payload.js';
 export { PlayerBailout } from './player-bailout.js';
 export { RPSBracketHostPayload } from './rpsbracket-host-payload.js';

@@ -31,6 +31,8 @@ public:
     void start_introduction() override;
     void start_minigame() override;
     void start_result() override;
+    void pause() override;
+    void resume() override;
     std::vector<Client*> getMinigameResult() override;
     std::string get_display_name() override { return "Rock Paper Scissors Bracket"; }
     std::string get_camel_case_name() override { return "rpsBracket"; }

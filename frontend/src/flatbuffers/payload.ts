@@ -7,6 +7,7 @@ import { JoinPayloadType } from './join-payload-type.js';
 import { LeaderboardPayloadType } from './leaderboard-payload-type.js';
 import { MiniGamePayloadType } from './mini-game-payload-type.js';
 import { PartyPrepPayloadType } from './party-prep-payload-type.js';
+import { PausePayloadType } from './pause-payload-type.js';
 
 
 export enum Payload {
@@ -15,13 +16,14 @@ export enum Payload {
   JoinPayloadType = 2,
   LeaderboardPayloadType = 3,
   MiniGamePayloadType = 4,
-  PartyPrepPayloadType = 5
+  PartyPrepPayloadType = 5,
+  PausePayloadType = 6
 }
 
 export function unionToPayload(
   type: Payload,
-  accessor: (obj:HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType) => HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType|null
-): HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType|null {
+  accessor: (obj:HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType|PausePayloadType) => HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType|PausePayloadType|null
+): HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType|PausePayloadType|null {
   switch(Payload[type]) {
     case 'NONE': return null; 
     case 'HostPayloadType': return accessor(new HostPayloadType())! as HostPayloadType;
@@ -29,15 +31,16 @@ export function unionToPayload(
     case 'LeaderboardPayloadType': return accessor(new LeaderboardPayloadType())! as LeaderboardPayloadType;
     case 'MiniGamePayloadType': return accessor(new MiniGamePayloadType())! as MiniGamePayloadType;
     case 'PartyPrepPayloadType': return accessor(new PartyPrepPayloadType())! as PartyPrepPayloadType;
+    case 'PausePayloadType': return accessor(new PausePayloadType())! as PausePayloadType;
     default: return null;
   }
 }
 
 export function unionListToPayload(
   type: Payload, 
-  accessor: (index: number, obj:HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType) => HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType|null, 
+  accessor: (index: number, obj:HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType|PausePayloadType) => HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType|PausePayloadType|null, 
   index: number
-): HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType|null {
+): HostPayloadType|JoinPayloadType|LeaderboardPayloadType|MiniGamePayloadType|PartyPrepPayloadType|PausePayloadType|null {
   switch(Payload[type]) {
     case 'NONE': return null; 
     case 'HostPayloadType': return accessor(index, new HostPayloadType())! as HostPayloadType;
@@ -45,6 +48,7 @@ export function unionListToPayload(
     case 'LeaderboardPayloadType': return accessor(index, new LeaderboardPayloadType())! as LeaderboardPayloadType;
     case 'MiniGamePayloadType': return accessor(index, new MiniGamePayloadType())! as MiniGamePayloadType;
     case 'PartyPrepPayloadType': return accessor(index, new PartyPrepPayloadType())! as PartyPrepPayloadType;
+    case 'PausePayloadType': return accessor(index, new PausePayloadType())! as PausePayloadType;
     default: return null;
   }
 }

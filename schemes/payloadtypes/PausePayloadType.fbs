@@ -1,0 +1,5 @@
+table PausePayloadType {
+    pause: bool;
+}
+
+root_type PausePayloadType;

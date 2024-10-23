@@ -31,6 +31,32 @@ void Leaderboard::process_input(const Message *payload, Client *from) {
             }
             break;
         }
+        case MessageType::MessageType_Pause: {
+            auto pausePayload = payload->payload_as_PausePayloadType();
+            if (pausePayload == nullptr) return;
+
+            if (pausePayload->pause()) {
+                pause();
+            } else {
+                resume();
+            }
+
+            //send to everyone
+            flatbuffers::FlatBufferBuilder builder;
+            auto newPausePayload = CreatePausePayloadType(
+                builder,
+                pausePayload->pause()
+            );
+
+            auto message = CreateMessage(builder, MessageType_Pause, Payload_PausePayloadType, newPausePayload.Union());
+            builder.Finish(message);
+            int size = builder.GetSize();
+
+            uint8_t* buffer = builder.GetBufferPointer();
+            std::string payload_as_string(reinterpret_cast<const char*>(builder.GetBufferPointer()), size);
+
+            game->party->send_message([](Client* client) { return client == client; }, payload_as_string);
+        }
     }
 }
 

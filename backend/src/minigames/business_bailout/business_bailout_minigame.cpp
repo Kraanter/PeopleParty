@@ -46,6 +46,20 @@ void BusinessBailout_Minigame::introduction_update(int delta_time) {
     send_minigame_introduction(get_camel_case_name(), introduction_time, get_display_name(), get_description());
 }
 
+void BusinessBailout_Minigame::pause() {
+    timer.pause();
+    introduction_timer.pause();
+    minigame_timer.pause();
+    result_timer.pause();
+}
+
+void BusinessBailout_Minigame::resume() {
+    timer.resume();
+    introduction_timer.resume();
+    minigame_timer.resume();
+    result_timer.resume();
+}
+
 void BusinessBailout_Minigame::start_minigame() {
     for (auto client : game->get_clients()) {
         if (client->isHost) {
