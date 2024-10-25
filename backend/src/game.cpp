@@ -8,26 +8,6 @@ Game::Game(Party* party) {
     this->party = party;
 
     MiniGame* minigame;
-  
-    // std::string randomMinigame = party->settings->GetRandomMiniGame();
-    // if (randomMinigame == "crazy_counting") {
-    //     minigame = new CrazyCounting_MiniGame(this);
-    // } else if (randomMinigame == "memory_mixer") {
-    //     minigame = new MemoryMixer_MiniGame(this);
-    // } else if (randomMinigame == "buiness_bailout") {
-    //     minigame = new BusinessBailout_Minigame(this);
-    // } else if (randomMinigame == "rps_bracket") {
-    //     minigame = new RPSBracket_MiniGame(this);
-    // } else if (randomMinigame == "launch_party") {
-    //     minigame = new LaunchParty_Minigame(this);
-    // } else {
-    //     minigame = new CrazyCounting_MiniGame(this);
-    // }
-
-    // std::cout << "Starting game with " << minigame->get_camel_case_name() << std::endl;
-
-    // miniGames.push(minigame);
-    // last_minigame = minigame->get_camel_case_name();
 
     current_gamestate = new PartyPrep(this);
 }
