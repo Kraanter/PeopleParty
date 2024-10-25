@@ -30,26 +30,35 @@ leaderboardTimeLeft():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
-leaderboard(index: number, obj?:FBLeaderboardPlayer):FBLeaderboardPlayer|null {
+podium():boolean {
   const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
+leaderboard(index: number, obj?:FBLeaderboardPlayer):FBLeaderboardPlayer|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? (obj || new FBLeaderboardPlayer()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 leaderboardLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 6);
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startLeaderboardInformationPayload(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 }
 
 static addLeaderboardTimeLeft(builder:flatbuffers.Builder, leaderboardTimeLeft:bigint) {
   builder.addFieldInt64(0, leaderboardTimeLeft, BigInt('0'));
 }
 
+static addPodium(builder:flatbuffers.Builder, podium:boolean) {
+  builder.addFieldInt8(1, +podium, +false);
+}
+
 static addLeaderboard(builder:flatbuffers.Builder, leaderboardOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(1, leaderboardOffset, 0);
+  builder.addFieldOffset(2, leaderboardOffset, 0);
 }
 
 static createLeaderboardVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -69,9 +78,10 @@ static endLeaderboardInformationPayload(builder:flatbuffers.Builder):flatbuffers
   return offset;
 }
 
-static createLeaderboardInformationPayload(builder:flatbuffers.Builder, leaderboardTimeLeft:bigint, leaderboardOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createLeaderboardInformationPayload(builder:flatbuffers.Builder, leaderboardTimeLeft:bigint, podium:boolean, leaderboardOffset:flatbuffers.Offset):flatbuffers.Offset {
   LeaderboardInformationPayload.startLeaderboardInformationPayload(builder);
   LeaderboardInformationPayload.addLeaderboardTimeLeft(builder, leaderboardTimeLeft);
+  LeaderboardInformationPayload.addPodium(builder, podium);
   LeaderboardInformationPayload.addLeaderboard(builder, leaderboardOffset);
   return LeaderboardInformationPayload.endLeaderboardInformationPayload(builder);
 }

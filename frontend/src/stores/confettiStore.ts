@@ -27,6 +27,7 @@ export type Player = {
 
 export type Leaderboard = {
   time_left: number
+  podium: boolean
   players: LeaderboardPlayer[]
 }
 
@@ -249,6 +250,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
             }
             viewStore.setViewData({
               time_left: Number(payload.leaderboardTimeLeft()),
+              podium: payload.podium(),
               players: newEntries.filter((p) => p && !!p.name)
             })
             break

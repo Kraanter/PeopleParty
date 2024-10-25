@@ -26,6 +26,7 @@ public:
 public:
     int number_of_rounds; // 0 = infinite
     int current_round;
+    bool game_finished;
     std::vector<MiniGameSettings*> minigames; // minigames that will be played
 };
 

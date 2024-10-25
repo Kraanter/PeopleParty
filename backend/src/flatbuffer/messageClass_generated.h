@@ -1041,10 +1041,14 @@ struct LeaderboardInformationPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuf
   typedef LeaderboardInformationPayloadBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_LEADERBOARD_TIME_LEFT = 4,
-    VT_LEADERBOARD = 6
+    VT_PODIUM = 6,
+    VT_LEADERBOARD = 8
   };
   uint64_t leaderboard_time_left() const {
     return GetField<uint64_t>(VT_LEADERBOARD_TIME_LEFT, 0);
+  }
+  bool podium() const {
+    return GetField<uint8_t>(VT_PODIUM, 0) != 0;
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<FBLeaderboardPlayer>> *leaderboard() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBLeaderboardPlayer>> *>(VT_LEADERBOARD);
@@ -1052,6 +1056,7 @@ struct LeaderboardInformationPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuf
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_LEADERBOARD_TIME_LEFT, 8) &&
+           VerifyField<uint8_t>(verifier, VT_PODIUM, 1) &&
            VerifyOffset(verifier, VT_LEADERBOARD) &&
            verifier.VerifyVector(leaderboard()) &&
            verifier.VerifyVectorOfTables(leaderboard()) &&
@@ -1065,6 +1070,9 @@ struct LeaderboardInformationPayloadBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_leaderboard_time_left(uint64_t leaderboard_time_left) {
     fbb_.AddElement<uint64_t>(LeaderboardInformationPayload::VT_LEADERBOARD_TIME_LEFT, leaderboard_time_left, 0);
+  }
+  void add_podium(bool podium) {
+    fbb_.AddElement<uint8_t>(LeaderboardInformationPayload::VT_PODIUM, static_cast<uint8_t>(podium), 0);
   }
   void add_leaderboard(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBLeaderboardPlayer>>> leaderboard) {
     fbb_.AddOffset(LeaderboardInformationPayload::VT_LEADERBOARD, leaderboard);
@@ -1083,21 +1091,25 @@ struct LeaderboardInformationPayloadBuilder {
 inline ::flatbuffers::Offset<LeaderboardInformationPayload> CreateLeaderboardInformationPayload(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t leaderboard_time_left = 0,
+    bool podium = false,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBLeaderboardPlayer>>> leaderboard = 0) {
   LeaderboardInformationPayloadBuilder builder_(_fbb);
   builder_.add_leaderboard_time_left(leaderboard_time_left);
   builder_.add_leaderboard(leaderboard);
+  builder_.add_podium(podium);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<LeaderboardInformationPayload> CreateLeaderboardInformationPayloadDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t leaderboard_time_left = 0,
+    bool podium = false,
     const std::vector<::flatbuffers::Offset<FBLeaderboardPlayer>> *leaderboard = nullptr) {
   auto leaderboard__ = leaderboard ? _fbb.CreateVector<::flatbuffers::Offset<FBLeaderboardPlayer>>(*leaderboard) : 0;
   return CreateLeaderboardInformationPayload(
       _fbb,
       leaderboard_time_left,
+      podium,
       leaderboard__);
 }
 

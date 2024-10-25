@@ -85,6 +85,9 @@ const skipLeaderboard = () => {
     <div class="flex flex-col gap-4 w-full h-full">
       <PeoplePartyHeader />
       <div class="w-full grid grid-cols-3 grid-rows-1 px-24">
+        <div v-if="leaderboard.podium" class="col-start-1" >
+          <span class="text-6xl text-black ml-12">Podium</span>
+        </div>
         <div class="col-start-2 mx-auto">
           <TimeComponent :timeLeft="timeLeft" />
         </div>
@@ -109,10 +112,11 @@ const skipLeaderboard = () => {
             <div class="w-full inline-flex justify-between text-2xl px-4">
               <p class="inline-flex">
                 <span class="w-16">{{ formatOrdinals(i + 1) }}.</span>
-                <span
+                <span v-if="!leaderboard.podium" 
                   class="w-12"
                   :class="player.deltaPosition > 0 ? 'text-green-600' : 'text-red-600'"
                 >
+                <!-- todo: change style of top 3 like a podium-->
                   <span class="font-bold flex flex-row" v-if="player.deltaPosition > 0">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -153,6 +157,7 @@ const skipLeaderboard = () => {
               <p>
                 <span class="font-bold">{{ player.score }}</span> Points
                 <span
+                  v-if="!leaderboard.podium"
                   class="text-base"
                   :class="player.deltaScore > 0 ? 'text-green-600' : 'text-gray-600'"
                 >
@@ -168,7 +173,8 @@ const skipLeaderboard = () => {
   </div>
   <div v-if="!websocketStore.isHosting" class="flex flex-col gap-4 h-full">
     <div class="w-full flex justify-center mb-4 mt-2">
-      <p class="text-5xl">Leaderboard</p>
+      <p v-if="!leaderboard.podium" class="text-5xl">Leaderboard</p>
+      <p v-else class="text-5xl">Podium</p>
     </div>
     <n-scrollbar id="playerLeaderboard" class="h-full">
       <div class="mx-auto mr-2 mb-4" v-for="(player, i) in sortedLeaderboard" :key="i">

@@ -39,6 +39,7 @@ MiniGameSettings::MiniGameSettings(std::string name) {
 PartySettings::PartySettings() {
     this->number_of_rounds = 0;
     this->current_round = 0;
+    this->game_finished = false;
 
     // fill playable minigames
     std::vector<std::string> minigame_names = getMiniGameNames();

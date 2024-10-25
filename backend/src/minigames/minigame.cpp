@@ -9,6 +9,9 @@ MiniGame::MiniGame(Game *game) : GameState(game) {
 }
 
 void MiniGame::finished() {
+    if (game->party->settings->number_of_rounds != 0 && game->party->settings->current_round >= game->party->settings->number_of_rounds) {
+        game->party->settings->game_finished = true;
+    }
     game->update_leaderboard(getMinigameResult());
     game->nextGameState<decltype(*this)>();
 }

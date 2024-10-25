@@ -2,7 +2,13 @@
 #include "../game.h"
 Leaderboard::Leaderboard(Game *game) : GameState(game) {
     update_interval = 1 SECONDS;
-    remaining_time = 10 SECONDS;
+    if (game->party->settings->game_finished) {
+        // podium leaderboard
+        remaining_time = 6000 SECONDS;
+    } else {
+        // normal leaderboard
+        remaining_time = 10 SECONDS;
+    }
 }
 
 void Leaderboard::start() {
@@ -85,7 +91,7 @@ void Leaderboard::send_leaderboard_information() {
     auto entities_vector = builder.CreateVector(players_buffer);
 
     // Encode payload to binary
-    auto payload = CreateLeaderboardInformationPayload(builder, remaining_time, entities_vector);
+    auto payload = CreateLeaderboardInformationPayload(builder, remaining_time, game->party->settings->game_finished, entities_vector);
 
     auto leaderboardPayload = CreateLeaderboardPayloadType(builder, LeaderboardType_LeaderboardInformation,
                                                       LeaderboardPayload_LeaderboardInformationPayload, payload.Union());

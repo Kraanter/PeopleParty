@@ -112,8 +112,24 @@ void Game::update_leaderboard(std::vector<Client *> minigame_result) {
 void Game::handle_new_minigame() {
     if (last_minigame != "" && party->settings->number_of_rounds != 0 && party->settings->current_round >= party->settings->number_of_rounds)
     {
-        // todo: Go to the podium
-        std::cout << "No more minigames" << std::endl;
+        // reset the game
+        party->settings->game_finished = false;
+        party->settings->current_round = 0;
+        
+        while (miniGames.size() > 0)
+        {
+            delete miniGames.front();
+            miniGames.pop();
+        }
+
+        // clear leaderboards
+        leaderboard.clear();
+        previous_leaderboard.clear();
+
+        current_gamestate = new PartyPrep(this);
+
+        current_gamestate->update(0);
+
         return;
     }
     else
