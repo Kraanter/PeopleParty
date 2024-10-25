@@ -5,6 +5,7 @@
 
 #include "game.h"
 #include "client.h"
+#include "partyprep/party_settings.h"
 
 class Game;
 class Client;
@@ -14,6 +15,7 @@ class Party {
   int party_id;
   Client *host;
   Game *game;
+  PartySettings *settings;
 
  public:
   Party();

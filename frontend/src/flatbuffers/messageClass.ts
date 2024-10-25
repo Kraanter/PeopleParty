@@ -16,6 +16,7 @@ export { FBCrazyCountingResultPair } from './fbcrazy-counting-result-pair.js';
 export { FBLaunchPartyResultPair } from './fblaunch-party-result-pair.js';
 export { FBLeaderboardPlayer } from './fbleaderboard-player.js';
 export { FBMemoryMixerResultPair } from './fbmemory-mixer-result-pair.js';
+export { FBMiniGameSetting } from './fbmini-game-setting.js';
 export { FBPlayer } from './fbplayer.js';
 export { FB_RPSChoice } from './fb-rpschoice.js';
 export { FB_RPSMatch } from './fb-rpsmatch.js';
@@ -50,6 +51,9 @@ export { PartyPrepHostStartGamePayload } from './party-prep-host-start-game-payl
 export { PartyPrepPayload } from './party-prep-payload.js';
 export { PartyPrepPayloadType } from './party-prep-payload-type.js';
 export { PartyPrepPlayerInformationPayload } from './party-prep-player-information-payload.js';
+export { PartyPrepSettingsInformationPayload } from './party-prep-settings-information-payload.js';
+export { PartyPrepSettingsMiniGamePayload } from './party-prep-settings-mini-game-payload.js';
+export { PartyPrepSettingsRoundsPayload } from './party-prep-settings-rounds-payload.js';
 export { PartyPrepType } from './party-prep-type.js';
 export { PausePayloadType } from './pause-payload-type.js';
 export { Payload } from './payload.js';

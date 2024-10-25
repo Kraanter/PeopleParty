@@ -2,7 +2,7 @@
 #include "../game.h"
 
 PartyPrep::PartyPrep(Game *game) : GameState(game) {
-
+    send_host_party_settings();
 }
 
 void PartyPrep::finished() {
@@ -20,6 +20,18 @@ void PartyPrep::process_input(const Message* payload, Client* from) {
                         std::cout << "Starting game" << std::endl;
                         finished();
                     }
+                    break;
+                }
+                case PartyPrepType_PartyPrepSettingsRounds: {
+                    auto input = partyPrepPayload->partypreppayload_as_PartyPrepSettingsRoundsPayload();
+                    game->party->settings->SetNumberOfRounds(input->new_number_of_rounds());
+                    send_host_party_settings();
+                    break;
+                }
+                case PartyPrepType_PartyPrepSettingsMiniGame: {
+                    auto input = partyPrepPayload->partypreppayload_as_PartyPrepSettingsMiniGamePayload();
+                    game->party->settings->ToggleMiniGame(input->name()->str(), input->enable());
+                    send_host_party_settings();
                     break;
                 }
             }
@@ -62,6 +74,29 @@ void PartyPrep::send_player_information(int client_id) {
 
     // Send payload to host
     game->party->send_party_prep([client_id](Client* client) { return client->client_id == client_id; }, builder, partyPrepPayload.Union());
+}
+
+void PartyPrep::send_host_party_settings() {
+    flatbuffers::FlatBufferBuilder builder;
+    std::vector<flatbuffers::Offset<FBMiniGameSetting>> minigames_setting_buffer;
+
+    for (MiniGameSettings* setting: game->party->settings->minigames) {
+        if (setting != nullptr) {
+            auto name = builder.CreateString(setting->name.c_str());
+            minigames_setting_buffer.push_back(CreateFBMiniGameSetting(builder, name, setting->enabled));
+        }
+    }
+
+    auto entities_vector = builder.CreateVector(minigames_setting_buffer);
+
+    // Encode payload to binary
+    auto payload = CreatePartyPrepSettingsInformationPayload(builder, game->party->settings->number_of_rounds, entities_vector);
+
+    auto partyPrepPayload = CreatePartyPrepPayloadType(builder, PartyPrepType_PartyPrepSettingsInformation,
+                                                      PartyPrepPayload_PartyPrepSettingsInformationPayload, payload.Union());
+
+    // Send payload to host
+    game->party->send_party_prep([](Client* client) { return client->party->host == client; }, builder, partyPrepPayload.Union());
 }
 
 void PartyPrep::update(int delta_time) {

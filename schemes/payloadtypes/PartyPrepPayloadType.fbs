@@ -17,18 +17,43 @@ table PartyPrepPlayerInformationPayload {
     room_id: long;
 }
 
+// party prep settings objects
+table FBMiniGameSetting {
+    name: string;
+    enabled: bool;
+}
+
+table PartyPrepSettingsInformationPayload {
+    number_of_rounds: long;
+    minigames: [FBMiniGameSetting];
+}
+
+table PartyPrepSettingsRoundsPayload {
+    new_number_of_rounds: long;
+}
+
+table PartyPrepSettingsMiniGamePayload {
+    name: string;
+    enable: bool;
+}
 
 
 enum PartyPrepType: byte {
     PartyPrepHostInformation,
     PartyPrepHostStartGame,
     PartyPrepPlayerInformation,
+    PartyPrepSettingsInformation,
+    PartyPrepSettingsRounds,
+    PartyPrepSettingsMiniGame,
 }
 
 union PartyPrepPayload {
     PartyPrepHostInformationPayload,
     PartyPrepHostStartGamePayload,
     PartyPrepPlayerInformationPayload,
+    PartyPrepSettingsInformationPayload,
+    PartyPrepSettingsRoundsPayload,
+    PartyPrepSettingsMiniGamePayload,
 }
 
 table PartyPrepPayloadType {
