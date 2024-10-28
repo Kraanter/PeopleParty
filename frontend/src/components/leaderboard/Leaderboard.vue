@@ -106,9 +106,9 @@ const skipLeaderboard = () => {
           </PartyButton>
         </div>
       </div>
-      <n-scrollbar class="-mb-4">
-        <div v-if="leaderboard.podium && sortedLeaderboard.length > 2">
-          <!-- podium -->
+      <div v-if="leaderboard.podium && sortedLeaderboard.length > 2" style="height: 75vh;">
+        <!-- podium -->
+        <n-scrollbar class="-mb-4">
           <div class="mx-auto mb-4 w-4/5 mt-4" v-for="(player, i) in sortedLeaderboard" :key="i">
             <!-- First 3 -->
             <div v-if="i == 0" class="grid grid-cols-3">
@@ -141,9 +141,11 @@ const skipLeaderboard = () => {
               </n-card>
             </div>
           </div>
-        </div>
-        <div v-else>
-          <!-- normal leaderboard-->
+        </n-scrollbar>
+      </div>
+      <div v-else style="height: 75vh;">
+        <!-- normal leaderboard-->
+        <n-scrollbar class="h-full">
           <div class="mx-auto mb-4 w-4/5" v-for="(player, i) in sortedLeaderboard" :key="i">
             <n-card>
               <div class="w-full inline-flex justify-between text-2xl px-4">
@@ -204,8 +206,8 @@ const skipLeaderboard = () => {
               </div>
             </n-card>
           </div>
-        </div>
-      </n-scrollbar>
+        </n-scrollbar>
+      </div>
     </div>
   </div>
   <div v-if="!websocketStore.isHosting" class="flex flex-col gap-4 h-full">

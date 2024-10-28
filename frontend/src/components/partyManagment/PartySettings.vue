@@ -79,7 +79,7 @@ const sendNewNumberOfRounds = (newNumber: number) => {
             <div class="col-span-2 h-full w-full">
                 <div class="grid grid-cols-2 mb-4">
                     <span>Loop:</span> 
-                    <div><n-switch class="" v-model:value="websocketStore.partyPrepSettings.loop" @change="handleChange"/></div>
+                    <div><n-switch class="" v-model:value="websocketStore.partyPrepSettings.loop" @update:value="handleChange"/></div>
                     
                 </div>
                 <div v-if="!websocketStore.partyPrepSettings.loop" class="grid grid-cols-2 mb-4">
@@ -90,7 +90,7 @@ const sendNewNumberOfRounds = (newNumber: number) => {
                         :min="0"
                         :max="999"
                         v-model:value="websocketStore.partyPrepSettings.number_of_rounds"
-                        @change="handleNumberChange"
+                        @update:value="handleNumberChange"
                     >
                     </n-input-number>
                 </div>

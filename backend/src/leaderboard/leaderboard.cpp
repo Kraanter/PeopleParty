@@ -4,7 +4,7 @@ Leaderboard::Leaderboard(Game *game) : GameState(game) {
     update_interval = 1 SECONDS;
     if (game->party->settings->game_finished) {
         // podium leaderboard
-        remaining_time = 6000 SECONDS;
+        remaining_time = 120 SECONDS;
     } else {
         // normal leaderboard
         remaining_time = 10 SECONDS;
