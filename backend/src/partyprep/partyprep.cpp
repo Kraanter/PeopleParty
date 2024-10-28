@@ -64,7 +64,6 @@ void PartyPrep::send_host_information() {
 }
 
 void PartyPrep::send_player_information(int client_id) {
-    std::cout << "Sending player information" << std::endl;
     flatbuffers::FlatBufferBuilder builder;
     
     auto payload = CreatePartyPrepPlayerInformationPayload(builder, game->getPartyId());

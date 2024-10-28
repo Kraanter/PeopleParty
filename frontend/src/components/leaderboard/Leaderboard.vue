@@ -107,66 +107,103 @@ const skipLeaderboard = () => {
         </div>
       </div>
       <n-scrollbar class="-mb-4">
-        <div class="mx-auto mb-4 w-4/5" v-for="(player, i) in sortedLeaderboard" :key="i">
-          <n-card>
-            <div class="w-full inline-flex justify-between text-2xl px-4">
-              <p class="inline-flex">
-                <span class="w-16">{{ formatOrdinals(i + 1) }}.</span>
-                <span v-if="!leaderboard.podium" 
-                  class="w-12"
-                  :class="player.deltaPosition > 0 ? 'text-green-600' : 'text-red-600'"
-                >
-                <!-- todo: change style of top 3 like a podium-->
-                  <span class="font-bold flex flex-row" v-if="player.deltaPosition > 0">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      class="size-5 w-7 mt-1"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="m4.5 15.75 7.5-7.5 7.5 7.5"
-                      />
-                    </svg>
-                    <span> {{ Math.abs(player.deltaPosition) }}</span>
-                  </span>
-                  <span class="font-bold flex flex-row" v-else-if="player.deltaPosition < 0">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      class="size-5 w-7 mt-1"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                      />
-                    </svg>
-                    <span> {{ Math.abs(player.deltaPosition) }}</span>
-                  </span>
-                </span>
-                <span class="font-bold ml-4 col-span-5">{{ player.name }}</span>
-              </p>
-              <p>
-                <span class="font-bold">{{ player.score }}</span> Points
-                <span
-                  v-if="!leaderboard.podium"
-                  class="text-base"
-                  :class="player.deltaScore > 0 ? 'text-green-600' : 'text-gray-600'"
-                >
-                  {{ player.deltaScore > 0 ? '+' : '-' }}
-                  {{ player.deltaScore }}
-                </span>
-              </p>
+        <div v-if="leaderboard.podium && sortedLeaderboard.length > 2">
+          <!-- podium -->
+          <div class="mx-auto mb-4 w-4/5 mt-4" v-for="(player, i) in sortedLeaderboard" :key="i">
+            <!-- First 3 -->
+            <div v-if="i == 0" class="grid grid-cols-3">
+              <div v-for="(player2, i) in sortedLeaderboard.slice(0, 3)" :key="i" class="ml-8 mr-8" :class="{'pos-1': i == 0, 'pos-2': i == 1, 'pos-3': i == 2}">
+                <n-card class="flex extended">
+                  <div class="w-full text-2xl flex justify-center items-center">
+                    <div class="flex justify-center items-center">
+                      <span class="font-bold ml-4 text-4xl col-span-5 mt-8">{{ player2.name }}</span>
+                    </div>
+                    <div class="absolute bottom-0 mb-4">
+                      <span class="font-bold">{{ formatOrdinals(i + 1) }}.</span> with
+                      <span class="font-bold">{{ player2.score }}</span> Points
+                    </div>
+                  </div>
+                </n-card>
+              </div>
             </div>
-          </n-card>
+            <!-- Rest of the board -->
+            <div v-if="i > 2">
+              <n-card>
+                <div class="w-full inline-flex justify-between text-2xl px-4">
+                  <p class="inline-flex">
+                    <span class="w-16">{{ formatOrdinals(i + 1) }}.</span>
+                    <span class="font-bold ml-4 col-span-5">{{ player.name }}</span>
+                  </p>
+                  <p>
+                    <span class="font-bold">{{ player.score }}</span> Points
+                  </p>
+                </div>
+              </n-card>
+            </div>
+          </div>
+        </div>
+        <div v-else>
+          <!-- normal leaderboard-->
+          <div class="mx-auto mb-4 w-4/5" v-for="(player, i) in sortedLeaderboard" :key="i">
+            <n-card>
+              <div class="w-full inline-flex justify-between text-2xl px-4">
+                <p class="inline-flex">
+                  <span class="w-16">{{ formatOrdinals(i + 1) }}.</span>
+                  <span v-if="!leaderboard.podium"
+                    class="w-12"
+                    :class="player.deltaPosition > 0 ? 'text-green-600' : 'text-red-600'"
+                  >
+                    <span class="font-bold flex flex-row" v-if="player.deltaPosition > 0">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="size-5 w-7 mt-1"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="m4.5 15.75 7.5-7.5 7.5 7.5"
+                        />
+                      </svg>
+                      <span> {{ Math.abs(player.deltaPosition) }}</span>
+                    </span>
+                    <span class="font-bold flex flex-row" v-else-if="player.deltaPosition < 0">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="size-5 w-7 mt-1"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                        />
+                      </svg>
+                      <span> {{ Math.abs(player.deltaPosition) }}</span>
+                    </span>
+                  </span>
+                  <span class="font-bold ml-4 col-span-5">{{ player.name }}</span>
+                </p>
+                <p>
+                  <span class="font-bold">{{ player.score }}</span> Points
+                  <span
+                    v-if="!leaderboard.podium" 
+                    class="text-base"
+                    :class="player.deltaScore > 0 ? 'text-green-600' : 'text-gray-600'"
+                  >
+                    {{ player.deltaScore > 0 ? '+' : '-' }}
+                    {{ player.deltaScore }}
+                  </span>
+                </p>
+              </div>
+            </n-card>
+          </div>
         </div>
       </n-scrollbar>
     </div>
@@ -200,3 +237,36 @@ const skipLeaderboard = () => {
     </n-scrollbar>
   </div>
 </template>
+<style scoped>
+.pos-1 {
+  grid-column-start: 2;
+  grid-row-start: 1;
+  
+  .extended {
+    background-color: #ffd700;
+    height: 40vh;
+  }
+}
+
+.pos-2 {
+  grid-column-start: 1;
+  grid-row-start: 1;
+  align-self: flex-end;
+  
+  .extended {
+    background-color: #c0c0c0;
+    height: 30vh;
+  }
+}
+
+.pos-3 {
+  grid-column-start: 3;
+  grid-row-start: 1;
+  align-self: flex-end;
+
+  .extended {
+    background-color: #cd7f32;
+    height: 20vh;
+  }
+}
+</style>
