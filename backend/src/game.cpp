@@ -134,7 +134,7 @@ void Game::handle_new_minigame() {
     }
     else
     {
-        if (miniGames.size() < 2)
+        if (miniGames.size() < 1)
         {
             add_minigames();
         }

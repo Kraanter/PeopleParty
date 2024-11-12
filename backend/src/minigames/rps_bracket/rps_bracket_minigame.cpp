@@ -26,6 +26,7 @@ void RPSBracket_MiniGame::start_minigame() {
     }
     create_matches(players);
     timer.setInterval([this]() { update(update_interval); }, update_interval);
+    send_players_update();
 }
 
 void RPSBracket_MiniGame::pause() {

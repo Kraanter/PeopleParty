@@ -165,7 +165,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
       }
       case MessageType.Pause: {
         const pausePayload = receivedMessage.payload(new PausePayloadType())
-        console.log('Pause Payload:', pausePayload.pause())
         if (pausePayload) { isPaused.value = pausePayload.pause() }
         break
       }

@@ -106,23 +106,28 @@ const sendNewNumberOfRounds = (newNumber: number) => {
                     <span>Click to enable or disable</span>
                 </div>
                 <div class="grid grid-cols-3 rounded-xl" style="background-color: rgb(0 0 0 / .4)">
-                    <div v-for="(miniGame, i) in websocketStore.partyPrepSettings.minigames" :key="i" class="m-2">
-                        <button v-on:click="sendToggleMiniGame(miniGame.name, !miniGame.enabled)" class="h-full w-full">
-                            <div v-if="miniGame.enabled" class="fixed h-full w-full z-40 rounded-xl" style="border: 5px solid green;"></div>
-                            <div v-if="!miniGame.enabled" class="fixed h-full w-full z-40 rounded-xl" style="border: 5px solid red;"></div>
+                    <div v-for="(miniGame, i) in websocketStore.partyPrepSettings.minigames" :key="i" class="m-2 mb-1 mt-1">
+                        <div :class="{ 'mt-2' : i < 3 }">
+                            <button v-on:click="sendToggleMiniGame(miniGame.name, !miniGame.enabled)" class="h-full w-full">
+                                <div v-if="miniGame.enabled" class="fixed h-full w-full z-40 rounded-xl" style="border: 5px solid green;"></div>
+                                <div v-if="!miniGame.enabled" class="fixed h-full w-full z-40 rounded-xl" style="border: 5px solid red;"></div>
 
-                            <div v-if="!miniGame.enabled" class="fixed h-full w-full z-30 rounded-xl" style="background-color: rgb(0 0 0 / .6)"></div>
-                            <img
-                                v-if="miniGame.image !== ''"
-                                :src="miniGame.image" 
-                                alt="logo"
-                                class="h-full w-full rounded-xl"
-                            />
-                        
-                            <div v-else class="h-full w-full flex justify-center items-center">
-                                <span class="text-2xl">{{ nameToFirstLetterCapital(miniGame.name) }}</span>
-                            </div>
-                        </button>
+                                <div v-if="!miniGame.enabled" class="fixed h-full w-full z-30 rounded-xl" style="background-color: rgb(0 0 0 / .6)"></div>
+                                <img
+                                    v-if="miniGame.image !== ''"
+                                    :src="miniGame.image" 
+                                    alt="logo"
+                                    class="h-full w-full rounded-xl"
+                                />
+                                
+                                <div v-else class="h-full w-full flex justify-center items-center">
+                                    <span class="text-2xl">{{ nameToFirstLetterCapital(miniGame.name) }}</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="ml-2" style="margin-top: -0.4rem;">
+                            <span class="text text-black">{{ nameToFirstLetterCapital(miniGame.name) }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
