@@ -48,6 +48,7 @@ inline void ThreadTimer::resume()
 	if (!active || !paused) return;
 	paused = false;
 	cv.notify_all();
+	std::cout << "Resumed" << std::endl;
 }
 
 inline void ThreadTimer::threadProcessInterval(std::function<void()> handler, int timeout)
@@ -75,16 +76,16 @@ inline void ThreadTimer::threadProcessInterval(std::function<void()> handler, in
 inline void ThreadTimer::threadProcessTimeout(std::function<void()> handler, int timeout)
 {
     std::unique_lock<std::mutex> lock(m);
-    
-    // Wait while paused
-    if (paused) {
-        cv.wait(lock, [this] { return !paused || !active; });
-    }
 
     if (!active) return;
 
     // Wait for the timeout duration
     auto status = cv.wait_for(lock, std::chrono::milliseconds(timeout));
+	// Wait while paused
+    if (paused) {
+        cv.wait(lock, [this] { return !paused || !active; });
+    }
+	
     if (status == std::cv_status::timeout && !paused && active) {
         if (handler != nullptr)
             handler();

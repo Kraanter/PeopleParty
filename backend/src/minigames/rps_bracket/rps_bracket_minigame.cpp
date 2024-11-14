@@ -162,6 +162,13 @@ void RPSBracket_MiniGame::promote_winners() {
         int li = i - rl;
         int p1i = li * 2 + (pow(2, (ri + 1)) - 1);
         int p2i = p1i + 1;
+
+        // final match send match update
+        if (match.winner != nullptr && !match.sended_result) {
+            send_match_update(match);
+            match.sended_result = true;
+        }
+
         if (p1i >= matches.size() || p2i >= matches.size()) {
             continue;
         }
@@ -170,10 +177,18 @@ void RPSBracket_MiniGame::promote_winners() {
 
         // send match result to show who won or lost
         if (matches[p1i].winner != nullptr) {
-            send_match_update(matches[p1i]);
+            if (!matches[p1i].sended_result) {
+                send_match_update(matches[p1i]);
+                matches[p1i].sended_result = true;
+            }
+            matches[p1i].remaining_time = 0;
         }
         if (matches[p2i].winner != nullptr) {
-            send_match_update(matches[p2i]);
+            if (!matches[p2i].sended_result) {
+                send_match_update(matches[p2i]);
+                matches[p2i].sended_result = true;
+            }
+            matches[p2i].remaining_time = 0;
         }
     }
 }

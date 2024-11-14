@@ -223,7 +223,7 @@ defineExpose({ update })
           </div>
         </div>
         <div class="absolute bottom-0 px-8 mb-16">
-          <div v-if="playerData.time_left >= 0">
+          <div v-if="playerData.time_left > 0">
             <TimeComponent :timeLeft="playerData.time_left" />
           </div>
         </div>

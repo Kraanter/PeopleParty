@@ -22,6 +22,7 @@ struct RPS_Match {
     RPS_Choice player2_choice;
     Client* winner;
     int remaining_time;
+    bool sended_result = false;
 };
 
 class RPSBracket_MiniGame : public MiniGame {
