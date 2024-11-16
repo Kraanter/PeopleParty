@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useWebSocketStore } from '@/stores/confettiStore';
-import { NInputNumber, NSwitch } from 'naive-ui'
+import { NInputNumber, NSwitch, NSlider } from 'naive-ui'
 import * as flatbuffers from 'flatbuffers'
 import { MessageType, PartyPrepPayload, PartyPrepPayloadType, PartyPrepSettingsMiniGamePayload, PartyPrepSettingsRoundsPayload, PartyPrepType, Payload } from '@/flatbuffers/messageClass';
 import { buildMessage } from '@/util/flatbufferMessageBuilder';
+import { computed } from 'vue';
 
 const websocketStore = useWebSocketStore()
 
@@ -67,10 +68,29 @@ const sendNewNumberOfRounds = (newNumber: number) => {
     )
 }
 
+const formatTooltip = (value: number) => {
+    return `${value*200}%`
+}
+
+const updateVolume = (value: number) => {
+    websocketStore.partyPrepSettings.music_volume = value
+}
+
 </script>
 <template>
   <div class="w-full h-full max-h-full">
     <div class="grid max-h-full h-full w-full">
+
+        <div class="row-span-1 grid grid-cols-3 mb-5">
+            <div class="col-span-1">
+                Music volume:
+            </div>
+            <div class="col-span-2 w-2/3 flex gap-5">
+                <span>Volume:</span>
+                <n-slider :default-value="websocketStore.partyPrepSettings.music_volume" :step="0.025" :min="0.0" :max="0.5" :format-tooltip="formatTooltip" :on-update:value="updateVolume" />
+                <span>{{ formatTooltip(websocketStore.partyPrepSettings.music_volume) }}</span>
+            </div>
+        </div>
 
         <div class="row-span-1 grid grid-cols-3">
             <div class="col-span-1">

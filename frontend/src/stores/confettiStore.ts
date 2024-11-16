@@ -41,6 +41,7 @@ export type LeaderboardPlayer = {
 
 export type PartyPrepSettings = {
   number_of_rounds: number
+  music_volume?: number // client side only
   loop: boolean //client side only
   minigames: {
     name: string,
@@ -215,6 +216,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
 
             partyPrepSettings.value = {
               number_of_rounds: Number(payload.numberOfRounds()),
+              music_volume: partyPrepSettings.value?.music_volume || 0.5,
               loop: Number(payload.numberOfRounds()) === 0,
               minigames
             }

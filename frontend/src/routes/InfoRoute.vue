@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 import { isMobile } from '@/util/detectmobilebrowser'
-import { useViewStore } from '@/stores/viewStore'
-import { storeToRefs } from 'pinia'
 import PartyButton from '@/components/PartyButton.vue'
 import { onMounted, ref } from 'vue'
 import { NCarousel, NText, NH1 } from 'naive-ui'
+import { useReleasesStore } from '@/stores/releasesStore'
 
-const viewStore = useViewStore()
-const { versionNumber } = storeToRefs(viewStore)
+const releasesStore = useReleasesStore()
 
 const info = ref<HTMLElement | null>(null)
 const scrollToInfo = () => {
@@ -168,7 +166,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <p class="flex text-xl">{{ versionNumber }}</p>
+      <p class="flex text-xl">{{ releasesStore.versionNumber }}</p>
     </div>
   </div>
 </template>

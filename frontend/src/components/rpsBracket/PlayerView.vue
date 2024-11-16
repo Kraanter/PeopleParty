@@ -184,7 +184,7 @@ defineExpose({ update })
             </div>
             <div v-if="playerData.winner != ''">
               <div v-if="playerData.winner != playerData.opponentName">
-                <span class="text text-3xl">You won!</span>
+                <span class="text text-3xl">You won this match!</span>
               </div>
               <div v-else>
                 <span class="text text-3xl">You lost!</span>

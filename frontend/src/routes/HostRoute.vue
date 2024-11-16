@@ -17,15 +17,26 @@ import {
   PartyPrepType,
   Payload
 } from '@/flatbuffers/messageClass'
+import { watch } from 'vue'
+import { useReleasesStore } from '@/stores/releasesStore'
 
 const audio = new Audio('/soundtrack.wav')
 audio.loop = true
+audio.volume = 0.5
 
 const websocketStore = useWebSocketStore()
 const { partyCode } = storeToRefs(websocketStore)
 
+watch(() => websocketStore.partyPrepSettings?.music_volume, (newValue) => {
+  if (audio.volume !== newValue) {
+    audio.volume = newValue;
+  }
+})
+
 const viewStore = useViewStore()
-const { viewState, viewData, versionNumber } = storeToRefs(viewStore)
+const { viewState, viewData } = storeToRefs(viewStore)
+
+const releasesStore = useReleasesStore()
 
 const host = () => {
   websocketStore.host()
@@ -87,7 +98,7 @@ const skipLeaderboard = () => {
       </div>
 
       <div class="grid grid-cols-3 justify-between w-full">
-        <p class="flex">{{ versionNumber }}</p>
+        <p class="flex">{{ releasesStore.versionNumber }}</p>
         <div class="flex justify-center items-center">
           <router-link to="/join" class="underline">Join a party!</router-link>
         </div>

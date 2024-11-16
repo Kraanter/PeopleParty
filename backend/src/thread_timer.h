@@ -27,6 +27,7 @@ private:
 	bool active;
 	std::mutex m;
 	std::condition_variable cv;
+	int timeout_time_left;
 };
 
 inline void ThreadTimer::pause()
@@ -75,21 +76,30 @@ inline void ThreadTimer::threadProcessInterval(std::function<void()> handler, in
 
 inline void ThreadTimer::threadProcessTimeout(std::function<void()> handler, int timeout)
 {
-    std::unique_lock<std::mutex> lock(m);
+    while (active) {
+        std::unique_lock<std::mutex> lock(m);
+        
+        // Wait while paused, or timeout for the interval duration
+        if (paused) {
+            cv.wait(lock, [this] { return !paused || !active; }); // Wait until unpaused or inactive
+        }
+        
+        // After pause, check if still active
+        if (!active) return;
 
-    if (!active) return;
-
-    // Wait for the timeout duration
-    auto status = cv.wait_for(lock, std::chrono::milliseconds(timeout));
-	// Wait while paused
-    if (paused) {
-        cv.wait(lock, [this] { return !paused || !active; });
-    }
-	
-    if (status == std::cv_status::timeout && !paused && active) {
-        if (handler != nullptr)
-            handler();
-    }
+        // Wait for the interval duration
+        auto status = cv.wait_for(lock, std::chrono::milliseconds(timeout));
+        if (status == std::cv_status::timeout && !paused && active) {
+			if (handler != nullptr) {
+				if (timeout_time_left <= 0) {
+					handler();
+					active = false;
+				} else {
+					timeout_time_left -= timeout;
+				}
+			}
+		}
+	}
 }
 
 inline void ThreadTimer::setInterval(std::function<void()> ptr, int timer)
@@ -103,12 +113,14 @@ inline void ThreadTimer::setInterval(std::function<void()> ptr, int timer)
 }
 inline void ThreadTimer::setTimeout(std::function<void()> ptr, int timer)
 {	
+	const int interval = 100;
 	active = true;
+	timeout_time_left = timer;
+
 	std::thread t(([this, ptr, timer] {
-		threadProcessTimeout(ptr,timer);
+		threadProcessTimeout(ptr,interval);
 		}));
 	t.detach();
-	
 }
 inline void ThreadTimer::clear(){
 	active = false;

@@ -77,7 +77,7 @@ watch(
       id="container"
       class="backdrop-blur-xl bg-opacity-50 shadow-lg rounded-xl w-full h-[97dvh] overflow-hidden"
     >
-      <div v-if="websocketStore.isPaused" class="fixed flex h-full w-full justify-center items-center z-30">
+      <div v-if="websocketStore.isPaused" class="fixed h-full w-full justify-center items-center z-30">
         <div style="background-color: rgb(0 0 0 / .4)" class="fixed flex h-full w-full justify-center items-center z-30">
           <div style="background-color: rgb(0 0 0 / .65);" class="rounded-xl">
             <span class="text-6xl text-white m-3 flex">Game is paused</span>

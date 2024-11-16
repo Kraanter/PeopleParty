@@ -37,7 +37,6 @@ MiniGameSettings::MiniGameSettings(std::string name) {
 }
 
 PartySettings::PartySettings() {
-    this->number_of_rounds = 0;
     this->current_round = 0;
     this->game_finished = false;
 
@@ -46,6 +45,8 @@ PartySettings::PartySettings() {
     for (const auto& name : minigame_names) {
         this->minigames.push_back(new MiniGameSettings(name));
     }
+
+    this->number_of_rounds = minigame_names.size();
 }
 
 void PartySettings::ToggleMiniGame(std::string name, bool enabled) {

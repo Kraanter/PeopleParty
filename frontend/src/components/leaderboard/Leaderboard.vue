@@ -84,6 +84,16 @@ const skipLeaderboard = () => {
   <div v-if="websocketStore.isHosting">
     <div class="flex flex-col gap-4 w-full h-full">
       <PeoplePartyHeader />
+      <div class="h-full w-full overflow-hidden">
+        <div v-if="websocketStore.isPaused" class="fixed left-0 h-full w-full justify-center items-center z-30">
+          <div style="background-color: rgb(0 0 0 / .4)" class="fixed flex h-full w-full justify-center items-center z-30">
+            <div style="background-color: rgb(0 0 0 / .65);" class="rounded-xl mb-32">
+              <span class="text-6xl text-white m-3 flex">Game is paused</span>
+            </div>
+          </div>
+          <div class="fixed h-full w-full backdrop-blur-xl opacity-60"></div>
+        </div>
+      </div>
       <div class="w-full grid grid-cols-3 grid-rows-1 px-24">
         <div v-if="leaderboard.podium" class="col-start-1" >
           <span class="text-6xl text-black ml-12">Podium</span>
@@ -210,7 +220,16 @@ const skipLeaderboard = () => {
       </div>
     </div>
   </div>
-  <div v-if="!websocketStore.isHosting" class="flex flex-col gap-4 h-full">
+  <div v-if="!websocketStore.isHosting" class="flex flex-col gap-4 h-full overflow">
+    <!-- pause screen -->
+    <div v-if="websocketStore.isPaused" class="fixed h-full w-full top-0 left-0 justify-center items-center z-30">
+      <div style="background-color: rgb(0 0 0 / .4)" class="fixed flex h-full w-full justify-center items-center z-30">
+        <div style="background-color: rgb(0 0 0 / .65);" class="rounded-xl m-4">
+          <span class="text-6xl text-white m-3 flex">Game is paused</span>
+        </div>
+      </div>
+      <div class="fixed h-full w-full backdrop-blur-xl opacity-60"></div>
+    </div>
     <div class="w-full flex justify-center mb-4 mt-2">
       <p v-if="!leaderboard.podium" class="text-5xl">Leaderboard</p>
       <p v-else class="text-5xl">Podium</p>
