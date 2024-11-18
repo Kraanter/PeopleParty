@@ -280,7 +280,7 @@ const join = () => {
       </n-card>
 
       <div class="grid grid-cols-4 justify-between w-full bottom-0 m-auto mb-10">
-        <p class="flex">{{ releasesStore.versionNumber }}</p>
+        <router-link to="/releases" class="flex underline" target="_blank">{{ releasesStore.versionNumber }}</router-link>
         <div class="flex col-span-2 justify-center items-center">
           <router-link v-if="!(joining || joined)" to="/host" class="underline">
             Host your own party!

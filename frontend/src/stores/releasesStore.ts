@@ -8,7 +8,7 @@ export type Release = {
     body: string
 }
 
-export const useReleasesStore = defineStore('view', () => {
+export const useReleasesStore = defineStore('releases', () => {
   const versionNumber = ref<string>('')
   const releases = ref<Release[]>([])
 
@@ -43,7 +43,6 @@ export const useReleasesStore = defineStore('view', () => {
           body: release.body
         }
       })
-      console.log(releases.value)
     } catch (error) {
       console.log(error)
     }

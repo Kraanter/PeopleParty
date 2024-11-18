@@ -166,7 +166,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <p class="flex text-xl">{{ releasesStore.versionNumber }}</p>
+      <router-link to="/releases" class="flex underline" target="_blank">{{ releasesStore.versionNumber }}</router-link>
     </div>
   </div>
 </template>

@@ -98,7 +98,7 @@ const skipLeaderboard = () => {
       </div>
 
       <div class="grid grid-cols-3 justify-between w-full">
-        <p class="flex">{{ releasesStore.versionNumber }}</p>
+        <router-link to="/releases" class="flex underline" target="_blank">{{ releasesStore.versionNumber }}</router-link>
         <div class="flex justify-center items-center">
           <router-link to="/join" class="underline">Join a party!</router-link>
         </div>
