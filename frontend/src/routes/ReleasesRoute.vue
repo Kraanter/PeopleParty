@@ -17,8 +17,8 @@ const releasesStore = useReleasesStore()
             <NScrollbar class="">
                 <div v-for="(release, i) in releasesStore.releases" :key="i" class="h-full w-full flex justify-center items-center">
                     <div v-if="release.body" class="px-10 w-2/3"> <!-- todo: on mobile remove w-2/3 -->
-                        <div class="grid grid-rows-4 m-2 backdrop-blur-xl p-4 rounded-3xl">
-                            <div class="grid grid-cols-2 ml-1">
+                        <div class="grid grid-rows m-2 backdrop-blur-xl p-4 rounded-3xl">
+                            <div class="grid grid-cols-2 m-2">
                                 <div class="text text-3xl">
                                     <span> Release {{ release.tag_name }}</span>
                                 </div>
@@ -26,8 +26,8 @@ const releasesStore = useReleasesStore()
                                     <span>{{ format(release.date, 'dd MMMM yyyy') }}</span>
                                 </div>
                             </div>
-                            <div class="row-span-3 mt-1 ml-4 mb-2">
-                                <pre>{{ release.body }}</pre> <!-- todo: fix overflow -->
+                            <div class="mt-2 ml-8 mb-2">
+                                <pre class="text text-black">{{ release.body }}</pre> <!-- todo: fix overflow -->
                             </div>
                         </div>
                     </div>

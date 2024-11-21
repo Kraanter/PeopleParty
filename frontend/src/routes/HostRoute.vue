@@ -19,6 +19,7 @@ import {
 } from '@/flatbuffers/messageClass'
 import { watch } from 'vue'
 import { useReleasesStore } from '@/stores/releasesStore'
+import { format } from 'date-fns';
 
 const audio = new Audio('/soundtrack.wav')
 audio.loop = true
@@ -88,10 +89,24 @@ const skipLeaderboard = () => {
     />
   </div>
   <div v-else class="grid grid-rows-2 pt-12">
+    <div class="fixed size-96" style="right: 10%; top: 40%; transform: rotate(10deg);">
+      <img src="/assets/update-sticker.svg" class="absolute mt-2" style="z-index: -10; transform: rotate(-8deg);" />
+      <div class="flex flex-col justify-center items-center mt-28">
+        <div>
+          <span class="text text-4xl">
+            <router-link v-if="releasesStore.releases[0].date" to="/releases" class="underline text text-white font-bold" target="_blank">
+              New version!
+            </router-link>
+          </span>
+        </div>
+        <div class="mt-4 text text-white">
+          <span>{{ format(releasesStore.releases[0].date, 'dd MMMM yyyy') }}</span>
+        </div>
+      </div>
+    </div>
     <div class="w-full max-w-screen-md h-full p-4 m-auto">
       <PeoplePartyLogo />
     </div>
-
     <div class="flex flex-col h-full justify-between p-8 items-center">
       <div id="partyButton">
         <PartyButton class="py-8 px-12" @click="host()">Host a party!</PartyButton>
