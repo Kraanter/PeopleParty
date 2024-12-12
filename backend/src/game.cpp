@@ -8,21 +8,32 @@ Game::Game(Party* party) {
     this->party = party;
 
     MiniGame* minigame;
-  
-    int rnd = rand() % 4;
-    if (rnd == 0) {
-        minigame = new CrazyCounting_MiniGame(this);
-    } else if (rnd == 1) {
-        minigame = new BusinessBailout_Minigame(this);
-    } else if (rnd == 2) {
-        minigame = new MemoryMixer_MiniGame(this);
-    } else if (rnd == 3) {
-        minigame = new LaunchParty_Minigame(this);
-    }
-    miniGames.push(minigame);
-    last_minigame = minigame->get_camel_case_name();
 
     current_gamestate = new PartyPrep(this);
+}
+
+void Game::add_minigames() {
+    std::vector<MiniGame *> temp_minigames;
+
+    if (party->settings->IsMiniGameEnabled("crazy_counting")) { temp_minigames.push_back(new CrazyCounting_MiniGame(this)); }
+    if (party->settings->IsMiniGameEnabled("memory_mixer")) { temp_minigames.push_back(new MemoryMixer_MiniGame(this)); }
+    if (party->settings->IsMiniGameEnabled("buiness_bailout")) { temp_minigames.push_back(new BusinessBailout_Minigame(this)); }
+    if (party->settings->IsMiniGameEnabled("rps_bracket")) { temp_minigames.push_back(new RPSBracket_MiniGame(this)); }
+    if (party->settings->IsMiniGameEnabled("launch_party")) { temp_minigames.push_back(new LaunchParty_Minigame(this)); }
+
+    auto rd = std::random_device{};
+    auto rng = std::default_random_engine{rd()};
+    std::shuffle(std::begin(temp_minigames), std::end(temp_minigames), rng);
+
+    if (last_minigame == temp_minigames.front()->get_camel_case_name())
+    {
+        std::reverse(temp_minigames.begin(), temp_minigames.end());
+    }
+
+    for (auto minigame : temp_minigames)
+    {
+        miniGames.push(minigame);
+    }
 }
 
 Game::~Game() {
@@ -96,4 +107,42 @@ void Game::update_leaderboard(std::vector<Client *> minigame_result) {
         leaderboard[client].first += score(i, 1000, minigame_result.size());
     }
     sort(leaderboard);
+}
+
+void Game::handle_new_minigame() {
+    if (last_minigame != "" && party->settings->number_of_rounds != 0 && party->settings->current_round >= party->settings->number_of_rounds)
+    {
+        // reset the game
+        party->settings->game_finished = false;
+        party->settings->current_round = 0;
+        
+        while (miniGames.size() > 0)
+        {
+            delete miniGames.front();
+            miniGames.pop();
+        }
+
+        // clear leaderboards
+        leaderboard.clear();
+        previous_leaderboard.clear();
+
+        current_gamestate = new PartyPrep(this);
+
+        current_gamestate->update(0);
+
+        return;
+    }
+    else
+    {
+        if (miniGames.size() < 1)
+        {
+            add_minigames();
+        }
+
+        current_gamestate = (GameState *)miniGames.front();
+        miniGames.pop();
+        ((MiniGame *)current_gamestate)->start();
+        last_minigame = ((MiniGame *)current_gamestate)->get_camel_case_name();
+        party->settings->current_round++;
+    }
 }

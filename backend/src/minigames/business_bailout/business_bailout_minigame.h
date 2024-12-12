@@ -33,6 +33,8 @@ public:
     void start_introduction() override;
     void start_minigame() override;
     void start_result() override;
+    void pause() override;
+    void resume() override;
     void update(int delta_time) override;
     std::vector<Client*> getMinigameResult() override;
     void clients_changed(int client_id, bool joined) override { }

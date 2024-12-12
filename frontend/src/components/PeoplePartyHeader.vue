@@ -2,8 +2,41 @@
 import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import { storeToRefs } from 'pinia'
+import * as flatbuffers from 'flatbuffers'
+import { PausePayloadType } from '@/flatbuffers/pause-payload-type';
+import { buildMessage } from '../util/flatbufferMessageBuilder'
+import { MessageType } from '../flatbuffers/message-type';
+import { Payload } from '../flatbuffers/payload';
+import PartyButton from './PartyButton.vue'
+import { ref } from 'vue';
 
 const { partyCode } = storeToRefs(useWebSocketStore())
+const websocketStore = useWebSocketStore()
+
+const isOnCooldown = ref(false)
+
+const togglePauseGame = () => {
+  if (isOnCooldown.value) {
+    return
+  }
+
+  let builder = new flatbuffers.Builder()
+
+  let pausePayload = PausePayloadType.createPausePayloadType(
+    builder,
+    !websocketStore.isPaused
+  )
+
+  websocketStore.sendMessage(
+    buildMessage(builder, pausePayload, MessageType.Pause, Payload.PausePayloadType)
+  )
+
+  isOnCooldown.value = true
+  setTimeout(() => {
+    isOnCooldown.value = false
+  }, 1000)
+}
+
 </script>
 <template>
   <div
@@ -13,23 +46,18 @@ const { partyCode } = storeToRefs(useWebSocketStore())
     <div class="w-full row-span-3 -mt-4 h-28 my-auto">
       <PeoplePartyLogo />
     </div>
-    <p class="text-right">
-      Party Code: <span class="font-extrabold">{{ partyCode }}</span>
-      <!--      TODO: Put this button back when we have pausing figured out-->
-      <!--      <n-button type="primary" class="w-full h-full" circle>-->
-      <!--        <svg-->
-      <!--          xmlns="http://www.w3.org/2000/svg"-->
-      <!--          viewBox="0 0 24 24"-->
-      <!--          fill="currentColor"-->
-      <!--          class="w-6 h-6"-->
-      <!--        >-->
-      <!--          <path-->
-      <!--            fill-rule="evenodd"-->
-      <!--            d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z"-->
-      <!--            clip-rule="evenodd"-->
-      <!--          />-->
-      <!--        </svg>-->
-      <!--      </n-button>-->
-    </p>
+    <div class="grid grid-cols-2 grid-rows-1 justify-center items-center">
+      <div class="h-full col-span-1 mr-8">
+        <PartyButton class="text-xxl" @click="togglePauseGame">
+            <span v-if="!websocketStore.isPaused">Pause</span>
+            <span v-if="websocketStore.isPaused">Resume</span>
+        </PartyButton>
+      </div>
+      <div class="h-full col-span-1">
+        <p class="text-right">
+          Party Code: <span class="font-extrabold">{{ partyCode }}</span>
+        </p>
+      </div>
+    </div>
   </div>
 </template>

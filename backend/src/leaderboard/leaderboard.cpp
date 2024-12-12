@@ -2,7 +2,13 @@
 #include "../game.h"
 Leaderboard::Leaderboard(Game *game) : GameState(game) {
     update_interval = 1 SECONDS;
-    remaining_time = 10 SECONDS;
+    if (game->party->settings->game_finished) {
+        // podium leaderboard
+        remaining_time = 120 SECONDS;
+    } else {
+        // normal leaderboard
+        remaining_time = 10 SECONDS;
+    }
 }
 
 void Leaderboard::start() {
@@ -30,6 +36,32 @@ void Leaderboard::process_input(const Message *payload, Client *from) {
                 }
             }
             break;
+        }
+        case MessageType::MessageType_Pause: {
+            auto pausePayload = payload->payload_as_PausePayloadType();
+            if (pausePayload == nullptr) return;
+
+            if (pausePayload->pause()) {
+                pause();
+            } else {
+                resume();
+            }
+
+            //send to everyone
+            flatbuffers::FlatBufferBuilder builder;
+            auto newPausePayload = CreatePausePayloadType(
+                builder,
+                pausePayload->pause()
+            );
+
+            auto message = CreateMessage(builder, MessageType_Pause, Payload_PausePayloadType, newPausePayload.Union());
+            builder.Finish(message);
+            int size = builder.GetSize();
+
+            uint8_t* buffer = builder.GetBufferPointer();
+            std::string payload_as_string(reinterpret_cast<const char*>(builder.GetBufferPointer()), size);
+
+            game->party->send_message([](Client* client) { return client == client; }, payload_as_string);
         }
     }
 }
@@ -59,7 +91,7 @@ void Leaderboard::send_leaderboard_information() {
     auto entities_vector = builder.CreateVector(players_buffer);
 
     // Encode payload to binary
-    auto payload = CreateLeaderboardInformationPayload(builder, remaining_time, entities_vector);
+    auto payload = CreateLeaderboardInformationPayload(builder, remaining_time, game->party->settings->game_finished, entities_vector);
 
     auto leaderboardPayload = CreateLeaderboardPayloadType(builder, LeaderboardType_LeaderboardInformation,
                                                       LeaderboardPayload_LeaderboardInformationPayload, payload.Union());

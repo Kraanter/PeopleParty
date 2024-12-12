@@ -27,6 +27,20 @@ void LaunchParty_Minigame::start_introduction() {
     introduction_timer.setInterval([this]() { introduction_update(update_interval); }, update_interval);
 }
 
+void LaunchParty_Minigame::pause() {
+    minigame_timer.pause();
+    result_timer.pause();
+    timer.pause();
+    minigame_timer.pause();
+}
+
+void LaunchParty_Minigame::resume() {
+    minigame_timer.resume();
+    result_timer.resume();
+    timer.resume();
+    minigame_timer.resume();
+}
+
 void LaunchParty_Minigame::introduction_update(int delta_time) {
     introduction_time -= delta_time;
 

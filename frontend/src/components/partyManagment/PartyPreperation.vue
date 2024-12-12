@@ -3,8 +3,9 @@ import { NCard } from 'naive-ui'
 import PartyQrCode from './PartyQrCode.vue'
 import PeoplePartyLogo from '../PeoplePartyLogo.vue'
 import PartyButton from '../PartyButton.vue'
-import { computed, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import type { Player } from '@/stores/confettiStore'
+import PartySettings from './PartySettings.vue'
 
 const props = defineProps<{
   partyCode: string
@@ -13,6 +14,8 @@ const props = defineProps<{
 const { data, partyCode } = toRefs(props)
 
 const playerCount = computed(() => data.value?.length ?? 0)
+
+const showSettings = ref(false)
 
 const emit = defineEmits(['click'])
 </script>
@@ -23,6 +26,13 @@ const emit = defineEmits(['click'])
         <PeoplePartyLogo />
       </div>
       <div class="row-span-5 row-start-1 w-full h-full flex flex-col justify-end gap-4 max-h-full">
+        <div class="grid grid-cols-3 grid-rows-2">
+          <PartyButton
+            @click="showSettings = !showSettings"
+            class="row-start-2 col-start-3 flex justify-center items-center"
+          ><span class="text-xl">{{ showSettings ? 'Players' : 'Settings' }}</span>
+          </PartyButton>
+        </div>
         <n-card>
           <div class="w-full h-full flex flex-col justify-center items-center">
             <span class="text-lg xl:text-xl mb-2"
@@ -66,12 +76,15 @@ const emit = defineEmits(['click'])
       <div
         class="col-span-2 row-span-4 max-h-full h-full overflow-y-auto backdrop-blur-xl p-4 rounded-3xl"
       >
-        <div v-if="data.length > 0" class="grid grid-cols-2 gap-4">
+        <div v-if="data.length > 0 && !showSettings" class="grid grid-cols-2 gap-4">
           <n-card v-for="(player, i) in data" :key="i" class="font-bold text-center">
             <span class="text-2xl">
               {{ player.name }}
             </span>
           </n-card>
+        </div>
+        <div v-else-if="showSettings">
+          <PartySettings></PartySettings>
         </div>
         <div v-else class="flex items-center justify-center h-full">
           <span class="text-4xl font-semibold"> Join using the party code on the left! </span>

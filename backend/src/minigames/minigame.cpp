@@ -9,6 +9,9 @@ MiniGame::MiniGame(Game *game) : GameState(game) {
 }
 
 void MiniGame::finished() {
+    if (game->party->settings->number_of_rounds != 0 && game->party->settings->current_round >= game->party->settings->number_of_rounds) {
+        game->party->settings->game_finished = true;
+    }
     game->update_leaderboard(getMinigameResult());
     game->nextGameState<decltype(*this)>();
 }
@@ -22,6 +25,32 @@ void MiniGame::process_input(const Message *payload, Client *from) {
         case MessageType::MessageType_MiniGame: {
             auto miniGamePayload = payload->payload_as_MiniGamePayloadType();
             process_input(miniGamePayload, from);
+        }
+        case MessageType::MessageType_Pause: {
+            auto pausePayload = payload->payload_as_PausePayloadType();
+            if (pausePayload == nullptr) return;
+
+            if (pausePayload->pause()) {
+                pause();
+            } else {
+                resume();
+            }
+
+            //send to everyone
+            flatbuffers::FlatBufferBuilder builder;
+            auto newPausePayload = CreatePausePayloadType(
+                builder,
+                pausePayload->pause()
+            );
+
+            auto message = CreateMessage(builder, MessageType_Pause, Payload_PausePayloadType, newPausePayload.Union());
+            builder.Finish(message);
+            int size = builder.GetSize();
+
+            uint8_t* buffer = builder.GetBufferPointer();
+            std::string payload_as_string(reinterpret_cast<const char*>(builder.GetBufferPointer()), size);
+
+            game->party->send_message([](Client* client) { return client == client; }, payload_as_string);
         }
     }
 }

@@ -58,6 +58,18 @@ void CrazyCounting_MiniGame::start_introduction() {
     introduction_timer.setInterval([this]() { introduction_update(update_interval); }, update_interval);
 }
 
+void CrazyCounting_MiniGame::pause() {
+    timer.pause();
+    introduction_timer.pause();
+    results_timer.pause();
+}
+
+void CrazyCounting_MiniGame::resume() {
+    timer.resume();
+    introduction_timer.resume();
+    results_timer.resume();
+}
+
 void CrazyCounting_MiniGame::start_minigame() {
     update_interval = 32 MILLISECONDS;
     remaining_time = 30 SECONDS;

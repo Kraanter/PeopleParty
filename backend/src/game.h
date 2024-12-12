@@ -8,6 +8,7 @@
 #include "flatbuffer/messageClass_generated.h"
 #include "minigames/minigame.h"
 #include "partyprep/partyprep.h"
+#include "partyprep/party_settings.h"
 #include "leaderboard/leaderboard.h"
 #include "party.h"
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
@@ -45,43 +46,7 @@ public:
         }
         if (typeid(T) == typeid(PartyPrep) || typeid(T) == typeid(Leaderboard))
         {
-            if (miniGames.empty())
-            {
-                // todo: Go to the podium
-                std::cout << "No more minigames" << std::endl;
-                return;
-            }
-            else
-            {
-                current_gamestate = (GameState *)miniGames.front();
-                miniGames.pop();
-                ((MiniGame *)current_gamestate)->start();
-                last_minigame = ((MiniGame *)current_gamestate)->get_camel_case_name();
-
-                if (miniGames.size() < 2)
-                {
-                    std::vector<MiniGame *> temp_minigames;
-                    temp_minigames.push_back(new CrazyCounting_MiniGame(this));
-                    temp_minigames.push_back(new BusinessBailout_Minigame(this));
-                    temp_minigames.push_back(new MemoryMixer_MiniGame(this));
-                    temp_minigames.push_back(new LaunchParty_Minigame(this));
-                    //temp_minigames.push_back(new RPSBracket_MiniGame(this));
-
-                    auto rd = std::random_device{};
-                    auto rng = std::default_random_engine{rd()};
-                    std::shuffle(std::begin(temp_minigames), std::end(temp_minigames), rng);
-
-                    if (last_minigame == temp_minigames.front()->get_camel_case_name())
-                    {
-                        std::reverse(temp_minigames.begin(), temp_minigames.end());
-                    }
-
-                    for (auto minigame : temp_minigames)
-                    {
-                        miniGames.push(minigame);
-                    }
-                }
-            }
+            handle_new_minigame();
         }
     }
     int getPartyId();
@@ -89,7 +54,9 @@ public:
     void clients_changed(int client_id, bool joined);
     const std::vector<Client *> get_clients();
     void update_leaderboard(std::vector<Client *> minigame_result);
-
+private:
+    void add_minigames();
+    void handle_new_minigame();
 public:
     std::map<const Client*, std::pair<int, int>> leaderboard; // first is score, seccond is placement
     std::map<const Client*, std::pair<int, int>> previous_leaderboard;

@@ -12,6 +12,8 @@ public:
     Leaderboard(Game *game);
     void clients_changed(int client_id, bool joined) override { };
     void start();
+    void pause() { timer.pause(); };
+    void resume() { timer.resume(); };
 protected:
     void finished() override;
 private:

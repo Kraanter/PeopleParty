@@ -256,7 +256,15 @@ defineExpose({ update })
             }"
           >
             <p
-              class="m-auto text-primary font-bold"
+              class="m-auto font-bold text-primary"
+              :class="{ 'text-secondary' : 
+                bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name 
+                == bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name,
+                'text-gray-500' : 
+                bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name 
+                != bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name
+                && bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name
+              }"
               :style="{
                 gridRowStart: isRightSide(col) ? 3 : 2
               }"
@@ -264,7 +272,15 @@ defineExpose({ update })
               {{ bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name }}
             </p>
             <p
-              class="m-auto text-primary font-bold"
+              class="m-auto font-bold text-primary"
+              :class="{ 'text-secondary' : 
+                bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right?.name 
+                == bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name,
+                'text-gray-500' : 
+                bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right?.name 
+                != bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name
+                && bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name
+              }"
               :style="{ gridRowStart: isRightSide(col) ? 2 : 3 }"
             >
               {{ bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right?.name }}

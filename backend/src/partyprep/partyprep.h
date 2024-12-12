@@ -14,6 +14,7 @@ protected:
 private:
     void send_host_information();
     void send_player_information(int client_id);
+    void send_host_party_settings();
     void process_input(const Message* payload, Client* from) override;
     void update(int delta_time) override;
 };

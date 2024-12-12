@@ -18,6 +18,8 @@ public:
     virtual void start_introduction() = 0;
     virtual void start_minigame() = 0;
     virtual void start_result() = 0;
+    virtual void pause() = 0;
+    virtual void resume() = 0;
     virtual std::vector<Client*> getMinigameResult() = 0;
     void start();
 public:
