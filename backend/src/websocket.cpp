@@ -60,15 +60,6 @@ void WebSocket::init() {
         res->write("Not Found");
         res->end();
       })
-      // .any("/games", [](auto *res, auto *req) {
-      //   std::cout << "Current working directory: " << std::filesystem::current_path() << std::endl;
-      //   std::vector<std::string> directories = getDirectories("src/minigames");
-      //   res->writeStatus("200");
-      //   for (const auto& directory : directories) {
-      //       res->write(directory + "\n");
-      //   }
-      //   res->end();
-      // })
       .ws<SocketData>(
           "/join/:room/:name",
           {/* Handlers */
