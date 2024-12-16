@@ -60,7 +60,12 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const viewStore = useViewStore()
   const isConnecting = ref(false)
   const isPaused = ref(false)
-  const partyPrepSettings = ref<PartyPrepSettings | null>(null)
+  const partyPrepSettings = ref<PartyPrepSettings>({
+    number_of_rounds: 0,
+    music_volume: 0.5,
+    loop: true,
+    minigames: []
+  })
 
   function host() {
     if (isConnecting.value) return
@@ -214,11 +219,19 @@ export const useWebSocketStore = defineStore('websocket', () => {
               })
             }
 
-            partyPrepSettings.value = {
-              number_of_rounds: Number(payload.numberOfRounds()),
-              music_volume: partyPrepSettings.value?.music_volume || 0.5,
-              loop: Number(payload.numberOfRounds()) === 0,
-              minigames
+            partyPrepSettings.value.number_of_rounds = Number(payload.numberOfRounds())
+            partyPrepSettings.value.loop = Number(payload.numberOfRounds()) === 0
+
+            // this is needed because otherwise screen wil flicker
+            if (partyPrepSettings.value.minigames.length === 0) {
+              partyPrepSettings.value.minigames = minigames
+            } else {
+              partyPrepSettings.value.minigames.forEach((minigame) => {
+                const found = minigames.find((m) => m.name === minigame.name)
+                if (found) {
+                  minigame.enabled = found.enabled
+                }
+              })
             }
 
             checkMiniGameImageAvailability()

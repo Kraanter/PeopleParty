@@ -17,7 +17,7 @@ void Game::add_minigames() {
 
     if (party->settings->IsMiniGameEnabled("crazy_counting")) { temp_minigames.push_back(new CrazyCounting_MiniGame(this)); }
     if (party->settings->IsMiniGameEnabled("memory_mixer")) { temp_minigames.push_back(new MemoryMixer_MiniGame(this)); }
-    if (party->settings->IsMiniGameEnabled("buiness_bailout")) { temp_minigames.push_back(new BusinessBailout_Minigame(this)); }
+    if (party->settings->IsMiniGameEnabled("business_bailout")) { temp_minigames.push_back(new BusinessBailout_Minigame(this)); }
     if (party->settings->IsMiniGameEnabled("rps_bracket")) { temp_minigames.push_back(new RPSBracket_MiniGame(this)); }
     if (party->settings->IsMiniGameEnabled("launch_party")) { temp_minigames.push_back(new LaunchParty_Minigame(this)); }
 
