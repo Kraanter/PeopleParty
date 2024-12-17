@@ -89,7 +89,7 @@ const skipLeaderboard = () => {
     />
   </div>
   <div v-else class="grid grid-rows-2 pt-12">
-    <div class="fixed size-96" style="right: 10%; top: 40%; transform: rotate(10deg);">
+    <div class="fixed size-96" style="right: 9%; top: 40%; transform: rotate(10deg);">
       <img src="/assets/update-sticker.svg" class="absolute mt-2" style="z-index: -10; transform: rotate(-8deg);" />
       <div class="flex flex-col justify-center items-center mt-28">
         <div>
@@ -116,6 +116,9 @@ const skipLeaderboard = () => {
         <router-link to="/releases" class="flex underline" target="_blank">{{ releasesStore.versionNumber }}</router-link>
         <div class="flex justify-center items-center">
           <router-link to="/join" class="underline">Join a party!</router-link>
+        </div>
+        <div class="flex justify-end mr-20 items-center">
+          <router-link to="/info#info" class="underline">Info</router-link>
         </div>
       </div>
     </div>
