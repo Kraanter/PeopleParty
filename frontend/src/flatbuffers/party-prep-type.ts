@@ -5,5 +5,8 @@
 export enum PartyPrepType {
   PartyPrepHostInformation = 0,
   PartyPrepHostStartGame = 1,
-  PartyPrepPlayerInformation = 2
+  PartyPrepPlayerInformation = 2,
+  PartyPrepSettingsInformation = 3,
+  PartyPrepSettingsRounds = 4,
+  PartyPrepSettingsMiniGame = 5
 }

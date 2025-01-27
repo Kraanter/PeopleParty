@@ -11,7 +11,9 @@ import {
   MiniGamePayloadType,
   PartyPrepHostInformationPayload,
   PartyPrepPayloadType,
-  PartyPrepType
+  PartyPrepSettingsInformationPayload,
+  PartyPrepType,
+  PausePayloadType
 } from './../flatbuffers/messageClass'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -25,6 +27,7 @@ export type Player = {
 
 export type Leaderboard = {
   time_left: number
+  podium: boolean
   players: LeaderboardPlayer[]
 }
 
@@ -36,6 +39,17 @@ export type LeaderboardPlayer = {
   deltaPosition: number
 }
 
+export type PartyPrepSettings = {
+  number_of_rounds: number
+  music_volume?: number // client side only
+  loop: boolean //client side only
+  minigames: {
+    name: string,
+    enabled: boolean,
+    image: string // client side only
+  }[]
+}
+
 export const useWebSocketStore = defineStore('websocket', () => {
   const websocket = ref<WebSocket | null>(null)
   const listeners = ref<Function[]>([])
@@ -45,6 +59,13 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const clientName = ref<string>('')
   const viewStore = useViewStore()
   const isConnecting = ref(false)
+  const isPaused = ref(false)
+  const partyPrepSettings = ref<PartyPrepSettings>({
+    number_of_rounds: 0,
+    music_volume: 0.5,
+    loop: true,
+    minigames: []
+  })
 
   function host() {
     if (isConnecting.value) return
@@ -102,6 +123,32 @@ export const useWebSocketStore = defineStore('websocket', () => {
     }
   }
 
+  function nameToCamelCase(name: string) {
+    return name.replace(/([-_][a-z])/ig, ($1) => {
+        return $1.toUpperCase()
+            .replace('-', '')
+            .replace('_', '');
+    });
+  }
+
+  function nameToImagePath(name: string) {
+    return '/assets/games/' + nameToCamelCase(name) + '/' + nameToCamelCase(name) + 'Logo.svg'
+  }
+
+  function checkMiniGameImageAvailability() {
+    partyPrepSettings.value?.minigames.forEach((minigame) => {
+      const path = nameToImagePath(minigame.name)
+      const img = new Image()
+      img.onload = () => {
+        minigame.image = path
+      }
+      img.onerror = () => {
+        minigame.image = ""
+      }
+      img.src = nameToImagePath(minigame.name)
+    })
+  }
+
   function handleMessage(data: Uint8Array) {
     const buf = new flatbuffers.ByteBuffer(data)
     const receivedMessage = Message.getRootAsMessage(buf)
@@ -120,6 +167,11 @@ export const useWebSocketStore = defineStore('websocket', () => {
         viewStore.setViewState(ViewState.PartyPrep)
         const joinPayload = receivedMessage.payload(new JoinPayloadType())
         listeners.value.forEach((listener) => listener(joinPayload.success()))
+        break
+      }
+      case MessageType.Pause: {
+        const pausePayload = receivedMessage.payload(new PausePayloadType())
+        if (pausePayload) { isPaused.value = pausePayload.pause() }
         break
       }
       case MessageType.MiniGame: {
@@ -151,6 +203,40 @@ export const useWebSocketStore = defineStore('websocket', () => {
             viewStore.setViewData(names.filter((p) => p && !!p.name))
             break
           }
+          case PartyPrepType.PartyPrepSettingsInformation: {
+            const payload: PartyPrepSettingsInformationPayload = partyPrepPayload.partypreppayload(
+              new PartyPrepSettingsInformationPayload()
+            )
+
+            const minigames = []
+            for (let i = 0; i < payload.minigamesLength(); i++) {
+              // get imageurl from minigame name
+
+              minigames.push({
+                name: decodeURI(payload.minigames(i)?.name() ?? ''),
+                enabled: payload.minigames(i)?.enabled() ?? false,
+                image: ""
+              })
+            }
+
+            partyPrepSettings.value.number_of_rounds = Number(payload.numberOfRounds())
+            partyPrepSettings.value.loop = Number(payload.numberOfRounds()) === 0
+
+            // this is needed because otherwise screen wil flicker
+            if (partyPrepSettings.value.minigames.length === 0) {
+              partyPrepSettings.value.minigames = minigames
+            } else {
+              partyPrepSettings.value.minigames.forEach((minigame) => {
+                const found = minigames.find((m) => m.name === minigame.name)
+                if (found) {
+                  minigame.enabled = found.enabled
+                }
+              })
+            }
+
+            checkMiniGameImageAvailability()
+            break
+          }
         }
         break
       }
@@ -178,6 +264,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
             }
             viewStore.setViewData({
               time_left: Number(payload.leaderboardTimeLeft()),
+              podium: payload.podium(),
               players: newEntries.filter((p) => p && !!p.name)
             })
             break
@@ -199,6 +286,8 @@ export const useWebSocketStore = defineStore('websocket', () => {
     subscribe,
     partyCode,
     clientName,
-    isHosting
+    isHosting,
+    isPaused,
+    partyPrepSettings,
   }
 })

@@ -1,10 +1,12 @@
 name: Cypress tests
 
-on: 
-  pull_request:
-    branches:
-      - main
-      - staging
+# on: 
+#   pull_request:
+#     branches:
+#       - main
+#       - staging
+
+on: workflow_dispatch
 
 jobs:
   cypress-tests:

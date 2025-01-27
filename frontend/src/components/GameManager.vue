@@ -3,6 +3,9 @@ import { MiniGamePayloadType } from '@/flatbuffers/messageClass'
 import { defineAsyncComponent, ref, watch, defineProps, onMounted, shallowRef, toRefs } from 'vue'
 import { debounce } from '@/util/funcs'
 import PeoplePartyHeader from './PeoplePartyHeader.vue'
+import { useWebSocketStore } from '@/stores/confettiStore';
+
+const websocketStore = useWebSocketStore()
 
 const props = defineProps<{
   data: MiniGamePayloadType
@@ -69,10 +72,19 @@ watch(
   <div class="flex flex-col h-full w-full">
     <PeoplePartyHeader v-if="isHost" />
 
+    
     <div
       id="container"
       class="backdrop-blur-xl bg-opacity-50 shadow-lg rounded-xl w-full h-[97dvh] overflow-hidden"
     >
+      <div v-if="websocketStore.isPaused" class="fixed h-full w-full justify-center items-center z-30">
+        <div style="background-color: rgb(0 0 0 / .4)" class="fixed flex h-full w-full justify-center items-center z-30">
+          <div style="background-color: rgb(0 0 0 / .65);" class="rounded-xl">
+            <span class="text-6xl text-white m-3 flex">Game is paused</span>
+          </div>
+        </div>
+        <div class="fixed h-full w-full backdrop-blur-xl opacity-60"></div>
+      </div>
       <component v-if="width && height" :is="gameViewComp" ref="gameViewRef" :height :width />
     </div>
   </div>

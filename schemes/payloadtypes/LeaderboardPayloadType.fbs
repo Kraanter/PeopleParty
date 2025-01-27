@@ -8,6 +8,7 @@ table FBLeaderboardPlayer {
 
 table LeaderboardInformationPayload {
     leaderboard_time_left: ulong;
+    podium: bool;
     leaderboard: [FBLeaderboardPlayer];
 }
 

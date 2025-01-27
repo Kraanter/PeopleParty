@@ -20,6 +20,7 @@
   "dependencies": {
     "e": "^0.2.33",
     "flatbuffers": "^24.3.25",
+    "marked": "^15.0.0",
     "pinia": "^2.1.7",
     "pixi.js": "^7.*",
     "vue": "^3.4.21",

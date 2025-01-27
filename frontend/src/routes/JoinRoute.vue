@@ -10,12 +10,15 @@ import PeoplePartyLogo from '@/components/PeoplePartyLogo.vue'
 import Leaderboard from '@/components/leaderboard/Leaderboard.vue'
 import { storeToRefs } from 'pinia'
 import { useViewStore, ViewState } from '@/stores/viewStore'
+import { useReleasesStore } from '@/stores/releasesStore'
 
 const websocketStore = useWebSocketStore()
 const { partyCode } = storeToRefs(websocketStore)
 
 const viewStore = useViewStore()
-const { viewState, viewData, versionNumber } = storeToRefs(viewStore)
+const { viewState, viewData } = storeToRefs(viewStore)
+
+const releasesStore = useReleasesStore()
 
 const onlyAllowNumber = (value: string) => !value || /^\d+$/.test(value)
 
@@ -277,7 +280,7 @@ const join = () => {
       </n-card>
 
       <div class="grid grid-cols-4 justify-between w-full bottom-0 m-auto mb-10">
-        <p class="flex">{{ versionNumber }}</p>
+        <router-link to="/releases" class="flex underline" target="_blank">{{ releasesStore.versionNumber }}</router-link>
         <div class="flex col-span-2 justify-center items-center">
           <router-link v-if="!(joining || joined)" to="/host" class="underline">
             Host your own party!

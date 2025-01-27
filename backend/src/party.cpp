@@ -7,12 +7,17 @@ Party::Party() {
   party_id = generate_party_id();
   host = nullptr;
   game = nullptr;
+  settings = new PartySettings();
 }
 
 Party::~Party() {
     if (game != nullptr) {
         delete game;
         game = nullptr;
+    }
+    if (settings != nullptr) {
+        delete settings;
+        settings = nullptr;
     }
 }
 
