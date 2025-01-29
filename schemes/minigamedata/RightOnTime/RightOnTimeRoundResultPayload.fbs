@@ -1,0 +1,12 @@
+table FBRightOnTimeRoundResultPair {
+    name: string;
+    diff: long;
+}
+
+table RightOnTimeRoundResultPayload {
+    round: short;
+    target: short;
+    results: [FBRightOnTimeRoundResultPair];
+}
+
+root_type RightOnTimeRoundResultPayload;

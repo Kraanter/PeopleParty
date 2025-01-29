@@ -109,6 +109,21 @@ struct MemoryMixerRoundResultPayloadBuilder;
 struct MiniGameIntroductionPayload;
 struct MiniGameIntroductionPayloadBuilder;
 
+struct RightOnTimePayload;
+struct RightOnTimePayloadBuilder;
+
+struct FBRightOnTimeResultPair;
+struct FBRightOnTimeResultPairBuilder;
+
+struct RightOnTimeResultPayload;
+struct RightOnTimeResultPayloadBuilder;
+
+struct FBRightOnTimeRoundResultPair;
+struct FBRightOnTimeRoundResultPairBuilder;
+
+struct RightOnTimeRoundResultPayload;
+struct RightOnTimeRoundResultPayloadBuilder;
+
 struct FB_RPSMatch;
 struct FB_RPSMatchBuilder;
 
@@ -371,14 +386,17 @@ enum GameStateType : int8_t {
   GameStateType_MemoryMixerResult = 15,
   GameStateType_MemoryMixerRoundResult = 16,
   GameStateType_MiniGameIntroduction = 17,
-  GameStateType_RPSBracketHost = 18,
-  GameStateType_RPSBracketPlayerInput = 19,
-  GameStateType_RPSBracketPlayer = 20,
+  GameStateType_RightOnTime = 18,
+  GameStateType_RightOnTimeResult = 19,
+  GameStateType_RightOnTimeRoundResult = 20,
+  GameStateType_RPSBracketHost = 21,
+  GameStateType_RPSBracketPlayerInput = 22,
+  GameStateType_RPSBracketPlayer = 23,
   GameStateType_MIN = GameStateType_BusinessBailoutHost,
   GameStateType_MAX = GameStateType_RPSBracketPlayer
 };
 
-inline const GameStateType (&EnumValuesGameStateType())[21] {
+inline const GameStateType (&EnumValuesGameStateType())[24] {
   static const GameStateType values[] = {
     GameStateType_BusinessBailoutHost,
     GameStateType_BusinessBailoutPlayerInput,
@@ -398,6 +416,9 @@ inline const GameStateType (&EnumValuesGameStateType())[21] {
     GameStateType_MemoryMixerResult,
     GameStateType_MemoryMixerRoundResult,
     GameStateType_MiniGameIntroduction,
+    GameStateType_RightOnTime,
+    GameStateType_RightOnTimeResult,
+    GameStateType_RightOnTimeRoundResult,
     GameStateType_RPSBracketHost,
     GameStateType_RPSBracketPlayerInput,
     GameStateType_RPSBracketPlayer
@@ -406,7 +427,7 @@ inline const GameStateType (&EnumValuesGameStateType())[21] {
 }
 
 inline const char * const *EnumNamesGameStateType() {
-  static const char * const names[22] = {
+  static const char * const names[25] = {
     "BusinessBailoutHost",
     "BusinessBailoutPlayerInput",
     "BusinessBailoutPlayer",
@@ -425,6 +446,9 @@ inline const char * const *EnumNamesGameStateType() {
     "MemoryMixerResult",
     "MemoryMixerRoundResult",
     "MiniGameIntroduction",
+    "RightOnTime",
+    "RightOnTimeResult",
+    "RightOnTimeRoundResult",
     "RPSBracketHost",
     "RPSBracketPlayerInput",
     "RPSBracketPlayer",
@@ -459,14 +483,17 @@ enum GameStatePayload : uint8_t {
   GameStatePayload_MemoryMixerResultPayload = 16,
   GameStatePayload_MemoryMixerRoundResultPayload = 17,
   GameStatePayload_MiniGameIntroductionPayload = 18,
-  GameStatePayload_RPSBracketHostPayload = 19,
-  GameStatePayload_RPSBracketPlayerInputPayload = 20,
-  GameStatePayload_RPSBracketPlayerPayload = 21,
+  GameStatePayload_RightOnTimePayload = 19,
+  GameStatePayload_RightOnTimeResultPayload = 20,
+  GameStatePayload_RightOnTimeRoundResultPayload = 21,
+  GameStatePayload_RPSBracketHostPayload = 22,
+  GameStatePayload_RPSBracketPlayerInputPayload = 23,
+  GameStatePayload_RPSBracketPlayerPayload = 24,
   GameStatePayload_MIN = GameStatePayload_NONE,
   GameStatePayload_MAX = GameStatePayload_RPSBracketPlayerPayload
 };
 
-inline const GameStatePayload (&EnumValuesGameStatePayload())[22] {
+inline const GameStatePayload (&EnumValuesGameStatePayload())[25] {
   static const GameStatePayload values[] = {
     GameStatePayload_NONE,
     GameStatePayload_BusinessBailoutHostPayload,
@@ -487,6 +514,9 @@ inline const GameStatePayload (&EnumValuesGameStatePayload())[22] {
     GameStatePayload_MemoryMixerResultPayload,
     GameStatePayload_MemoryMixerRoundResultPayload,
     GameStatePayload_MiniGameIntroductionPayload,
+    GameStatePayload_RightOnTimePayload,
+    GameStatePayload_RightOnTimeResultPayload,
+    GameStatePayload_RightOnTimeRoundResultPayload,
     GameStatePayload_RPSBracketHostPayload,
     GameStatePayload_RPSBracketPlayerInputPayload,
     GameStatePayload_RPSBracketPlayerPayload
@@ -495,7 +525,7 @@ inline const GameStatePayload (&EnumValuesGameStatePayload())[22] {
 }
 
 inline const char * const *EnumNamesGameStatePayload() {
-  static const char * const names[23] = {
+  static const char * const names[26] = {
     "NONE",
     "BusinessBailoutHostPayload",
     "BusinessBailoutPlayerInputPayload",
@@ -515,6 +545,9 @@ inline const char * const *EnumNamesGameStatePayload() {
     "MemoryMixerResultPayload",
     "MemoryMixerRoundResultPayload",
     "MiniGameIntroductionPayload",
+    "RightOnTimePayload",
+    "RightOnTimeResultPayload",
+    "RightOnTimeRoundResultPayload",
     "RPSBracketHostPayload",
     "RPSBracketPlayerInputPayload",
     "RPSBracketPlayerPayload",
@@ -603,6 +636,18 @@ template<> struct GameStatePayloadTraits<MemoryMixerRoundResultPayload> {
 
 template<> struct GameStatePayloadTraits<MiniGameIntroductionPayload> {
   static const GameStatePayload enum_value = GameStatePayload_MiniGameIntroductionPayload;
+};
+
+template<> struct GameStatePayloadTraits<RightOnTimePayload> {
+  static const GameStatePayload enum_value = GameStatePayload_RightOnTimePayload;
+};
+
+template<> struct GameStatePayloadTraits<RightOnTimeResultPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_RightOnTimeResultPayload;
+};
+
+template<> struct GameStatePayloadTraits<RightOnTimeRoundResultPayload> {
+  static const GameStatePayload enum_value = GameStatePayload_RightOnTimeRoundResultPayload;
 };
 
 template<> struct GameStatePayloadTraits<RPSBracketHostPayload> {
@@ -2855,6 +2900,396 @@ inline ::flatbuffers::Offset<MiniGameIntroductionPayload> CreateMiniGameIntroduc
       time_left);
 }
 
+struct RightOnTimePayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef RightOnTimePayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ROUND = 4,
+    VT_TARGET = 6,
+    VT_TIME = 8,
+    VT_FADE_OUT = 10,
+    VT_SUBMITTED = 12
+  };
+  int16_t round() const {
+    return GetField<int16_t>(VT_ROUND, 0);
+  }
+  int16_t target() const {
+    return GetField<int16_t>(VT_TARGET, 0);
+  }
+  int64_t time() const {
+    return GetField<int64_t>(VT_TIME, 0);
+  }
+  bool fade_out() const {
+    return GetField<uint8_t>(VT_FADE_OUT, 0) != 0;
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *submitted() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_SUBMITTED);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int16_t>(verifier, VT_ROUND, 2) &&
+           VerifyField<int16_t>(verifier, VT_TARGET, 2) &&
+           VerifyField<int64_t>(verifier, VT_TIME, 8) &&
+           VerifyField<uint8_t>(verifier, VT_FADE_OUT, 1) &&
+           VerifyOffset(verifier, VT_SUBMITTED) &&
+           verifier.VerifyVector(submitted()) &&
+           verifier.VerifyVectorOfStrings(submitted()) &&
+           verifier.EndTable();
+  }
+};
+
+struct RightOnTimePayloadBuilder {
+  typedef RightOnTimePayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_round(int16_t round) {
+    fbb_.AddElement<int16_t>(RightOnTimePayload::VT_ROUND, round, 0);
+  }
+  void add_target(int16_t target) {
+    fbb_.AddElement<int16_t>(RightOnTimePayload::VT_TARGET, target, 0);
+  }
+  void add_time(int64_t time) {
+    fbb_.AddElement<int64_t>(RightOnTimePayload::VT_TIME, time, 0);
+  }
+  void add_fade_out(bool fade_out) {
+    fbb_.AddElement<uint8_t>(RightOnTimePayload::VT_FADE_OUT, static_cast<uint8_t>(fade_out), 0);
+  }
+  void add_submitted(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> submitted) {
+    fbb_.AddOffset(RightOnTimePayload::VT_SUBMITTED, submitted);
+  }
+  explicit RightOnTimePayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<RightOnTimePayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<RightOnTimePayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<RightOnTimePayload> CreateRightOnTimePayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int16_t round = 0,
+    int16_t target = 0,
+    int64_t time = 0,
+    bool fade_out = false,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> submitted = 0) {
+  RightOnTimePayloadBuilder builder_(_fbb);
+  builder_.add_time(time);
+  builder_.add_submitted(submitted);
+  builder_.add_target(target);
+  builder_.add_round(round);
+  builder_.add_fade_out(fade_out);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<RightOnTimePayload> CreateRightOnTimePayloadDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int16_t round = 0,
+    int16_t target = 0,
+    int64_t time = 0,
+    bool fade_out = false,
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *submitted = nullptr) {
+  auto submitted__ = submitted ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*submitted) : 0;
+  return CreateRightOnTimePayload(
+      _fbb,
+      round,
+      target,
+      time,
+      fade_out,
+      submitted__);
+}
+
+struct FBRightOnTimeResultPair FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FBRightOnTimeResultPairBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_ROUND_ONE_DIFF = 6,
+    VT_ROUND_TWO_DIFF = 8,
+    VT_ROUND_THREE_DIFF = 10,
+    VT_AVERAGE_DIFF_TIME = 12
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  int64_t round_one_diff() const {
+    return GetField<int64_t>(VT_ROUND_ONE_DIFF, 0);
+  }
+  int64_t round_two_diff() const {
+    return GetField<int64_t>(VT_ROUND_TWO_DIFF, 0);
+  }
+  int64_t round_three_diff() const {
+    return GetField<int64_t>(VT_ROUND_THREE_DIFF, 0);
+  }
+  uint64_t average_diff_time() const {
+    return GetField<uint64_t>(VT_AVERAGE_DIFF_TIME, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyField<int64_t>(verifier, VT_ROUND_ONE_DIFF, 8) &&
+           VerifyField<int64_t>(verifier, VT_ROUND_TWO_DIFF, 8) &&
+           VerifyField<int64_t>(verifier, VT_ROUND_THREE_DIFF, 8) &&
+           VerifyField<uint64_t>(verifier, VT_AVERAGE_DIFF_TIME, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct FBRightOnTimeResultPairBuilder {
+  typedef FBRightOnTimeResultPair Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(FBRightOnTimeResultPair::VT_NAME, name);
+  }
+  void add_round_one_diff(int64_t round_one_diff) {
+    fbb_.AddElement<int64_t>(FBRightOnTimeResultPair::VT_ROUND_ONE_DIFF, round_one_diff, 0);
+  }
+  void add_round_two_diff(int64_t round_two_diff) {
+    fbb_.AddElement<int64_t>(FBRightOnTimeResultPair::VT_ROUND_TWO_DIFF, round_two_diff, 0);
+  }
+  void add_round_three_diff(int64_t round_three_diff) {
+    fbb_.AddElement<int64_t>(FBRightOnTimeResultPair::VT_ROUND_THREE_DIFF, round_three_diff, 0);
+  }
+  void add_average_diff_time(uint64_t average_diff_time) {
+    fbb_.AddElement<uint64_t>(FBRightOnTimeResultPair::VT_AVERAGE_DIFF_TIME, average_diff_time, 0);
+  }
+  explicit FBRightOnTimeResultPairBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<FBRightOnTimeResultPair> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<FBRightOnTimeResultPair>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<FBRightOnTimeResultPair> CreateFBRightOnTimeResultPair(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    int64_t round_one_diff = 0,
+    int64_t round_two_diff = 0,
+    int64_t round_three_diff = 0,
+    uint64_t average_diff_time = 0) {
+  FBRightOnTimeResultPairBuilder builder_(_fbb);
+  builder_.add_average_diff_time(average_diff_time);
+  builder_.add_round_three_diff(round_three_diff);
+  builder_.add_round_two_diff(round_two_diff);
+  builder_.add_round_one_diff(round_one_diff);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<FBRightOnTimeResultPair> CreateFBRightOnTimeResultPairDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    int64_t round_one_diff = 0,
+    int64_t round_two_diff = 0,
+    int64_t round_three_diff = 0,
+    uint64_t average_diff_time = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return CreateFBRightOnTimeResultPair(
+      _fbb,
+      name__,
+      round_one_diff,
+      round_two_diff,
+      round_three_diff,
+      average_diff_time);
+}
+
+struct RightOnTimeResultPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef RightOnTimeResultPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MINIGAME_RESULTS = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<FBRightOnTimeResultPair>> *minigame_results() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBRightOnTimeResultPair>> *>(VT_MINIGAME_RESULTS);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_MINIGAME_RESULTS) &&
+           verifier.VerifyVector(minigame_results()) &&
+           verifier.VerifyVectorOfTables(minigame_results()) &&
+           verifier.EndTable();
+  }
+};
+
+struct RightOnTimeResultPayloadBuilder {
+  typedef RightOnTimeResultPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_minigame_results(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBRightOnTimeResultPair>>> minigame_results) {
+    fbb_.AddOffset(RightOnTimeResultPayload::VT_MINIGAME_RESULTS, minigame_results);
+  }
+  explicit RightOnTimeResultPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<RightOnTimeResultPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<RightOnTimeResultPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<RightOnTimeResultPayload> CreateRightOnTimeResultPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBRightOnTimeResultPair>>> minigame_results = 0) {
+  RightOnTimeResultPayloadBuilder builder_(_fbb);
+  builder_.add_minigame_results(minigame_results);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<RightOnTimeResultPayload> CreateRightOnTimeResultPayloadDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<FBRightOnTimeResultPair>> *minigame_results = nullptr) {
+  auto minigame_results__ = minigame_results ? _fbb.CreateVector<::flatbuffers::Offset<FBRightOnTimeResultPair>>(*minigame_results) : 0;
+  return CreateRightOnTimeResultPayload(
+      _fbb,
+      minigame_results__);
+}
+
+struct FBRightOnTimeRoundResultPair FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FBRightOnTimeRoundResultPairBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_DIFF = 6
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  int64_t diff() const {
+    return GetField<int64_t>(VT_DIFF, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyField<int64_t>(verifier, VT_DIFF, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct FBRightOnTimeRoundResultPairBuilder {
+  typedef FBRightOnTimeRoundResultPair Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(FBRightOnTimeRoundResultPair::VT_NAME, name);
+  }
+  void add_diff(int64_t diff) {
+    fbb_.AddElement<int64_t>(FBRightOnTimeRoundResultPair::VT_DIFF, diff, 0);
+  }
+  explicit FBRightOnTimeRoundResultPairBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<FBRightOnTimeRoundResultPair> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<FBRightOnTimeRoundResultPair>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<FBRightOnTimeRoundResultPair> CreateFBRightOnTimeRoundResultPair(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    int64_t diff = 0) {
+  FBRightOnTimeRoundResultPairBuilder builder_(_fbb);
+  builder_.add_diff(diff);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<FBRightOnTimeRoundResultPair> CreateFBRightOnTimeRoundResultPairDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    int64_t diff = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return CreateFBRightOnTimeRoundResultPair(
+      _fbb,
+      name__,
+      diff);
+}
+
+struct RightOnTimeRoundResultPayload FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef RightOnTimeRoundResultPayloadBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ROUND = 4,
+    VT_TARGET = 6,
+    VT_RESULTS = 8
+  };
+  int16_t round() const {
+    return GetField<int16_t>(VT_ROUND, 0);
+  }
+  int16_t target() const {
+    return GetField<int16_t>(VT_TARGET, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<FBRightOnTimeRoundResultPair>> *results() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBRightOnTimeRoundResultPair>> *>(VT_RESULTS);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int16_t>(verifier, VT_ROUND, 2) &&
+           VerifyField<int16_t>(verifier, VT_TARGET, 2) &&
+           VerifyOffset(verifier, VT_RESULTS) &&
+           verifier.VerifyVector(results()) &&
+           verifier.VerifyVectorOfTables(results()) &&
+           verifier.EndTable();
+  }
+};
+
+struct RightOnTimeRoundResultPayloadBuilder {
+  typedef RightOnTimeRoundResultPayload Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_round(int16_t round) {
+    fbb_.AddElement<int16_t>(RightOnTimeRoundResultPayload::VT_ROUND, round, 0);
+  }
+  void add_target(int16_t target) {
+    fbb_.AddElement<int16_t>(RightOnTimeRoundResultPayload::VT_TARGET, target, 0);
+  }
+  void add_results(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBRightOnTimeRoundResultPair>>> results) {
+    fbb_.AddOffset(RightOnTimeRoundResultPayload::VT_RESULTS, results);
+  }
+  explicit RightOnTimeRoundResultPayloadBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<RightOnTimeRoundResultPayload> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<RightOnTimeRoundResultPayload>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<RightOnTimeRoundResultPayload> CreateRightOnTimeRoundResultPayload(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int16_t round = 0,
+    int16_t target = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBRightOnTimeRoundResultPair>>> results = 0) {
+  RightOnTimeRoundResultPayloadBuilder builder_(_fbb);
+  builder_.add_results(results);
+  builder_.add_target(target);
+  builder_.add_round(round);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<RightOnTimeRoundResultPayload> CreateRightOnTimeRoundResultPayloadDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int16_t round = 0,
+    int16_t target = 0,
+    const std::vector<::flatbuffers::Offset<FBRightOnTimeRoundResultPair>> *results = nullptr) {
+  auto results__ = results ? _fbb.CreateVector<::flatbuffers::Offset<FBRightOnTimeRoundResultPair>>(*results) : 0;
+  return CreateRightOnTimeRoundResultPayload(
+      _fbb,
+      round,
+      target,
+      results__);
+}
+
 struct FB_RPSMatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef FB_RPSMatchBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -3203,6 +3638,15 @@ struct MiniGamePayloadType FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   const MiniGameIntroductionPayload *gamestatepayload_as_MiniGameIntroductionPayload() const {
     return gamestatepayload_type() == GameStatePayload_MiniGameIntroductionPayload ? static_cast<const MiniGameIntroductionPayload *>(gamestatepayload()) : nullptr;
   }
+  const RightOnTimePayload *gamestatepayload_as_RightOnTimePayload() const {
+    return gamestatepayload_type() == GameStatePayload_RightOnTimePayload ? static_cast<const RightOnTimePayload *>(gamestatepayload()) : nullptr;
+  }
+  const RightOnTimeResultPayload *gamestatepayload_as_RightOnTimeResultPayload() const {
+    return gamestatepayload_type() == GameStatePayload_RightOnTimeResultPayload ? static_cast<const RightOnTimeResultPayload *>(gamestatepayload()) : nullptr;
+  }
+  const RightOnTimeRoundResultPayload *gamestatepayload_as_RightOnTimeRoundResultPayload() const {
+    return gamestatepayload_type() == GameStatePayload_RightOnTimeRoundResultPayload ? static_cast<const RightOnTimeRoundResultPayload *>(gamestatepayload()) : nullptr;
+  }
   const RPSBracketHostPayload *gamestatepayload_as_RPSBracketHostPayload() const {
     return gamestatepayload_type() == GameStatePayload_RPSBracketHostPayload ? static_cast<const RPSBracketHostPayload *>(gamestatepayload()) : nullptr;
   }
@@ -3294,6 +3738,18 @@ template<> inline const MemoryMixerRoundResultPayload *MiniGamePayloadType::game
 
 template<> inline const MiniGameIntroductionPayload *MiniGamePayloadType::gamestatepayload_as<MiniGameIntroductionPayload>() const {
   return gamestatepayload_as_MiniGameIntroductionPayload();
+}
+
+template<> inline const RightOnTimePayload *MiniGamePayloadType::gamestatepayload_as<RightOnTimePayload>() const {
+  return gamestatepayload_as_RightOnTimePayload();
+}
+
+template<> inline const RightOnTimeResultPayload *MiniGamePayloadType::gamestatepayload_as<RightOnTimeResultPayload>() const {
+  return gamestatepayload_as_RightOnTimeResultPayload();
+}
+
+template<> inline const RightOnTimeRoundResultPayload *MiniGamePayloadType::gamestatepayload_as<RightOnTimeRoundResultPayload>() const {
+  return gamestatepayload_as_RightOnTimeRoundResultPayload();
 }
 
 template<> inline const RPSBracketHostPayload *MiniGamePayloadType::gamestatepayload_as<RPSBracketHostPayload>() const {
@@ -4147,6 +4603,18 @@ inline bool VerifyGameStatePayload(::flatbuffers::Verifier &verifier, const void
     }
     case GameStatePayload_MiniGameIntroductionPayload: {
       auto ptr = reinterpret_cast<const MiniGameIntroductionPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_RightOnTimePayload: {
+      auto ptr = reinterpret_cast<const RightOnTimePayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_RightOnTimeResultPayload: {
+      auto ptr = reinterpret_cast<const RightOnTimeResultPayload *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case GameStatePayload_RightOnTimeRoundResultPayload: {
+      auto ptr = reinterpret_cast<const RightOnTimeRoundResultPayload *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case GameStatePayload_RPSBracketHostPayload: {
