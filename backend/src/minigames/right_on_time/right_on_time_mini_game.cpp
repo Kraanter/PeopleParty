@@ -63,11 +63,23 @@ void RightOnTime_Minigame::start_minigame() {
     time = 0;
     current_round = 1;
     current_phase = 0;
+
+    for (auto client : game->get_clients()) {
+        if (!client->isHost) {
+            players[client].round_1_diff = 0;
+            players[client].round_2_diff = 0;
+            players[client].round_3_diff = 0;
+            players[client].total_diff = 0;
+        }
+    }
+
     minigame_timer.setInterval([this]() { update(10 MILLISECONDS); }, 10 MILLISECONDS);
 }
 
 void RightOnTime_Minigame::update(int delta_time) {
     time += delta_time;
+
+    // todo, add clause when everyone submitted -> end the round.
 
     if (current_round == 1 && time >= target->round_1_target + 10 SECONDS) {
         if (current_phase == 0) {
@@ -120,9 +132,9 @@ void RightOnTime_Minigame::update(int delta_time) {
         int round_target = current_round == 1 ? target->round_1_target : current_round == 2 ? target->round_2_target : target->round_3_target;
         bool round_fadeout = current_round == 1 && time > target->round_1_fadeout ? true : current_round == 2 && time > target->round_2_fadeout ? true : current_round == 3 && time > target->round_3_fadeout ? true : false;
 
-        send_payload_data(host->client_id, false, round_target, round_fadeout);
+        send_payload_data(host->client_id, true, round_target, round_fadeout);
         for (auto &player : players) {
-            send_payload_data(player.first->client_id, true, round_target, round_fadeout);
+            send_payload_data(player.first->client_id, false, round_target, round_fadeout);
         }
     }
 }
@@ -132,9 +144,12 @@ void RightOnTime_Minigame::process_input(const MiniGamePayloadType *payload, Cli
         case GameStateType_RightOnTime: {
             auto input = payload->gamestatepayload_as_RightOnTimePayload();
 
+
             if (current_phase == 0) {
                 if (current_round == 1) {
                     players[from].round_1_diff = input->time();
+                    std::cout << "RightOnTime input received" << std::endl;
+                    std::cout << "Time: " << input->time() << std::endl;
                 }
                 else if (current_round == 2) {
                     players[from].round_2_diff = input->time();
