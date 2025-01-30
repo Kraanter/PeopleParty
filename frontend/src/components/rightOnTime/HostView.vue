@@ -4,9 +4,6 @@ import { type IntroductionData } from '@/components/introduction/Introduction.vu
 import Introduction from '@/components/introduction/Introduction.vue'
 import {
   GameStateType,
-  RightOnTimePayload,
-  RightOnTimeResultPayload,
-  RightOnTimeRoundResultPayload,
   MiniGameIntroductionPayload,
   type MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
@@ -14,10 +11,8 @@ import {
   type RightOnTimeData,
   type RightOnTimeRoundResults,
   type RightOnTimeResults,
-  type RightOnTimeRoundResultPair,
-  type RightOnTimeResultPair,
 } from './RightOnTimeModels'
-import { NScrollbar, NCard } from 'naive-ui'
+import { NScrollbar, NCountdown } from 'naive-ui'
 import { parseRightOnTimePayload, parseRightOnTimeResults, parseRightOnTimeRoundResults } from './RightOnTimeProcessor'
 
 const props = defineProps<{
@@ -71,7 +66,7 @@ const update = (data: MiniGamePayloadType) => {
       break
     }
     case GameStateType.RightOnTimeRoundResult: {
-      viewState.value = ViewState.Results
+      viewState.value = ViewState.RoundResults
 
       roundResultsData.value = parseRightOnTimeRoundResults(data)
       break
@@ -108,8 +103,20 @@ defineExpose({
       <Introduction :data="intro" logoSVG="/assets/games/rightOnTime/rightOnTimeLogo.svg" />
     </div>
     <div v-else-if="viewState == ViewState.MiniGame">
-      <div class="h-full w-full flex flex-col justiy-items text-center m-auto mt-16">
-        {{ payloadData }}
+      <div class="flex h-full w-full justify-center items-center">
+        <div class="grid grid-cols-2 h-full w-full m-auto mt-16">
+          <div class="flex justify-center">
+            <span class="text-6xl flex justify-center mt-7 mr-6">Current round: </span>
+            <span class="text-primary text-9xl flex justify-center">{{ payloadData.round }}</span>
+          </div>
+          <div class="flex justify-center">
+            <span class="text-6xl flex justify-center mt-7 mr-6">Target: </span>
+            <span class="text-primary text-9xl flex justify-center">{{ (payloadData.target / 1000).toFixed(2) }}s</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex h-full w-full justify-center items-center">
+        <span class="font-mono text-primary" style="font-size: 250px;" :class="{ 'fade-out-button': payloadData.fade_out }"> {{ (payloadData.time / 1000).toFixed(2) }}s</span>
       </div>
     </div>
     <div v-else-if="viewState == ViewState.RoundResults">
@@ -124,3 +131,9 @@ defineExpose({
     </div>
   </div>
 </template>
+
+<style scoped>
+.fade-out-button{
+  animation: fade-out 3s;
+}
+</style>

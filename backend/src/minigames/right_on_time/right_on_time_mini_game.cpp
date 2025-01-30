@@ -37,14 +37,24 @@ void RightOnTime_Minigame::pause() {
     minigame_timer.pause();
     result_timer.pause();
     timer.pause();
-    minigame_timer.pause();
+    introduction_timer.pause();
 }
 
 void RightOnTime_Minigame::resume() {
     minigame_timer.resume();
     result_timer.resume();
     timer.resume();
-    minigame_timer.resume();
+    introduction_timer.resume();
+
+    // also send another (round)result payload, for some reason it gets deleted.
+    if (current_round != 4 && current_phase == 1) {
+        send_all_Round_Result();
+    } else {
+        send_result_data(host->client_id);
+        for (auto &player : players) {
+            send_result_data(player.first->client_id);
+        }
+    }
 }
 
 void RightOnTime_Minigame::introduction_update(int delta_time) {
@@ -80,11 +90,27 @@ void RightOnTime_Minigame::update(int delta_time) {
     time += delta_time;
 
     // todo, add clause when everyone submitted -> end the round.
+    if ((time + 500) % 1000 == 0) {
+        bool all_submitted = true;
+
+        for (auto &player : players) {
+            if (current_round == 1 && player.second.round_1_diff == 0 ? true : current_round == 2 && player.second.round_2_diff == 0 ? true : current_round == 3 && player.second.round_3_diff == 0 ? true : false) {
+                all_submitted = false;
+                break;
+            }
+        }
+
+        if (all_submitted) { 
+            // stop the round
+            time += 30 SECONDS;
+        }
+    }
 
     if (current_round == 1 && time >= target->round_1_target + 10 SECONDS) {
         if (current_phase == 0) {
             current_phase = 1;
-            // send round result
+            // send round result only to host
+            send_round_result_data(host->client_id);
         } else {
             result_time -= delta_time;
             if (result_time <= 0) {
@@ -97,8 +123,9 @@ void RightOnTime_Minigame::update(int delta_time) {
     }
     else if (current_round == 2 && time >= target->round_2_target + 10 SECONDS) {
         if (current_phase == 0) {
+            // send round result only to host
             current_phase = 1;
-            // send round result
+            send_round_result_data(host->client_id);
         } else {
             result_time -= delta_time;
             if (result_time <= 0) {
@@ -112,7 +139,8 @@ void RightOnTime_Minigame::update(int delta_time) {
     else if (current_round == 3 && time >= target->round_3_target + 10 SECONDS) {
         if (current_phase == 0) {
             current_phase = 1;
-            // send round result
+            // send round result only to host
+            send_round_result_data(host->client_id);
         } else {
             result_time -= delta_time;
             if (result_time <= 0) {
@@ -148,8 +176,6 @@ void RightOnTime_Minigame::process_input(const MiniGamePayloadType *payload, Cli
             if (current_phase == 0) {
                 if (current_round == 1) {
                     players[from].round_1_diff = input->time();
-                    std::cout << "RightOnTime input received" << std::endl;
-                    std::cout << "Time: " << input->time() << std::endl;
                 }
                 else if (current_round == 2) {
                     players[from].round_2_diff = input->time();

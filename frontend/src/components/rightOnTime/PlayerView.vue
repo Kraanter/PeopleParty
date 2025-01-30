@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, defineProps } from 'vue'
+import { ref, defineProps, computed } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import {
@@ -10,14 +10,11 @@ import {
   MiniGamePayloadType,
   Payload,
   RightOnTimePayload,
-  RightOnTimeResultPayload,
-  RightOnTimeRoundResultPayload,
 } from '@/flatbuffers/messageClass'
-import { type RightOnTimeData, type RightOnTimeResultPair, type RightOnTimeResults, type RightOnTimeRoundResultPair, type RightOnTimeRoundResults } from './RightOnTimeModels'
+import { type RightOnTimeData, type RightOnTimeResults, type RightOnTimeRoundResults } from './RightOnTimeModels'
 import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import PartyButton from '@/components/PartyButton.vue'
 import { parseRightOnTimePayload, parseRightOnTimeResults, parseRightOnTimeRoundResults } from './RightOnTimeProcessor'
 
 const websocketStore = useWebSocketStore()
@@ -31,7 +28,6 @@ enum ViewState {
   None,
   Introduction,
   MiniGame,
-  RoundResults,
   Results
 }
 
@@ -52,12 +48,11 @@ const payloadData = ref<RightOnTimeData>({
   submitted: []
 })
 
-// round results
-const roundResultsData = ref<RightOnTimeRoundResults>({
-  round: 0,
-  target: 0,
-  results: []
+const submitted = computed(() => {
+  return payloadData.value.submitted.includes(websocketStore.clientName)
 })
+
+const roundResultTime = ref<number>(0)
 
 // final results
 const resultsData = ref<RightOnTimeResults>({
@@ -69,13 +64,12 @@ const update = (data: MiniGamePayloadType) => {
     case GameStateType.RightOnTime: {
       viewState.value = ViewState.MiniGame
 
-      payloadData.value = parseRightOnTimePayload(data)
-      break
-    }
-    case GameStateType.RightOnTimeRoundResult: {
-      viewState.value = ViewState.Results
-
-      roundResultsData.value = parseRightOnTimeRoundResults(data, websocketStore.clientName)
+      // do it this way so it doesnt overide the empty submitted array, because it will send empty from server
+      const payload = parseRightOnTimePayload(data) 
+      payloadData.value.fade_out = payload.fade_out
+      payloadData.value.round = payload.round
+      payloadData.value.target = payload.target
+      payloadData.value.time = payload.time 
       break
     }
     case GameStateType.RightOnTimeResult: {
@@ -125,6 +119,9 @@ const sendPlayerAction = () => {
   websocketStore.sendMessage(
     buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType)
   )
+
+  payloadData.value.submitted.push(websocketStore.clientName)
+  roundResultTime.value = payloadData.value.time
 }
 
 defineExpose({
@@ -148,21 +145,27 @@ defineExpose({
     </div>
   </template>
   <template v-else-if="viewState == ViewState.MiniGame">
-    <div class="mt-32">
-      {{ payloadData.round }}
-      {{ payloadData.target }}
-      {{ payloadData.time }}
-      {{ payloadData.fade_out }}
-      <PartyButton @click="sendPlayerAction"> 
-        <p class="text-4xl m-6">Submit</p>
-      </PartyButton>
-    </div>
-  </template>
-  <template v-else-if="viewState == ViewState.RoundResults">
-    <div class="mt-32">
-      {{ roundResultsData.round }}
-      {{ roundResultsData.target }}
-      {{ roundResultsData.results }}
+    <div class="flex h-full w-full justify-center items-center">
+      <div class="mb-16 w-full">
+        <div class="flex flex-col justify-center mt-8">
+          <span class="text-4xl flex justify-center mb-2">Current round: </span>
+          <span class="text-primary text-7xl flex justify-center">{{ payloadData.round }}</span>
+        </div>
+        <div class="grid grid-rows-1 grid-cols-1">
+          <div class="flex justify-center mt-8 mb-16 relative overflow-visible tems-center h-full w-full">
+            <button :disabled="submitted" @click="sendPlayerAction" class="eject-button">
+              <span v-if="submitted">Locked</span>
+              <span v-else>Submit</span>
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-rows-2 grid-cols-2 justify-center mt-24">
+          <span class="text-4xl flex justify-center mb-2" :class="{'col-span-2': !submitted}">Target: </span>
+          <span class="text-4xl flex justify-center mb-2" v-if="submitted">Got: </span>
+          <span class="text-primary text-7xl flex justify-center" :class="{'col-span-2': !submitted}">{{ payloadData.target / 1000 }}s</span>
+          <span class="text-primary text-7xl flex justify-center" v-if="submitted">{{ roundResultTime / 1000 }}s</span>
+        </div>
+      </div>
     </div>
   </template>
   <template v-else-if="viewState == ViewState.Results">
@@ -171,3 +174,35 @@ defineExpose({
     </div>
   </template>
 </template>
+
+<style scoped>
+.eject-button {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  aspect-ratio: 1/1;
+  --size: min(70vmin, 70vmax);
+  max-width: var(--size);
+  max-height: var(--size);
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 8cap;
+  box-shadow: 0rem 0.4em 0em 0.04em darkred;
+  transition:
+    box-shadow 0.3s,
+    transform 0.3s !important;
+}
+
+.eject-button:disabled {
+  background-color: slategray;
+  transform: translateY(0.3em) !important;
+  box-shadow: 0rem 0.1em 0 0.04em black !important;
+}
+
+.eject-button:active:not(:disabled) {
+  transform: translateY(0.3em) !important;
+  box-shadow: 0rem 0.1em 0 0.04em darkred !important;
+}
+</style>
