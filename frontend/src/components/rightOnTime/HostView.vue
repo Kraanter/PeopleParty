@@ -12,7 +12,7 @@ import {
   type RightOnTimeRoundResults,
   type RightOnTimeResults,
 } from './RightOnTimeModels'
-import { NScrollbar, NCountdown } from 'naive-ui'
+import { NScrollbar, NCard } from 'naive-ui'
 import { parseRightOnTimePayload, parseRightOnTimeResults, parseRightOnTimeRoundResults } from './RightOnTimeProcessor'
 
 const props = defineProps<{
@@ -111,29 +111,93 @@ defineExpose({
           </div>
           <div class="flex justify-center">
             <span class="text-6xl flex justify-center mt-7 mr-6">Target: </span>
-            <span class="text-primary text-9xl flex justify-center">{{ (payloadData.target / 1000).toFixed(2) }}s</span>
+            <span class="text-primary text-9xl flex justify-center">{{ (payloadData.target / 1000).toFixed(0) }}s</span>
           </div>
         </div>
       </div>
       <div class="flex h-full w-full justify-center items-center">
-        <span class="font-mono text-primary" style="font-size: 250px;" :class="{ 'fade-out-button': payloadData.fade_out }"> {{ (payloadData.time / 1000).toFixed(2) }}s</span>
+        <span class="font-mono text-primary" style="font-size: 250px;" :class="{ 'fade-out-button': payloadData.fade_out }"> {{ (payloadData.time / 1000).toFixed(0) }}s</span>
       </div>
     </div>
     <div v-else-if="viewState == ViewState.RoundResults">
       <div class="flex flex-col gap-4 w-full h-full">
-        {{ roundResultsData }}
+        <div class="grid grid-cols-2 h-full w-full m-auto mt-16">
+          <div class="flex justify-center">
+            <span class="text-6xl flex justify-center mt-7 mr-6">Current round: </span>
+            <span class="text-primary text-9xl flex justify-center">{{ payloadData.round }}</span>
+          </div>
+          <div class="flex justify-center">
+            <span class="text-6xl flex justify-center mt-7 mr-6">Target: </span>
+            <span class="text-primary text-9xl flex justify-center">{{ (payloadData.target / 1000).toFixed(0) }}s</span>
+          </div>
+        </div>
+        <p class="text-4xl w-full text-center text-white mt-4">Round results:</p>
+        <n-scrollbar class="-mb-4">
+          <div class="grid gap-4">
+            <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in roundResultsData.results" :key="i">
+              <n-card>
+                <div class="w-full inline-flex justify-between text-2xl px-1">
+                  <p class="inline-flex">
+                    <span class="w-16">{{ i + 1 }}.</span
+                    ><span class="font-bold col-span-5">{{ player.player }}</span>
+                  </p>
+                  <p>
+                    <span v-if="player.diff == 0">Not pressed</span>
+                    <span v-else>difference: <span class="font-bold">{{ (player.diff / 1000).toFixed(1) }}</span>s</span>
+                  </p>
+                </div>
+              </n-card>
+            </div>
+          </div>
+        </n-scrollbar>
       </div>
     </div>
     <div v-else-if="viewState == ViewState.Results">
       <div class="flex flex-col gap-4 w-full h-full">
         {{ resultsData }}
+        <p class="text-4xl w-full text-center text-white mt-4">Round results:</p>
+        <n-scrollbar class="-mb-4">
+          <div class="grid gap-4">
+            <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in resultsData.results" :key="i">
+              <n-card>
+                <div class="w-full inline-flex justify-between text-2xl px-1">
+                  <p class="inline-flex">
+                    <span class="w-16">{{ i + 1 }}.</span
+                    ><span class="font-bold col-span-5">{{ player.name }}</span>
+                  </p>
+                  <p>
+                    <span v-if="player.round_one_diff == 0">Not pressed</span>
+                    <span v-else>{{ (player.round_one_diff / 1000).toFixed(1) }}s</span>
+                  </p>
+                  <p>
+                    <span v-if="player.round_two_diff == 0">Not pressed</span>
+                    <span v-else>{{ (player.round_two_diff / 1000).toFixed(1) }}s</span>
+                  </p>
+                  <p>
+                    <span v-if="player.round_three_diff == 0">Not pressed</span>
+                    <span v-else>{{ (player.round_three_diff / 1000).toFixed(1) }}s</span>
+                  </p>
+                  <p>
+                    <span v-if="player.average_diff_time == 0">Not pressed</span>
+                    <span v-else class="font-bold">{{ (player.average_diff_time / 1000).toFixed(2) }}s</span>
+                  </p>
+                </div>
+              </n-card>
+            </div>
+          </div>
+        </n-scrollbar>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+@keyframes fade-out {
+  from {opacity: 100%;}
+  to {opacity: 0%;}
+}
+
 .fade-out-button{
-  animation: fade-out 3s;
+  animation: fade-out 3s forwards;
 }
 </style>

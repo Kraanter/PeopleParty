@@ -11,11 +11,11 @@ import {
   Payload,
   RightOnTimePayload,
 } from '@/flatbuffers/messageClass'
-import { type RightOnTimeData, type RightOnTimeResults, type RightOnTimeRoundResults } from './RightOnTimeModels'
+import { type RightOnTimeData, type RightOnTimeResults } from './RightOnTimeModels'
 import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import { parseRightOnTimePayload, parseRightOnTimeResults, parseRightOnTimeRoundResults } from './RightOnTimeProcessor'
+import { parseRightOnTimePayload, parseRightOnTimeResults } from './RightOnTimeProcessor'
 
 const websocketStore = useWebSocketStore()
 
@@ -64,12 +64,7 @@ const update = (data: MiniGamePayloadType) => {
     case GameStateType.RightOnTime: {
       viewState.value = ViewState.MiniGame
 
-      // do it this way so it doesnt overide the empty submitted array, because it will send empty from server
-      const payload = parseRightOnTimePayload(data) 
-      payloadData.value.fade_out = payload.fade_out
-      payloadData.value.round = payload.round
-      payloadData.value.target = payload.target
-      payloadData.value.time = payload.time 
+      payloadData.value = parseRightOnTimePayload(data) 
       break
     }
     case GameStateType.RightOnTimeResult: {

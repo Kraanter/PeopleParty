@@ -48,7 +48,7 @@ void RightOnTime_Minigame::resume() {
 
     // also send another (round)result payload, for some reason it gets deleted.
     if (current_round != 4 && current_phase == 1) {
-        send_all_Round_Result();
+        send_round_result_data(host->client_id);
     } else {
         send_result_data(host->client_id);
         for (auto &player : players) {
@@ -83,7 +83,7 @@ void RightOnTime_Minigame::start_minigame() {
         }
     }
 
-    minigame_timer.setInterval([this]() { update(10 MILLISECONDS); }, 10 MILLISECONDS);
+    minigame_timer.setInterval([this]() { update(100 MILLISECONDS); }, 95 MILLISECONDS); // to account for time loss, not perfect but good enough
 }
 
 void RightOnTime_Minigame::update(int delta_time) {
@@ -160,9 +160,9 @@ void RightOnTime_Minigame::update(int delta_time) {
         int round_target = current_round == 1 ? target->round_1_target : current_round == 2 ? target->round_2_target : target->round_3_target;
         bool round_fadeout = current_round == 1 && time > target->round_1_fadeout ? true : current_round == 2 && time > target->round_2_fadeout ? true : current_round == 3 && time > target->round_3_fadeout ? true : false;
 
-        send_payload_data(host->client_id, true, round_target, round_fadeout);
+        send_payload_data(host->client_id, round_target, round_fadeout);
         for (auto &player : players) {
-            send_payload_data(player.first->client_id, false, round_target, round_fadeout);
+            send_payload_data(player.first->client_id, round_target, round_fadeout);
         }
     }
 }
@@ -175,13 +175,13 @@ void RightOnTime_Minigame::process_input(const MiniGamePayloadType *payload, Cli
 
             if (current_phase == 0) {
                 if (current_round == 1) {
-                    players[from].round_1_diff = input->time();
+                    players[from].round_1_diff = input->time() - target->round_1_target;
                 }
                 else if (current_round == 2) {
-                    players[from].round_2_diff = input->time();
+                    players[from].round_2_diff = input->time() - target->round_2_target;
                 }
                 else if (current_round == 3) {
-                    players[from].round_3_diff = input->time();
+                    players[from].round_3_diff = input->time() - target->round_3_target;
                     players[from].total_diff = abs(players[from].round_1_diff) + abs(players[from].round_2_diff) + abs(players[from].round_3_diff);
                 }
             }
@@ -189,17 +189,15 @@ void RightOnTime_Minigame::process_input(const MiniGamePayloadType *payload, Cli
     }
 }
 
-void RightOnTime_Minigame::send_payload_data(int client_id, bool is_host, int round_target, bool round_fadeout) {
+void RightOnTime_Minigame::send_payload_data(int client_id, int round_target, bool round_fadeout) {
     flatbuffers::FlatBufferBuilder builder;
 
     std::vector<flatbuffers::Offset<flatbuffers::String>> submitted_players;
-    if (is_host) {
-        for (auto &player : players) {
-            if (current_round == 1 && player.second.round_1_diff != 0 ? true : current_round == 2 && player.second.round_2_diff != 0 ? true : current_round == 3 && player.second.round_3_diff != 0 ? true : false) {
-                submitted_players.push_back(builder.CreateString(player.first->name));
-            }
+    for (auto &player : players) {
+        if (current_round == 1 && player.second.round_1_diff != 0 ? true : current_round == 2 && player.second.round_2_diff != 0 ? true : current_round == 3 && player.second.round_3_diff != 0 ? true : false) {
+            submitted_players.push_back(builder.CreateString(player.first->name));
         }
-    }  
+    }
     auto submitted_players_vector = builder.CreateVector(submitted_players);
 
     auto payload = CreateRightOnTimePayload(builder, current_round, round_target, time, round_fadeout, submitted_players_vector);

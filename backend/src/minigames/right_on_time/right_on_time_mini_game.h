@@ -50,7 +50,7 @@ public:
     std::string get_description() override { return "Stop the clock when the time is right, should be easy right?"; };
 private:
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
-    void send_payload_data(int client_id, bool is_host, int round_target, bool round_fadeout);
+    void send_payload_data(int client_id, int round_target, bool round_fadeout);
     void send_round_result_data(int client_id);
     void send_result_data(int client_id);
     void introduction_update(int delta_time);
