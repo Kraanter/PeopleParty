@@ -14,6 +14,7 @@ import {
 } from './RightOnTimeModels'
 import { NScrollbar, NCard } from 'naive-ui'
 import { parseRightOnTimePayload, parseRightOnTimeResults, parseRightOnTimeRoundResults } from './RightOnTimeProcessor'
+import FlipClock from './components/FlipClock.vue';
 
 const props = defineProps<{
   width: number
@@ -96,6 +97,8 @@ const update = (data: MiniGamePayloadType) => {
 defineExpose({
   update
 })
+
+const currentNumber = ref(0)
 </script>
 <template>
   <div class="h-full">
@@ -116,7 +119,10 @@ defineExpose({
         </div>
       </div>
       <div class="flex h-full w-full justify-center items-center">
+        <flip-clock :number="Number((payloadData.time / 1000).toFixed(0))" />
         <span class="font-mono text-primary" style="font-size: 250px;" :class="{ 'fade-out-button': payloadData.fade_out }"> {{ (payloadData.time / 1000).toFixed(0) }}s</span>
+        <flip-clock :number="currentNumber" />
+        <button @click="currentNumber++" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Increase</button>
       </div>
     </div>
     <div v-else-if="viewState == ViewState.RoundResults">
