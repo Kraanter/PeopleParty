@@ -93,9 +93,12 @@ export default {
     };
   },
   computed: {
+    isFlipping() {
+      return this.realClock.some((clock) => clock.degree > 0);
+    },
     computedRealClock() {
       const { realClock } = this;
-      const numberString = this.number.toString().padStart(2, "0"); // Ensure the number is 2 digits
+      const numberString = (this.isFlipping ? this.number - 1 : this.number).toString().padStart(2, "0"); // Ensure the number is 2 digits
 
       return realClock.map((clock, index) => {
         const currentDigit = parseInt(numberString[index]);
