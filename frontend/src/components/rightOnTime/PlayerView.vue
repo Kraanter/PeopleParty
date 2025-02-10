@@ -16,6 +16,7 @@ import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import { parseRightOnTimePayload, parseRightOnTimeResults } from './RightOnTimeProcessor'
+import { NScrollbar, NCard } from 'naive-ui'
 
 const websocketStore = useWebSocketStore()
 
@@ -64,7 +65,13 @@ const update = (data: MiniGamePayloadType) => {
     case GameStateType.RightOnTime: {
       viewState.value = ViewState.MiniGame
 
-      payloadData.value = parseRightOnTimePayload(data) 
+      payloadData.value = parseRightOnTimePayload(data)
+
+      // if not pressed in time, lock the button and say not pressed in time
+      if (payloadData.value.time >= payloadData.value.target + 9800) {
+        payloadData.value.submitted.push(websocketStore.clientName)
+        roundResultTime.value = 0
+      }
       break
     }
     case GameStateType.RightOnTimeResult: {
@@ -158,14 +165,48 @@ defineExpose({
           <span class="text-4xl flex justify-center mb-2" :class="{'col-span-2': !submitted}">Target: </span>
           <span class="text-4xl flex justify-center mb-2" v-if="submitted">Got: </span>
           <span class="text-primary text-7xl flex justify-center" :class="{'col-span-2': !submitted}">{{ payloadData.target / 1000 }}s</span>
-          <span class="text-primary text-7xl flex justify-center" v-if="submitted">{{ roundResultTime / 1000 }}s</span>
+          <span class="text-primary text-7xl flex justify-center" v-if="submitted">
+            <span class="text-3xl flex flex-col justify-center items-center" v-if="roundResultTime == 0"><span>Not</span><span>pressed</span></span>
+            <span v-else>{{ roundResultTime / 1000 }}s</span>
+          </span>
         </div>
       </div>
     </div>
   </template>
   <template v-else-if="viewState == ViewState.Results">
-    <div class="h-full w-full flex flex-cols mr-auto justify-center text-center mt-40">
-      {{ resultsData.results }}
+    <div class="flex flex-col gap-4 w-full h-full">
+      <p class="text-4xl w-full text-center text-white mt-4">Minigame results:</p>
+      <n-scrollbar class="-mb-4">
+        <div class="grid gap-4">
+          <div class="mx-auto mb-2 w-4/5">
+            <n-card>
+              <div class="w-full inline-flex justify-between text-2xl px-1">
+                <p class="inline-flex ml-6">Name</p>
+                <p>Average</p>
+              </div>
+            </n-card>
+          </div>
+          <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in resultsData.results" :key="i">
+            <n-card
+              :style="
+                player.name === websocketStore.clientName
+                  ? 'background-color: var(--color-primary-dark); color: white'
+                  : ''
+              "
+            >
+              <div class="w-full inline-flex justify-between text-2xl px-1">
+                <p class="inline-flex">
+                  <span class="w-12">{{ i + 1 }}.</span
+                  ><span class="font-bold col-span-5">{{ player.name }}</span>
+                </p>
+                <p>
+                  <span class="font-bold">{{ (player.average_diff_time / 1000).toFixed(1) }}s</span>
+                </p>
+              </div>
+            </n-card>
+          </div>
+        </div>
+      </n-scrollbar>
     </div>
   </template>
 </template>

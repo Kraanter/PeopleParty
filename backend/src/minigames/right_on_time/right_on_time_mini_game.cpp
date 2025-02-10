@@ -83,13 +83,12 @@ void RightOnTime_Minigame::start_minigame() {
         }
     }
 
-    minigame_timer.setInterval([this]() { update(100 MILLISECONDS); }, 95 MILLISECONDS); // to account for time loss, not perfect but good enough
+    minigame_timer.setInterval([this]() { update(100 MILLISECONDS); }, 100 MILLISECONDS);
 }
 
 void RightOnTime_Minigame::update(int delta_time) {
     time += delta_time;
 
-    // todo, add clause when everyone submitted -> end the round.
     if ((time + 500) % 1000 == 0) {
         bool all_submitted = true;
 

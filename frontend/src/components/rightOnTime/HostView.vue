@@ -158,11 +158,11 @@ defineExpose({
     </div>
     <div v-else-if="viewState == ViewState.Results">
       <div class="flex flex-col gap-4 w-full h-full">
-        <p class="text-4xl w-full text-center text-white mt-4">Round results:</p>
+        <p class="text-4xl w-full text-center text-white mt-4">Minigame results:</p>
         <div class="mx-auto mb-2 w-4/5">
           <n-card>
             <div class="w-full inline-flex justify-between text-2xl px-1">
-              <p class="inline-flex w-1/2 mr-10">Name</p>
+              <p class="inline-flex w-1/2 mr-10 pl-16">Name</p>
               <p>Round 1</p>
               <p>Round 2</p>
               <p>Round 3</p>
@@ -193,7 +193,7 @@ defineExpose({
                   </p>
                   <p>
                     <span v-if="player.average_diff_time == 0">Not pressed</span>
-                    <span v-else class="font-bold">{{ (player.average_diff_time / 1000).toFixed(2) }}s</span>
+                    <span v-else class="font-bold">{{ (player.average_diff_time / 1000).toFixed(1) }}s</span>
                   </p>
                 </div>
               </n-card>
