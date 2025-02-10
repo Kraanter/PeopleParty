@@ -98,7 +98,6 @@ defineExpose({
   update
 })
 
-const currentNumber = ref(0)
 </script>
 <template>
   <div class="h-full">
@@ -119,10 +118,9 @@ const currentNumber = ref(0)
         </div>
       </div>
       <div class="flex h-full w-full justify-center items-center">
-        <flip-clock :number="Number((payloadData.time / 1000).toFixed(0))" />
-        <span class="font-mono text-primary" style="font-size: 250px;" :class="{ 'fade-out-button': payloadData.fade_out }"> {{ (payloadData.time / 1000).toFixed(0) }}s</span>
-        <flip-clock :number="currentNumber" />
-        <button @click="currentNumber++" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Increase</button>
+        <div class="mt-16">
+          <flip-clock :number="Number((payloadData.time / 1000).toFixed(0))" :class="{ 'fade-out-button': payloadData.fade_out }"/>
+        </div>
       </div>
     </div>
     <div v-else-if="viewState == ViewState.RoundResults">
@@ -160,14 +158,24 @@ const currentNumber = ref(0)
     </div>
     <div v-else-if="viewState == ViewState.Results">
       <div class="flex flex-col gap-4 w-full h-full">
-        {{ resultsData }}
         <p class="text-4xl w-full text-center text-white mt-4">Round results:</p>
+        <div class="mx-auto mb-2 w-4/5">
+          <n-card>
+            <div class="w-full inline-flex justify-between text-2xl px-1">
+              <p class="inline-flex w-1/2 mr-10">Name</p>
+              <p>Round 1</p>
+              <p>Round 2</p>
+              <p>Round 3</p>
+              <p class="font-bold">Average</p>
+            </div>
+          </n-card>
+        </div>
         <n-scrollbar class="-mb-4">
           <div class="grid gap-4">
             <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in resultsData.results" :key="i">
               <n-card>
-                <div class="w-full inline-flex justify-between text-2xl px-1">
-                  <p class="inline-flex">
+                <div class="w-full inline-flex justify-between text-2xl px-1 pr-6"> 
+                  <p class="inline-flex w-1/2">
                     <span class="w-16">{{ i + 1 }}.</span
                     ><span class="font-bold col-span-5">{{ player.name }}</span>
                   </p>

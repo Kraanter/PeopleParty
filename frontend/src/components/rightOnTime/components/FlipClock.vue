@@ -170,9 +170,9 @@ export default {
 
 .container {
   position: relative;
-  width: 30px;
-  height: 45px;
-  perspective: 200px;
+  width: 150px;
+  height: 225px;
+  perspective: 400px;
   position: relative;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgb(0 0 0 / 40%);
@@ -196,9 +196,9 @@ export default {
 .card {
   border-radius: 4px;
   position: absolute;
-  font-size: 40px;
+  font-size: 200px;
   text-align: center;
-  line-height: 50px;
+  line-height: 250px;
   width: 100%;
   height: 50%;
   transform-style: preserve-3d;
@@ -231,7 +231,7 @@ export default {
 }
 
 .bg-down .inner .content {
-  transform: translateY(-48%);
+  transform: translateY(-45%);
   cursor: context-menu;
 }
 
@@ -240,7 +240,7 @@ export default {
 }
 
 .back .content {
-  transform-origin: 50% 47%;
+  transform-origin: 50% 45%;
   transform: rotate(180deg);
   cursor: context-menu;
 }

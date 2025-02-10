@@ -10,14 +10,14 @@ RightOnTime_Minigame::RightOnTime_Minigame(Game *game) : MiniGame(game) {
     }
 
     target = new RightOnTime_Minigame_Target();
-    target->round_1_target = (10 + (std::rand() % (15 - 10 + 1))) SECONDS; // between 10 and 15 seconds
-    target->round_1_fadeout = target->round_1_target - ((4 + (std::rand() % (6 - 4 + 1))) SECONDS); // between 4 and 6 seconds before target
+    target->round_1_target = (11 + (std::rand() % (14 - 11 + 1))) SECONDS; // between 11 and 14 seconds
+    target->round_1_fadeout = target->round_1_target - ((5 + (std::rand() % (7 - 5 + 1))) SECONDS); // between 5 and 7 seconds before target
 
-    target->round_2_target = (15 + (std::rand() % (20 - 15 + 1))) SECONDS; // between 15 and 20 seconds
-    target->round_2_fadeout = target->round_2_target - ((6 + (std::rand() % (8 - 6 + 1))) SECONDS); // between 6 and 8 seconds before target
+    target->round_2_target = (11 + (std::rand() % (15 - 11 + 1))) SECONDS; // between 11 and 15 seconds
+    target->round_2_fadeout = target->round_2_target - ((4 + (std::rand() % (6 - 4 + 1))) SECONDS); // between 4 and 6 seconds before target
 
-    target->round_3_target = (15 + (std::rand() % (20 - 15 + 1))) SECONDS; // between 15 and 20 seconds
-    target->round_3_fadeout = target->round_3_target - ((8 + (std::rand() % (10 - 8 + 1))) SECONDS); // between 8 and 10 seconds before target
+    target->round_3_target = (12 + (std::rand() % (16 - 12 + 1))) SECONDS; // between 12 and 16 seconds
+    target->round_3_fadeout = target->round_3_target - ((4 + (std::rand() % (5 - 4 + 1))) SECONDS); // between 4 and 5 seconds before target
 }
 
 RightOnTime_Minigame::~RightOnTime_Minigame() {
