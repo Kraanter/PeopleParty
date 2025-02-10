@@ -126,7 +126,6 @@ void LaunchParty_Minigame::update(int delta_time) {
 }
 
 void LaunchParty_Minigame::start_result() {
-
     send_result_data(host->client_id);
     for (auto &player : players) {
         send_result_data(player.first->client_id);

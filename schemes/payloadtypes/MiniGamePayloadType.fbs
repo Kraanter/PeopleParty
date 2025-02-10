@@ -19,6 +19,9 @@ include "minigamedata/MemoryMixer/MemoryMixerPlayerSubmittedPayload.fbs";
 include "minigamedata/MemoryMixer/MemoryMixerResultPayload.fbs";
 include "minigamedata/MemoryMixer/MemoryMixerRoundResultPayload.fbs";
 include "minigamedata/MiniGameIntroductionPayload.fbs";
+include "minigamedata/RightOnTime/RightOnTimePayload.fbs";
+include "minigamedata/RightOnTime/RightOnTimeResultPayload.fbs";
+include "minigamedata/RightOnTime/RightOnTimeRoundResultPayload.fbs";
 include "minigamedata/RPSBracket/RPSBracketHostPayload.fbs";
 include "minigamedata/RPSBracket/RPSBracketPlayerInputPayload.fbs";
 include "minigamedata/RPSBracket/RPSBracketPlayerPayload.fbs";
@@ -42,6 +45,9 @@ enum GameStateType: byte {
     MemoryMixerResult,
     MemoryMixerRoundResult,
     MiniGameIntroduction,
+    RightOnTime,
+    RightOnTimeResult,
+    RightOnTimeRoundResult,
     RPSBracketHost,
     RPSBracketPlayerInput,
     RPSBracketPlayer,
@@ -66,6 +72,9 @@ union GameStatePayload {
     MemoryMixerResultPayload,
     MemoryMixerRoundResultPayload,
     MiniGameIntroductionPayload,
+    RightOnTimePayload,
+    RightOnTimeResultPayload,
+    RightOnTimeRoundResultPayload,
     RPSBracketHostPayload,
     RPSBracketPlayerInputPayload,
     RPSBracketPlayerPayload,

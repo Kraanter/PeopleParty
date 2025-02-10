@@ -1,0 +1,9 @@
+table RightOnTimePayload {
+    round: short;
+    target: short;
+    time: long;
+    fade_out: bool;
+    submitted: [string];
+}
+
+root_type RightOnTimePayload;

@@ -28,7 +28,7 @@ import {
 import * as flatbuffers from 'flatbuffers'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
-import { NCard } from 'naive-ui'
+import { NCard, NScrollbar } from 'naive-ui'
 import PeoplePartyLogo from '../PeoplePartyLogo.vue'
 
 const websocketStore = useWebSocketStore()

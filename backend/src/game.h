@@ -16,6 +16,7 @@
 #include "minigames/business_bailout/business_bailout_minigame.h"
 #include "minigames/rps_bracket/rps_bracket_minigame.h"
 #include "minigames/launch_party/launch_party_mini_game.h"
+#include "minigames/right_on_time/right_on_time_mini_game.h"
 #include <queue>
 #include <map>
 #include <algorithm>
