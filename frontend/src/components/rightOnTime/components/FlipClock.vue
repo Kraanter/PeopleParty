@@ -109,7 +109,7 @@ export default {
           current: currentDigit,
           nextFormat: `0${nextDigit}`,
           currentFormat: `0${currentDigit}`,
-          ifTens: parseInt(currentDigit / 10) !== parseInt(nextDigit / 10),
+          ifTens: index === 1 ? parseInt(currentDigit / 10) !== parseInt(nextDigit / 10) : this.number % 10 === 0,
         };
       });
     },
