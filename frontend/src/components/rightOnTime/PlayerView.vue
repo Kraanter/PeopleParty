@@ -79,7 +79,7 @@ const update = (data: MiniGamePayloadType) => {
     case GameStateType.RightOnTimeResult: {
       viewState.value = ViewState.Results
 
-      resultsData.value = parseRightOnTimeResults(data, websocketStore.clientName)
+      resultsData.value = parseRightOnTimeResults(data)
       break
     }
     case GameStateType.MiniGameIntroduction: {
