@@ -43,21 +43,20 @@ export function parseRightOnTimeRoundResults(data: MiniGamePayloadType, clientNa
     }
 }
 
-export function parseRightOnTimeResults(data: MiniGamePayloadType, clientName: string = ''): RightOnTimeResults {
+export function parseRightOnTimeResults(data: MiniGamePayloadType): RightOnTimeResults {
     const miniGameResultPayload: RightOnTimeResultPayload = data.gamestatepayload(new RightOnTimeResultPayload())
 
     const results: RightOnTimeResultPair[] = []
     for (let i = 0; i < miniGameResultPayload.minigameResultsLength(); i++) {
         const result = miniGameResultPayload.minigameResults(i)
-        if (clientName == '' || result.name() == clientName) {
-            results.push({
-            name: decodeURI(result.name()) || '',
-            round_one_diff: Number(result.roundOneDiff()),
-            round_two_diff: Number(result.roundTwoDiff()),
-            round_three_diff: Number(result.roundThreeDiff()),
-            average_diff_time: Number(result.averageDiffTime())
-            })
-        }
+
+        results.push({
+        name: decodeURI(result.name()) || '',
+        round_one_diff: Number(result.roundOneDiff()),
+        round_two_diff: Number(result.roundTwoDiff()),
+        round_three_diff: Number(result.roundThreeDiff()),
+        average_diff_time: Number(result.averageDiffTime())
+        })
     }
 
     return {
