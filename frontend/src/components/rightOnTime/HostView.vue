@@ -117,9 +117,12 @@ defineExpose({
           </div>
         </div>
       </div>
-      <div class="flex h-full w-full justify-center items-center">
+      <div class="flex flex-col h-full w-full justify-center items-center">
         <div class="mt-16">
           <flip-clock :number="Number((payloadData.time / 1000).toFixed(0))" :class="{ 'fade-out-button': payloadData.fade_out }"/>
+        </div>
+        <div class="mt-12">
+          <span class="text text-white text-6xl">Watch out! The clock can disapear anytime.</span>
         </div>
       </div>
     </div>
