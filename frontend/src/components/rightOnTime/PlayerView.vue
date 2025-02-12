@@ -167,7 +167,7 @@ defineExpose({
           <span class="text-4xl flex justify-center mb-2" :class="{'col-span-2': !submitted}">Target: </span>
           <span class="text-4xl flex justify-center mb-2" v-if="submitted">Got: </span>
           <span class="text-primary text-7xl flex justify-center" :class="{'col-span-2': !submitted}">{{ payloadData.target / 1000 }}s</span>
-          <span class="text-primary text-7xl flex justify-center" v-if="submitted">
+          <span class="text-primary text-7xl flex justify-center" style="margin-top: -8px;" v-if="submitted">
             <span class="text-3xl flex flex-col justify-center items-center" v-if="roundResultTime == 0"><span>Not</span><span>pressed</span>(+{{ payloadData.target / 1000 }}s diff)</span>
             <span v-else>{{ roundResultTime / 1000 }}s</span>
           </span>
