@@ -69,8 +69,10 @@ const update = (data: MiniGamePayloadType) => {
 
       // if not pressed in time, lock the button and say not pressed in time
       if (payloadData.value.time >= payloadData.value.target + 9800) {
-        payloadData.value.submitted.push(websocketStore.clientName)
-        roundResultTime.value = 0
+        if (roundResultTime.value === 0) {
+          payloadData.value.submitted.push(websocketStore.clientName)
+          roundResultTime.value = 0
+        }
       }
       break
     }
@@ -166,7 +168,7 @@ defineExpose({
           <span class="text-4xl flex justify-center mb-2" v-if="submitted">Got: </span>
           <span class="text-primary text-7xl flex justify-center" :class="{'col-span-2': !submitted}">{{ payloadData.target / 1000 }}s</span>
           <span class="text-primary text-7xl flex justify-center" v-if="submitted">
-            <span class="text-3xl flex flex-col justify-center items-center" v-if="roundResultTime == 0"><span>Not</span><span>pressed</span></span>
+            <span class="text-3xl flex flex-col justify-center items-center" v-if="roundResultTime == 0"><span>Not</span><span>pressed</span>(+{{ payloadData.target / 1000 }}s diff)</span>
             <span v-else>{{ roundResultTime / 1000 }}s</span>
           </span>
         </div>

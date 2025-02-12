@@ -37,7 +37,7 @@ export function parseRightOnTimeRoundResults(data: MiniGamePayloadType, clientNa
     }
 
     return {
-        results: results,
+        results: results.sort((a, b) => Math.abs(a.diff) - Math.abs(b.diff)),
         round: miniGameResultPayload.round(),
         target: miniGameResultPayload.target()
     }

@@ -146,7 +146,7 @@ defineExpose({
                     ><span class="font-bold col-span-5">{{ player.player }}</span>
                   </p>
                   <p>
-                    <span v-if="player.diff == 0">Not pressed</span>
+                    <span v-if="player.diff == roundResultsData.target">Not pressed (+<span class="font-bold">{{ roundResultsData.target/1000 }}</span>s)</span>
                     <span v-else>difference: <span class="font-bold">{{ (player.diff / 1000).toFixed(1) }}</span>s</span>
                   </p>
                 </div>
