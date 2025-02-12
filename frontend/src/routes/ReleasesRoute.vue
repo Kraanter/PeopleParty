@@ -14,9 +14,9 @@ const releasesStore = useReleasesStore()
         <div class="flex h-full w-full justify-center items-center">
             <NScrollbar class="">
                 <div class="flex justify-center items-center mb-4">
-                    <div class="text text-6xl mt-6">PeopleParty versions</div>
+                    <div class="text text-6xl mt-6">Latest versions</div>
                 </div>
-                <div v-for="(release, i) in releasesStore.releases" :key="i" class="h-full w-full flex justify-center items-center">
+                <div v-for="(release, i) in releasesStore.releases" :key="i" class="h-full w-full flex justify-center items-center flex-col">
                     <div v-if="release.body" class="" :class="isMobile() ? 'w-full' : 'w-2/3 px-10'">
                         <div class="grid grid-rows m-2 backdrop-blur-xl p-4 rounded-3xl">
                             <div class="grid grid-cols-2 m-2">
@@ -30,6 +30,19 @@ const releasesStore = useReleasesStore()
                             <div class="mt-2 mb-2" :class="isMobile() ? 'ml-2' : 'ml-8'">
                                 <pre class="text text-black">{{ release.body }}</pre>
                             </div>
+                            <div v-if="i == 0" class="flex m-2 mt-6 w-full flex-col text text-lg">
+                                <span>Did you find a bug or do you want to suggest a feature or change?</span>
+                                <span>
+                                    Check out our
+                                    <a href="https://github.com/Kraanter/PeopleParty/issues" target="_blank" class="text-primary underline">GitHub</a>
+                                    and create an issue!
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="i == 0" class="flex justify-center items-center mb-4">
+                        <div class="flex justify-center items-center mb-4">
+                            <div class="text text-6xl mt-28">Older versions</div>
                         </div>
                     </div>
                 </div>

@@ -54,6 +54,7 @@ private:
     void send_round_result_data(int client_id);
     void send_result_data(int client_id);
     void introduction_update(int delta_time);
+    void handle_not_pressed(int round, int round_target);
 };
 
 
