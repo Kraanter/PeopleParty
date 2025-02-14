@@ -41,10 +41,17 @@ const maxValue = computed(() => Math.max(...points.value.map((point) => point.y)
 const time = computed(() => points.value[points.value.length - 1].x)
 // Angle between value and last value
 const angle = computed(() => {
-  if (points.value.length < 2) return 0
-  const lastPoint = interpPosition(points.value[points.value.length - 2])
-  const currentPoint = interpPosition(points.value[points.value.length - 1])
-  return Math.atan2(currentPoint[0] - lastPoint[0], currentPoint[1] - lastPoint[1])
+  const numPoints = points.value.length
+  if (numPoints < 2) return 0
+
+  // Choose how many points to look back for a smoother angle
+  const lookbackSteps = Math.min(5, numPoints - 1)
+
+  const currentPoint = interpPosition(points.value[numPoints - 1])
+  const earlierPoint = interpPosition(points.value[numPoints - 1 - lookbackSteps])
+
+  // Calculate angle from earlier point to current point
+  return Math.atan2(currentPoint[0] - earlierPoint[0], currentPoint[1] - earlierPoint[1])
 })
 const size = ref(75)
 
@@ -204,7 +211,12 @@ function renderMinigame(graphics: Graphics) {
         />
       </Application>
     </div>
-    <div class="flex m-4 w-full justify-center items-center">
+    <div class="flex ml-4 mt-4 w-full justify-start items-start">
+      <div class="z-20 justify-start items-start">
+        <span class="text text-[2vw] text-white ">Sell when the price is the highest!<br> But whatch out for the big crash.</span>
+      </div>
+    </div>
+    <div class="flex w-full justify-center items-center mt" style="margin-top: -6rem;">
       <MoneyCounter :value />
     </div>
   </template>
