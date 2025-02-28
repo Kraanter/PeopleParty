@@ -1,0 +1,8 @@
+#ifndef INCLUDE_SRC_DEFINES_H_
+#define INCLUDE_SRC_DEFINES_H_
+
+#define MILLISECONDS * 1
+#define SECONDS * 1000
+#define MINUTES * 60 SECONDS
+
+#endif  // INCLUDE_SRC_DEFINES_H_
