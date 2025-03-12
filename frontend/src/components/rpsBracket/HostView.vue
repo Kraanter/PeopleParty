@@ -89,34 +89,44 @@ function render(graphics: Graphics) {
       const x = xMargin + col * bracketWidth
       const y = yMargin + row * currentBracketHeight
 
-      // left side of bracket (dont if most left col)
-      if (col != 0) {
-        graphics.moveTo(xMargin + col * bracketWidth, y + currentBracketHeight / 2)
-        graphics.lineTo(xMargin + col * bracketWidth + bracketWidth / 8, y + currentBracketHeight / 2)
-      }
-
-      // right side of bracket (dont if most right col)
-      if (col != bracketCols.value - 1) {
-        graphics.moveTo(xMargin + (col + 1) * bracketWidth, y + currentBracketHeight / 2)
-        graphics.lineTo(xMargin + (col + 1) * bracketWidth - bracketWidth / 8, y + currentBracketHeight / 2)
-      }
-
       // draw vertical line between 2 matches (not between but to the side of the next match)
       if ((row + 1) % 2 == 0) {
         if (flip) {
           graphics.moveTo(xMargin + col * bracketWidth, y + currentBracketHeight / 2)
-          graphics.lineTo(xMargin + col * bracketWidth, y - currentBracketHeight / 2)
+          graphics.lineTo(xMargin + col * bracketWidth, y)
         } else {
           graphics.moveTo(xMargin + (col + 1) * bracketWidth, y + currentBracketHeight / 2)
-          graphics.lineTo(xMargin + (col + 1) * bracketWidth, y - currentBracketHeight / 2)
+          graphics.lineTo(xMargin + (col + 1) * bracketWidth, y)
+        }
+      }
+      // TODO: move these inside the match if statement
+      if ((row + 1) % 2 == 0) {
+        if (flip) {
+          graphics.moveTo(xMargin + col * bracketWidth, y - currentBracketHeight / 2)
+          graphics.lineTo(xMargin + col * bracketWidth, y)
+        } else {
+          graphics.moveTo(xMargin + (col + 1) * bracketWidth, y - currentBracketHeight / 2)
+          graphics.lineTo(xMargin + (col + 1) * bracketWidth, y)
         }
       }
 
-      // draw rectangle arround match
       const curMatchIndex = getMatchIndex(roundNr, row, flip)
       const match = bracket.value[curMatchIndex];
-
+      
       if (match.left.name !== '' && match.right.name !== '' || col != 0 && col != bracketCols.value - 1) {
+        // left side line of bracket (dont if most left col)
+        if (col != 0) {
+          graphics.moveTo(xMargin + col * bracketWidth, y + currentBracketHeight / 2)
+          graphics.lineTo(xMargin + col * bracketWidth + bracketWidth / 8, y + currentBracketHeight / 2)
+        }
+        
+        // right side line of bracket (dont if most right col)
+        if (col != bracketCols.value - 1) {
+          graphics.moveTo(xMargin + (col + 1) * bracketWidth, y + currentBracketHeight / 2)
+          graphics.lineTo(xMargin + (col + 1) * bracketWidth - bracketWidth / 8, y + currentBracketHeight / 2)
+        }
+
+        // draw rectangle arround match
         graphics.drawRect(x + bracketWidth / 8, (y + currentBracketHeight / 2) - 50, bracketWidth - bracketWidth / 4, 100)
       }
     }
