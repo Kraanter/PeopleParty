@@ -12,11 +12,11 @@ BusinessBailout_Minigame::BusinessBailout_Minigame(Game *game) : MiniGame(game) 
 
     int points = minigame_time / dt;
     double value = 0;
-    double upward_bias = 1.2;
+    double upward_bias = 1.15;
     double max_step_up = 20.0;
-    double min_step_up = 1.0;
+    double min_step_up = 2.0;
     double max_step_down = 25.0;
-    double min_step_down = 2.0;
+    double min_step_down = 3.0;
 
     int direction = 1; // 1 = up, -1 = down
     int same_direction_steps = 0;
