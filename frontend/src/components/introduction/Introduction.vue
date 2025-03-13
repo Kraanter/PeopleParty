@@ -1,12 +1,18 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { defineProps, toRefs } from 'vue'
+import { defineProps, ref, toRefs } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 
 export type IntroductionData = {
   title: string
   description: string
   time_left: number
+}
+
+const noPicture = ref(false);
+
+function onError() {
+  noPicture.value = true;
 }
 
 const props = defineProps<{
@@ -23,8 +29,8 @@ const { data: introduction } = toRefs(props)
         <TimeComponent :timeLeft="introduction.time_left" />
       </div>
     </div>
-    <div class="flex justify-stretch mt-4 flex flex-col justify-center">
-      <img :src="props.logoSVG" alt="logo" class="h-1/5 mx-auto" />
+    <div v-if="!noPicture" class="flex justify-stretch mt-4 flex flex-col justify-center">
+      <img :src="props.logoSVG" alt="logo" class="h-1/5 mx-auto" v-on:error="onError()" />
     </div>
 
     <div class="flex justify-stretch mt-4 w-full h-full flex flex-col justify-center">

@@ -66,6 +66,22 @@ interface playerDataPayload {
 // game data
 const playerData = ref<playerDataPayload>()
 
+const timerId = ref(null);
+const showMatchResultBool = ref(false);
+const firstTime = ref(true);
+
+function startTimer() {
+  if (timerId.value) {
+    clearTimeout(timerId.value);
+  }
+
+  showMatchResultBool.value = true;
+
+  timerId.value = setTimeout(() => {
+    showMatchResultBool.value = false;
+  }, 6000);
+};
+
 function update(payload: MiniGamePayloadType) {
   switch (payload.gamestatetype()) {
     case GameStateType.MiniGameIntroduction: {
@@ -83,6 +99,12 @@ function update(payload: MiniGamePayloadType) {
     case GameStateType.RPSBracketPlayer: {
       viewState.value = ViewState.MiniGame
       const input: RPSBracketPlayerPayload = payload.gamestatepayload(new RPSBracketPlayerPayload())
+
+      if (firstTime.value) {
+        firstTime.value = false
+      } else {
+        startTimer() // to ensure the match result is shown after match
+      }
 
       playerData.value = {
         choice: (input.choice() || 0) as RPSChoice,
@@ -146,7 +168,13 @@ defineExpose({ update })
   </template>
   <template v-else-if="viewState === ViewState.MiniGame && playerData">
     <div class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
-      <div class="w-full">
+      <div v-if="!showMatchResultBool && playerData.winner != '' && playerData.winner != playerData.opponentName">
+        <span class="text text-white text-2xl mr-4">Waiting for opponent...</span>
+      </div>
+      <div v-else-if="!showMatchResultBool && playerData.winner != ''">
+        <span class="text text-white text-2xl mr-4">You are eliminated<br> from this tournement.</span>
+      </div>
+      <div v-else class="w-full">
         <div class="absolute top-2 w-full mt-4">
           <div>
             <p class="text-2xl text-white">Playing against: {{ playerData.opponentName }}</p>
@@ -182,14 +210,6 @@ defineExpose({ update })
                 </div>
               </div>
             </div>
-            <div v-if="playerData.winner != ''">
-              <div v-if="playerData.winner != playerData.opponentName">
-                <span class="text text-3xl">You won this match!</span>
-              </div>
-              <div v-else>
-                <span class="text text-3xl">You lost!</span>
-              </div>
-            </div>
           </n-card>
         </div>
         <div class="w-full mt-40 px-4">
@@ -214,17 +234,11 @@ defineExpose({ update })
             </div>
           </div>
         </div>
-        <div v-if="playerData.winner != ''" class="absolute bottom-0 mb-16 right-2">
-          <div v-if="playerData.winner != playerData.opponentName">
-            <span class="text text-white text-2xl mr-4"> Waiting on <br> next opponent...</span>
-          </div>
-          <div v-else>
-            <span class="text text-white text-2xl"> You are eliminated<br> from this tournement.</span>
-          </div>
-        </div>
-        <div class="absolute bottom-0 px-8 mb-16">
-          <div v-if="playerData.time_left > 0">
-            <TimeComponent :timeLeft="playerData.time_left" />
+        <div class="absolute bottom-10 w-full">
+          <div class="flex justify-center items-center">
+            <div v-if="playerData.time_left > 0">
+              <TimeComponent :timeLeft="playerData.time_left" />
+            </div>
           </div>
         </div>
       </div>
