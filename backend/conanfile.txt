@@ -1,5 +1,5 @@
 [requires]
-uwebsockets/20.62.0
+uwebsockets/20.71.0
 doctest/2.4.11
 flatbuffers/24.3.25
 
