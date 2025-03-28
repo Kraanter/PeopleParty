@@ -149,6 +149,10 @@ function player_action(action: RPSChoice) {
   )
 }
 
+function isResultScreen() {
+  return playerData.value.opponentChoice && playerData.value.winner != '' || playerData.value.choice != RPSChoice.None && playerData.value.choice == playerData.value.opponentChoice
+}
+
 defineExpose({ update })
 </script>
 <template>
@@ -175,12 +179,26 @@ defineExpose({ update })
         <span class="text text-white text-2xl mr-4">You are eliminated<br> from this tournement.</span>
       </div>
       <div v-else class="w-full">
-        <div class="absolute top-2 w-full mt-4">
+        <!-- top component that shows opponents name //both screens -->
+        <div class="absolute top-12 w-full mt-4">
           <div>
-            <p class="text-2xl text-white">Playing against: {{ playerData.opponentName }}</p>
+            <span class="text-2xl text-white">Opponent:</span>
+          </div>
+          <div>
+            <span class="text-5xl text-primary">{{ playerData.opponentName }}</span>
           </div>
         </div>
-        <div class="mt-4 absolute top-20 right-1 left-1">
+        <!-- show if you won or lost //only on result screen -->
+        <div v-if="isResultScreen() && showMatchResultBool" class="absolute top-40 w-full mt-4">
+          <div v-if="playerData.winner != '' && playerData.winner != playerData.opponentName">
+            <span class="text-6xl text-primary">You Won!</span>
+          </div>
+          <div v-else-if="playerData.winner != ''">
+            <span class="text-6xl text-primary">You Lost!</span>
+          </div>
+        </div>
+        <!-- card component that shows the outcome of the match //only on result screen -->
+        <div v-if="isResultScreen()" class="mt-24 top-2 right-1 left-1">
           <n-card 
             class="text-2xl text-white w-full" 
             :class="{ 
@@ -190,7 +208,7 @@ defineExpose({ update })
           >
             <div class="flex justify-center items-center gap-10">
               <div>
-                <p class="text-xl mb-4">Selected weapon:</p>
+                <p class="text-xl mb-4">You:</p>
                 <div v-if="!Number.isNaN(playerData.choice)">
                   <img
                   class="m-auto size-32 aspect-square"
@@ -200,7 +218,7 @@ defineExpose({ update })
                 </div>
               </div>
               <div v-if="playerData.opponentChoice && playerData.winner != '' || playerData.choice != RPSChoice.None && playerData.choice == playerData.opponentChoice">
-                <p class="text-xl mb-4">Opponent weapon:</p>
+                <p class="text-xl mb-4">{{ playerData.opponentName }}:</p>
                 <div v-if="!Number.isNaN(playerData.opponentChoice)">
                   <img
                   class="m-auto size-32 aspect-square"
@@ -212,7 +230,16 @@ defineExpose({ update })
             </div>
           </n-card>
         </div>
-        <div class="w-full mt-40 px-4">
+        <!-- time component //only on match screen-->
+        <div v-if="!isResultScreen()" class="bottom-10 w-full">
+          <div class="flex justify-center items-center">
+            <div v-if="playerData.time_left > 0">
+              <TimeComponent :timeLeft="playerData.time_left" />
+            </div>
+          </div>
+        </div>
+        <!-- choice buttons //only on match screen -->
+        <div v-if="!isResultScreen()" class="w-full mt-60 px-4">
           <div class="grid grid-cols-3 gap-4">
             <div v-for="(choice, i) in RPSMap" @click="player_action(i)" :key="choice">
               <PartyButton
@@ -234,11 +261,19 @@ defineExpose({ update })
             </div>
           </div>
         </div>
-        <div class="absolute bottom-10 w-full">
-          <div class="flex justify-center items-center">
-            <div v-if="playerData.time_left > 0">
-              <TimeComponent :timeLeft="playerData.time_left" />
-            </div>
+        <!-- outcome text (eliminated or waiting on next match to start) //only on result screen -->
+        <div class="w-full flex mt-20 px-4 justify-center items-center">
+          <div v-if="playerData.winner != '' && playerData.winner != playerData.opponentName">
+            <span class="text text-white text-3xl mr-4">
+              <div> Waiting for next </div>
+              <div> match to start! </div>
+            </span>
+          </div>
+          <div v-else-if="playerData.winner != ''">
+            <span class="text text-white text-3xl mr-4">
+              <div> You are eliminated </div>
+              <div> from this tournement. </div>
+            </span>
           </div>
         </div>
       </div>
