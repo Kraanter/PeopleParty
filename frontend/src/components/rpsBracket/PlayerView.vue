@@ -171,7 +171,7 @@ defineExpose({ update })
     </div>
   </template>
   <template v-else-if="viewState === ViewState.MiniGame && playerData">
-    <div class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
+    <div class="flex flex-col m-2 text-center gap-4 h-full">
       <div v-if="!showMatchResultBool && playerData.winner != '' && playerData.winner != playerData.opponentName">
         <span class="text text-white text-2xl mr-4">Waiting for opponent...</span>
       </div>
@@ -180,7 +180,7 @@ defineExpose({ update })
       </div>
       <div v-else class="w-full">
         <!-- top component that shows opponents name //both screens -->
-        <div class="absolute top-12 w-full mt-4">
+        <div class="w-full mt-4">
           <div>
             <span class="text-2xl text-white">Opponent:</span>
           </div>
@@ -189,7 +189,7 @@ defineExpose({ update })
           </div>
         </div>
         <!-- show if you won or lost //only on result screen -->
-        <div v-if="isResultScreen() && showMatchResultBool" class="absolute top-40 w-full mt-4">
+        <div v-if="isResultScreen() && showMatchResultBool" class="w-full mt-24">
           <div v-if="playerData.winner != '' && playerData.winner != playerData.opponentName">
             <span class="text-6xl text-primary">You Won!</span>
           </div>
@@ -198,7 +198,7 @@ defineExpose({ update })
           </div>
         </div>
         <!-- card component that shows the outcome of the match //only on result screen -->
-        <div v-if="isResultScreen()" class="mt-24 top-2 right-1 left-1">
+        <div v-if="isResultScreen()" class="mt-16 top-2 right-1 left-1">
           <n-card 
             class="text-2xl text-white w-full" 
             :class="{ 
@@ -231,7 +231,7 @@ defineExpose({ update })
           </n-card>
         </div>
         <!-- time component //only on match screen-->
-        <div v-if="!isResultScreen()" class="bottom-10 w-full">
+        <div v-if="!isResultScreen()" class="mt-16 w-full">
           <div class="flex justify-center items-center">
             <div v-if="playerData.time_left > 0">
               <TimeComponent :timeLeft="playerData.time_left" />
@@ -239,7 +239,7 @@ defineExpose({ update })
           </div>
         </div>
         <!-- choice buttons //only on match screen -->
-        <div v-if="!isResultScreen()" class="w-full mt-60 px-4">
+        <div v-if="!isResultScreen()" class="w-full mt-36 px-4">
           <div class="grid grid-cols-3 gap-4">
             <div v-for="(choice, i) in RPSMap" @click="player_action(i)" :key="choice">
               <PartyButton
