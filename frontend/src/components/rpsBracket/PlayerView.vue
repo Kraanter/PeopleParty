@@ -189,7 +189,7 @@ defineExpose({ update })
           </div>
         </div>
         <!-- show if you won or lost //only on result screen -->
-        <div v-if="isResultScreen() && showMatchResultBool" class="w-full mt-24">
+        <div v-if="isResultScreen() && showMatchResultBool" class="w-full mt-20">
           <div v-if="playerData.winner != '' && playerData.winner != playerData.opponentName">
             <span class="text-6xl text-primary">You Won!</span>
           </div>
@@ -262,7 +262,7 @@ defineExpose({ update })
           </div>
         </div>
         <!-- outcome text (eliminated or waiting on next match to start) //only on result screen -->
-        <div class="w-full flex mt-20 px-4 justify-center items-center">
+        <div class="w-full flex mt-4 px-4 justify-center items-center">
           <div v-if="playerData.winner != '' && playerData.winner != playerData.opponentName">
             <span class="text text-white text-3xl mr-4">
               <div> Waiting for next </div>
