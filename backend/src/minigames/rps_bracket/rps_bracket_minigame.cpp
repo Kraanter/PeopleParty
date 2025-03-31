@@ -42,6 +42,11 @@ void RPSBracket_MiniGame::resume() {
 }
 
 void RPSBracket_MiniGame::create_matches(std::vector<Client *> players) {
+    // shuffle the players
+    auto rd = std::random_device{};
+    auto rng = std::default_random_engine{rd()};
+    std::shuffle(players.begin(), players.end(), rng);
+    
     const int pn = players.size();
     const int rn = (int) ceil(log2(pn));
     const int mn = pow(2, rn) - 1;

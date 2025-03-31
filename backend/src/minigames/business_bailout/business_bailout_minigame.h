@@ -23,7 +23,7 @@ private:
     std::map<Client*, int> player_bail_times;
     unsigned int time = 0;
     int value = 0;
-    const int min_duration = 5 SECONDS;
+    const int min_duration = 15 SECONDS;
     const int max_duration = 50 SECONDS;
     const int dt = 100 MILLISECONDS;
     std::vector<double> path;

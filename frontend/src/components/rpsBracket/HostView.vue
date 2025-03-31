@@ -52,65 +52,6 @@ const bracketCols = computed(() =>
 const calcBracketHeight = (rows: number): number => (height.value - yMargin * 2) / rows
 const calcBracketWidth = (cols: number): number => (width.value - xMargin * 2) / cols
 
-function getCircleColor(match: BracketMatch, right: boolean) {
-  const toCheckProp = right ? 'right' : 'left'
-  if (!match) return 0x000000
-
-  if (!match.winner?.name) {
-    return match[toCheckProp]?.name ? 0xffffff : 0x000000
-  }
-
-  return match.winner.name === match[toCheckProp]?.name ? 0x00ff00 : 0xff0000
-}
-
-function drawMatch(
-  g: Graphics,
-  match: BracketMatch,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  flip: boolean,
-  round: number
-) {
-  g.lineStyle(4, 0xffffff)
-  if (round === 0 && !match?.left?.name && !match?.right?.name) {
-    g.moveTo(x, y + height / 2)
-    g.lineTo(x + width, y + height / 2)
-    return
-  }
-
-  if (flip) {
-    ;[x, y, width, height] = [x + width, y + height, -width, -height]
-    let temp = match.left
-    match.left = match.right
-    match.right = temp
-  }
-  // top line
-  if (round > 0 || match.left) {
-    g.moveTo(x, y)
-    g.lineTo(x + width, y)
-  }
-
-  // connecting line
-  g.moveTo(x + width, y)
-  g.lineTo(x + width, y + height)
-
-  // bottom line
-  if (round > 0 || match.right) {
-    g.moveTo(x + width, y + height)
-    g.lineTo(x, y + height)
-  }
-
-  g.lineStyle(2, 0xffffff)
-  g.beginFill(getCircleColor(match, false))
-  g.drawCircle(x + width, y, 10)
-  g.endFill()
-  g.beginFill(getCircleColor(match, true))
-  g.drawCircle(x + width, y + height, 10)
-  g.endFill()
-}
-
 function getMatchIndex(round: number, row: number, rightSide: boolean = false) {
   const roundStart = Math.floor(bracket.value.length / Math.pow(2, round + 1))
   const roundEnd = Math.floor(bracket.value.length / Math.pow(2, round))
@@ -132,40 +73,69 @@ function getRowsInRound(round: number) {
   return Math.ceil(bracketRows.value / Math.pow(2, round))
 }
 
+function hasPreviousMatch(round: number, row: number, rightSide: boolean = false): boolean {
+  const i = getMatchIndex(round, row, rightSide)
+
+  if (i * 2 + 1 >= bracket.value.length) return false // out of bounds = no match
+
+  if (bracket.value[i * 2 + 1]?.left?.name  === '' && bracket.value[i * 2 + 1]?.right?.name  === '' && bracket.value[i * 2 + 1]?.winner?.name !== ''
+    && bracket.value[i * 2 + 2]?.left?.name  === '' && bracket.value[i * 2 + 2]?.right?.name  === '' && bracket.value[i * 2 + 2]?.winner?.name !== ''
+  ) return false
+
+  return true;
+}
+
 function render(graphics: Graphics) {
   graphics.clear()
   graphics.lineStyle(4, 0xffffff)
   const bracketWidth = calcBracketWidth(bracketCols.value)
   // Draw a grid of the cols and rows
   for (let col = 0; col < bracketCols.value; col++) {
-    // If the middle col skip it
-    if (col === Math.floor(bracketCols.value / 2)) {
-      graphics.lineStyle(4, 0xffffff)
-      graphics.moveTo(xMargin + col * bracketWidth, height.value / 2)
-      graphics.lineTo(xMargin + (col + 1) * bracketWidth, height.value / 2)
-      continue
-    }
     // If right of the middle col, flip
     const flip = isRightSide(col)
     const roundNr = getRoundNumber(col)
     const rowAmount = getRowsInRound(roundNr)
     const currentBracketHeight = calcBracketHeight(rowAmount)
+    const BracketHeight = 2 * Math.min(calcBracketHeight(getRowsInRound(getRoundNumber(col))) / 8, height.value / 50)
+
     for (let row = 0; row < rowAmount; row++) {
-      const curMatchIndex = getMatchIndex(roundNr, row, flip)
-      const match = bracket.value[curMatchIndex]
       const x = xMargin + col * bracketWidth
       const y = yMargin + row * currentBracketHeight
 
-      drawMatch(
-        graphics,
-        match,
-        x,
-        y + currentBracketHeight / 4,
-        bracketWidth,
-        currentBracketHeight / 2,
-        flip,
-        roundNr
-      )
+      const curMatchIndex = getMatchIndex(roundNr, row, flip)
+      const match = bracket.value[curMatchIndex];
+      
+      // draw match lines (last if is special edge case when there are 3 players)
+      if (match.left.name !== '' && match.right.name !== '' || col != 0 && col != bracketCols.value - 1 || rowAmount == 1 && bracketCols.value == 3) {
+        // draw horizontal lines
+        if (col != 0 && (flip || hasPreviousMatch(roundNr, row, flip))) {
+          //left side line of bracket (dont if most left col or left side no previous match)
+          graphics.moveTo(xMargin + col * bracketWidth, y + currentBracketHeight / 2)
+          graphics.lineTo(xMargin + col * bracketWidth + bracketWidth / 8, y + currentBracketHeight / 2)
+        }
+        if (col != bracketCols.value - 1 && (!flip || hasPreviousMatch(roundNr, row, flip))) {
+          // right side line of bracket (dont if most right col or right side no previous match)
+          graphics.moveTo(xMargin + (col + 1) * bracketWidth, y + currentBracketHeight / 2)
+          graphics.lineTo(xMargin + (col + 1) * bracketWidth - bracketWidth / 8, y + currentBracketHeight / 2)
+        }
+
+        // draw vertical lines
+        const localCol = flip ? col : col + 1
+        if (rowAmount > 1) {
+          if (row % 2 == 0) {
+            // move line down
+            graphics.moveTo(xMargin + localCol * bracketWidth, y + currentBracketHeight / 2)
+            graphics.lineTo(xMargin + localCol * bracketWidth, y + currentBracketHeight)
+          } else {
+            // move line up
+            graphics.moveTo(xMargin + localCol * bracketWidth, y + currentBracketHeight / 2)
+            graphics.lineTo(xMargin + localCol * bracketWidth, y)
+          }
+        }
+
+        // draw rectangle arround match
+        graphics.drawRect(x + bracketWidth / 8, (y + currentBracketHeight / 2) - BracketHeight, bracketWidth - bracketWidth / 4, BracketHeight * 2)
+      }
     }
   }
 }
@@ -239,7 +209,7 @@ defineExpose({ update })
         <div
           :key="col"
           v-for="(i, col) in bracketCols"
-          class="text-white text-center w-full h-full grid px-2"
+          class="text-center w-full h-full grid px-2"
           :style="{
             gridTemplateRows: `repeat(${getRowsInRound(getRoundNumber(col))}, 1fr)`
           }"
@@ -247,41 +217,47 @@ defineExpose({ update })
           <span
             :key="row * col"
             v-for="(i, row) in bracketRows"
-            class="text-white text-center text-nowrap overflow-hidden w-full h-full grid grid-rows-4"
+            class="text-center text-nowrap overflow-hidden w-full h-full grid grid-rows-4"
             :class="{
               hidden: row + 1 > getRowsInRound(getRoundNumber(col))
             }"
             :style="{
-              fontSize: `${Math.min(calcBracketHeight(getRowsInRound(getRoundNumber(col))) / 8, height / 30)}px`
+              fontSize: `${Math.min(calcBracketHeight(getRowsInRound(getRoundNumber(col))) / 8, height / 50)}px`
             }"
           >
             <p
-              class="m-auto font-bold text-primary"
+              class="font-bold"
               :class="{ 'text-secondary' : 
                 bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name 
                 == bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name,
                 'text-gray-500' : 
                 bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name 
                 != bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name
-                && bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name
+                && bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name !== '',
+                'text-primary' : bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name === '',
               }"
               :style="{
-                gridRowStart: isRightSide(col) ? 3 : 2
+                gridRowStart: isRightSide(col) ? 3 : 2,
+                alignSelf: isRightSide(col) ? 'flex-start' : 'flex-end',
               }"
             >
               {{ bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.left?.name }}
             </p>
             <p
-              class="m-auto font-bold text-primary"
+              class="font-bold"
               :class="{ 'text-secondary' : 
                 bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right?.name 
                 == bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name,
                 'text-gray-500' : 
                 bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right?.name 
                 != bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name
-                && bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name
+                && bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name,
+                'text-primary' : bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.winner?.name === '',
               }"
-              :style="{ gridRowStart: isRightSide(col) ? 2 : 3 }"
+              :style="{ 
+                gridRowStart: isRightSide(col) ? 2 : 3,
+                alignSelf: isRightSide(col) ? 'flex-end' : 'flex-start'
+              }"
             >
               {{ bracket[getMatchIndex(getRoundNumber(col), row, isRightSide(col))]?.right?.name }}
             </p>

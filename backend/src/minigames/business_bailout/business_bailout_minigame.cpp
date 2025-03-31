@@ -11,11 +11,55 @@ BusinessBailout_Minigame::BusinessBailout_Minigame(Game *game) : MiniGame(game) 
     minigame_time = minigame_time / 1000 * 1000;
 
     int points = minigame_time / dt;
+    double value = 0;
+    double upward_bias = 1.15;
+    double max_step_up = 20.0;
+    double min_step_up = 2.0;
+    double max_step_down = 25.0;
+    double min_step_down = 3.0;
+
+    int direction = 1; // 1 = up, -1 = down
+    int same_direction_steps = 0;
+
+    // ensures it doesnt oscillate too much
+    int min_steps_same_direction = 6;
+    int max_steps_same_direction = 25;
+
+    same_direction_steps = min_steps_same_direction + (std::rand() % (max_steps_same_direction - min_steps_same_direction));
+
     for (int i = 0; i < points; ++i) {
-        const double d = i;
-        const double e = 1.1;
-        int y = pow(e, d / 10.0f) * 1000 - 1000;
-        path.push_back(abs(y));
+        double step;
+
+        if (direction == 1) {
+            step = min_step_up + (std::rand() % static_cast<int>(max_step_up - min_step_up));
+            step += upward_bias * (static_cast<double>(i) / points);
+        } else {
+            step = min_step_down + (std::rand() % static_cast<int>(max_step_down - min_step_down));
+            step *= 1.0 + (std::rand() % 30) / 100.0; // Add slight randomness to downward steps
+        }
+
+        value += step * direction;
+
+        if (value < 0) {
+            value = 0;
+            direction = 1;
+            same_direction_steps = min_steps_same_direction;
+        }
+
+        path.push_back(value);
+
+        same_direction_steps--;
+
+        if (same_direction_steps <= 0) {
+            // Bias towards upward movement, but allow more frequent dips
+            if (direction == -1 || std::rand() % 100 < 60) {
+                direction = 1;
+            } else {
+                direction = -1;
+            }
+
+            same_direction_steps = min_steps_same_direction + (std::rand() % (max_steps_same_direction - min_steps_same_direction));
+        }
     }
 
     path.push_back(0);
@@ -149,7 +193,6 @@ void BusinessBailout_Minigame::send_player_data(Client* player) {
 
 std::vector<Client *> BusinessBailout_Minigame::getMinigameResult() {
     sort(players.begin(), players.end(), [&](Client *a, Client *b) {
-        if (player_bail_values[a] == player_bail_values[b]) return true;
         return player_bail_values[a] > player_bail_values[b];
     });
     return players;

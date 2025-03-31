@@ -21,7 +21,10 @@ export enum GameStateType {
   MemoryMixerResult = 15,
   MemoryMixerRoundResult = 16,
   MiniGameIntroduction = 17,
-  RPSBracketHost = 18,
-  RPSBracketPlayerInput = 19,
-  RPSBracketPlayer = 20
+  RightOnTime = 18,
+  RightOnTimeResult = 19,
+  RightOnTimeRoundResult = 20,
+  RPSBracketHost = 21,
+  RPSBracketPlayerInput = 22,
+  RPSBracketPlayer = 23
 }

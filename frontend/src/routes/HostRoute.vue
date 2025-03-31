@@ -94,7 +94,7 @@ const skipLeaderboard = () => {
       <div class="flex flex-col justify-center items-center mt-28">
         <div>
           <span class="text text-4xl">
-            <router-link v-if="releasesStore.releases[0].date" to="/releases" class="underline text text-white font-bold" target="_blank">
+            <router-link v-if="releasesStore.releases[0].date" to="/releases" class="underline text text-white font-bold">
               New version!
             </router-link>
           </span>
@@ -113,7 +113,7 @@ const skipLeaderboard = () => {
       </div>
 
       <div class="grid grid-cols-3 justify-between w-full">
-        <router-link to="/releases" class="flex underline" target="_blank">{{ releasesStore.versionNumber }}</router-link>
+        <router-link to="/releases" class="flex underline">{{ releasesStore.versionNumber }}</router-link>
         <div class="flex justify-center items-center">
           <router-link to="/join" class="underline">Join a party!</router-link>
         </div>

@@ -1,0 +1,13 @@
+table FBRightOnTimeResultPair {
+    name: string;
+    round_one_diff: long;
+    round_two_diff: long;
+    round_three_diff: long;
+    average_diff_time: ulong;
+}
+
+table RightOnTimeResultPayload {
+    minigame_results: [FBRightOnTimeResultPair];
+}
+
+root_type RightOnTimeResultPayload;

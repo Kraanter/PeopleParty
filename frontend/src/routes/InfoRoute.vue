@@ -187,7 +187,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <router-link to="/releases" class="flex underline" target="_blank">{{ releasesStore.versionNumber }}</router-link>
+      <router-link to="/releases" class="flex underline">{{ releasesStore.versionNumber }}</router-link>
     </div>
   </div>
 </template>

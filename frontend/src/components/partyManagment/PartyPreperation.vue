@@ -17,6 +17,8 @@ const playerCount = computed(() => data.value?.length ?? 0)
 
 const showSettings = ref(false)
 
+const hostName = computed(() => window.location.host)
+
 const emit = defineEmits(['click'])
 </script>
 <template>
@@ -36,7 +38,7 @@ const emit = defineEmits(['click'])
         <n-card>
           <div class="w-full h-full flex flex-col justify-center items-center">
             <span class="text-lg xl:text-xl mb-2"
-              >Join now at <span class="font-bold">peopleparty.nl</span></span
+              >Join now at <span class="font-bold">{{ hostName }}</span></span
             >
             <span class="text-4xl text-center font-semibold">Party Code:</span>
             <span id="partyCode" class="text-6xl text-center font-extrabold my-4">{{

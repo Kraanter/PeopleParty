@@ -4,7 +4,6 @@ import { NInputNumber, NSwitch, NSlider } from 'naive-ui'
 import * as flatbuffers from 'flatbuffers'
 import { MessageType, PartyPrepPayload, PartyPrepPayloadType, PartyPrepSettingsMiniGamePayload, PartyPrepSettingsRoundsPayload, PartyPrepType, Payload } from '@/flatbuffers/messageClass';
 import { buildMessage } from '@/util/flatbufferMessageBuilder';
-import { computed } from 'vue';
 
 const websocketStore = useWebSocketStore()
 
@@ -23,7 +22,11 @@ const handleNumberChange = (value: number) => {
 }
 
 const nameToFirstLetterCapital = (name: string) => {
-    return name.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.substring(1)).join(' ')
+    if (!name.includes('_')) return name
+
+    name = name.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.substring(1)).join(' ')
+
+    return nameToFirstLetterCapital(name)
 }
 
 // flatbuffer functions
@@ -69,7 +72,7 @@ const sendNewNumberOfRounds = (newNumber: number) => {
 }
 
 const formatTooltip = (value: number) => {
-    return `${value*200}%`
+    return `${Math.round(value*200)}%`
 }
 
 const updateVolume = (value: number) => {
@@ -141,7 +144,11 @@ const updateVolume = (value: number) => {
                                 />
                                 
                                 <div v-else class="h-full w-full flex justify-center items-center">
-                                    <span class="text-2xl">{{ nameToFirstLetterCapital(miniGame.name) }}</span>
+                                    <img src="assets/games/crazyCounting/crazyCountingLogo.svg" alt="logo" class="h-full w-full opacity-0 rounded-xl"/>
+                                    <!-- This ^ is not really the way to do it, but it makes sure the empty placeholder is the same size -->
+                                    <div class="absolute h-full w-full flex justify-center items-center">
+                                        <span class="text-2xl">{{ nameToFirstLetterCapital(miniGame.name) }}</span>
+                                    </div>
                                 </div>
                             </button>
                         </div>
