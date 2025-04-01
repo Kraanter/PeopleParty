@@ -53,6 +53,10 @@ jobs:
                 "containerd-snapshotter": true
               }
             } 
+      - name: Build Flatbuffers
+        run: |
+          npm install
+          npm run build
       - name: tag and push frontend image
         run: |
           docker build --push \
