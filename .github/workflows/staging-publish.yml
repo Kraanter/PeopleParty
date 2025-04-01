@@ -35,6 +35,10 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Flatbuffers
+        run: |
+          npm install
+          npm run build
       - name: tag and push frontend image
         run: |
           docker build --push \
