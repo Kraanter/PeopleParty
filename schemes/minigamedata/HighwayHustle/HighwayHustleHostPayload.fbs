@@ -1,0 +1,10 @@
+table HighwayHustleHostPayload {
+  entities: [FBHighwayHustleEntity];
+}
+
+table FBHighwayHustleEntity {
+  x_pos: float;
+  y_pos: float;
+}
+
+root_type HighwayHustleHostPayload;

@@ -12,7 +12,7 @@ HighwayHustle_Map::~HighwayHustle_Map() {
     players.clear();
 }
 
-HighwayHustle_Map::create_players(std::vector<Client *> players) {
+void HighwayHustle_Map::create_players(std::vector<Client *> players) {
     for (auto &player : players) {
         Moving_Entity* entity = new Moving_Entity();
 
@@ -27,12 +27,12 @@ void HighwayHustle_Map::update_player_velocity(Client *player, float x, float y)
         Vector2D velocity = Vector2D(x, y);
 
         players[player]->velocity += velocity;
-        players[player]->velocity.Truncate(0.0005f);
+        players[player]->velocity.Truncate(0.1f);
     }
 }
 
 
-HighwayHustle_Map::update(unsigned long delta_time) {
+void HighwayHustle_Map::update(unsigned long delta_time) {
     for (auto &player : players) {
         player.second->update(delta_time);
     }

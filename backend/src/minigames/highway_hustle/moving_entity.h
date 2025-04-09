@@ -20,6 +20,19 @@ public:
         position += velocity * (delta_time / 1000.0f);
         heading = velocity;
         heading.Normalize();
+
+        if (position.x < 0) {
+            position.x = 0;
+        }
+        if (position.x > 500) {
+            position.x = 500;
+        }
+        if (position.y < 0) {
+            position.y = 0;
+        }
+        if (position.y > 500) {
+            position.y = 500;
+        }
     };
 };
 

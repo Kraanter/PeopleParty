@@ -1,0 +1,5 @@
+table HighwayHustlePlayerPayload {
+    score: ulong;
+}
+
+root_type HighwayHustlePlayerPayload;
