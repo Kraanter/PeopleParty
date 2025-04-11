@@ -45,7 +45,9 @@ void HighwayHustle_MiniGame::introduction_update(int delta_time)
 void HighwayHustle_MiniGame::start_minigame() {
     map->create_players(game->get_clients());
 
-    minigame_timer.setInterval([this]() { update(100 MILLISECONDS); }, 100 MILLISECONDS);
+    update_interval = floor(1000 / target_fps);
+
+    minigame_timer.setInterval([this]() { update(update_interval); }, update_interval);
 }
 
 void HighwayHustle_MiniGame::process_input(const MiniGamePayloadType *payload, Client *from) {

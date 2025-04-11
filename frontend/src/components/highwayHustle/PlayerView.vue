@@ -17,7 +17,7 @@ import { useWebSocketStore } from '@/stores/confettiStore'
 import { NScrollbar, NCard } from 'naive-ui'
 import type { HighwayHustlePlayerData } from './HighwayHustleModels'
 import { parseHighwayHustlePlayerPayload } from './HighwayHustleProcessor'
-import Joystick from '@mazi1/joystick'
+import Joystick from 'vue-joystick-component'
 
 const websocketStore = useWebSocketStore()
 
@@ -126,13 +126,12 @@ defineExpose({
   <template v-else-if="viewState == ViewState.MiniGame">
     <div class="flex h-full w-full justify-center items-center">
       <Joystick
+        class="no-project-style"
         style="margin: 50px"
-        :size="100"
-        base-color="pink"
-        stick-color="purple"
+        :size="200"
+        base-color="lightgray"
+        stick-color="black"
         :throttle="100"
-        @start="null"
-        @stop="null"
         @move="move"
       />
     </div>
@@ -145,33 +144,36 @@ defineExpose({
 </template>
 
 <style scoped>
-.eject-button {
-  background-color: red;
-  color: white;
-  border-radius: 50%;
-  aspect-ratio: 1/1;
-  --size: min(70vmin, 70vmax);
-  max-width: var(--size);
-  max-height: var(--size);
-  line-height: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 8cap;
-  box-shadow: 0rem 0.4em 0em 0.04em darkred;
+/* :deep(button), button {
+  box-shadow: 0.0rem 0.0rem 0 #000 !important;
   transition:
-    box-shadow 0.3s,
-    transform 0.3s !important;
+    transform 0s ease-in-out,
+    box-shadow 0s ease-in-out !important;
+  
 }
 
-.eject-button:disabled {
-  background-color: slategray;
-  transform: translateY(0.3em) !important;
-  box-shadow: 0rem 0.1em 0 0.04em black !important;
+:deep(button):active, button {
+  transform: translate(0.0rem, 0.0rem) !important;
+  box-shadow: 0.0rem 0.0rem 0 #000 !important;
+} */
+
+
+/* button {
+  box-shadow: 0.5rem 0.5rem 0 #000;
+  transition:
+    transform 0.1s ease-in-out,
+    box-shadow 0.1s ease-in-out !important;
 }
 
-.eject-button:active:not(:disabled) {
-  transform: translateY(0.3em) !important;
-  box-shadow: 0rem 0.1em 0 0.04em darkred !important;
-}
+button:active {
+  transform: translate(0.5rem, 0.5rem) !important;
+  box-shadow: 0.1rem 0.1rem 0 #000 !important;
+} */
+
+
+
+/* Button: {
+    iconSizeLarge: '1.7rem',
+    borderRadiusLarge: '2rem'
+} */
 </style>

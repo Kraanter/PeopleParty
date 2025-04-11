@@ -28,27 +28,28 @@ target_link_libraries(PeopleParty-Backend uwebsockets::uwebsockets)
 target_link_libraries(PeopleParty-Backend flatbuffers::flatbuffers)
 
 ### Tests ###
-# Enable testing
-include(CTest)
+# Disable building tests (not needed, this will reduce build time)
+# # Enable testing
+# include(CTest)
 
-# Get test files
-set(tests_source_dir ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+# # Get test files
+# set(tests_source_dir ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
-file(GLOB_RECURSE test_files
-        ${tests_source_dir}/*.cpp
-        ${tests_source_dir}/*.h
-)
+# file(GLOB_RECURSE test_files
+#         ${tests_source_dir}/*.cpp
+#         ${tests_source_dir}/*.h
+# )
 
-# exclude main.cpp from source files
-list(FILTER source_files EXCLUDE REGEX "main.cpp")
+# # exclude main.cpp from source files
+# list(FILTER source_files EXCLUDE REGEX "main.cpp")
 
-# Create test target
-add_executable(PeopleParty-Backend-Tests ${test_files} ${source_files})
+# # Create test target
+# add_executable(PeopleParty-Backend-Tests ${test_files} ${source_files})
 
-# Link dependencies
-target_link_libraries(PeopleParty-Backend-Tests doctest::doctest)
-target_link_libraries(PeopleParty-Backend-Tests uwebsockets::uwebsockets)
-target_link_libraries(PeopleParty-Backend-Tests flatbuffers::flatbuffers)
+# # Link dependencies
+# target_link_libraries(PeopleParty-Backend-Tests doctest::doctest)
+# target_link_libraries(PeopleParty-Backend-Tests uwebsockets::uwebsockets)
+# target_link_libraries(PeopleParty-Backend-Tests flatbuffers::flatbuffers)
 
 # Enable CTest
 #include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)

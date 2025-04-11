@@ -40,8 +40,8 @@ const payloadData = ref<HighwayHustleData>({
 
 const interpolatePosition = (entity: HighwayHustlePlayer): HighwayHustlePlayer => {
   return {
-    x: entity.x * (400 - 10),
-    y: entity.y * (400 - 10)
+    x: entity.x * (500 - 30),
+    y: entity.y * (500 - 30)
   }
 }
 
@@ -83,12 +83,13 @@ defineExpose({
       <Introduction :data="intro" logoSVG="/assets/games/highwayHustle/highwayHustleLogo.svg" />
     </div>
     <div v-else-if="viewState == ViewState.MiniGame">
-      <Application key="gameview" :width="400" :height="400" background-color="white">
+      {{ payloadData.players }}
+      <Application key="gameview" :width="530" :height="530" background-color="white">
         <sprite
           v-for="(entity, i) in payloadData.players"
-          :position="interpolatePosition(entity)"
-          :width="10"
-          :height="10"
+          :position="{ x: entity.x, y: entity.y }"
+          :width="30"
+          :height="30"
           :key="i"
           texture="/assets/games/crazyCounting/partyhat.svg"
         />

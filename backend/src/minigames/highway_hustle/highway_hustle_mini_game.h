@@ -6,12 +6,14 @@
 #include "../minigame.h"
 #include "highway_hustle_map.h"
 #include <vector>
+#include <math.h>
 #include <map>
 
 class HighwayHustle_Map;
 
 class HighwayHustle_MiniGame : public MiniGame {
 private:
+    int target_fps = 30;
     int result_time = 5 SECONDS;
     ThreadTimer introduction_timer;
     ThreadTimer minigame_timer;
