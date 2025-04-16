@@ -1,7 +1,7 @@
 #include "highway_hustle_mini_game.h"
 
 HighwayHustle_MiniGame::HighwayHustle_MiniGame(Game *game) : MiniGame(game) {
-    map = new HighwayHustle_Map(500, 500);
+    map = new HighwayHustle_Map(750, 500);
 }
 
 HighwayHustle_MiniGame::~HighwayHustle_MiniGame() {
@@ -62,7 +62,27 @@ void HighwayHustle_MiniGame::process_input(const MiniGamePayloadType *payload, C
                 // invert y axis
                 map->update_player_velocity(from, input->x_pos(), -input->y_pos());
             }
+            break;
         }
+        case GameStateType_JoystickEvent: {
+            auto input = payload->gamestatepayload_as_JoystickEventPayload();
+
+            switch (input->event_type())
+            {
+                case JoystickEventType_Start: {
+                    // start moving
+                    map->update_player_event(from, 1);
+                    break;
+                }
+                case JoystickEventType_Stop: {
+                    // stop moving
+                    map->update_player_event(from, 0);
+                    break;
+                }
+                break;
+            }
+        }
+        break;
     }
 }
 

@@ -6,6 +6,8 @@ import {
   GameStatePayload,
   GameStateType,
   JoystickDataPayload,
+  JoystickEventPayload,
+  JoystickEventType,
   MessageType,
   MiniGameIntroductionPayload,
   MiniGamePayloadType,
@@ -99,6 +101,44 @@ const sendPlayerAction = (x: number, y: number) => {
   )
 }
 
+const sendPlayerEvent = (event: string) => {
+  console.log('sending player event', event)
+
+  let builder = new flatbuffers.Builder()
+
+  let eventType: JoystickEventType;
+  switch (event) {
+    case 'start':
+      eventType = JoystickEventType.Start
+      break
+    case 'stop':
+      eventType = JoystickEventType.Stop
+      break
+    default:
+      eventType = JoystickEventType.Stop
+      break
+  }
+
+  let playerInput = JoystickEventPayload.createJoystickEventPayload(
+    builder,
+    eventType,
+  )
+
+  let miniGame = builder.createString('highwayHustle')
+
+  let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
+    builder,
+    miniGame,
+    GameStateType.JoystickEvent,
+    GameStatePayload.JoystickEventPayload,
+    playerInput
+  )
+
+  websocketStore.sendMessage(
+    buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType)
+  )
+}
+
 const move = ({ x, y }: any) => {
   sendPlayerAction(x, y)
 }
@@ -133,6 +173,8 @@ defineExpose({
         stick-color="black"
         :throttle="100"
         @move="move"
+        @start="sendPlayerEvent('start')"
+        @stop="sendPlayerEvent('stop')"
       />
     </div>
   </template>
@@ -144,36 +186,4 @@ defineExpose({
 </template>
 
 <style scoped>
-/* :deep(button), button {
-  box-shadow: 0.0rem 0.0rem 0 #000 !important;
-  transition:
-    transform 0s ease-in-out,
-    box-shadow 0s ease-in-out !important;
-  
-}
-
-:deep(button):active, button {
-  transform: translate(0.0rem, 0.0rem) !important;
-  box-shadow: 0.0rem 0.0rem 0 #000 !important;
-} */
-
-
-/* button {
-  box-shadow: 0.5rem 0.5rem 0 #000;
-  transition:
-    transform 0.1s ease-in-out,
-    box-shadow 0.1s ease-in-out !important;
-}
-
-button:active {
-  transform: translate(0.5rem, 0.5rem) !important;
-  box-shadow: 0.1rem 0.1rem 0 #000 !important;
-} */
-
-
-
-/* Button: {
-    iconSizeLarge: '1.7rem',
-    borderRadiusLarge: '2rem'
-} */
 </style>

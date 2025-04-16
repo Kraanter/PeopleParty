@@ -6,7 +6,7 @@
 
 class Moving_Entity {
 private:
-    int last_input;
+    bool joystick_is_moving = false;
 public:
     Vector2D position;
     Vector2D velocity;
@@ -24,13 +24,9 @@ public:
         heading.Normalize();
 
         // simulate resistance and reduce velocity
-        // only when last_input is higher than 100, to account for the time it takes to send the input
-        if (last_input > 100) {
+        if (!joystick_is_moving && velocity != Vector2D(0, 0)) {
             velocity.x *= 0.90f;
             velocity.y *= 0.75f;
-            // TODO: fix stutter bug
-            //std::cout << "velocity: " << velocity.x << ", " << velocity.y << std::endl;
-            // std::cout << last_input << std::endl;
         }
 
         if (velocity.x < 0.001f && velocity.x > -0.001f) {
@@ -39,16 +35,26 @@ public:
         if (velocity.y < 0.001f && velocity.y > -0.001f) {
             velocity.y = 0;
         }
-
-        last_input += delta_time;
     };
     void add_velocity(Vector2D new_velocity) {
-        new_velocity *= 0.1f; // reduce the velocity to make it more realistic
+        new_velocity *= 0.15f; // reduce the velocity to make it more realistic
+
+        // vertical movement is harder
+        new_velocity.y *= 0.5f;
+
+        // movement to left is higher than to the right
+        if (new_velocity.x < 0) {
+            new_velocity.x *= 1.3f;
+        } else {
+            new_velocity.x *= 0.7f;
+        }
+
 
         velocity = new_velocity;
-        velocity.Truncate(0.1f);
-
-        last_input = 0;
+        velocity.Truncate(0.2f);
+    };
+    void change_joystick_is_moving(bool is_moving) {
+        joystick_is_moving = is_moving;
     };
 };
 

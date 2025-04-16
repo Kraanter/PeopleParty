@@ -32,6 +32,16 @@ void HighwayHustle_Map::update_player_velocity(Client *player, float x, float y)
     }
 }
 
+void HighwayHustle_Map::update_player_event(Client *player, int event_type) {
+    if (players.find(player) != players.end()) {
+        if (event_type == 0) { // stop
+            players[player]->change_joystick_is_moving(false);
+        } else if (event_type == 1) { // start
+            players[player]->change_joystick_is_moving(true);
+        }
+    }
+}
+
 
 void HighwayHustle_Map::update(unsigned long delta_time) {
     for (auto &player : players) {

@@ -84,16 +84,18 @@ defineExpose({
     </div>
     <div v-else-if="viewState == ViewState.MiniGame">
       {{ payloadData.players }}
-      <Application key="gameview" :width="530" :height="530" background-color="white">
-        <sprite
-          v-for="(entity, i) in payloadData.players"
-          :position="{ x: entity.x, y: entity.y }"
-          :width="30"
-          :height="30"
-          :key="i"
-          texture="/assets/games/crazyCounting/partyhat.svg"
-        />
-      </Application>
+      <div class="flex h-full w-full justify-center items-center">
+        <Application key="gameview" :width="780" :height="530" background-color="darkgray">
+          <sprite
+            v-for="(entity, i) in payloadData.players"
+            :position="{ x: entity.x, y: entity.y }"
+            :width="30"
+            :height="30"
+            :key="i"
+            texture="/assets/games/crazyCounting/partyhat.svg"
+          />
+        </Application>
+      </div>
     </div>
     
     <div v-else-if="viewState == ViewState.Results">
