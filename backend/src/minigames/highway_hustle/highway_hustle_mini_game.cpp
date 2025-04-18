@@ -106,8 +106,14 @@ void HighwayHustle_MiniGame::send_host_update()
     }
     auto entities_vector = builder.CreateVector(entities_buffer);
 
+    std::vector<flatbuffers::Offset<FBHighwayHustleEntity>> obstacles_buffer;
+    for (auto const& obstacle : map->obstacles) {
+        obstacles_buffer.push_back(CreateFBHighwayHustleEntity(builder, obstacle->position.x, obstacle->position.y));
+    }
+    auto obstacles_vector = builder.CreateVector(obstacles_buffer);
+
     // Encode payload to binary
-    auto payload = CreateHighwayHustleHostPayload(builder, entities_vector);
+    auto payload = CreateHighwayHustleHostPayload(builder, entities_vector, obstacles_vector, map->getDistanceTravelled());
 
     auto miniGame = builder.CreateString(get_camel_case_name());
 

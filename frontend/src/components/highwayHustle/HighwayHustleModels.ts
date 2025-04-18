@@ -1,9 +1,11 @@
 // host
 export interface HighwayHustleData {
-  players: HighwayHustlePlayer[];
+  players: HighwayHustleEntity[];
+  obstacles: HighwayHustleEntity[];
+  distance: number;
 }
 
-export interface HighwayHustlePlayer {
+export interface HighwayHustleEntity {
   x: number;
   y: number;
 }

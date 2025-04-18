@@ -7,6 +7,8 @@
 class Moving_Entity {
 private:
     bool joystick_is_moving = false;
+    int width = 30;
+    int height = 30;
 public:
     Vector2D position;
     Vector2D velocity;
