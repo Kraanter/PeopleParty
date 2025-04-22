@@ -3,7 +3,6 @@ import { ref, defineProps } from 'vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import Introduction from '@/components/introduction/Introduction.vue'
 import {
-FBHighwayHustleEntity,
   GameStateType,
   MiniGameIntroductionPayload,
   type MiniGamePayloadType
@@ -11,7 +10,8 @@ FBHighwayHustleEntity,
 import { type HighwayHustleData } from './HighwayHustleModels'
 import { parseHighwayHustleHostPayload } from './HighwayHustleProcessor'
 import { Application } from 'vue3-pixi'
-import { Graphics } from 'pixi.js'
+import { Graphics, Sprite } from 'pixi.js'
+import { watch } from 'vue'
 
 const props = defineProps<{
   width: number
@@ -75,24 +75,8 @@ const update = (data: MiniGamePayloadType) => {
   return []
 }
 
-const getVisibleDottedLines = (distance: number, spacing = 50, canvasWidth = 750): number[] => {
-  const positions: number[] = [];
-
-  // Find where the first line appears on screen
-  const offset = distance % spacing;
-
-  // Start at -offset and add lines until we're past canvasWidth
-  for (let x = -offset; x <= canvasWidth; x += spacing) {
-    if (x >= 0 && x <= canvasWidth) {
-      positions.push(x);
-    }
-  }
-
-  return positions;
-}
-
 // render the road dotted lines
-function render(graphics: Graphics) {
+const render = (graphics: Graphics) => {
   graphics.clear()
   graphics.lineStyle(3, 0xffffff)
 
@@ -114,6 +98,24 @@ function render(graphics: Graphics) {
   }
 }
 
+const applicationId = ref(0)
+
+watch(
+  () => payloadData.value.obstacles,
+  (oldVal, newVal) => {
+    // if an object is removed, destroy it
+    if (!oldVal || !newVal) return
+    newVal.forEach((newObj) => {
+      const oldObj = oldVal.find((obj) => obj.id === newObj.id)
+      if (!oldObj) {
+        // force rerender of the application
+        applicationId.value += 1;
+      }
+    })
+  },
+  { immediate: true }
+)
+
 defineExpose({
   update
 })
@@ -125,33 +127,35 @@ defineExpose({
       <Introduction :data="intro" logoSVG="/assets/games/highwayHustle/highwayHustleLogo.svg" />
     </div>
     <div v-else-if="viewState == ViewState.MiniGame">
-      {{ payloadData.players }}
       <div class="flex flex-col h-full w-full justify-center items-center">
         <div>
-          {{ payloadData.distance }}
-          {{ getVisibleDottedLines(payloadData.distance) }}
-          {{ payloadData.players.length }}
-          {{ payloadData.obstacles.length }}
+          score {{ payloadData.distance }}
         </div>
-        <Application key="gameview" :width="780" :height="530" background-color="black" >
-          <Graphics :x="0" :y="0" @render="render" />
-          <sprite
-            v-for="(entity, i) in payloadData.obstacles"
-            :position="{ x: entity.x, y: entity.y }"
-            :width="30"
-            :height="30"
-            :key="i"
-            texture="/assets/games/crazyCounting/partyhat.svg"
-          />
-          <sprite
-            v-for="(entity, i) in payloadData.players"
-            :position="{ x: entity.x, y: entity.y }"
-            :width="30"
-            :height="30"
-            :key="i"
-            texture="/assets/games/crazyCounting/partyhat.svg"
-          />
-        </Application>
+        <div class="relative">
+          <!-- black background, for when the application is rerendering -->
+          <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
+          <div class="relative">
+            <Application :key="applicationId" :width="780" :height="530" background-color="black" >
+              <Graphics :x="0" :y="0" @render="render" />
+              <Sprite
+                v-for="(entity) in payloadData.obstacles"
+                :position="{ x: entity.x || 0, y: entity.y || 0 }"
+                :width="30"
+                :height="30"
+                :key="entity.id"
+                texture="/assets/games/crazyCounting/partyhat.svg"
+              />
+              <Sprite
+                v-for="(entity) in payloadData.players"
+                :position="{ x: entity.x, y: entity.y }"
+                :width="30"
+                :height="30"
+                :key="entity.id"
+                texture="/assets/games/crazyCounting/partyhat.svg"
+              />
+            </Application>
+          </div>
+        </div>
       </div>
     </div>
     

@@ -6,6 +6,7 @@ export interface HighwayHustleData {
 }
 
 export interface HighwayHustleEntity {
+  id: string;
   x: number;
   y: number;
 }

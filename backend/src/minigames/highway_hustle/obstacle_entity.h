@@ -3,12 +3,14 @@
 
 #include <utility>
 #include "../crazy_counting/steering_behaviour/vector2d.h"
+#include <string>
 
 class Obstacle_Entity {
 private:
     int width = 30;
     int height = 30;
 public:
+    std::string id;
     Vector2D position;
     Vector2D velocity;
 public:

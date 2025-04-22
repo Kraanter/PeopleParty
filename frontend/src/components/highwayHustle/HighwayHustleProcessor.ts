@@ -8,12 +8,20 @@ export function parseHighwayHustleHostPayload(data: MiniGamePayloadType): Highwa
 
     const players: HighwayHustleEntity[] = []
     for (let i = 0; i < payload.entitiesLength(); i++) {
-        players.push({x: payload.entities(i).xPos(), y: payload.entities(i).yPos()})
+        players.push({
+            id: payload.entities(i).id(), 
+            x: payload.entities(i).xPos(), 
+            y: payload.entities(i).yPos()
+        })
     }
 
     const obstacles: HighwayHustleEntity[] = []
     for (let i = 0; i < payload.obstaclesLength(); i++) {
-        obstacles.push({x: payload.obstacles(i).xPos(), y: payload.obstacles(i).yPos()})
+        obstacles.push({
+            id: payload.obstacles(i).id(), 
+            x: payload.obstacles(i).xPos(), 
+            y: payload.obstacles(i).yPos()
+        })
     }
 
     return {

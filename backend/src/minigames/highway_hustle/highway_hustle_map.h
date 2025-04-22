@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <cstdlib>
+#include <algorithm>
 #include "moving_entity.h"
 #include "obstacle_entity.h"
 #include "../../client.h"
@@ -12,6 +13,7 @@ class Client;
 
 class HighwayHustle_Map {
 private:
+    int obstacle_auto_increment = 0; // the id of the obstacle
     int map_height;
     int map_width;
     int distance_travelled = 0; // the distance travelled by the map

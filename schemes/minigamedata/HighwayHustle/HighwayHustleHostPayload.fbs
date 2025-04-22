@@ -1,4 +1,5 @@
 table FBHighwayHustleEntity {
+  id: string;
   x_pos: float;
   y_pos: float;
 }

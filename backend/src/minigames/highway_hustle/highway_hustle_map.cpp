@@ -103,5 +103,8 @@ void HighwayHustle_Map::create_obstacle() {
     Vector2D velocity = Vector2D(-0.01f * (std::max(2, distance_travelled / 1000)), 0);
     Obstacle_Entity* obstacle = new Obstacle_Entity(position, velocity);
 
+    obstacle->id = std::to_string(obstacle_auto_increment);
+    obstacle_auto_increment++;
+    
     obstacles.push_back(obstacle);
 }
