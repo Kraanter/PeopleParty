@@ -36,7 +36,7 @@ public:
     void update(int delta_time) override;
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
     void send_host_update();
-    void send_players_update();
+    void send_player_update(Client *client, Moving_Entity *entity);
     void introduction_update(int delta_time);
 };
 

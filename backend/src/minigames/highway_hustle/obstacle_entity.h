@@ -6,10 +6,9 @@
 #include <string>
 
 class Obstacle_Entity {
-private:
-    int width = 30;
-    int height = 30;
 public:
+    int width = 50;
+    int height = 50;
     std::string id;
     Vector2D position;
     Vector2D velocity;

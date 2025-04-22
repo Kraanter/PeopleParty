@@ -1,7 +1,7 @@
 #include "highway_hustle_mini_game.h"
 
 HighwayHustle_MiniGame::HighwayHustle_MiniGame(Game *game) : MiniGame(game) {
-    map = new HighwayHustle_Map(750, 500);
+    map = new HighwayHustle_Map(750, 480);
 }
 
 HighwayHustle_MiniGame::~HighwayHustle_MiniGame() {
@@ -89,9 +89,11 @@ void HighwayHustle_MiniGame::process_input(const MiniGamePayloadType *payload, C
 void HighwayHustle_MiniGame::update(int delta_time) {
     map->update(delta_time);
     send_host_update();
-    send_players_update();
+    for (auto const& [key, val] : map->players) {
+        send_player_update(key, val);
+    }
 
-    // TODO: when time is over, stop timer and start result
+    // TODO: when there are no players left alive, stop timer and start result
     // minigame_timer.clear();
     // start_result();
 }
@@ -126,11 +128,11 @@ void HighwayHustle_MiniGame::send_host_update()
     game->party->send_gamestate([](Client* client) { return client->party->host == client; }, builder, gameStatePayload.Union());
 }
 
-void HighwayHustle_MiniGame::send_players_update()
-{
+void HighwayHustle_MiniGame::send_player_update(Client *client, Moving_Entity *entity) {
     flatbuffers::FlatBufferBuilder builder;
     // Encode payload to binary
-    auto payload = CreateHighwayHustlePlayerPayload(builder, 100);
+    int score = entity->is_dead ? entity->final_score : map->getDistanceTravelled();
+    auto payload = CreateHighwayHustlePlayerPayload(builder, score, entity->is_dead);
 
     auto miniGame = builder.CreateString(get_camel_case_name());
 
@@ -138,7 +140,7 @@ void HighwayHustle_MiniGame::send_players_update()
                                                       GameStatePayload_HighwayHustlePlayerPayload, payload.Union());
 
     // Send payload to client
-    game->party->send_gamestate([](Client* client) { return client->party->host != client; }, builder, gameStatePayload.Union());
+    game->party->send_gamestate([client](Client* c) { return c == client; }, builder, gameStatePayload.Union());
 }
 
 

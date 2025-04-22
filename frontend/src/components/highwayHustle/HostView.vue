@@ -129,27 +129,27 @@ defineExpose({
     <div v-else-if="viewState == ViewState.MiniGame">
       <div class="flex flex-col h-full w-full justify-center items-center">
         <div>
-          score {{ payloadData.distance }}
+          score {{ Math.round(payloadData.distance / 10) }}
         </div>
         <div class="relative">
           <!-- black background, for when the application is rerendering -->
           <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
           <div class="relative">
-            <Application :key="applicationId" :width="780" :height="530" background-color="black" >
+            <Application :key="applicationId" :width="800" :height="530" background-color="black" >
               <Graphics :x="0" :y="0" @render="render" />
               <Sprite
                 v-for="(entity) in payloadData.obstacles"
                 :position="{ x: entity.x || 0, y: entity.y || 0 }"
-                :width="30"
-                :height="30"
+                :width="50"
+                :height="50"
                 :key="entity.id"
                 texture="/assets/games/crazyCounting/partyhat.svg"
               />
               <Sprite
                 v-for="(entity) in payloadData.players"
                 :position="{ x: entity.x, y: entity.y }"
-                :width="30"
-                :height="30"
+                :width="50"
+                :height="50"
                 :key="entity.id"
                 texture="/assets/games/crazyCounting/partyhat.svg"
               />

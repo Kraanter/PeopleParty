@@ -48,7 +48,7 @@ void HighwayHustle_Map::update(unsigned long delta_time) {
     for (auto &player : players) {
         player.second->update(delta_time);
 
-        if (player.second->position.x < 0) {
+        if (player.second->position.x < 0 && !player.second->is_dead) {
             player.second->position.x = 0;
         }
         if (player.second->position.x > map_width) {
@@ -65,6 +65,21 @@ void HighwayHustle_Map::update(unsigned long delta_time) {
     // update obstacles
     update_obstacles(delta_time);
 
+    // check collisions between players and obstacles
+    for (auto &player : players) {
+        if (player.second->is_dead) {
+            continue;
+        }
+        for (auto &obstacle : obstacles) {
+            if (player.second->check_colision(obstacle)) {
+                player.second->is_dead = true;
+                player.second->velocity = obstacle->velocity;
+                player.second->final_score = distance_travelled / 10;
+                break;
+            }
+        }
+    }
+
     // update distance travelled
     distance_travelled += (speed * (delta_time / 10) / 2);
     speed *= 1.0011f;
@@ -77,9 +92,8 @@ void HighwayHustle_Map::update_obstacles(unsigned long delta_time) {
     }
 
     // create new obstacles
-    if (obstacles.size() < 20) {
-        //(float)std::rand()
-        // pass with random number
+    if (obstacles.size() < 50) {
+        // TODO: ramp up when distance is higher;
         if ((float)std::rand() / RAND_MAX < 0.005f) {
             create_obstacle();
         }
@@ -88,7 +102,7 @@ void HighwayHustle_Map::update_obstacles(unsigned long delta_time) {
     // delete obstacle if off screen (left side)
     auto it = obstacles.begin();
     while (it != obstacles.end()) {
-        if ((*it)->position.x < -50) { 
+        if ((*it)->position.x < -(*it)->width) { 
             delete *it; it = obstacles.erase(it); 
         } else {
             it++;
@@ -97,14 +111,16 @@ void HighwayHustle_Map::update_obstacles(unsigned long delta_time) {
 }
 
 void HighwayHustle_Map::create_obstacle() {
-    // create a new obstacle
-    // todo: give obstacle a random Y position
-    Vector2D position = Vector2D(map_width + 5, 100);
+    // give random Y position
+    int random_index = std::rand() % y_positions.size();
+    int random_y = y_positions[random_index];
+
+    Vector2D position = Vector2D(map_width + 5, random_y);
     Vector2D velocity = Vector2D(-0.01f * (std::max(2, distance_travelled / 1000)), 0);
     Obstacle_Entity* obstacle = new Obstacle_Entity(position, velocity);
 
     obstacle->id = std::to_string(obstacle_auto_increment);
     obstacle_auto_increment++;
-    
+
     obstacles.push_back(obstacle);
 }

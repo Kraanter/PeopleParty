@@ -47,6 +47,7 @@ const intro = ref<IntroductionData>({
 // player payload data
 const payloadData = ref<HighwayHustlePlayerData>({
   score: 0,
+  isDead: false,
 })
 
 // minigame results
@@ -164,7 +165,11 @@ defineExpose({
     </div>
   </template>
   <template v-else-if="viewState == ViewState.MiniGame">
-    <div class="flex h-full w-full justify-center items-center">
+    <div class="flex flex-col h-full w-full justify-center items-center">
+      <div>
+        {{ Math.round(payloadData.score / 10) }}
+        {{ payloadData.isDead }}
+      </div>
       <Joystick
         class="no-project-style"
         style="margin: 50px"

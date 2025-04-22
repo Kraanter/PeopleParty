@@ -35,6 +35,7 @@ export function parseHighwayHustlePlayerPayload(data: MiniGamePayloadType): High
     const payload: HighwayHustlePlayerPayload = data.gamestatepayload(new HighwayHustlePlayerPayload())
 
     return {
-        score: Number(payload.score())
+        score: Number(payload.score()),
+        isDead: payload.isDead()
     }
 }

@@ -18,6 +18,7 @@ private:
     int map_width;
     int distance_travelled = 0; // the distance travelled by the map
     float speed = 1.0f; // the speed of the map, ramps slowly up
+    std::vector<int> y_positions = {15, 100, 190, 280, 365, 455}; // lanes in wich the obstacles can spawn
 public:
     std::map<Client*, Moving_Entity*> players;
     std::vector<Obstacle_Entity*> obstacles;
