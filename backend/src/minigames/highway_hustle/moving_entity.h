@@ -55,7 +55,7 @@ public:
         new_velocity *= 0.15f; // reduce the velocity to make it more realistic
 
         // vertical movement is harder
-        new_velocity.y *= 0.5f;
+        new_velocity.y *= 0.60f;
 
         // movement to left is higher than to the right
         if (new_velocity.x < 0) {
@@ -71,7 +71,7 @@ public:
     void change_joystick_is_moving(bool is_moving) {
         joystick_is_moving = is_moving;
     };
-    //todo: change this in its own class when refactoring
+    //todo: change this in its own class when refactoring (remove from obstacle as well)
     bool check_colision(Obstacle_Entity* other) {
         // check if the two obstacles are colliding
         if (position.x < other->position.x + other->width &&

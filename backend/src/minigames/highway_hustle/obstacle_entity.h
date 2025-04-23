@@ -21,6 +21,17 @@ public:
     void update(unsigned long delta_time) {
         position += velocity * (delta_time * 2.0f);
     };
+    //todo: change this in its own class when refactoring (and remove it from moving as well)
+    bool check_colision(Obstacle_Entity* other) {
+        // check if the two obstacles are colliding
+        if (position.x < other->position.x + other->width &&
+            position.x + width > other->position.x &&
+            position.y < other->position.y + other->height &&
+            position.y + height > other->position.y) {
+            return true;
+        }
+        return false;
+    };
 };
 
 

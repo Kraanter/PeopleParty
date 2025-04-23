@@ -28,6 +28,11 @@ void HighwayHustle_Map::update_player_velocity(Client *player, float x, float y)
     if (players.find(player) != players.end()) {
         Vector2D velocity = Vector2D(x, y);
 
+        // ramp up player velocity when the score (distance) is increasing
+        float clampedInput = std::max(0, std::min(12000, distance_travelled));
+        float factor = 0.35f + (clampedInput / 12000) * (1.1f - 0.35f);
+        velocity *= factor;
+
         players[player]->add_velocity(velocity);
     }
 }
@@ -94,9 +99,14 @@ void HighwayHustle_Map::update_obstacles(unsigned long delta_time) {
     // create new obstacles
     if (obstacles.size() < 50) {
         // TODO: ramp up when distance is higher;
-        if ((float)std::rand() / RAND_MAX < 0.005f) {
+        if ((float)std::rand() / RAND_MAX < 0.0075f + (float)(distance_travelled / 100) / (float)5000) {
             create_obstacle();
         }
+    }
+
+    last_obstacle_spawned += delta_time;
+    if (last_obstacle_spawned > 2000) {
+        create_obstacle();
     }
 
     // delete obstacle if off screen (left side)
@@ -116,11 +126,24 @@ void HighwayHustle_Map::create_obstacle() {
     int random_y = y_positions[random_index];
 
     Vector2D position = Vector2D(map_width + 5, random_y);
-    Vector2D velocity = Vector2D(-0.01f * (std::max(2, distance_travelled / 1000)), 0);
+
+    Vector2D velocity = Vector2D(-(std::max(0.02f, 0.01f + 0.01f * (float)distance_travelled / 900.0f)), 0);
     Obstacle_Entity* obstacle = new Obstacle_Entity(position, velocity);
+
+    // if position is coliding with another obstacle on the same lane, spawn on other lane (call again)
+    for (auto &otherObstacle : obstacles) {
+        if (otherObstacle->position.y == obstacle->position.y && obstacle->check_colision(otherObstacle)) {
+            delete obstacle;
+            obstacle = nullptr;
+            create_obstacle();
+            return;
+        }
+    }
 
     obstacle->id = std::to_string(obstacle_auto_increment);
     obstacle_auto_increment++;
+
+    last_obstacle_spawned = 0;
 
     obstacles.push_back(obstacle);
 }

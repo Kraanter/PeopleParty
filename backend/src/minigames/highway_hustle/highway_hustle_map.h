@@ -18,6 +18,7 @@ private:
     int map_width;
     int distance_travelled = 0; // the distance travelled by the map
     float speed = 1.0f; // the speed of the map, ramps slowly up
+    int last_obstacle_spawned = 0; // the last time an obstacle was spawned (when above ± 1000 it will spawn 1)
     std::vector<int> y_positions = {15, 100, 190, 280, 365, 455}; // lanes in wich the obstacles can spawn
 public:
     std::map<Client*, Moving_Entity*> players;
