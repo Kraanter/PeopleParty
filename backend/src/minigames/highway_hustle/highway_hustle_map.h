@@ -31,7 +31,7 @@ public:
     void create_players(std::vector<Client *> players);
     void update_player_velocity(Client* player, float x, float y);
     void update_player_event(Client* player, int event_type); // can be stop (0) or start (1), joystick events
-    //void update_obstacle(); // every X seccond this will update the position of the obstakels
+    bool check_players_alive();
     unsigned long getDistanceTravelled() { return distance_travelled; };
 private:
     void update_obstacles(unsigned long delta_time);

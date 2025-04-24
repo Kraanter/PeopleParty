@@ -32,11 +32,12 @@ public:
     std::string get_display_name() override { return "Highway Hustle"; };
     std::string get_camel_case_name() override { return "highwayHustle"; };
     std::string get_description() override { return "Manouver through the trafic, watch out for the other cars!"; };
-    private:
+private:
     void update(int delta_time) override;
     void process_input(const MiniGamePayloadType* payload, Client* from) override;
     void send_host_update();
     void send_player_update(Client *client, Moving_Entity *entity);
+    void send_result_data(int client_id);
     void introduction_update(int delta_time);
 };
 

@@ -8,6 +8,7 @@ HighwayHustle_MiniGame::~HighwayHustle_MiniGame() {
     introduction_timer.clear();
     minigame_timer.clear();
     result_timer.clear();
+    timer.clear();
     delete map;
 }
 
@@ -20,13 +21,14 @@ void HighwayHustle_MiniGame::pause() {
     minigame_timer.pause();
     result_timer.pause();
     introduction_timer.pause();
+    timer.pause();
 }
 
 void HighwayHustle_MiniGame::resume() {
     minigame_timer.resume();
     result_timer.resume();
     introduction_timer.resume();
-
+    timer.resume();
 }
 
 void HighwayHustle_MiniGame::introduction_update(int delta_time)
@@ -87,15 +89,18 @@ void HighwayHustle_MiniGame::process_input(const MiniGamePayloadType *payload, C
 }
 
 void HighwayHustle_MiniGame::update(int delta_time) {
+    // check if minigame ended
+    if (!map->check_players_alive()) {
+        minigame_timer.clear();
+        start_result();
+        return;
+    }
+
     map->update(delta_time);
     send_host_update();
     for (auto const& [key, val] : map->players) {
         send_player_update(key, val);
     }
-
-    // TODO: when there are no players left alive, stop timer and start result
-    // minigame_timer.clear();
-    // start_result();
 }
 
 void HighwayHustle_MiniGame::send_host_update()
@@ -143,43 +148,70 @@ void HighwayHustle_MiniGame::send_player_update(Client *client, Moving_Entity *e
     game->party->send_gamestate([client](Client* c) { return c == client; }, builder, gameStatePayload.Union());
 }
 
-
 void HighwayHustle_MiniGame::start_result() {
-    // todo: 
-    // send_result_data(host->client_id);
-    // for (auto &player : players) {
-    //     send_result_data(player.first->client_id);
-    // }
+    send_result_data(game->party->host->client_id);
+    for (auto &player : map->players) {
+        send_result_data(player.first->client_id);
+    }
 
-    // result_timer.setTimeout([this]() {
-    //     finished();
-    // }, result_time);
+    result_timer.setTimeout([this]() {
+        finished();
+    }, 5 SECONDS);
+}
+
+void HighwayHustle_MiniGame::send_result_data(int client_id)
+{
+    flatbuffers::FlatBufferBuilder builder;
+    auto mini_game_result = getMinigameResult();
+
+    std::vector<flatbuffers::Offset<FBHighwayHustleResultPair>> results_buffer;
+    for (auto &player: map->players) {
+        // get placement from results
+        auto placement = 99;
+        for (auto &result : mini_game_result) {
+            if (result.first == player.first) {
+                placement = result.second;
+                break;
+            }
+        }
+        // make result pair
+        results_buffer.push_back(CreateFBHighwayHustleResultPair(builder, builder.CreateString(player.first->name), player.second->final_score, placement));
+    }
+    auto results_vector = builder.CreateVector(results_buffer);
+
+    auto payload = CreateHighwayHustleResultPayload(builder, results_vector);
+
+    auto miniGame = builder.CreateString(get_camel_case_name());
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_HighwayHustleResult,
+                                                      GameStatePayload_HighwayHustleResultPayload, payload.Union());
+
+    game->party->send_gamestate([](Client* client) { return client == client; }, builder, gameStatePayload.Union());
 }
 
 std::vector<std::pair<Client *, int>> HighwayHustle_MiniGame::getMinigameResult() {
-    // std::vector<Client*> local_players;
-    // for (auto &player : this->players) {
-    //     local_players.push_back(player.first);
-    // }
+    std::vector<Client*> local_players;
+    for (auto &player : this->map->players) {
+        local_players.push_back(player.first);
+    }
 
-    // sort(local_players.begin(), local_players.end(), [&](Client *a, Client *b) {
-    //     if (players[a].total_diff == players[b].total_diff)  {
-    //         return true;
-    //     }
-    //     return players[a].total_diff < players[b].total_diff;
-    // });
+    sort(local_players.begin(), local_players.end(), [&](Client *a, Client *b) {
+        if (map->players[a]->final_score == map->players[b]->final_score)  {
+            return true;
+        }
+        return map->players[a]->final_score > map->players[b]->final_score;
+    });
 
 
     // give placement to players (players can have the same placement)
     std::vector<std::pair<Client *, int>> result;
-    // for (int i = 0; i < local_players.size(); i++) {
-    //     // if the total_diff value of the previous player is the same, give the same placement as previous player
-    //     if (i != 0 && players[local_players[i]].total_diff == players[local_players[i - 1]].total_diff ) {
-    //         int previous_placement = result[i - 1].second;
-    //         result.push_back(std::make_pair(local_players[i], previous_placement));
-    //     } else {
-    //         result.push_back(std::make_pair(local_players[i], i + 1));
-    //     }
-    // }
+    for (int i = 0; i < local_players.size(); i++) {
+        // if the final_score value of the previous player is the same, give the same placement as previous player
+        if (i != 0 && map->players[local_players[i]]->final_score == map->players[local_players[i - 1]]->final_score ) {
+            int previous_placement = result[i - 1].second;
+            result.push_back(std::make_pair(local_players[i], previous_placement));
+        } else {
+            result.push_back(std::make_pair(local_players[i], i + 1));
+        }
+    }
     return result;
 }

@@ -18,3 +18,12 @@ export interface HighwayHustlePlayerData {
 }
 
 // result
+export interface HighwayHustleResultPair {
+  name: string
+  score: number
+  placement: number
+}
+
+export interface HighwayHustleResult {
+  results: HighwayHustleResultPair[]
+}

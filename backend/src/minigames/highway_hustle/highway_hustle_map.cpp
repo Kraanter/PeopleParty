@@ -47,7 +47,6 @@ void HighwayHustle_Map::update_player_event(Client *player, int event_type) {
     }
 }
 
-
 void HighwayHustle_Map::update(unsigned long delta_time) {
     // update players
     for (auto &player : players) {
@@ -98,7 +97,6 @@ void HighwayHustle_Map::update_obstacles(unsigned long delta_time) {
 
     // create new obstacles
     if (obstacles.size() < 50) {
-        // TODO: ramp up when distance is higher;
         if ((float)std::rand() / RAND_MAX < 0.0075f + (float)(distance_travelled / 100) / (float)5000) {
             create_obstacle();
         }
@@ -146,4 +144,14 @@ void HighwayHustle_Map::create_obstacle() {
     last_obstacle_spawned = 0;
 
     obstacles.push_back(obstacle);
+}
+
+bool HighwayHustle_Map::check_players_alive()
+{
+    for (auto &player : players) {
+        if (!player.second->is_dead) {
+            return true;
+        }
+    }
+    return false;
 }

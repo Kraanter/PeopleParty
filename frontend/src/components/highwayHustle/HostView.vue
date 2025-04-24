@@ -71,6 +71,7 @@ const update = (data: MiniGamePayloadType) => {
       }
       break
     }
+    // todo: case minigame results + playerview minigame results
   }
   return []
 }

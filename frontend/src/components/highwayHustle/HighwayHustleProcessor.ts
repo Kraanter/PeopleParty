@@ -1,7 +1,8 @@
 import type { MiniGamePayloadType } from "@/flatbuffers/mini-game-payload-type"
 import { HighwayHustleHostPayload } from "@/flatbuffers/highway-hustle-host-payload"
-import type { HighwayHustleData, HighwayHustleEntity, HighwayHustlePlayerData } from "./HighwayHustleModels"
+import type { HighwayHustleData, HighwayHustleEntity, HighwayHustlePlayerData, HighwayHustleResult, HighwayHustleResultPair } from "./HighwayHustleModels"
 import { HighwayHustlePlayerPayload } from "@/flatbuffers/highway-hustle-player-payload"
+import { HighwayHustleResultPayload } from "@/flatbuffers/highway-hustle-result-payload"
 
 export function parseHighwayHustleHostPayload(data: MiniGamePayloadType): HighwayHustleData {
     const payload: HighwayHustleHostPayload = data.gamestatepayload(new HighwayHustleHostPayload())
@@ -37,5 +38,22 @@ export function parseHighwayHustlePlayerPayload(data: MiniGamePayloadType): High
     return {
         score: Number(payload.score()),
         isDead: payload.isDead()
+    }
+}
+
+export function parseHighwayHustleResultPayload(data: MiniGamePayloadType): HighwayHustleResult {
+    const payload: HighwayHustleResultPayload = data.gamestatepayload(new HighwayHustleResultPayload())
+
+    const results: HighwayHustleResultPair[] = []
+    for (let i = 0; i < payload.resultsLength(); i++) {
+        results.push({
+            name: payload.results(i).name(),
+            score: Number(payload.results(i).score()),
+            placement: Number(payload.results(i).placement())
+        })
+    }
+
+    return {
+        results: results
     }
 }
