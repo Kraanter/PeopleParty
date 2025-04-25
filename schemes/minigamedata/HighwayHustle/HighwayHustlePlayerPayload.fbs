@@ -1,6 +1,7 @@
 table HighwayHustlePlayerPayload {
     score: ulong;
     is_dead: bool;
+    car_type: ushort;
 }
 
 root_type HighwayHustlePlayerPayload;

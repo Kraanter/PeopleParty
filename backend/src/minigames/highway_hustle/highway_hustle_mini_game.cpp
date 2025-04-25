@@ -110,14 +110,14 @@ void HighwayHustle_MiniGame::send_host_update()
     std::vector<flatbuffers::Offset<FBHighwayHustleEntity>> entities_buffer;
     for (auto const& [key, val] : map->players) {
         auto id = builder.CreateString(key->name);
-        entities_buffer.push_back(CreateFBHighwayHustleEntity(builder, id, val->position.x, val->position.y));
+        entities_buffer.push_back(CreateFBHighwayHustleEntity(builder, id, val->position.x, val->position.y, val->car_type));
     }
     auto entities_vector = builder.CreateVector(entities_buffer);
 
     std::vector<flatbuffers::Offset<FBHighwayHustleEntity>> obstacles_buffer;
     for (auto const& obstacle : map->obstacles) {
         auto id = builder.CreateString(obstacle->id);
-        obstacles_buffer.push_back(CreateFBHighwayHustleEntity(builder, id, obstacle->position.x, obstacle->position.y));
+        obstacles_buffer.push_back(CreateFBHighwayHustleEntity(builder, id, obstacle->position.x, obstacle->position.y, obstacle->car_type));
     }
     auto obstacles_vector = builder.CreateVector(obstacles_buffer);
 
@@ -137,7 +137,7 @@ void HighwayHustle_MiniGame::send_player_update(Client *client, Moving_Entity *e
     flatbuffers::FlatBufferBuilder builder;
     // Encode payload to binary
     int score = entity->is_dead ? entity->final_score : map->getDistanceTravelled();
-    auto payload = CreateHighwayHustlePlayerPayload(builder, score, entity->is_dead);
+    auto payload = CreateHighwayHustlePlayerPayload(builder, score, entity->is_dead, entity->car_type);
 
     auto miniGame = builder.CreateString(get_camel_case_name());
 

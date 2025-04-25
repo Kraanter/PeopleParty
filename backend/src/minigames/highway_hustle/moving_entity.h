@@ -14,6 +14,7 @@ public:
     Vector2D heading;
     bool is_dead = false;
     int final_score = 0;
+    int car_type = 0; // ranges from 0-11 (12 car colors), also indicates starting position
 public:
     Moving_Entity() { Moving_Entity(0, 0); };
     Moving_Entity(float x, float y) {

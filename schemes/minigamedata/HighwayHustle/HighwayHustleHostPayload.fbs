@@ -2,6 +2,7 @@ table FBHighwayHustleEntity {
   id: string;
   x_pos: float;
   y_pos: float;
+  car_type: ushort;
 }
 
 table HighwayHustleHostPayload {

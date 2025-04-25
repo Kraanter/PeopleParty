@@ -4,10 +4,11 @@ import { type IntroductionData } from '@/components/introduction/Introduction.vu
 import Introduction from '@/components/introduction/Introduction.vue'
 import {
   GameStateType,
+  HighwayHustleResultPayload,
   MiniGameIntroductionPayload,
   type MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
-import { type HighwayHustleData } from './HighwayHustleModels'
+import { type HighwayHustleData, type HighwayHustleResult } from './HighwayHustleModels'
 import { parseHighwayHustleHostPayload } from './HighwayHustleProcessor'
 import { Application } from 'vue3-pixi'
 import { Graphics, Sprite } from 'pixi.js'
@@ -49,7 +50,9 @@ const payloadData = ref<HighwayHustleData>({
 // }
 
 // final results
-// todo
+const results = ref<HighwayHustleResult>({
+  results: []
+})
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -71,7 +74,11 @@ const update = (data: MiniGamePayloadType) => {
       }
       break
     }
-    // todo: case minigame results + playerview minigame results
+    case GameStateType.HighwayHustleResult: {
+      viewState.value = ViewState.Results
+      results.value = data.gamestatepayload(new HighwayHustleResultPayload())
+      break;
+    }
   }
   return []
 }
@@ -159,9 +166,9 @@ defineExpose({
         </div>
       </div>
     </div>
-    
     <div v-else-if="viewState == ViewState.Results">
       <!-- todo -->
+      <!-- show a F1 style like placement screen (same position as application on other screen) -->
     </div>
   </div>
 </template>

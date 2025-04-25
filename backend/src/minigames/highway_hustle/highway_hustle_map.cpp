@@ -13,11 +13,14 @@ HighwayHustle_Map::~HighwayHustle_Map() {
 }
 
 void HighwayHustle_Map::create_players(std::vector<Client *> players) {
+    int car_type = 0; // also determines the starting position
     for (auto &player : players) {
         if (!player->isHost) {
             Moving_Entity* entity = new Moving_Entity();
     
-            // todo: give players a position depending on the ammount of players allready added
+            entity->car_type = car_type;
+            car_type++;
+            // TODO: set position depending on the car type
     
             this->players.insert(std::pair<Client*, Moving_Entity*>(player, entity));
         }

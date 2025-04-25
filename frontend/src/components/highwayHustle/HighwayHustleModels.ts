@@ -9,6 +9,7 @@ export interface HighwayHustleEntity {
   id: string;
   x: number;
   y: number;
+  carType: number;
 }
 
 // player

@@ -5,6 +5,7 @@ import { type IntroductionData } from '@/components/introduction/Introduction.vu
 import {
   GameStatePayload,
   GameStateType,
+  HighwayHustleResultPayload,
   JoystickDataPayload,
   JoystickEventPayload,
   JoystickEventType,
@@ -17,7 +18,7 @@ import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import { NScrollbar, NCard } from 'naive-ui'
-import type { HighwayHustlePlayerData } from './HighwayHustleModels'
+import type { HighwayHustlePlayerData, HighwayHustleResult } from './HighwayHustleModels'
 import { parseHighwayHustlePlayerPayload } from './HighwayHustleProcessor'
 import Joystick from 'vue-joystick-component'
 
@@ -51,7 +52,13 @@ const payloadData = ref<HighwayHustlePlayerData>({
 })
 
 // minigame results
+const results = ref<HighwayHustleResult>({
+  results: []
+})
 
+const personalResult = computed(() => {
+  return results.value.results.find((result) => result.name === websocketStore.clientName)
+})
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
@@ -72,6 +79,11 @@ const update = (data: MiniGamePayloadType) => {
         time_left: Number(introPayload.timeLeft())
       }
       break
+    }
+    case GameStateType.HighwayHustleResult: {
+      viewState.value = ViewState.Results
+      results.value = data.gamestatepayload(new HighwayHustleResultPayload())
+      break;
     }
   }
   return []
@@ -184,8 +196,14 @@ defineExpose({
     </div>
   </template>
   <template v-else-if="viewState == ViewState.Results">
-    <div class="flex flex-col gap-4 w-full h-full">
+    <div v-if="personalResult" class="flex flex-col gap-4 w-full h-full">
       <!-- todo: mingame results -->
+       <div>
+        {{ personalResult.score }}
+       </div>
+       <div>
+        You finished: {{ personalResult.placement }}
+       </div>
     </div>
   </template>
 </template>
