@@ -129,8 +129,8 @@ void BusinessBailout_Minigame::start_result() {
     flatbuffers::FlatBufferBuilder builder;
     std::vector<flatbuffers::Offset<FBBusinessBailoutResultPair>> result_pairs;
     for (auto player: getMinigameResult()) {
-        auto name = builder.CreateString(player->name.c_str());
-        result_pairs.push_back(CreateFBBusinessBailoutResultPair(builder, name, player_bail_values[player], player_bail_times[player]));
+        auto name = builder.CreateString(player.first->name.c_str());
+        result_pairs.push_back(CreateFBBusinessBailoutResultPair(builder, name, player_bail_values[player.first], player_bail_times[player.first]));
     }
     auto result_vector = builder.CreateVector(result_pairs);
     auto payload = CreateBusinessBailoutResultPayload(builder, result_vector);
@@ -191,11 +191,24 @@ void BusinessBailout_Minigame::send_player_data(Client* player) {
     }, builder, gamestatePayload.Union());
 }
 
-std::vector<Client *> BusinessBailout_Minigame::getMinigameResult() {
+std::vector<std::pair<Client *, int>> BusinessBailout_Minigame::getMinigameResult() {
     sort(players.begin(), players.end(), [&](Client *a, Client *b) {
         return player_bail_values[a] > player_bail_values[b];
     });
-    return players;
+
+    // give placement to players (players can have the same placement)
+    std::vector<std::pair<Client *, int>> result;
+    for (int i = 0; i < players.size(); i++) {
+        // if the player_bail_values value of the previous player is the same, give the same placement as previous player
+        if (i != 0 && player_bail_values[players[i]] == player_bail_values[players[i - 1]]) {
+            int previous_placement = result[i - 1].second;
+            result.push_back(std::make_pair(players[i], previous_placement));
+        } else {
+            result.push_back(std::make_pair(players[i], i + 1));
+        }
+    }
+
+    return result;
 }
 
 void BusinessBailout_Minigame::process_input(const MiniGamePayloadType *payload, Client *from) {

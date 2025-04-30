@@ -54,7 +54,7 @@ public:
     void process_input(const Message *payload, Client *from);
     void clients_changed(int client_id, bool joined);
     const std::vector<Client *> get_clients();
-    void update_leaderboard(std::vector<Client *> minigame_result);
+    void update_leaderboard(std::vector<std::pair<Client *, int>> minigame_result); // first is client, second is placement
 private:
     void add_minigames();
     void handle_new_minigame();

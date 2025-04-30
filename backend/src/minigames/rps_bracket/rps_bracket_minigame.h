@@ -34,7 +34,7 @@ public:
     void start_result() override;
     void pause() override;
     void resume() override;
-    std::vector<Client*> getMinigameResult() override;
+    std::vector<std::pair<Client *, int>> getMinigameResult() override;
     std::string get_display_name() override { return "Rock Paper Scissors Bracket"; }
     std::string get_camel_case_name() override { return "rpsBracket"; }
     std::string get_description() override { return "Beat All Opponents In A Bracket Style Tournament"; }

@@ -206,11 +206,10 @@ void LaunchParty_Minigame::send_player_data(Client *player) {
 void LaunchParty_Minigame::send_result_data(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
-    std::vector<Client*> playerResult = getMinigameResult();    
 
     std::vector<flatbuffers::Offset<FBLaunchPartyResultPair>> results;
-    for (auto &player : playerResult) {
-        auto result = CreateFBLaunchPartyResultPair(builder, builder.CreateString(player->name), players[player].reaction_time);
+    for (auto &player : getMinigameResult()) {
+        auto result = CreateFBLaunchPartyResultPair(builder, builder.CreateString(player.first->name), players[player.first].reaction_time);
         results.push_back(result);
     }
     auto resultsPayload = builder.CreateVector(results);
@@ -226,7 +225,7 @@ void LaunchParty_Minigame::send_result_data(int client_id) {
 }
 
 
-std::vector<Client *> LaunchParty_Minigame::getMinigameResult() {
+std::vector<std::pair<Client *, int>> LaunchParty_Minigame::getMinigameResult() {
     std::vector<Client*> local_players;
     for (auto &player : this->players) {
         local_players.push_back(player.first);
@@ -238,6 +237,19 @@ std::vector<Client *> LaunchParty_Minigame::getMinigameResult() {
         }
         return players[a].reaction_time < players[b].reaction_time;
     });
-    return local_players;
+
+
+    // give placement to players (players can have the same placement)
+    std::vector<std::pair<Client *, int>> result;
+    for (int i = 0; i < local_players.size(); i++) {
+        // if the reaction_time value of the previous player is the same, give the same placement as previous player
+        if (i != 0 && players[local_players[i]].reaction_time == players[local_players[i - 1]].reaction_time ) {
+            int previous_placement = result[i - 1].second;
+            result.push_back(std::make_pair(local_players[i], previous_placement));
+        } else {
+            result.push_back(std::make_pair(local_players[i], i + 1));
+        }
+    }
+    return result;
 }
 
