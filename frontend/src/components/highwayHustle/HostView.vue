@@ -13,6 +13,7 @@ import { parseHighwayHustleHostPayload } from './HighwayHustleProcessor'
 import { Application } from 'vue3-pixi'
 import { Graphics, Sprite } from 'pixi.js'
 import { watch } from 'vue'
+import { getPlayerSprite, getPlayerSpriteDimensions, getObstacleSprite, getObstacleDimensions} from './HighwayHustleSpriteMap'
 
 const props = defineProps<{
   width: number
@@ -148,18 +149,18 @@ defineExpose({
               <Sprite
                 v-for="(entity) in payloadData.obstacles"
                 :position="{ x: entity.x || 0, y: entity.y || 0 }"
-                :width="50"
-                :height="50"
+                :width="getObstacleDimensions(entity.carType).width"
+                :height="getObstacleDimensions(entity.carType).height"
                 :key="entity.id"
-                texture="/assets/games/crazyCounting/partyhat.svg"
+                :texture=getObstacleSprite(entity.carType)
               />
               <Sprite
                 v-for="(entity) in payloadData.players"
                 :position="{ x: entity.x, y: entity.y }"
-                :width="50"
-                :height="50"
+                :width="getPlayerSpriteDimensions(entity.carType).width"
+                :height="getPlayerSpriteDimensions(entity.carType).height"
                 :key="entity.id"
-                texture="/assets/games/crazyCounting/partyhat.svg"
+                :texture=getPlayerSprite(entity.carType)
               />
             </Application>
           </div>
