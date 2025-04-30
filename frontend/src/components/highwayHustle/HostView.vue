@@ -11,7 +11,7 @@ import {
 import { type HighwayHustleData, type HighwayHustleResult } from './HighwayHustleModels'
 import { parseHighwayHustleHostPayload } from './HighwayHustleProcessor'
 import { Application } from 'vue3-pixi'
-import { Graphics, Sprite } from 'pixi.js'
+import { Graphics, Sprite, Text } from 'pixi.js'
 import { watch } from 'vue'
 import { getPlayerSprite, getPlayerSpriteDimensions, getObstacleSprite, getObstacleDimensions} from './HighwayHustleSpriteMap'
 
@@ -92,11 +92,11 @@ const render = (graphics: Graphics) => {
   const canvasWidth = 780
   const canvasHeight = 530
   const spacing = 150
-  const horizontalSpacing = 90
+  const verticalSpacing = 90
 
   const offset = payloadData.value.distance % spacing
 
-  for (let y = 0; y <= canvasHeight; y += horizontalSpacing) {
+  for (let y = 0; y <= canvasHeight; y += verticalSpacing) {
     if (y >= 0 && y <= canvasHeight) {
       // draw a horizontal dotted line
       for (let x = -offset; x <= canvasWidth; x += spacing) {
@@ -105,7 +105,35 @@ const render = (graphics: Graphics) => {
       }
     }
   }
+
+  if (viewState.value == ViewState.MiniGame) {
+    // draw placement 'bracket'
+    graphics.lineStyle(3, 0x00ff00)
+    let localLeaderboardLocations: { x: number, y: number }[] = [];
+
+    for (let i = 0; i < 12; i++) {
+      let y = (i + 1) * verticalSpacing - verticalSpacing / 2 - 2 * i;
+      if (y >= canvasHeight) y -= canvasHeight;
+
+      const x = canvasWidth - (canvasWidth / 15) * i - 50;
+
+      localLeaderboardLocations.push({ x, y })
+
+      graphics.moveTo(x, y - 20)
+      graphics.lineTo(x, y + 20)
+
+      graphics.moveTo(x, y - 20)
+      graphics.lineTo(x - 20, y - 20)
+
+      graphics.moveTo(x, y + 20)
+      graphics.lineTo(x - 20, y + 20)
+    }
+
+    playerLeaderboardLocations.value = localLeaderboardLocations;
+  }
 }
+
+const playerLeaderboardLocations = ref<{ x: number, y: number }[]>([])
 
 const applicationId = ref(0)
 
@@ -152,7 +180,7 @@ defineExpose({
                 :width="getObstacleDimensions(entity.carType).width * 1.5"
                 :height="getObstacleDimensions(entity.carType).height * 1.5"
                 :key="entity.id"
-                :texture=getObstacleSprite(entity.carType)
+                :texture="getObstacleSprite(entity.carType)"
               />
               <Sprite
                 v-for="(entity) in payloadData.players"
@@ -160,7 +188,7 @@ defineExpose({
                 :width="getPlayerSpriteDimensions(entity.carType).width * 1.5"
                 :height="getPlayerSpriteDimensions(entity.carType).height * 1.5"
                 :key="entity.id"
-                :texture=getPlayerSprite(entity.carType)
+                :texture="getPlayerSprite(entity.carType)"
               />
             </Application>
           </div>
@@ -168,8 +196,42 @@ defineExpose({
       </div>
     </div>
     <div v-else-if="viewState == ViewState.Results">
-      <!-- todo -->
-      <!-- show a F1 style like placement screen (same position as application on other screen) -->
+      <div class="flex flex-col h-full w-full justify-center items-center">
+        <div>
+          score {{ Math.round(payloadData.distance / 10) }}
+        </div>
+          <!-- black background, for when the application is rerendering -->
+        <div class="relative">
+          <Application :key="applicationId" :width="800" :height="530" background-color="black" >
+            <Graphics :x="0" :y="0" @render="render" />
+            <div v-if="results.results.length > 0">
+              <div v-for="(entity, i) in results.results" :key="entity.name">
+                <Sprite
+                  :position="{
+                    x: playerLeaderboardLocations[i].x 
+                      - getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5 
+                      - 10,
+                    y: playerLeaderboardLocations[i].y 
+                      - getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).height * 1.5 / 2
+                  }"
+                  :width="getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5"
+                  :height="getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).height * 1.5"
+                  :key="entity.name"
+                  :texture="getPlayerSprite(payloadData.players.find(a => a.id === entity.name).carType)"
+                />
+                <Text
+                  :position="{
+                    x: playerLeaderboardLocations[i].x + 10,
+                    y: playerLeaderboardLocations[i].y
+                  }"
+                  :text="`${i + 1}.`"
+                  style="fill: white; fontSize: 20px;"
+                />
+              </div>
+            </div>
+          </Application>
+        </div>
+      </div>
     </div>
   </div>
 </template>
