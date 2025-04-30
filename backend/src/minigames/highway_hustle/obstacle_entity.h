@@ -85,6 +85,9 @@ private:
                 height = 26;
                 break;
         }
+
+        width *= 1.5f;
+        height *= 1.5f;
     }
 };
 

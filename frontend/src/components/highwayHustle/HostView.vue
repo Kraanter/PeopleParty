@@ -149,16 +149,16 @@ defineExpose({
               <Sprite
                 v-for="(entity) in payloadData.obstacles"
                 :position="{ x: entity.x || 0, y: entity.y || 0 }"
-                :width="getObstacleDimensions(entity.carType).width"
-                :height="getObstacleDimensions(entity.carType).height"
+                :width="getObstacleDimensions(entity.carType).width * 1.5"
+                :height="getObstacleDimensions(entity.carType).height * 1.5"
                 :key="entity.id"
                 :texture=getObstacleSprite(entity.carType)
               />
               <Sprite
                 v-for="(entity) in payloadData.players"
                 :position="{ x: entity.x, y: entity.y }"
-                :width="getPlayerSpriteDimensions(entity.carType).width"
-                :height="getPlayerSpriteDimensions(entity.carType).height"
+                :width="getPlayerSpriteDimensions(entity.carType).width * 1.5"
+                :height="getPlayerSpriteDimensions(entity.carType).height * 1.5"
                 :key="entity.id"
                 :texture=getPlayerSprite(entity.carType)
               />

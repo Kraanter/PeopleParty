@@ -36,7 +36,7 @@ void HighwayHustle_Map::update_player_velocity(Client *player, float x, float y)
 
         // ramp up player velocity when the score (distance) is increasing
         float clampedInput = std::max(0, std::min(12000, distance_travelled));
-        float factor = 0.35f + (clampedInput / 12000) * (1.1f - 0.35f);
+        float factor = 0.5f + (clampedInput / 12000) * (1.1f - 0.5f);
         velocity *= factor;
 
         players[player]->add_velocity(velocity);
@@ -103,13 +103,13 @@ void HighwayHustle_Map::update_obstacles(unsigned long delta_time) {
 
     // create new obstacles
     if (obstacles.size() < 50) {
-        if ((float)std::rand() / RAND_MAX < 0.0075f + (float)(distance_travelled / 100) / (float)5000) {
+        if ((float)std::rand() / RAND_MAX < 0.0075f + (float)(distance_travelled / 100) / (float)4500) {
             create_obstacle();
         }
     }
 
     last_obstacle_spawned += delta_time;
-    if (last_obstacle_spawned > 2000) {
+    if (last_obstacle_spawned > 6000 - (float)(distance_travelled / 10)) {
         create_obstacle();
     }
 
