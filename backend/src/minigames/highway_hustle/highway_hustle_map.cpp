@@ -19,7 +19,10 @@ void HighwayHustle_Map::create_players(std::vector<Client *> players) {
             Moving_Entity* entity = new Moving_Entity();
     
             entity->car_type = car_type;
+            entity->set_dimensions(car_type); // set the dimensions of the car
+
             car_type++;
+            
             // TODO: set position depending on the car type
     
             this->players.insert(std::pair<Client*, Moving_Entity*>(player, entity));
