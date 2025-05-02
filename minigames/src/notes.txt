@@ -1,0 +1,59 @@
+Minigame wrapper is de core van de applicatie. Dit zit om de minigames heen en zorgt ervoor dat de minigame kan functioneren zonder te hoeven zorgen maken om wat er ook gebeurd met de communicatie.
+
+De minigames moeten werken doormiddel van een soort van game state en acties op deze gamestate. 
+
+De gamestate heeft de volgende structuur (in JSON uitgedrukt):
+
+{
+        host: <<HOSTDATA>>,
+        players: {
+                <<PLAYERNAME>>: <<PLAYERDATA>>
+        },
+        global: <<GLOBALDATA>>
+}
+
+Er is 1 functie genaamd process input en deze ontvangt de gamestate met een action en heeft als return type de gamestate. 
+
+Het idee is dat de game wordt gedraait als los proces en via stdIn en stdOut wordt gecomuniceerd met gamestates en actions die komen vanuit het host process.
+
+---
+
+Flatbuffer analyse (saus) backend implementatie business bailout
+
+ - Host
+   - Server -> Host
+        De Server stuurt elke gametick een bericht naar de host met de volgende gegevens:
+           - "value" -> De huidige verkoop prijs.
+           - "time" -> Het huidige tijdstip van de game.
+           - "bailed_players" -> Een lijst van spelers die verkocht hebben. Met de volgende structuur:.
+                 - "name" -> De naam van de speler.
+                 - "value" -> De prijs op het moment van verkopen.
+                 - "time" -> Het tijdstip van verkopen.
+ - Player
+   - Server -> Player
+        De Server stuurt 2 waarden naar de Player: de tijd van verkopen en de bijbehorende tijd.
+        Dit wordt gestuurd wanneer de Player op de 'sell' knop gedrukt heeft.
+
+   - Player -> Server
+        De Player stuurt een boolean genaamd 'lock' die aangeeft dat er gedrukt is op de 'sell' knop.
+        Dit wordt alleen gestuurd wanneer er op genop geklikt is.
+
+---
+
+Dingen om over na te denken: 
+
+   - Wat is handig qua verschillende game momenten? (Zoals: Start/Resultaat van game)
+        Aan het eind van een game neem ik aan dat je wilt laten zien wie er gewonnen heeft.
+        Maar zoals bij business bailout is het nodig om de Graph te laten zien met het hele pakket.
+        Is het hierbij gewoon aan de developer van de game om dit te regelen. 
+        Lijkt mij wel het handigst. Dat de game maker gewoon een prop moet toevoegen ofzo om te weten welke staat de game zich in bevind.
+        En dan gewoon zorgen dat we elke 100ms ofzo checken voor een game update. 
+        Zodat je gewoon 2000ms kan wachten ofzo door gewoon een counter bij te houden met hoelang je al een ding aant laten zien bent. 
+        Want bij games zoals launch party wil je 2x de game spelen en 2x resulaten laten zien op dezelfde manier.
+        Dus dan moet het wel worden gedaan door de game developer voor de vrijheid.
+
+   - Zoals hierboven, wat is handig om te doen qua update interval?
+        Gewoon blijven pingen tot er een nieuwe game update is of wachten op een result?
+        Ik weet niet wat handig is...
+        In theorie kan je gewoon gelijk een bericht naar de "microservice" sturen en gewoon net zolang wachten tot je antwoord krijgt. 
+        Je kan ook elke X ms een bericht sturen en dan gewoon alleen sturen als de state veranderd.
