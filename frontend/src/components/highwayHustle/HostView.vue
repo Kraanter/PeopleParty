@@ -4,12 +4,11 @@ import { type IntroductionData } from '@/components/introduction/Introduction.vu
 import Introduction from '@/components/introduction/Introduction.vue'
 import {
   GameStateType,
-  HighwayHustleResultPayload,
   MiniGameIntroductionPayload,
   type MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
 import { type HighwayHustleData, type HighwayHustleResult } from './HighwayHustleModels'
-import { parseHighwayHustleHostPayload } from './HighwayHustleProcessor'
+import { parseHighwayHustleHostPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
 import { Application } from 'vue3-pixi'
 import { Graphics, Sprite, Text } from 'pixi.js'
 import { watch } from 'vue'
@@ -77,7 +76,7 @@ const update = (data: MiniGamePayloadType) => {
     }
     case GameStateType.HighwayHustleResult: {
       viewState.value = ViewState.Results
-      results.value = data.gamestatepayload(new HighwayHustleResultPayload())
+      results.value = parseHighwayHustleResultPayload(data)
       break;
     }
   }
@@ -106,9 +105,9 @@ const render = (graphics: Graphics) => {
     }
   }
 
-  if (viewState.value == ViewState.MiniGame) {
+  if (viewState.value == ViewState.Results) {
     // draw placement 'bracket'
-    graphics.lineStyle(3, 0x00ff00)
+    graphics.lineStyle(3, 0xFFFFFF)
     let localLeaderboardLocations: { x: number, y: number }[] = [];
 
     for (let i = 0; i < 12; i++) {
@@ -163,7 +162,7 @@ defineExpose({
     <div v-if="viewState == ViewState.Introduction">
       <Introduction :data="intro" logoSVG="/assets/games/highwayHustle/highwayHustleLogo.svg" />
     </div>
-    <div v-else-if="viewState == ViewState.MiniGame">
+    <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results">
       <div class="flex flex-col h-full w-full justify-center items-center">
         <div>
           score {{ Math.round(payloadData.distance / 10) }}
@@ -174,62 +173,50 @@ defineExpose({
           <div class="relative">
             <Application :key="applicationId" :width="800" :height="530" background-color="black" >
               <Graphics :x="0" :y="0" @render="render" />
-              <Sprite
-                v-for="(entity) in payloadData.obstacles"
-                :position="{ x: entity.x || 0, y: entity.y || 0 }"
-                :width="getObstacleDimensions(entity.carType).width * 1.5"
-                :height="getObstacleDimensions(entity.carType).height * 1.5"
-                :key="entity.id"
-                :texture="getObstacleSprite(entity.carType)"
-              />
-              <Sprite
-                v-for="(entity) in payloadData.players"
-                :position="{ x: entity.x, y: entity.y }"
-                :width="getPlayerSpriteDimensions(entity.carType).width * 1.5"
-                :height="getPlayerSpriteDimensions(entity.carType).height * 1.5"
-                :key="entity.id"
-                :texture="getPlayerSprite(entity.carType)"
-              />
+              <template v-if="viewState == ViewState.MiniGame && payloadData.players.length > 0">
+                <Sprite
+                  v-for="(entity) in payloadData.obstacles"
+                  :position="{ x: entity.x || 0, y: entity.y || 0 }"
+                  :width="getObstacleDimensions(entity.carType).width * 1.5"
+                  :height="getObstacleDimensions(entity.carType).height * 1.5"
+                  :key="entity.id"
+                  :texture="getObstacleSprite(entity.carType)"
+                />
+                <Sprite
+                  v-for="(entity) in payloadData.players"
+                  :position="{ x: entity.x, y: entity.y }"
+                  :width="getPlayerSpriteDimensions(entity.carType).width * 1.5"
+                  :height="getPlayerSpriteDimensions(entity.carType).height * 1.5"
+                  :key="entity.id"
+                  :texture="getPlayerSprite(entity.carType)"
+                />
+              </template>
+              <template v-if="viewState == ViewState.Results && results.results.length > 0 && playerLeaderboardLocations.length > 0">
+                <template v-for="(entity, i) in results.results" :key="entity.name">
+                  <Sprite
+                    :position="{
+                      x: playerLeaderboardLocations[i].x 
+                        - getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5 
+                        - 10,
+                      y: playerLeaderboardLocations[i].y 
+                        - getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).height * 1.5 / 2
+                    }"
+                    :width="getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5"
+                    :height="getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).height * 1.5"
+                    :texture="getPlayerSprite(payloadData.players.find(a => a.id === entity.name).carType)"
+                  />
+                  <Text
+                    :position="{
+                      x: playerLeaderboardLocations[i].x + 8,
+                      y: playerLeaderboardLocations[i].y - 15
+                    }"
+                    :text="`${i + 1}.`"
+                    style="fill: white; font-size: 40px;"
+                  />
+                </template>
+              </template>
             </Application>
           </div>
-        </div>
-      </div>
-    </div>
-    <div v-else-if="viewState == ViewState.Results">
-      <div class="flex flex-col h-full w-full justify-center items-center">
-        <div>
-          score {{ Math.round(payloadData.distance / 10) }}
-        </div>
-          <!-- black background, for when the application is rerendering -->
-        <div class="relative">
-          <Application :key="applicationId" :width="800" :height="530" background-color="black" >
-            <Graphics :x="0" :y="0" @render="render" />
-            <div v-if="results.results.length > 0">
-              <div v-for="(entity, i) in results.results" :key="entity.name">
-                <Sprite
-                  :position="{
-                    x: playerLeaderboardLocations[i].x 
-                      - getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5 
-                      - 10,
-                    y: playerLeaderboardLocations[i].y 
-                      - getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).height * 1.5 / 2
-                  }"
-                  :width="getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5"
-                  :height="getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).height * 1.5"
-                  :key="entity.name"
-                  :texture="getPlayerSprite(payloadData.players.find(a => a.id === entity.name).carType)"
-                />
-                <Text
-                  :position="{
-                    x: playerLeaderboardLocations[i].x + 10,
-                    y: playerLeaderboardLocations[i].y
-                  }"
-                  :text="`${i + 1}.`"
-                  style="fill: white; fontSize: 20px;"
-                />
-              </div>
-            </div>
-          </Application>
         </div>
       </div>
     </div>
