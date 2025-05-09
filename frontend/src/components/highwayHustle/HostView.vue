@@ -7,10 +7,10 @@ import {
   MiniGameIntroductionPayload,
   type MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
-import { type HighwayHustleData, type HighwayHustleResult } from './HighwayHustleModels'
+import { type HighwayHustleData, type HighwayHustleResult, type HighwayHustleResultPair } from './HighwayHustleModels'
 import { parseHighwayHustleHostPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
 import { Application } from 'vue3-pixi'
-import { Graphics, Sprite, Text } from 'pixi.js'
+import { Graphics, Sprite, Text, TextStyle, TextMetrics } from 'pixi.js'
 import { watch } from 'vue'
 import { getPlayerSprite, getPlayerSpriteDimensions, getObstacleSprite, getObstacleDimensions} from './HighwayHustleSpriteMap'
 
@@ -152,6 +152,46 @@ watch(
   { immediate: true }
 )
 
+const pr = new Intl.PluralRules('en-US', { type: 'ordinal' })
+const suffixes = new Map([
+  ['one', 'st'],
+  ['two', 'nd'],
+  ['few', 'rd'],
+  ['other', 'th']
+])
+
+const formatOrdinals = (n: number) => {
+  const rule = pr.select(n)
+  const suffix = suffixes.get(rule)
+  return `${n}${suffix}`
+}
+
+const getResultSpritePostions = (entity: HighwayHustleResultPair, index: number): { x: number, y: number } => {
+  console.log('getResultSpritePostions', entity, index, playerLeaderboardLocations.value[index])
+  if (!playerLeaderboardLocations.value[index]) {
+    return { x: -100, y: 0 }
+  }
+  return {
+    x: playerLeaderboardLocations.value[index].x 
+      - getPlayerSpriteDimensions(payloadData.value.players.find(a => a.id === entity.name).carType).width * 1.5 
+      - 10,
+    y: playerLeaderboardLocations.value[index].y 
+      - getPlayerSpriteDimensions(payloadData.value.players.find(a => a.id === entity.name).carType).height * 1.5 / 2}
+}
+
+const style = new TextStyle({
+  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+  fontSize: 18,
+  fill: 'white',
+  stroke: '#000000',
+  strokeThickness: 4,
+});
+
+const getCenteredTextPosition = (text: string, x: number): number => {
+  const metrics = TextMetrics.measureText(text, style)
+  return x - metrics.width / 2
+}
+
 defineExpose({
   update
 })
@@ -182,36 +222,49 @@ defineExpose({
                   :key="entity.id"
                   :texture="getObstacleSprite(entity.carType)"
                 />
-                <Sprite
-                  v-for="(entity) in payloadData.players"
-                  :position="{ x: entity.x, y: entity.y }"
-                  :width="getPlayerSpriteDimensions(entity.carType).width * 1.5"
-                  :height="getPlayerSpriteDimensions(entity.carType).height * 1.5"
-                  :key="entity.id"
-                  :texture="getPlayerSprite(entity.carType)"
-                />
+                <template v-for="(entity) in payloadData.players" :key="entity.id">
+                  <Sprite
+                    :position="{ x: entity.x, y: entity.y }"
+                    :width="getPlayerSpriteDimensions(entity.carType).width * 1.5"
+                    :height="getPlayerSpriteDimensions(entity.carType).height * 1.5"
+                    :texture="getPlayerSprite(entity.carType)"
+                  />
+                  <!-- // player name in minigame result -->
+                  <Text
+                    :position="{
+                      x: getCenteredTextPosition(`${entity.id}`, entity.x) + getPlayerSpriteDimensions(entity.carType).width * 1.5 / 2,
+                      y: entity.y - 18 * 1.5
+                    }"
+                    :text="`${entity.id}`"
+                    :style="style"
+                  />
+                  </template>
               </template>
               <template v-if="viewState == ViewState.Results && results.results.length > 0 && playerLeaderboardLocations.length > 0">
                 <template v-for="(entity, i) in results.results" :key="entity.name">
                   <Sprite
-                    :position="{
-                      x: playerLeaderboardLocations[i].x 
-                        - getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5 
-                        - 10,
-                      y: playerLeaderboardLocations[i].y 
-                        - getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).height * 1.5 / 2
-                    }"
+                    :position="getResultSpritePostions(entity, i)"
                     :width="getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5"
                     :height="getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).height * 1.5"
                     :texture="getPlayerSprite(payloadData.players.find(a => a.id === entity.name).carType)"
+                  />
+                  <!-- // player name in minigame result -->
+                  <Text
+                    :position="{
+                      x: getCenteredTextPosition(`${entity.name}`, playerLeaderboardLocations[i].x) 
+                        - getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5 / 2,
+                      y: getResultSpritePostions(entity, i).y - 18 * 1.5
+                    }"
+                    :text="`${entity.name}`"
+                    :style="style"
                   />
                   <Text
                     :position="{
                       x: playerLeaderboardLocations[i].x + 8,
                       y: playerLeaderboardLocations[i].y - 15
                     }"
-                    :text="`${i + 1}.`"
-                    style="fill: white; font-size: 40px;"
+                    :text="`${formatOrdinals(i + 1)}.`"
+                    style="fill: white;"
                   />
                 </template>
               </template>

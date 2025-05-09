@@ -16,6 +16,7 @@ export interface HighwayHustleEntity {
 export interface HighwayHustlePlayerData {
   score: number;
   isDead: boolean;
+  carType: number;
 }
 
 // result

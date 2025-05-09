@@ -5,7 +5,6 @@ import { type IntroductionData } from '@/components/introduction/Introduction.vu
 import {
   GameStatePayload,
   GameStateType,
-  HighwayHustleResultPayload,
   JoystickDataPayload,
   JoystickEventPayload,
   JoystickEventType,
@@ -17,10 +16,10 @@ import {
 import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import { NScrollbar, NCard } from 'naive-ui'
 import type { HighwayHustlePlayerData, HighwayHustleResult } from './HighwayHustleModels'
-import { parseHighwayHustlePlayerPayload } from './HighwayHustleProcessor'
+import { parseHighwayHustlePlayerPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
 import Joystick from 'vue-joystick-component'
+import { getPlayerSprite, getPlayerSpriteDimensions, getObstacleSprite, getObstacleDimensions} from './HighwayHustleSpriteMap'
 
 const websocketStore = useWebSocketStore()
 
@@ -49,6 +48,7 @@ const intro = ref<IntroductionData>({
 const payloadData = ref<HighwayHustlePlayerData>({
   score: 0,
   isDead: false,
+  carType: 0,
 })
 
 // minigame results
@@ -82,7 +82,7 @@ const update = (data: MiniGamePayloadType) => {
     }
     case GameStateType.HighwayHustleResult: {
       viewState.value = ViewState.Results
-      results.value = data.gamestatepayload(new HighwayHustleResultPayload())
+      results.value = parseHighwayHustleResultPayload(data)
       break;
     }
   }
@@ -178,6 +178,16 @@ defineExpose({
   </template>
   <template v-else-if="viewState == ViewState.MiniGame">
     <div class="flex flex-col h-full w-full justify-center items-center">
+      <div class="flex flex-col justify-center items-center">
+        <div>
+          your car:
+        </div>
+        <img
+          :src="getPlayerSprite(payloadData.carType)"
+          :width="getPlayerSpriteDimensions(payloadData.carType).width * 3"
+          :height="getPlayerSpriteDimensions(payloadData.carType).height * 3"
+        />
+      </div>
       <div>
         {{ Math.round(payloadData.score / 10) }}
         {{ payloadData.isDead }}

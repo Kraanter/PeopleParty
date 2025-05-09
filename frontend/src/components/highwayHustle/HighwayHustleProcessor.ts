@@ -39,7 +39,8 @@ export function parseHighwayHustlePlayerPayload(data: MiniGamePayloadType): High
 
     return {
         score: Number(payload.score()),
-        isDead: payload.isDead()
+        isDead: payload.isDead(),
+        carType: payload.carType()
     }
 }
 
