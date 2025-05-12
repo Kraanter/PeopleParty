@@ -93,7 +93,7 @@ const render = (graphics: Graphics) => {
   const spacing = 150
   const verticalSpacing = 90
 
-  const offset = payloadData.value.distance % spacing
+  const offset = payloadData.value.distance < 0 ? 0 : payloadData.value.distance % spacing
 
   for (let y = 0; y <= canvasHeight; y += verticalSpacing) {
     if (y >= 0 && y <= canvasHeight) {
@@ -205,7 +205,17 @@ defineExpose({
     <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results">
       <div class="flex flex-col h-full w-full justify-center items-center">
         <div>
-          score {{ Math.round(payloadData.distance / 10) }}
+          <div>
+            score {{ Math.max(0, Math.round(payloadData.distance / 10)) }}
+          </div>
+          <div class="">
+            <div>
+              Check on your screen which car you are!
+            </div>
+            <div>
+              Racing starts in {{ Math.abs(Math.round(payloadData.distance / 1000)) }} seconds
+            </div>
+          </div>
         </div>
         <div class="relative">
           <!-- black background, for when the application is rerendering -->

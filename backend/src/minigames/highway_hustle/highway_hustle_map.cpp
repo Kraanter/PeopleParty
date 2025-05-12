@@ -3,6 +3,8 @@
 HighwayHustle_Map::HighwayHustle_Map(float x, float y) {
     map_height = y;
     map_width = x;
+
+    distance_travelled = -5000; // start at -5000 to give 5s of time to let the players know who is who.
 }
 
 HighwayHustle_Map::~HighwayHustle_Map() {
@@ -21,11 +23,17 @@ void HighwayHustle_Map::create_players(std::vector<Client *> players) {
             entity->car_type = car_type;
             entity->set_dimensions(car_type); // set the dimensions of the car
 
-            car_type++;
-            
-            // TODO: set position depending on the car type
-    
+            // set position on grid depending on the car type
+            if (car_type < 6) {
+                entity->position.x = 10;
+                entity->position.y = y_positions[car_type];
+            } else {
+                entity->position.x = 150;
+                entity->position.y = y_positions[car_type - 6];
+            }
             this->players.insert(std::pair<Client*, Moving_Entity*>(player, entity));
+
+            car_type++;
         }
     }
 }
@@ -35,7 +43,7 @@ void HighwayHustle_Map::update_player_velocity(Client *player, float x, float y)
         Vector2D velocity = Vector2D(x, y);
 
         // ramp up player velocity when the score (distance) is increasing
-        float clampedInput = std::max(0, std::min(12000, distance_travelled));
+        float clampedInput = std::max(0, std::max(0, std::min(12000, distance_travelled)));
         float factor = 0.5f + (clampedInput / 12000) * (1.1f - 0.5f);
         velocity *= factor;
 
@@ -70,6 +78,12 @@ void HighwayHustle_Map::update(unsigned long delta_time) {
         if (player.second->position.y > map_height) {
             player.second->position.y = map_height;
         }
+    }
+
+    // if in prepare mode, skip the rest of the update
+    if (distance_travelled < 0) {
+        distance_travelled += delta_time;
+        return;
     }
 
     // update obstacles

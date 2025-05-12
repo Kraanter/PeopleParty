@@ -8,7 +8,7 @@ table FBHighwayHustleEntity {
 table HighwayHustleHostPayload {
   entities: [FBHighwayHustleEntity];
   obstacles: [FBHighwayHustleEntity];
-  distance: ulong;
+  distance: long;
 }
 
 root_type HighwayHustleHostPayload;

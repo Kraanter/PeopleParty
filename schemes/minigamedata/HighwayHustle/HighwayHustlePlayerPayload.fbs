@@ -1,5 +1,5 @@
 table HighwayHustlePlayerPayload {
-    score: ulong;
+    score: long;
     is_dead: bool;
     car_type: ushort;
 }
