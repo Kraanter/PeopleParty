@@ -204,16 +204,18 @@ defineExpose({
     </div>
     <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results">
       <div class="flex flex-col h-full w-full justify-center items-center">
-        <div>
-          <div>
-            score {{ Math.max(0, Math.round(payloadData.distance / 10)) }}
-          </div>
-          <div class="">
-            <div>
-              Check on your screen which car you are!
+        <div class="absolute top-0 text text-white z-10">
+          <div class="flex flex-col justify-center items-center">
+            <div class="text-4xl">
+              Score: {{ Math.max(0, Math.round(payloadData.distance / 10)) }}
             </div>
-            <div>
-              Racing starts in {{ Math.abs(Math.round(payloadData.distance / 1000)) }} seconds
+            <div v-if="Math.round(payloadData.distance / 10) < 0" class="text-4xl mt-32 flex flex-col justify-center items-center">
+              <div>
+                Check on your screen which car you are!
+              </div>
+              <div>
+                Racing starts in {{ Math.abs(Math.round(payloadData.distance / 1000)) }} seconds
+              </div>
             </div>
           </div>
         </div>

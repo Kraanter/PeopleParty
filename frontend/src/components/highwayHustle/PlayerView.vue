@@ -179,7 +179,7 @@ defineExpose({
   <template v-else-if="viewState == ViewState.MiniGame">
     <div class="flex flex-col h-full w-full justify-center items-center">
       <div class="flex flex-col justify-center items-center">
-        <div>
+        <div class="text text-3xl mb-2">
           your car:
         </div>
         <img
@@ -188,9 +188,13 @@ defineExpose({
           :height="getPlayerSpriteDimensions(payloadData.carType).height * 3"
         />
       </div>
-      <div>
-        {{ Math.round(payloadData.score / 10) }}
-        {{ payloadData.isDead }}
+      <div class="mt-12 mb-12 flex flex-col justify-center items-center">
+        <div class="text text-2xl">
+          Your score:
+        </div>
+        <div class="text text-2xl">
+          {{ Math.round(payloadData.score / 10) < 0 ? 0 : Math.round(payloadData.score / 10) }}
+        </div>
       </div>
       <Joystick
         class="no-project-style"
@@ -208,12 +212,14 @@ defineExpose({
   <template v-else-if="viewState == ViewState.Results">
     <div v-if="personalResult" class="flex flex-col gap-4 w-full h-full">
       <!-- todo: mingame results -->
-       <div>
-        {{ personalResult.score }}
-       </div>
-       <div>
-        You finished: {{ personalResult.placement }}
-       </div>
+      <div class="flex flex-col justify-center items-center">
+        <div>
+         {{ personalResult.score }}
+        </div>
+        <div>
+         You finished: {{ personalResult.placement }}
+        </div>
+      </div>
     </div>
   </template>
 </template>
