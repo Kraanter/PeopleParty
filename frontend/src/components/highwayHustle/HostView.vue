@@ -167,7 +167,6 @@ const formatOrdinals = (n: number) => {
 }
 
 const getResultSpritePostions = (entity: HighwayHustleResultPair, index: number): { x: number, y: number } => {
-  console.log('getResultSpritePostions', entity, index, playerLeaderboardLocations.value[index])
   if (!playerLeaderboardLocations.value[index]) {
     return { x: -100, y: 0 }
   }
@@ -204,12 +203,12 @@ defineExpose({
     </div>
     <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results">
       <div class="flex flex-col h-full w-full justify-center items-center">
+        <div class="text-4xl m-6">
+          Score: {{ Math.max(0, Math.round(payloadData.distance / 10)) }}
+        </div>
         <div class="absolute top-0 text text-white z-10">
-          <div class="flex flex-col justify-center items-center">
-            <div class="text-4xl">
-              Score: {{ Math.max(0, Math.round(payloadData.distance / 10)) }}
-            </div>
-            <div v-if="Math.round(payloadData.distance / 10) < 0" class="text-4xl mt-32 flex flex-col justify-center items-center">
+          <div class="flex flex-col justify-center items-center mt-64">
+            <div v-if="Math.round(payloadData.distance / 10) < 0" class="text-4xl flex flex-col justify-center items-center">
               <div>
                 Check on your screen which car you are!
               </div>

@@ -19,7 +19,7 @@ import { useWebSocketStore } from '@/stores/confettiStore'
 import type { HighwayHustlePlayerData, HighwayHustleResult } from './HighwayHustleModels'
 import { parseHighwayHustlePlayerPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
 import Joystick from 'vue-joystick-component'
-import { getPlayerSprite, getPlayerSpriteDimensions, getObstacleSprite, getObstacleDimensions} from './HighwayHustleSpriteMap'
+import { getPlayerSprite, getPlayerSpriteDimensions } from './HighwayHustleSpriteMap'
 
 const websocketStore = useWebSocketStore()
 
@@ -156,6 +156,19 @@ const move = ({ x, y }: any) => {
   sendPlayerAction(x, y)
 }
 
+const pr = new Intl.PluralRules('en-US', { type: 'ordinal' })
+const suffixes = new Map([
+  ['one', 'st'],
+  ['two', 'nd'],
+  ['few', 'rd'],
+  ['other', 'th']
+])
+const formatOrdinals = (n: number) => {
+  const rule = pr.select(n)
+  const suffix = suffixes.get(rule)
+  return `${n}${suffix}`
+}
+
 defineExpose({
   update
 })
@@ -192,11 +205,12 @@ defineExpose({
         <div class="text text-2xl">
           Your score:
         </div>
-        <div class="text text-2xl">
+        <div class="text text-white text-6xl mt-2 bg-gray-600 p-2 rounded-2xl">
           {{ Math.round(payloadData.score / 10) < 0 ? 0 : Math.round(payloadData.score / 10) }}
         </div>
       </div>
       <Joystick
+        :disabled="payloadData.isDead"
         class="no-project-style"
         style="margin: 50px"
         :size="200"
@@ -210,14 +224,30 @@ defineExpose({
     </div>
   </template>
   <template v-else-if="viewState == ViewState.Results">
-    <div v-if="personalResult" class="flex flex-col gap-4 w-full h-full">
-      <!-- todo: mingame results -->
+    <div v-if="personalResult" class="flex flex-col gap-4 w-full h-full justify-center items-center">
       <div class="flex flex-col justify-center items-center">
-        <div>
-         {{ personalResult.score }}
+        <div class="flex flex-col justify-center items-center">
+          <div class="p-6">
+            <img
+              :src="getPlayerSprite(payloadData.carType)"
+              :width="getPlayerSpriteDimensions(payloadData.carType).width * 3"
+              :height="getPlayerSpriteDimensions(payloadData.carType).height * 3"
+            />
+          </div>
+          <div class="text text-3xl mb-2">
+            you got:
+          </div>
+          <div class="text text-6xl m-4">
+            {{ formatOrdinals(personalResult.placement) }}
+          </div>
         </div>
-        <div>
-         You finished: {{ personalResult.placement }}
+        <div class="mt-12 mb-12 flex flex-col justify-center items-center">
+          <div class="text text-2xl">
+            Your score:
+          </div>
+          <div class="text text-white text-6xl mt-4 bg-gray-600 p-2 rounded-2xl">
+            {{ Math.round(payloadData.score) }}
+          </div>
         </div>
       </div>
     </div>
