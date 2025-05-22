@@ -55,18 +55,15 @@ export function getObstacleDimensions(carType: number): { width: number; height:
         case 4:
             return { width: 68, height: 35 }
         case 7:
-        case 8:
             return { width: 52, height: 30 }
-        case 9:
+        case 8:
             return { width: 47, height: 27 }
-        case 10:
+        case 9:
             return { width: 49, height: 28 }
+        case 10:
         case 11:
-            return { width: 50, height: 28 }
-        case 12:
-        case 13:
             return { width: 49, height: 29 }
-        case 14:
+        case 12:
             return { width: 43, height: 26 }
     }
 }

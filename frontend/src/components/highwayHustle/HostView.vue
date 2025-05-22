@@ -274,7 +274,7 @@ defineExpose({
                       x: playerLeaderboardLocations[i].x + 8,
                       y: playerLeaderboardLocations[i].y - 15
                     }"
-                    :text="`${formatOrdinals(i + 1)}.`"
+                    :text="`${formatOrdinals(entity.placement)}.`"
                     style="fill: white;"
                   />
                 </template>

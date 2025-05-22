@@ -56,6 +56,8 @@ export function parseHighwayHustleResultPayload(data: MiniGamePayloadType): High
         })
     }
 
+    results.sort((a, b) => a.placement - b.placement)
+
     return {
         results: results
     }

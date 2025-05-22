@@ -95,7 +95,8 @@ void HighwayHustle_Map::update(unsigned long delta_time) {
             continue;
         }
         for (auto &obstacle : obstacles) {
-            if (player.second->check_colision(obstacle)) {
+            // margin of 5 pixels (overlap allowed)
+            if (player.second->check_colision(obstacle, -5)) {
                 player.second->is_dead = true;
                 player.second->velocity = obstacle->velocity;
                 player.second->final_score = distance_travelled / 10;
