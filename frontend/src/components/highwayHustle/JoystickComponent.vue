@@ -263,7 +263,11 @@ const _onStart = () => {
  */
 const _onMove = (e: MouseEvent | TouchEvent) => {
   if (!state.dragging || !_parentRect.value) return
-  e.preventDefault()
+  
+  // Only call preventDefault if the event is cancelable
+  if (e.cancelable) {
+    e.preventDefault()
+  }
 
   let clientX: number
   let clientY: number
