@@ -28,12 +28,23 @@ button {
   box-shadow: 0.5rem 0.5rem 0 #000;
   transition:
     transform 0.1s ease-in-out,
-    box-shadow 0.1s ease-in-out !important;
+    box-shadow 0.1s ease-in-out;
 }
 
 button:active {
-  transform: translate(0.5rem, 0.5rem) !important;
-  box-shadow: 0.1rem 0.1rem 0 #000 !important;
+  transform: translate(0.5rem, 0.5rem);
+  box-shadow: 0.1rem 0.1rem 0 #000;
+}
+
+/* give components the class 'no-project-style' to remove button styles (for inside that component) */
+.no-project-style button {
+  box-shadow: none;
+  transform: none;
+  transition: none;
+}
+.no-project-style button:active {
+  transform: none;
+  box-shadow: none;
 }
 
 .cartoonShadow {

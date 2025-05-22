@@ -1,0 +1,7 @@
+table HighwayHustlePlayerPayload {
+    score: long;
+    is_dead: bool;
+    car_type: ushort;
+}
+
+root_type HighwayHustlePlayerPayload;

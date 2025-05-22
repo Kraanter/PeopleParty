@@ -1,0 +1,14 @@
+table FBHighwayHustleEntity {
+  id: string;
+  x_pos: float;
+  y_pos: float;
+  car_type: ushort;
+}
+
+table HighwayHustleHostPayload {
+  entities: [FBHighwayHustleEntity];
+  obstacles: [FBHighwayHustleEntity];
+  distance: long;
+}
+
+root_type HighwayHustleHostPayload;

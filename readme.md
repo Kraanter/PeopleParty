@@ -13,3 +13,6 @@ Read [How to add a game](https://github.com/Kraanter/PeopleParty/wiki/How-to-add
 ## Build
 Build flatbuffers: `npm i && npm run build`.
 Follow the guides in the `frontend` and `backend` folder.
+
+## Highway Hustle Minigame
+car sprites by [TMD_studios](http://tmdstudios.wordpress.com/)

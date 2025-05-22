@@ -1,0 +1,6 @@
+table JoystickDataPayload {
+    x_pos: float;
+    y_pos: float;
+}
+
+root_type JoystickDataPayload;

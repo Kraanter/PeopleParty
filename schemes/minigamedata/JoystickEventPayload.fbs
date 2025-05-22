@@ -1,0 +1,7 @@
+enum JoystickEventType: byte { Start, Stop }
+
+table JoystickEventPayload {
+    event_type: JoystickEventType;
+}
+
+root_type JoystickEventPayload;
