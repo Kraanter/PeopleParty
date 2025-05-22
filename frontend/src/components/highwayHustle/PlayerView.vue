@@ -18,7 +18,8 @@ import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import type { HighwayHustlePlayerData, HighwayHustleResult } from './HighwayHustleModels'
 import { parseHighwayHustlePlayerPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
-import Joystick from 'vue-joystick-component'
+//import Joystick from 'vue-joystick-component'
+import JoystickComponent from './JoystickComponent.vue'
 import { getPlayerSprite, getPlayerSpriteDimensions } from './HighwayHustleSpriteMap'
 
 const websocketStore = useWebSocketStore()
@@ -92,7 +93,6 @@ const update = (data: MiniGamePayloadType) => {
 const sendPlayerAction = (x: number, y: number) => {
   let builder = new flatbuffers.Builder()
 
-  console.log('sending player action', x, y)
   let playerInput = JoystickDataPayload.createJoystickDataPayload(
     builder,
     x,
@@ -115,8 +115,6 @@ const sendPlayerAction = (x: number, y: number) => {
 }
 
 const sendPlayerEvent = (event: string) => {
-  console.log('sending player event', event)
-
   let builder = new flatbuffers.Builder()
 
   let eventType: JoystickEventType;
@@ -209,7 +207,7 @@ defineExpose({
           {{ Math.round(payloadData.score / 10) < 0 ? 0 : Math.round(payloadData.score / 10) }}
         </div>
       </div>
-      <Joystick
+      <JoystickComponent
         :disabled="payloadData.isDead"
         class="no-project-style"
         style="margin: 50px"
