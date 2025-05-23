@@ -240,6 +240,13 @@ defineExpose({
                     :height="getPlayerSpriteDimensions(entity.carType).height * 1.5"
                     :texture="getPlayerSprite(entity.carType)"
                   />
+                  <Sprite
+                    v-if="entity.isDead"
+                    :position="{ x: entity.x, y: entity.y }"
+                    :width="50"
+                    :height="50"
+                    texture="/assets/games/highwayHustle/explosion.png"
+                  />
                   <!-- // player name in minigame result -->
                   <Text
                     :position="{
