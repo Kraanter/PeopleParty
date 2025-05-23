@@ -10,6 +10,7 @@ export interface HighwayHustleEntity {
   x: number;
   y: number;
   carType: number;
+  isDead: boolean;
 }
 
 // player

@@ -3,6 +3,7 @@ table FBHighwayHustleEntity {
   x_pos: float;
   y_pos: float;
   car_type: ushort;
+  is_dead: bool;
 }
 
 table HighwayHustleHostPayload {

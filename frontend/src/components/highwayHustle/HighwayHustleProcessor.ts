@@ -13,7 +13,9 @@ export function parseHighwayHustleHostPayload(data: MiniGamePayloadType): Highwa
             id: payload.entities(i).id(), 
             x: payload.entities(i).xPos(), 
             y: payload.entities(i).yPos(),
-            carType: payload.entities(i).carType()
+            carType: payload.entities(i).carType(),
+            isDead: payload.entities(i).isDead()
+
         })
     }
 
@@ -23,7 +25,8 @@ export function parseHighwayHustleHostPayload(data: MiniGamePayloadType): Highwa
             id: payload.obstacles(i).id(), 
             x: payload.obstacles(i).xPos(), 
             y: payload.obstacles(i).yPos(),
-            carType: payload.obstacles(i).carType()
+            carType: payload.obstacles(i).carType(),
+            isDead: payload.entities(i).isDead()
         })
     }
 
