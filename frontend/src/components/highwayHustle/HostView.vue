@@ -182,7 +182,10 @@ const style = new TextStyle({
   fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
   fontSize: 18,
   fill: 'white',
-  stroke: { color: '#000000', width: 4 },
+  stroke: {
+    color: '#000000',
+    width: 4
+  },
 });
 
 const getCenteredTextPosition = (text: string, x: number): number => {
@@ -246,14 +249,14 @@ defineExpose({
                     :height="50"
                     texture="/assets/games/highwayHustle/explosion.png"
                   />
-                  <!-- // player name in minigame result -->
+                  <!-- // player name in game -->
                   <Text
                     :position="{
                       x: getCenteredTextPosition(`${entity.id}`, entity.x) + getPlayerSpriteDimensions(entity.carType).width * 1.5 / 2,
                       y: entity.y - 18 * 1.5
                     }"
                     :text="`${entity.id}`"
-                    :style="style"
+                    :style="{fontFamily: ['Helvetica', 'Arial', 'sans-serif'], fontSize: 18, fill: 'white', stroke: { color: '#4a1850', width: 4 }}"
                   />
                   </template>
               </template>
