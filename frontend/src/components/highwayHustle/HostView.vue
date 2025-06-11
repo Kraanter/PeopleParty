@@ -10,7 +10,7 @@ import {
 import { type HighwayHustleData, type HighwayHustleResult, type HighwayHustleResultPair } from './HighwayHustleModels'
 import { parseHighwayHustleHostPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
 import { Application } from 'vue3-pixi'
-import { Graphics, Sprite, Text, TextStyle, TextMetrics } from 'pixi.js'
+import { Graphics, Sprite, Text, TextStyle, CanvasTextMetrics } from 'pixi.js'
 import { watch } from 'vue'
 import { getPlayerSprite, getPlayerSpriteDimensions, getObstacleSprite, getObstacleDimensions} from './HighwayHustleSpriteMap'
 
@@ -182,12 +182,11 @@ const style = new TextStyle({
   fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
   fontSize: 18,
   fill: 'white',
-  stroke: '#000000',
-  strokeThickness: 4,
+  stroke: { color: '#000000', width: 4 },
 });
 
 const getCenteredTextPosition = (text: string, x: number): number => {
-  const metrics = TextMetrics.measureText(text, style)
+  const metrics = CanvasTextMetrics.measureText(text, style)
   return x - metrics.width / 2
 }
 
@@ -222,17 +221,17 @@ defineExpose({
           <!-- black background, for when the application is rerendering -->
           <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
           <div class="relative">
-            <Application :key="applicationId" :width="800" :height="530" background-color="black" >
+            <Application :width="800" :height="530" background-color="black" >
               <Graphics :x="0" :y="0" @render="render" />
               <template v-if="viewState == ViewState.MiniGame && payloadData.players.length > 0">
-                <Sprite
-                  v-for="(entity) in payloadData.obstacles"
-                  :position="{ x: entity.x || 0, y: entity.y || 0 }"
-                  :width="getObstacleDimensions(entity.carType).width * 1.5"
-                  :height="getObstacleDimensions(entity.carType).height * 1.5"
-                  :key="entity.id"
-                  :texture="getObstacleSprite(entity.carType)"
-                />
+                <template v-for="(entity) in payloadData.obstacles" :key="entity.id">
+                  <Sprite
+                    :position="{ x: entity.x || 0, y: entity.y || 0 }"
+                    :width="getObstacleDimensions(entity.carType).width * 1.5"
+                    :height="getObstacleDimensions(entity.carType).height * 1.5"
+                    :texture="getObstacleSprite(entity.carType)"
+                  />
+                </template>
                 <template v-for="(entity) in payloadData.players" :key="entity.id">
                   <Sprite
                     :position="{ x: entity.x, y: entity.y }"
