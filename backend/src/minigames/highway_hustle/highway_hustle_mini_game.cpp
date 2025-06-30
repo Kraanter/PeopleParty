@@ -92,7 +92,9 @@ void HighwayHustle_MiniGame::update(int delta_time) {
     // check if minigame ended
     if (!map->check_players_alive()) {
         minigame_timer.clear();
-        start_result();
+        timer.setTimeout([this]() {
+            start_result();
+        }, 1000);
         return;
     }
 

@@ -216,7 +216,7 @@ const stickStyle = computed(() => {
     stickStyle = {
       ...stickStyle,
       position: 'absolute',
-      transform: `translate3d(${state.coordinates.relativeX}px, ${state.coordinates.relativeY}px, 0)`,
+      transform: `translate3d(${state.dragging ? state.coordinates.relativeX : 0}px, ${state.dragging ? state.coordinates.relativeY : 0}px, 0)`,
     }
   }
 
@@ -430,14 +430,14 @@ const _pointerUp = (event: PointerEvent) => {
     return
   }
 
+  
+  window.removeEventListener(InteractionEvents.PointerUp, _onPointerUp)
+  window.removeEventListener(InteractionEvents.PointerMove, _onPointerMove)
+  
   window.requestAnimationFrame(() => {
     state.dragging = false
     if (!props.sticky) state.coordinates = undefined
   })
-
-  window.removeEventListener(InteractionEvents.PointerUp, _onPointerUp)
-  window.removeEventListener(InteractionEvents.PointerMove, _onPointerMove)
-
 
   _pointerId.value = undefined
 

@@ -10,7 +10,7 @@ import {
 import { type HighwayHustleData, type HighwayHustleResult, type HighwayHustleResultPair } from './HighwayHustleModels'
 import { parseHighwayHustleHostPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
 import { Application } from 'vue3-pixi'
-import { Graphics, Sprite, Text, TextStyle, TextMetrics } from 'pixi.js'
+import { Graphics, Sprite, Text, TextStyle, CanvasTextMetrics } from 'pixi.js'
 import { watch } from 'vue'
 import { getPlayerSprite, getPlayerSpriteDimensions, getObstacleSprite, getObstacleDimensions} from './HighwayHustleSpriteMap'
 
@@ -178,16 +178,17 @@ const getResultSpritePostions = (entity: HighwayHustleResultPair, index: number)
       - getPlayerSpriteDimensions(payloadData.value.players.find(a => a.id === entity.name).carType).height * 1.5 / 2}
 }
 
-const style = new TextStyle({
-  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
-  fontSize: 18,
-  fill: 'white',
-  stroke: '#000000',
-  strokeThickness: 4,
-});
-
+const style = new TextStyle(
+  { 
+    fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+    fontSize: 18,
+    fill: 'white',
+    stroke: 'black',
+    // @ts-expect-error: 'strokeThickness' is not in TextStyleOptions type, but is valid for PixiJS, the new format breaks it
+    strokeThickness: 4 // use string key to bypass TS error
+  });
 const getCenteredTextPosition = (text: string, x: number): number => {
-  const metrics = TextMetrics.measureText(text, style)
+  const metrics = CanvasTextMetrics.measureText(text, style)
   return x - metrics.width / 2
 }
 
@@ -222,17 +223,17 @@ defineExpose({
           <!-- black background, for when the application is rerendering -->
           <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
           <div class="relative">
-            <Application :key="applicationId" :width="800" :height="530" background-color="black" >
+            <Application :width="800" :height="530" background-color="black" >
               <Graphics :x="0" :y="0" @render="render" />
               <template v-if="viewState == ViewState.MiniGame && payloadData.players.length > 0">
-                <Sprite
-                  v-for="(entity) in payloadData.obstacles"
-                  :position="{ x: entity.x || 0, y: entity.y || 0 }"
-                  :width="getObstacleDimensions(entity.carType).width * 1.5"
-                  :height="getObstacleDimensions(entity.carType).height * 1.5"
-                  :key="entity.id"
-                  :texture="getObstacleSprite(entity.carType)"
-                />
+                <template v-for="(entity) in payloadData.obstacles" :key="entity.id">
+                  <Sprite
+                    :position="{ x: entity.x || 0, y: entity.y || 0 }"
+                    :width="getObstacleDimensions(entity.carType).width * 1.5"
+                    :height="getObstacleDimensions(entity.carType).height * 1.5"
+                    :texture="getObstacleSprite(entity.carType)"
+                  />
+                </template>
                 <template v-for="(entity) in payloadData.players" :key="entity.id">
                   <Sprite
                     :position="{ x: entity.x, y: entity.y }"
@@ -247,14 +248,14 @@ defineExpose({
                     :height="50"
                     texture="/assets/games/highwayHustle/explosion.png"
                   />
-                  <!-- // player name in minigame result -->
+                  <!-- // player name in game -->
                   <Text
                     :position="{
                       x: getCenteredTextPosition(`${entity.id}`, entity.x) + getPlayerSpriteDimensions(entity.carType).width * 1.5 / 2,
                       y: entity.y - 18 * 1.5
                     }"
                     :text="`${entity.id}`"
-                    :style="style"
+                    :style="{fontFamily: ['Helvetica', 'Arial', 'sans-serif'], fontSize: 18, fill: 'white', stroke: 'black', strokeThickness: 4}"
                   />
                   </template>
               </template>
@@ -274,7 +275,7 @@ defineExpose({
                       y: getResultSpritePostions(entity, i).y - 18 * 1.5
                     }"
                     :text="`${entity.name}`"
-                    :style="style"
+                    :style="{fontFamily: ['Helvetica', 'Arial', 'sans-serif'], fontSize: 18, fill: 'white', stroke: 'black', strokeThickness: 4}"
                   />
                   <Text
                     :position="{

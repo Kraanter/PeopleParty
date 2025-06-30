@@ -118,7 +118,7 @@ void HighwayHustle_Map::update_obstacles(unsigned long delta_time) {
 
     // create new obstacles
     if (obstacles.size() < 50) {
-        if ((float)std::rand() / RAND_MAX < 0.0075f + (float)(distance_travelled / 100) / (float)4500) {
+        if ((float)std::rand() / RAND_MAX < 0.0050f + (float)(distance_travelled / 90) / (float)4000) {
             create_obstacle();
         }
     }
@@ -169,10 +169,16 @@ void HighwayHustle_Map::create_obstacle() {
 
 bool HighwayHustle_Map::check_players_alive()
 {
+    int alive_players = 0;
     for (auto &player : players) {
         if (!player.second->is_dead) {
-            return true;
+            alive_players++;
         }
     }
-    return false;
+    
+    if (alive_players <= 1) {
+        // if only one player is alive, the game is over
+        return false;
+    }
+    return true;
 }
