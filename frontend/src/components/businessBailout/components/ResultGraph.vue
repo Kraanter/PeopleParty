@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Application } from 'vue3-pixi'
 import { computed, defineProps, ref, onMounted, toRefs } from 'vue'
-import type { IPointData, Graphics } from 'pixi.js'
+import { Graphics, type PointData } from 'pixi.js'
 import { useColorStore } from '@/stores/colorStore'
 import { unLerp } from '@/util/funcs'
 import { deCasteljau } from '../spline'
@@ -10,7 +10,7 @@ import type { BailedPlayer } from '../parser'
 const props = defineProps<{
   width: number
   height: number
-  points: IPointData[]
+  points: PointData[]
   bailedPlayers: BailedPlayer[]
 }>()
 
@@ -42,7 +42,7 @@ const xMargin = 10
 const xWidth = computed(() => width.value - xMargin * 2)
 const yHeight = computed(() => height.value - 10)
 
-function interpPosition(point: IPointData): [number, number] {
+function interpPosition(point: PointData): [number, number] {
   const focusPointIndex = curPointPercent.value * (points.value.length - 1)
 
   const controlPoints = points.value.slice(

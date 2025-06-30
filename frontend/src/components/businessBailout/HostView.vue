@@ -3,7 +3,7 @@ import { ref, defineProps, toRefs, computed } from 'vue'
 import MoneyCounter from './components/MoneyCounter.vue'
 import ResultGraph from './components/ResultGraph.vue'
 import Introduction from '../introduction/Introduction.vue'
-import { Graphics, type IPointData } from 'pixi.js'
+import { Graphics, type PointData } from 'pixi.js'
 import { Application } from 'vue3-pixi'
 import type { MiniGamePayloadType } from '@/flatbuffers/mini-game-payload-type'
 import { GameStateType } from '@/flatbuffers/game-state-type'
@@ -61,10 +61,10 @@ const props = defineProps<{
 }>()
 const { height, width } = toRefs(props)
 
-const points = ref<IPointData[]>([])
+const points = ref<PointData[]>([])
 const bailedPlayers = ref<BailedPlayer[]>([])
 
-const createPointData = (value: number, time: number): IPointData => ({ x: time, y: value })
+const createPointData = (value: number, time: number): PointData => ({ x: time, y: value })
 
 function update(payload: MiniGamePayloadType) {
   switch (payload.gamestatetype()) {
@@ -117,7 +117,7 @@ const xMargin = 25
 const xWidth = computed(() => width.value - xMargin * 2)
 const yHeight = computed(() => height.value - yMargin * 2)
 
-function interpPosition(position: IPointData): [number, number] {
+function interpPosition(position: PointData): [number, number] {
   const xStep = xWidth.value / time.value
   const yStep = yHeight.value / maxValue.value
   const newX = position.x * xStep + xMargin
