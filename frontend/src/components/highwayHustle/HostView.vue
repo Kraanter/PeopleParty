@@ -178,16 +178,15 @@ const getResultSpritePostions = (entity: HighwayHustleResultPair, index: number)
       - getPlayerSpriteDimensions(payloadData.value.players.find(a => a.id === entity.name).carType).height * 1.5 / 2}
 }
 
-const style = new TextStyle({
-  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
-  fontSize: 18,
-  fill: 'white',
-  stroke: {
-    color: '#000000',
-    width: 4
-  },
-});
-
+const style = new TextStyle(
+  { 
+    fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+    fontSize: 18,
+    fill: 'white',
+    stroke: 'black',
+    // @ts-expect-error: 'strokeThickness' is not in TextStyleOptions type, but is valid for PixiJS, the new format breaks it
+    strokeThickness: 4 // use string key to bypass TS error
+  });
 const getCenteredTextPosition = (text: string, x: number): number => {
   const metrics = CanvasTextMetrics.measureText(text, style)
   return x - metrics.width / 2
@@ -256,7 +255,7 @@ defineExpose({
                       y: entity.y - 18 * 1.5
                     }"
                     :text="`${entity.id}`"
-                    :style="{fontFamily: ['Helvetica', 'Arial', 'sans-serif'], fontSize: 18, fill: 'white', stroke: { color: '#4a1850', width: 4 }}"
+                    :style="{fontFamily: ['Helvetica', 'Arial', 'sans-serif'], fontSize: 18, fill: 'white', stroke: 'black', strokeThickness: 4}"
                   />
                   </template>
               </template>
@@ -276,7 +275,7 @@ defineExpose({
                       y: getResultSpritePostions(entity, i).y - 18 * 1.5
                     }"
                     :text="`${entity.name}`"
-                    :style="style"
+                    :style="{fontFamily: ['Helvetica', 'Arial', 'sans-serif'], fontSize: 18, fill: 'white', stroke: 'black', strokeThickness: 4}"
                   />
                   <Text
                     :position="{
