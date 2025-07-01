@@ -89,6 +89,12 @@ void HighwayHustle_MiniGame::process_input(const MiniGamePayloadType *payload, C
 }
 
 void HighwayHustle_MiniGame::update(int delta_time) {
+    map->update(delta_time);
+    send_host_update();
+    for (auto const& [key, val] : map->players) {
+        send_player_update(key, val);
+    }
+
     // check if minigame ended
     if (!map->check_players_alive()) {
         minigame_timer.clear();
@@ -96,12 +102,6 @@ void HighwayHustle_MiniGame::update(int delta_time) {
             start_result();
         }, 1000);
         return;
-    }
-
-    map->update(delta_time);
-    send_host_update();
-    for (auto const& [key, val] : map->players) {
-        send_player_update(key, val);
     }
 }
 
@@ -151,6 +151,13 @@ void HighwayHustle_MiniGame::send_player_update(Client *client, Moving_Entity *e
 }
 
 void HighwayHustle_MiniGame::start_result() {
+    // give remaining players a final score
+    for (auto &player : map->players) {
+        if (!player.second->is_dead) {
+            player.second->final_score = map->getDistanceTravelled() / 10;
+        }
+    }
+
     send_result_data(game->party->host->client_id);
     for (auto &player : map->players) {
         send_result_data(player.first->client_id);
