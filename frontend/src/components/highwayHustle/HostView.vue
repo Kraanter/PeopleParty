@@ -205,7 +205,9 @@ defineExpose({
     <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results">
       <div class="flex flex-col h-full w-full justify-center items-center">
         <div class="text-4xl m-6">
-          Score: {{ Math.max(0, Math.round(payloadData.distance / 10)) }}
+          <span v-if="viewState == ViewState.MiniGame">Score: {{ Math.max(0, Math.round(payloadData.distance / 10)) }}</span>
+          <!-- empty span to keep the layout consistent -->
+          <span v-else>Minigame Result</span>
         </div>
         <div class="absolute top-0 text text-white z-10">
           <div class="flex flex-col justify-center items-center mt-64">

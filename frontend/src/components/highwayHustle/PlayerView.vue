@@ -244,7 +244,7 @@ defineExpose({
             Your score:
           </div>
           <div class="text text-white text-6xl mt-4 bg-gray-600 p-2 rounded-2xl">
-            {{ Math.round(payloadData.score) }}
+            {{ Math.round(personalResult.score) }}
           </div>
         </div>
       </div>

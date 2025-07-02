@@ -101,6 +101,14 @@ void HighwayHustle_MiniGame::update(int delta_time) {
         timer.setTimeout([this]() {
             start_result();
         }, 1000);
+        
+        // send 1 more update so the player alive has more points
+        map->update(delta_time);
+        send_host_update();
+        for (auto const& [key, val] : map->players) {
+            send_player_update(key, val);
+        }
+
         return;
     }
 }
@@ -154,7 +162,7 @@ void HighwayHustle_MiniGame::start_result() {
     // give remaining players a final score
     for (auto &player : map->players) {
         if (!player.second->is_dead) {
-            player.second->final_score = map->getDistanceTravelled() / 10;
+            player.second->final_score = (map->getDistanceTravelled() / 10) + 1;
         }
     }
 
