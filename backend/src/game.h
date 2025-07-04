@@ -17,6 +17,7 @@
 #include "minigames/rps_bracket/rps_bracket_minigame.h"
 #include "minigames/launch_party/launch_party_mini_game.h"
 #include "minigames/right_on_time/right_on_time_mini_game.h"
+#include "minigames/highway_hustle/highway_hustle_mini_game.h"
 #include <queue>
 #include <map>
 #include <algorithm>
@@ -54,7 +55,7 @@ public:
     void process_input(const Message *payload, Client *from);
     void clients_changed(int client_id, bool joined);
     const std::vector<Client *> get_clients();
-    void update_leaderboard(std::vector<Client *> minigame_result);
+    void update_leaderboard(std::vector<std::pair<Client *, int>> minigame_result); // first is client, second is placement
 private:
     void add_minigames();
     void handle_new_minigame();

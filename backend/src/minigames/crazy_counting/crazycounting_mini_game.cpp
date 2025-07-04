@@ -228,7 +228,7 @@ void CrazyCounting_MiniGame::update(int delta_time) {
     send_entities();
 }
 
-std::vector<Client *> CrazyCounting_MiniGame::getMinigameResult() {
+std::vector<std::pair<Client *, int>> CrazyCounting_MiniGame::getMinigameResult() {
     // sort players by count, submitted and time
     std::vector<CrazyCounting_Player> sorted_players;
     for (auto& [_, player] : players) {
@@ -236,9 +236,18 @@ std::vector<Client *> CrazyCounting_MiniGame::getMinigameResult() {
     }
     std::sort(sorted_players.begin(), sorted_players.end());
 
-    std::vector<Client*> result;
-    for (CrazyCounting_Player player: sorted_players) {
-        result.push_back(client_repository[player.client_id]);
+
+    // give placement to players (players can have the same placement)
+    std::vector<std::pair<Client *, int>> result;
+    for (int i = 0; i < sorted_players.size(); i++) {
+        // if the last_changed value of the previous player is the same (and count not), give the same placement as previous player
+        if (i != 0 && sorted_players[i].get_count() != sorted_players[i + 1].get_count()
+                && sorted_players[i].last_changed == sorted_players[i - 1].last_changed) {
+            int previous_placement = result[i - 1].second;
+            result.push_back(std::make_pair(client_repository[sorted_players[i].client_id], previous_placement));
+        } else {
+            result.push_back(std::make_pair(client_repository[sorted_players[i].client_id], i + 1));
+        }
     }
 
     return result;

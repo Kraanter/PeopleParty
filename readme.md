@@ -9,3 +9,10 @@ It's created by a group of four students during 8 weeks.
 ## Contributer
 Do you want to help us out and add your own minigame?
 Read [How to add a game](https://github.com/Kraanter/PeopleParty/wiki/How-to-add-a-game) in our Wiki.
+
+## Build
+Build flatbuffers: `npm i && npm run build`.
+Follow the guides in the `frontend` and `backend` folder.
+
+## Highway Hustle Minigame
+car sprites by [TMD_studios](http://tmdstudios.wordpress.com/)

@@ -1,4 +1,10 @@
 .vscode
 .vs
 fbsout
-flatc.exe
+/node_modules
+package-lock.json
+.DS_Store
+schemes/payloadtypes/MiniGamePayloadType.fbs
+schemes/messageClass.fbs
+/frontend/src/flatbuffers
+/backend/src/flatbuffer

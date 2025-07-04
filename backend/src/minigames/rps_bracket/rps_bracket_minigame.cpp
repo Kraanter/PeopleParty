@@ -266,13 +266,35 @@ void RPSBracket_MiniGame::start_result() {
     }, 5 SECONDS);
 }
 
-std::vector<Client *> RPSBracket_MiniGame::getMinigameResult() {
+std::vector<std::pair<Client *, int>> RPSBracket_MiniGame::getMinigameResult() {
     std::vector<Client *> res;
     while (!minigame_result.empty()) {
         res.push_back(minigame_result.top());
         minigame_result.pop();
     }
-    return res;
+
+    // give placement to players (players can have the same placement for example there are 2 on placement 3)
+    int current_placement = 1;
+    int players_same_left = 1; // counter
+    std::vector<std::pair<Client *, int>> result;
+
+    for (int i = 0; i < res.size(); i++) {
+        if (players_same_left == 1) {
+            result.push_back(std::make_pair(res[i], current_placement));
+
+            if (current_placement == 1) {
+                current_placement++;
+            } else {
+                current_placement = current_placement * 2 - 1;
+            }
+            players_same_left = current_placement - 1;
+        } else {
+            result.push_back(std::make_pair(res[i], current_placement));
+            players_same_left--;
+        }
+    }
+
+    return result;
 }
 
 void RPSBracket_MiniGame::process_input(const MiniGamePayloadType *payload, Client *from) {

@@ -1,0 +1,11 @@
+table HighwayHustleResultPayload {
+  results: [FBHighwayHustleResultPair];
+}
+
+table FBHighwayHustleResultPair {
+  name: string;
+  score: ulong;
+  placement: ushort;
+}
+
+root_type HighwayHustleResultPayload;

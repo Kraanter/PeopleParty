@@ -141,7 +141,8 @@ const skipLeaderboard = () => {
               <n-card>
                 <div class="w-full inline-flex justify-between text-2xl px-4">
                   <p class="inline-flex">
-                    <span class="w-16">{{ formatOrdinals(i + 1) }}.</span>
+                    <!-- don't show ordinals if placement is the same -->
+                    <span class="w-16"><span v-if="i + 1 === player.position">{{ formatOrdinals(i + 1) }}.</span></span>
                     <span class="font-bold ml-4 col-span-5">{{ player.name }}</span>
                   </p>
                   <p>
@@ -160,7 +161,8 @@ const skipLeaderboard = () => {
             <n-card>
               <div class="w-full inline-flex justify-between text-2xl px-4">
                 <p class="inline-flex">
-                  <span class="w-16">{{ formatOrdinals(i + 1) }}.</span>
+                  <!-- don't show ordinals if placement is the same -->
+                  <span class="w-16"><span v-if="i + 1 === player.position">{{ formatOrdinals(i + 1) }}.</span></span>
                   <span v-if="!leaderboard.podium"
                     class="w-12"
                     :class="player.deltaPosition > 0 ? 'text-green-600' : 'text-red-600'"
@@ -234,6 +236,7 @@ const skipLeaderboard = () => {
       <p v-if="!leaderboard.podium" class="text-5xl">Leaderboard</p>
       <p v-else class="text-5xl">Podium</p>
     </div>
+    <!-- mobile leaderboard -->
     <n-scrollbar id="playerLeaderboard" class="h-full">
       <div class="mx-auto mr-2 mb-4" v-for="(player, i) in sortedLeaderboard" :key="i">
         <n-card
@@ -246,8 +249,9 @@ const skipLeaderboard = () => {
         >
           <div class="w-full inline-flex justify-between text-2xl px-1">
             <p class="inline-flex">
-              <span class="w-16">{{ formatOrdinals(i + 1) }}.</span
-              ><span class="font-bold col-span-5">{{ player.name }}</span>
+              <!-- don't show ordinals if placement is the same -->
+              <span class="w-16"><span v-if="i + 1 === player.position">{{ formatOrdinals(i + 1) }}.</span></span>
+              <span class="font-bold col-span-5">{{ player.name }}</span>
             </p>
             <p>
               <span class="font-bold">{{ player.score }}</span> Points

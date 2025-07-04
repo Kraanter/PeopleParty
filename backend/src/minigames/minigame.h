@@ -20,7 +20,7 @@ public:
     virtual void start_result() = 0;
     virtual void pause() = 0;
     virtual void resume() = 0;
-    virtual std::vector<Client*> getMinigameResult() = 0;
+    virtual std::vector<std::pair<Client *, int>> getMinigameResult() = 0; // first is client, second is placement
     void start();
 public:
     virtual std::string get_display_name() = 0;

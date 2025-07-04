@@ -22,11 +22,12 @@
     "flatbuffers": "^24.3.25",
     "marked": "^15.0.0",
     "pinia": "^2.1.7",
-    "pixi.js": "^7.*",
+    "pixi.js": "^8.10.1",
     "vue": "^3.4.21",
     "vue-flip": "^3.0.2",
+    "vue-joystick-component": "^0.1.3",
     "vue-router": "^4.3.0",
-    "vue3-pixi": "^0.9.1"
+    "vue3-pixi": "^0.9.6"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",

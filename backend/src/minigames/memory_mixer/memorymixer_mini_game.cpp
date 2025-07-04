@@ -406,13 +406,13 @@ void MemoryMixer_MiniGame::send_player_submitted(int client_id, bool submitted) 
 void MemoryMixer_MiniGame::send_results(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
-    std::vector<Client*> clientRanking = getMinigameResult();
+    std::vector<std::pair<Client *, int>> clientRanking = getMinigameResult();
 
     std::vector<flatbuffers::Offset<FBMemoryMixerResultPair>> result_pair_buffer;
     for (int i = 0; i < clientRanking.size(); i++) {
-        auto player = players[clientRanking[i]->client_id];
+        auto player = players[clientRanking[i].first->client_id];
 
-        auto result_pair = CreateFBMemoryMixerResultPair(builder, i + 1, builder.CreateString(clientRanking[i]->name), player.finished_round);
+        auto result_pair = CreateFBMemoryMixerResultPair(builder, i + 1, builder.CreateString(clientRanking[i].first->name), player.finished_round);
 
         result_pair_buffer.push_back(result_pair);
     }
@@ -470,7 +470,7 @@ void MemoryMixer_MiniGame::clients_changed(int client_id, bool joined) {
     }
 }
 
-std::vector<Client*> MemoryMixer_MiniGame::getMinigameResult() {
+std::vector<std::pair<Client *, int>> MemoryMixer_MiniGame::getMinigameResult() {
     std::vector<MemoryMixer_Player> sorted_players;
     for (auto& [_, player] : players) {
         sorted_players.push_back(player);
@@ -491,12 +491,24 @@ std::vector<Client*> MemoryMixer_MiniGame::getMinigameResult() {
     std::sort(correct_players.begin(), correct_players.end());
     std::sort(wrong_players.begin(), wrong_players.end());
 
-    std::vector<Client*> result;
+    std::vector<MemoryMixer_Player> local_result;
     for (MemoryMixer_Player player: correct_players) {
-        result.push_back(client_repository[player.client_id]);
+        local_result.push_back(player);
     }
     for (MemoryMixer_Player player: wrong_players) {
-        result.push_back(client_repository[player.client_id]);
+        local_result.push_back(player);
+    }
+
+    // give placement to players (players can have the same placement)
+    std::vector<std::pair<Client *, int>> result;
+    for (int i = 0; i < local_result.size(); i++) {
+        // if the submitted_time value of the previous player is the same, give the same placement as previous player
+        if (i != 0 && local_result[i].finished_round == local_result[i - 1].finished_round) {
+            int previous_placement = result[i - 1].second;
+            result.push_back(std::make_pair(client_repository[local_result[i].client_id], previous_placement));
+        } else {
+            result.push_back(std::make_pair(client_repository[local_result[i].client_id], i + 1));
+        }
     }
 
     return result;

@@ -21,6 +21,7 @@ void Game::add_minigames() {
     if (party->settings->IsMiniGameEnabled("rps_bracket")) { temp_minigames.push_back(new RPSBracket_MiniGame(this)); }
     if (party->settings->IsMiniGameEnabled("launch_party")) { temp_minigames.push_back(new LaunchParty_Minigame(this)); }
     if (party->settings->IsMiniGameEnabled("right_on_time")) { temp_minigames.push_back(new RightOnTime_Minigame(this)); }
+    if (party->settings->IsMiniGameEnabled("highway_hustle")) { temp_minigames.push_back(new HighwayHustle_MiniGame(this)); }
 
     auto rd = std::random_device{};
     auto rng = std::default_random_engine{rd()};
@@ -97,15 +98,36 @@ void sort(std::map<const Client*, std::pair<int, int>>& M) {
     std::sort(A.begin(), A.end(), cmp);
 
     for (int i = 0; i < A.size(); i++) { 
-        M[A[i].first].second = i + 1; 
+        // if the score is the same as the previous player, they share the same placement
+        if (i > 0 && A[i].second.first == A[i - 1].second.first) {
+            M[A[i].first].second = M[A[i - 1].first].second;
+        } else {
+            M[A[i].first].second = i + 1; 
+        }
     }
 } 
 
-void Game::update_leaderboard(std::vector<Client *> minigame_result) {
+void Game::update_leaderboard(std::vector<std::pair<Client *, int>> minigame_result) {
+    // TODO: fix with new object
     previous_leaderboard = leaderboard;
     for (int i = 1; i <= minigame_result.size(); ++i) {
-        Client* client = minigame_result[i - 1];
-        leaderboard[client].first += score(i, 1000, minigame_result.size());
+        Client* client = minigame_result[i - 1].first;
+
+        // get the count of other players that share the same placement
+        int count = 0;
+        for (int j = 0; j < minigame_result.size(); ++j) {
+            if (minigame_result[j].second == minigame_result[i - 1].second) {
+                count++;
+            }
+        }
+
+        // calculate the score for the placement
+        int cumulative_score = 0;
+        for (int j = 0; j < count; ++j) {
+            cumulative_score += score(minigame_result[i - 1].second + j, 1000, minigame_result.size());
+        }
+
+        leaderboard[client].first += cumulative_score / count;
     }
     sort(leaderboard);
 }

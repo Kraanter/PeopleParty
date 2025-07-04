@@ -267,11 +267,10 @@ void RightOnTime_Minigame::start_result() {
 void RightOnTime_Minigame::send_result_data(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
-    std::vector<Client*> playerResult = getMinigameResult();    
 
     std::vector<flatbuffers::Offset<FBRightOnTimeResultPair>> results;
-    for (auto &player : playerResult) {
-        auto result = CreateFBRightOnTimeResultPair(builder, builder.CreateString(player->name), players[player].round_1_diff, players[player].round_2_diff, players[player].round_3_diff, players[player].total_diff);
+    for (auto &player : getMinigameResult()) {
+        auto result = CreateFBRightOnTimeResultPair(builder, builder.CreateString(player.first->name), players[player.first].round_1_diff, players[player.first].round_2_diff, players[player.first].round_3_diff, players[player.first].total_diff);
         results.push_back(result);
     }
     auto resultsPayload = builder.CreateVector(results);
@@ -286,7 +285,7 @@ void RightOnTime_Minigame::send_result_data(int client_id) {
     game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 }
 
-std::vector<Client *> RightOnTime_Minigame::getMinigameResult() {
+std::vector<std::pair<Client *, int>> RightOnTime_Minigame::getMinigameResult() {
     std::vector<Client*> local_players;
     for (auto &player : this->players) {
         local_players.push_back(player.first);
@@ -298,5 +297,18 @@ std::vector<Client *> RightOnTime_Minigame::getMinigameResult() {
         }
         return players[a].total_diff < players[b].total_diff;
     });
-    return local_players;
+
+
+    // give placement to players (players can have the same placement)
+    std::vector<std::pair<Client *, int>> result;
+    for (int i = 0; i < local_players.size(); i++) {
+        // if the total_diff value of the previous player is the same, give the same placement as previous player
+        if (i != 0 && players[local_players[i]].total_diff == players[local_players[i - 1]].total_diff ) {
+            int previous_placement = result[i - 1].second;
+            result.push_back(std::make_pair(local_players[i], previous_placement));
+        } else {
+            result.push_back(std::make_pair(local_players[i], i + 1));
+        }
+    }
+    return result;
 }
