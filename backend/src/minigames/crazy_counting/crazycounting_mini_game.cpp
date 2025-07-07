@@ -5,7 +5,7 @@
 #include <random>
 #include "crazycounting_mini_game.h"
 #include "../../game.h"
-#include "../../globals.h"
+#include "../../util/globals.h"
 
 CrazyCounting_MiniGame::CrazyCounting_MiniGame(Game* game) : MiniGame(game) {
     time_since_last_time_update = 0 MILLISECONDS;

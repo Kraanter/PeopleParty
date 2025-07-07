@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "websocket.h"
-#include "globals.h"
+#include "util/globals.h"
 #include "minigames/crazy_counting/crazycounting_mini_game.h"
 
 auto main() -> int {

@@ -1,6 +1,6 @@
 #include "memorymixer_mini_game.h"
 #include "../../game.h"
-#include "../../globals.h"
+#include "../../util/globals.h"
 
 MemoryMixer_MiniGame::MemoryMixer_MiniGame(Game* game) : MiniGame(game) {
     grid_size = 5;

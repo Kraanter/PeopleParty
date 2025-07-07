@@ -1,9 +1,9 @@
 #ifndef WALL_AVOIDANCE_H
 #define WALL_AVOIDANCE_H
 
-#include "vector2d.h"
 #include "wall2d.h"
-#include "matrix2d.h"
+#include "../../../util/math/vector2d.h"
+#include "../../../util/math/matrix2d.h"
 #include <vector>
 
 #include "../crazycounting_entity.h"
