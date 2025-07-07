@@ -1,6 +1,6 @@
 #ifndef WANDER_H
 #define WANDER_H
-#include "vector2d.h"
+#include "../../../util/math/vector2d.h"
 
 class Wander {
 public:

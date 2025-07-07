@@ -1,6 +1,6 @@
 #include "client.h"
 
-#include "globals.h"
+#include "util/globals.h"
 #include "party.h"
 
 Client::Client() : Client("", nullptr) {

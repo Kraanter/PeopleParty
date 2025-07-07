@@ -2,7 +2,7 @@
 #define LEADERBOARD_H
 
 #include "../game_state.h"
-#include "../thread_timer.h"
+#include "../util/thread_timer.h"
 #include <map>
 
 class Game;

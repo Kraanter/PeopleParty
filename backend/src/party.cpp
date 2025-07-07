@@ -1,6 +1,6 @@
 #include "party.h"
 
-#include "globals.h"
+#include "util/globals.h"
 #include "game.h"
 
 Party::Party() {

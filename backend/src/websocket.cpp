@@ -1,9 +1,9 @@
 #include "websocket.h"
 
 #include "client.h"
-#include "flatbuffer_message_builder.h"
-#include "globals.h"
-#include "socketdata.h"
+#include "util/flatbuffer/flatbuffer_message_builder.h"
+#include "util/globals.h"
+#include "util/socketdata.h"
 
 void send_heart_beats() {
   std::vector<Party*> parties = party_repository.GetParties();

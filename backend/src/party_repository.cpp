@@ -1,6 +1,6 @@
 #include "party_repository.h"
 
-#include "globals.h"
+#include "util/globals.h"
 
 PartyRepository::PartyRepository() {}
 

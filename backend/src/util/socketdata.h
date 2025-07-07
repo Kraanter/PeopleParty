@@ -1,7 +1,7 @@
 #ifndef SOCKETDATA_H
 #define SOCKETDATA_H
 
-#include "client.h"
+#include "../client.h"
 
 class Client;
 

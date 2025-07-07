@@ -1,6 +1,6 @@
 #include "memorymixer_mini_game.h"
 #include "../../game.h"
-#include "../../globals.h"
+#include "../../util/globals.h"
 
 MemoryMixer_MiniGame::MemoryMixer_MiniGame(Game* game) : MiniGame(game) {
     grid_size = 5;
@@ -412,7 +412,7 @@ void MemoryMixer_MiniGame::send_results(int client_id) {
     for (int i = 0; i < clientRanking.size(); i++) {
         auto player = players[clientRanking[i].first->client_id];
 
-        auto result_pair = CreateFBMemoryMixerResultPair(builder, i + 1, builder.CreateString(clientRanking[i].first->name), player.finished_round);
+        auto result_pair = CreateFBMemoryMixerResultPair(builder, clientRanking[i].second, builder.CreateString(clientRanking[i].first->name), player.finished_round);
 
         result_pair_buffer.push_back(result_pair);
     }
