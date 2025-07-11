@@ -1,0 +1,16 @@
+table FBMarbleManiaEntity {
+  id: string;
+  x_pos: float;
+  y_pos: float;
+  entity_type: ubyte; // 0 = marble, 1 = obstacle
+  is_finished: bool;
+}
+
+table MarbleManiaHostPayload {
+  entities: [FBMarbleManiaEntity];
+  game_phase: ubyte; // 0 = placement, 1 = simulation, 2 = finished
+  placement_time_left: float;
+  finish_line_y: float;
+}
+
+root_type MarbleManiaHostPayload;

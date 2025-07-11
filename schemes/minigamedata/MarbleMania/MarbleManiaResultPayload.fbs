@@ -1,0 +1,12 @@
+table MarbleManiaResultPayload {
+  results: [FBMarbleManiaResultPair];
+}
+
+table FBMarbleManiaResultPair {
+  name: string;
+  placement: ushort;
+  time_to_finish: float;
+  has_finished: bool;
+}
+
+root_type MarbleManiaResultPayload;

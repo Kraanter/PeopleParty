@@ -1,0 +1,7 @@
+table MarbleManiaPlayerInputPayload {
+    x_pos: float;
+    y_pos: float;
+    action_type: ubyte; // 0 = place_marble, 1 = ready_up
+}
+
+root_type MarbleManiaPlayerInputPayload;
