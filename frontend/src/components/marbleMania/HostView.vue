@@ -7,13 +7,21 @@ import {
   MiniGameIntroductionPayload,
   type MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
-import { type MarbleManiaData, type MarbleManiaResult, type MarbleManiaResultPair } from './MarbleManiaModels'
+import { type MarbleManiaData, type MarbleManiaResult } from './MarbleManiaModels'
 import { parseMarbleManiaHostPayload, parseMarbleManiaResultPayload } from './MarbleManiaProcessor'
 import { Application } from 'vue3-pixi'
 import { Graphics, Sprite, Text, TextStyle, CanvasTextMetrics } from 'pixi.js'
 import { watch } from 'vue'
 
-const props = defineProps<{
+// Simple sprite mapping (fallback to basic shapes for now)
+const getMarbleSprite = () => 'assets/games/memoryMixer/balloon.svg'
+const getMarbleSpriteDimensions = () => ({ width: 30, height: 30 })
+const getObstacleSprite = () => 'assets/games/memoryMixer/balloon.svg'
+const getObstacleSpriteDimensions = () => ({ width: 50, height: 50 })
+const getMarbleColor = () => 0x3366ff
+const getObstacleColor = () => 0x8b4513
+
+defineProps<{
   width: number
   height: number
 }>()
@@ -76,9 +84,141 @@ const update = (data: MiniGamePayloadType) => {
   return []
 }
 
-// render the road dotted lines
+// render the game world
 const render = (graphics: Graphics) => {
   graphics.clear()
+  
+  const canvasWidth = 800
+  const canvasHeight = 600
+  
+  // Draw world boundaries
+  graphics.lineStyle(4, 0xffffff)
+  graphics.drawRect(10, 10, canvasWidth - 20, canvasHeight - 20)
+  
+  // Draw drop zone (top area)
+  if (payloadData.value.game_phase === 0) { // Placement phase
+    graphics.lineStyle(2, 0x00ff00)
+    graphics.beginFill(0x00ff00, 0.1)
+    graphics.drawRect(60, 20, canvasWidth - 120, 100)
+    graphics.endFill()
+    
+    // Add drop zone text
+    graphics.lineStyle(0)
+    graphics.beginFill(0x00ff00)
+    graphics.drawRect(canvasWidth / 2 - 50, 30, 100, 20)
+    graphics.endFill()
+  }
+  
+  // Draw finish line
+  const finishY = transformWorldToScreen(0, payloadData.value.finish_line_y).y
+  graphics.lineStyle(4, 0xff0000)
+  graphics.moveTo(10, finishY)
+  graphics.lineTo(canvasWidth - 10, finishY)
+  
+  // Draw finish line pattern (checkered)
+  graphics.beginFill(0xff0000)
+  for (let x = 10; x < canvasWidth - 10; x += 20) {
+    if (Math.floor((x - 10) / 20) % 2 === 0) {
+      graphics.drawRect(x, finishY - 5, 20, 10)
+    }
+  }
+  graphics.endFill()
+  
+  // Draw placement timer if in placement phase
+  if (payloadData.value.game_phase === 0 && payloadData.value.placement_time_left > 0) {
+    const timerWidth = 200
+    const timerHeight = 20
+    const timerX = canvasWidth / 2 - timerWidth / 2
+    const timerY = 130
+    
+    // Timer background
+    graphics.lineStyle(2, 0xffffff)
+    graphics.beginFill(0x333333)
+    graphics.drawRect(timerX, timerY, timerWidth, timerHeight)
+    graphics.endFill()
+    
+    // Timer fill
+    const progress = Math.max(0, payloadData.value.placement_time_left / 15) // Assuming 15 seconds max
+    graphics.beginFill(progress > 0.3 ? 0x00ff00 : 0xff0000)
+    graphics.drawRect(timerX + 2, timerY + 2, (timerWidth - 4) * progress, timerHeight - 4)
+    graphics.endFill()
+  }
+}
+
+// Render results background
+const renderResults = (graphics: Graphics) => {
+  graphics.clear()
+  
+  const canvasWidth = 800
+  const canvasHeight = 600
+  
+  // Draw background with subtle pattern
+  graphics.lineStyle(2, 0x333333)
+  graphics.beginFill(0x1a1a1a, 0.8)
+  graphics.drawRect(0, 0, canvasWidth, canvasHeight)
+  graphics.endFill()
+  
+  // Draw title background
+  graphics.lineStyle(3, 0xffd700)
+  graphics.beginFill(0x333333, 0.9)
+  graphics.drawRoundedRect(canvasWidth / 2 - 200, 50, 400, 60, 10)
+  graphics.endFill()
+}
+
+// Transform world coordinates to screen coordinates
+const transformWorldToScreen = (worldX: number, worldY: number) => {
+  const canvasWidth = 800
+  const canvasHeight = 600
+  const worldWidth = 800  // Assuming world coordinates from -400 to 400
+  const worldHeight = 700 // Assuming world coordinates from -300 to 400
+  
+  const screenX = (worldX + 400) * (canvasWidth - 20) / worldWidth + 10
+  const screenY = (worldY + 300) * (canvasHeight - 20) / worldHeight + 10
+  
+  return { x: screenX, y: screenY }
+}
+
+// Get entity screen position
+const getEntityScreenPosition = (entity: any) => {
+  return transformWorldToScreen(entity.x_pos, entity.y_pos)
+}
+
+// Separate marbles and obstacles from entities
+const getMarbles = () => {
+  return payloadData.value.entities.filter(entity => entity.entity_type === 0)
+}
+
+const getObstacles = () => {
+  return payloadData.value.entities.filter(entity => entity.entity_type === 1)
+}
+
+const applicationId = ref(0)
+
+watch(
+  () => payloadData.value.entities,
+  (newVal, oldVal) => {
+    // if an entity is added/removed, force rerender of the application
+    if (!oldVal || !newVal) return
+    if (newVal.length !== oldVal.length) {
+      applicationId.value += 1;
+    }
+  },
+  { immediate: true }
+)
+
+// Text style for labels
+const textStyle = new TextStyle({
+  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+  fontSize: 14,
+  fill: 'white',
+  stroke: 'black',
+  // @ts-expect-error: PixiJS typing issue
+  strokeThickness: 2
+})
+
+const getCenteredTextPosition = (text: string, x: number): number => {
+  const metrics = CanvasTextMetrics.measureText(text, textStyle)
+  return x - metrics.width / 2
 }
 
 const pr = new Intl.PluralRules('en-US', { type: 'ordinal' })
@@ -107,11 +247,130 @@ defineExpose({
     </div>
     <div v-else-if="viewState == ViewState.MiniGame">
       <div class="flex flex-col h-full w-full justify-center items-center">
-
+        <div class="text-4xl m-6">
+          <span v-if="payloadData.game_phase === 0">Place Your Marbles! Time: {{ Math.ceil(payloadData.placement_time_left) }}s</span>
+          <span v-else-if="payloadData.game_phase === 1">Marbles are Rolling!</span>
+          <span v-else>Simulation Complete</span>
+        </div>
+        <div class="absolute top-0 text text-white z-10">
+          <div class="flex flex-col justify-center items-center mt-32">
+            <div v-if="payloadData.game_phase === 0" class="text-2xl flex flex-col justify-center items-center">
+              <div>
+                Drop your marbles in the green zone!
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="relative">
+          <!-- black background, for when the application is rerendering -->
+          <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
+          <div class="relative">
+            <Application :key="applicationId" :width="800" :height="600" background-color="black">
+              <Graphics :x="0" :y="0" @render="render" />
+              <!-- Render marbles -->
+              <template v-for="marble in getMarbles()" :key="marble.id">
+                <Sprite
+                  :position="getEntityScreenPosition(marble)"
+                  :width="getMarbleSpriteDimensions().width"
+                  :height="getMarbleSpriteDimensions().height"
+                  :texture="getMarbleSprite()"
+                  :tint="getMarbleColor()"
+                />
+                <!-- Marble ID text -->
+                <Text
+                  :position="{
+                    x: getCenteredTextPosition(marble.id, getEntityScreenPosition(marble).x + getMarbleSpriteDimensions().width / 2),
+                    y: getEntityScreenPosition(marble).y - 20
+                  }"
+                  :text="marble.id"
+                  :style="textStyle"
+                />
+                <!-- Finished indicator -->
+                <Sprite
+                  v-if="marble.is_finished"
+                  :position="{
+                    x: getEntityScreenPosition(marble).x,
+                    y: getEntityScreenPosition(marble).y
+                  }"
+                  :width="40"
+                  :height="40"
+                  texture="/assets/games/marbleMania/checkmark.png"
+                />
+              </template>
+              <!-- Render obstacles -->
+              <template v-for="obstacle in getObstacles()" :key="obstacle.id">
+                <Sprite
+                  :position="getEntityScreenPosition(obstacle)"
+                  :width="getObstacleSpriteDimensions().width"
+                  :height="getObstacleSpriteDimensions().height"
+                  :texture="getObstacleSprite()"
+                  :tint="getObstacleColor()"
+                />
+              </template>
+            </Application>
+          </div>
+        </div>
       </div>
     </div>
     <div v-else-if="viewState == ViewState.Results" class="flex flex-col h-full w-full justify-center items-center">
-      
+      <div class="text-4xl m-6">
+        Marble Mania Results
+      </div>
+      <div class="relative">
+        <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
+        <div class="relative">
+          <Application :width="800" :height="600" background-color="black">
+            <Graphics :x="0" :y="0" @render="renderResults" />
+            <!-- Results display -->
+            <template v-for="(result, index) in results.results" :key="result.name">
+              <Text
+                :position="{
+                  x: getCenteredTextPosition(`${formatOrdinals(result.placement)}. ${result.name}`, 400),
+                  y: 150 + index * 60
+                }"
+                :text="`${formatOrdinals(result.placement)}. ${result.name}`"
+                :style="{
+                  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+                  fontSize: 24,
+                  fill: result.has_finished ? 'white' : 'gray',
+                  stroke: 'black',
+                  strokeThickness: 3
+                }"
+              />
+              <Text
+                v-if="result.has_finished"
+                :position="{
+                  x: getCenteredTextPosition(`Time: ${result.time_to_finish.toFixed(2)}s`, 400),
+                  y: 175 + index * 60
+                }"
+                :text="`Time: ${result.time_to_finish.toFixed(2)}s`"
+                :style="{
+                  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+                  fontSize: 16,
+                  fill: 'lightblue',
+                  stroke: 'black',
+                  strokeThickness: 2
+                }"
+              />
+              <Text
+                v-else
+                :position="{
+                  x: getCenteredTextPosition('Did not finish', 400),
+                  y: 175 + index * 60
+                }"
+                text="Did not finish"
+                :style="{
+                  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+                  fontSize: 16,
+                  fill: 'red',
+                  stroke: 'black',
+                  strokeThickness: 2
+                }"
+              />
+            </template>
+          </Application>
+        </div>
+      </div>
     </div>
   </div>
 </template>
