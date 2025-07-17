@@ -191,12 +191,10 @@ void MarbleMania_MiniGame::send_player_update(Client *client) {
 }
 
 void MarbleMania_MiniGame::start_result() {
-
-
-    // send_result_data(game->party->host->client_id);
-    // for (auto &player : map->players) {
-    //     send_result_data(player.first->client_id);
-    // }
+    send_result_data(game->party->host->client_id);
+    for (const auto& pair : map->GetPlayerMarbles()) {
+        send_result_data(pair.first->client_id);
+    }
 
     result_timer.setTimeout([this]() {
         finished();
@@ -233,10 +231,6 @@ void MarbleMania_MiniGame::send_result_data(int client_id)
     // Create the result payload
     auto resultsVector = builder.CreateVector(results);
     auto resultPayload = CreateMarbleManiaResultPayload(builder, resultsVector);
-    
-    // Create the game state payload
-    // auto gameStatePayload = CreateGameStatePayload(builder, 
-    //     GameStatePayloadType_MarbleManiaResultPayload, resultPayload.Union());
     
     // Send result to specific client
     game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, 
