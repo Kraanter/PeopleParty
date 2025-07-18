@@ -16,6 +16,8 @@ enum class GamePhase {
     FINISHED
 };
 
+class MarbleManiaMarble;
+
 class MarbleManiaMap {
 private:
     std::unique_ptr<PhysicsWorld> m_physicsWorld;
@@ -52,6 +54,8 @@ public:
     void CreatePlayers(const std::vector<Client*>& clients);
     void RemovePlayer(Client* client);
     bool PlaceMarble(Client* client, const Vector2D& position);
+    void MovePlayerMarble(Client* client, float deltaX, float deltaY);
+    void SetPlayerReady(Client* client, bool ready);
     bool IsPlayerReady(Client* client) const;
     bool AllPlayersReady() const;
     
@@ -65,6 +69,8 @@ public:
     void AddStaticRectangle(const Vector2D& position, float width, float height);
     void AddMovingCircle(const Vector2D& position, float radius, const Vector2D& direction, float speed, float distance);
     void AddMovingRectangle(const Vector2D& position, float width, float height, const Vector2D& direction, float speed, float distance);
+    void AddSpinningCircle(const Vector2D& position, float radius, float rotationSpeed);
+    void AddSpinningRectangle(const Vector2D& position, float width, float height, float rotationSpeed);
     
     // Results
     std::vector<std::pair<Client*, float>> GetFinishedMarbles() const;
@@ -87,6 +93,7 @@ private:
     void CheckFinishLine();
     void UpdatePlacements();
     bool IsPositionOccupied(const Vector2D& position, float radius) const;
+    bool IsPositionOccupied(const Vector2D& position, float radius, const MarbleManiaMarble* excludeMarble) const;
     void CreateDefaultObstacles();
 };
 

@@ -67,15 +67,49 @@ void MarbleMania_MiniGame::process_input(const MiniGamePayloadType *payload, Cli
         case GameStateType_MarbleManiaPlayerInput: {
             auto input = payload->gamestatepayload_as_MarbleManiaPlayerInputPayload();
             
-            // Handle marble placement during placement phase
+            // Handle marble lock-in during placement phase
             if (map->GetCurrentPhase() == GamePhase::PLACEMENT) {
-                Vector2D position(input->x_pos(), input->y_pos());
-                if (map->PlaceMarble(from, position)) {
-                    // Send confirmation to player
-                    send_player_update(from);
+                if (input->lock()) {
+                    map->SetPlayerReady(from, true);
                 }
             }
+            break;
         }
+        case GameStateType_JoystickData: {
+            auto input = payload->gamestatepayload_as_JoystickDataPayload();
+            
+            // Handle marble movement during placement phase
+            if (map->GetCurrentPhase() == GamePhase::PLACEMENT) {
+                float x = input->x_pos();
+                float y = -input->y_pos(); // invert Y axis for screen coordinates
+                
+                // Move the player's marble in the drop zone
+                map->MovePlayerMarble(from, x, y);
+            }
+            break;
+        }
+        case GameStateType_JoystickEvent: {
+            auto input = payload->gamestatepayload_as_JoystickEventPayload();
+
+            // Handle joystick events during placement phase
+            if (map->GetCurrentPhase() == GamePhase::PLACEMENT) {
+                switch (input->event_type()) {
+                    case JoystickEventType_Start: {
+                        // Player started moving marble
+                        break;
+                    }
+                    case JoystickEventType_Stop: {
+                        // Player stopped moving marble
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -129,7 +163,12 @@ void MarbleMania_MiniGame::send_host_update()
             builder.CreateString(marble->GetId()),
             pos.x, pos.y,
             0, // 0 = marble
-            marble->HasFinished());
+            marble->HasFinished(),
+            0, // obstacle_type (ignored for marbles)
+            true, // is_circle (marbles are always circles)
+            marble->GetRadius() * 2, // width
+            marble->GetRadius() * 2, // height  
+            0.0f); // rotation (marbles don't have rotation)
         entities.push_back(entityOffset);
     }
     
@@ -141,7 +180,12 @@ void MarbleMania_MiniGame::send_host_update()
             builder.CreateString(obstacle->GetId()),
             pos.x, pos.y,
             1, // 1 = obstacle
-            false);
+            false, // is_finished (obstacles never finish)
+            static_cast<uint8_t>(obstacle->GetObstacleType()),
+            obstacle->IsCircle(),
+            obstacle->GetWidth(),
+            obstacle->GetHeight(),
+            obstacle->GetCurrentRotation());
         entities.push_back(entityOffset);
     }
     
@@ -152,42 +196,40 @@ void MarbleMania_MiniGame::send_host_update()
         static_cast<uint8_t>(map->GetCurrentPhase()),
         placementTimeLeft,
         map->GetFinishLine());
+
+    auto miniGame = builder.CreateString(get_camel_case_name());
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MarbleManiaHost,
+                                                      GameStatePayload_MarbleManiaHostPayload, hostPayload.Union());
     
     // Send payload to host
     game->party->send_gamestate([](Client* client) { return client->party->host == client; }, 
-                               builder, hostPayload.Union());
+                               builder, gameStatePayload.Union());
 }
 
 void MarbleMania_MiniGame::send_player_update(Client *client) {
     flatbuffers::FlatBufferBuilder builder;
-    
-    // Create entity data for this player's marble
-    std::vector<flatbuffers::Offset<FBMarbleManiaEntity>> entities;
-    
-    auto it = map->GetPlayerMarbles().find(client);
-    if (it != map->GetPlayerMarbles().end()) {
-        const MarbleManiaMarble* marble = it->second.get();
-        Vector2D pos = marble->GetPosition();
-        
-        auto entityOffset = CreateFBMarbleManiaEntity(builder,
-            builder.CreateString(marble->GetId()),
-            pos.x, pos.y,
-            0, // 0 = marble
-            marble->HasFinished());
-        entities.push_back(entityOffset);
+
+    // find the entity for this client
+    auto marbleIt = map->GetPlayerMarbles().find(client);
+    if (marbleIt == map->GetPlayerMarbles().end()) {
+        // Client does not have a marble, skip sending update
+        return;
     }
-    
-    // Create the host payload (reusing the same structure)
-    auto entitiesVector = builder.CreateVector(entities);
-    auto hostPayload = CreateMarbleManiaHostPayload(builder, 
-        entitiesVector,
+
+    auto hostPayload = CreateMarbleManiaPlayerPayload(builder, 
+        builder.CreateString(marbleIt->second->GetId()),
         static_cast<uint8_t>(map->GetCurrentPhase()),
         placementTimeLeft,
+        marbleIt->second->GetPosition().y,
         map->GetFinishLine());
+
+    auto miniGame = builder.CreateString(get_camel_case_name());
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MarbleManiaPlayer,
+                                                      GameStatePayload_MarbleManiaPlayerPayload, hostPayload.Union());
     
     // Send payload to specific client
     game->party->send_gamestate([client](Client* c) { return c == client; }, 
-                               builder, hostPayload.Union());
+                               builder, gameStatePayload.Union());
 }
 
 void MarbleMania_MiniGame::start_result() {
@@ -231,10 +273,13 @@ void MarbleMania_MiniGame::send_result_data(int client_id)
     // Create the result payload
     auto resultsVector = builder.CreateVector(results);
     auto resultPayload = CreateMarbleManiaResultPayload(builder, resultsVector);
+
+    auto miniGame = builder.CreateString(get_camel_case_name());
+    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MarbleManiaResult,
+                                                      GameStatePayload_MarbleManiaResultPayload, resultPayload.Union());
     
     // Send result to specific client
-    game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, 
-                               builder, resultPayload.Union());
+    game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 }
 
 std::vector<std::pair<Client *, int>> MarbleMania_MiniGame::getMinigameResult() {

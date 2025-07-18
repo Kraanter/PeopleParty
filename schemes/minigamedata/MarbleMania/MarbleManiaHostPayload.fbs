@@ -4,6 +4,12 @@ table FBMarbleManiaEntity {
   y_pos: float;
   entity_type: ubyte; // 0 = marble, 1 = obstacle
   is_finished: bool;
+  // Obstacle-specific properties (ignored for marbles)
+  obstacle_type: ubyte; // 0 = static_circle, 1 = static_rectangle, 2 = moving_circle, 3 = moving_rectangle, 4 = spinning_circle, 5 = spinning_rectangle
+  is_circle: bool;
+  width: float;
+  height: float;
+  rotation: float; // Current rotation angle in radians
 }
 
 table MarbleManiaHostPayload {

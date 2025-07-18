@@ -1,0 +1,9 @@
+table MarbleManiaPlayerPayload {
+  id: string;
+  game_phase: ubyte; // 0 = placement, 1 = simulation, 2 = finished
+  placement_time_left: float;
+  y_pos: float;
+  finish_line_y: float;
+}
+
+root_type MarbleManiaPlayerPayload;

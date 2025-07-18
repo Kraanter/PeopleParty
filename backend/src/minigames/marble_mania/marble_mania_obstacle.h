@@ -9,7 +9,9 @@ enum class ObstacleType {
     STATIC_CIRCLE,
     STATIC_RECTANGLE,
     MOVING_CIRCLE,
-    MOVING_RECTANGLE
+    MOVING_RECTANGLE,
+    SPINNING_CIRCLE,
+    SPINNING_RECTANGLE
 };
 
 class MarbleManiaObstacle : public RigidBody {
@@ -24,6 +26,10 @@ private:
     float m_movementDistance;
     float m_movementTimer;
     bool m_movingForward;
+    
+    // For spinning obstacles
+    float m_rotationSpeed;
+    float m_currentRotation;
     
     // Shape properties
     bool m_isCircle;
@@ -48,6 +54,15 @@ public:
     void SetMovementPattern(const Vector2D& direction, float speed, float distance);
     void UpdateMovement(float deltaTime);
     
+    // Rotation properties (for spinning obstacles)
+    void SetRotationSpeed(float speed) { m_rotationSpeed = speed; }
+    float GetRotationSpeed() const { return m_rotationSpeed; }
+    float GetCurrentRotation() const { return m_currentRotation; }
+    void UpdateRotation(float deltaTime);
+    
+    // Update method
+    void Update(float deltaTime);
+    
     // Factory methods
     static MarbleManiaObstacle* CreateStaticCircle(const Vector2D& position, float radius);
     static MarbleManiaObstacle* CreateStaticRectangle(const Vector2D& position, float width, float height);
@@ -55,6 +70,8 @@ public:
                                                   const Vector2D& direction, float speed, float distance);
     static MarbleManiaObstacle* CreateMovingRectangle(const Vector2D& position, float width, float height,
                                                      const Vector2D& direction, float speed, float distance);
+    static MarbleManiaObstacle* CreateSpinningCircle(const Vector2D& position, float radius, float rotationSpeed);
+    static MarbleManiaObstacle* CreateSpinningRectangle(const Vector2D& position, float width, float height, float rotationSpeed);
 };
 
 #endif // MARBLE_MANIA_OBSTACLE_H

@@ -12,13 +12,21 @@ export interface MarbleManiaEntity {
   y_pos: number;
   entity_type: number; // 0 = marble, 1 = obstacle
   is_finished: boolean;
+  // Obstacle-specific properties (ignored for marbles)
+  obstacle_type?: number; // 0 = static_circle, 1 = static_rectangle, 2 = moving_circle, 3 = moving_rectangle, 4 = spinning_circle, 5 = spinning_rectangle
+  is_circle?: boolean;
+  width?: number;
+  height?: number;
+  rotation?: number; // Current rotation angle in radians
 }
 
 // player
 export interface MarbleManiaPlayerData {
-  x_pos: number;
+  id: string;
+  game_phase: number; // 0 = placement, 1 = simulation, 2 = finished
+  placement_time_left: number;
   y_pos: number;
-  action_type: number; // 0 = place_marble, 1 = ready_up
+  finish_line_y: number;
 }
 
 // result

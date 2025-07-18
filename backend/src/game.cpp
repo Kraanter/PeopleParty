@@ -22,6 +22,7 @@ void Game::add_minigames() {
     if (party->settings->IsMiniGameEnabled("launch_party")) { temp_minigames.push_back(new LaunchParty_Minigame(this)); }
     if (party->settings->IsMiniGameEnabled("right_on_time")) { temp_minigames.push_back(new RightOnTime_Minigame(this)); }
     if (party->settings->IsMiniGameEnabled("highway_hustle")) { temp_minigames.push_back(new HighwayHustle_MiniGame(this)); }
+    if (party->settings->IsMiniGameEnabled("marble_mania")) { temp_minigames.push_back(new MarbleMania_MiniGame(this)); }
 
     auto rd = std::random_device{};
     auto rng = std::default_random_engine{rd()};

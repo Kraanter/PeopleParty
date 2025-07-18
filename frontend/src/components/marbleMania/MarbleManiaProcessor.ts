@@ -2,19 +2,25 @@ import type { MiniGamePayloadType } from "@/flatbuffers/mini-game-payload-type"
 import { MarbleManiaHostPayload } from "@/flatbuffers/marble-mania-host-payload"
 import type { MarbleManiaData, MarbleManiaEntity, MarbleManiaPlayerData, MarbleManiaResult, MarbleManiaResultPair } from "./MarbleManiaModels"
 import { MarbleManiaResultPayload } from "@/flatbuffers/marble-mania-result-payload"
-import { MarbleManiaPlayerInputPayload } from "@/flatbuffers/marble-mania-player-input-payload"
+import { MarbleManiaPlayerPayload } from "@/flatbuffers/marble-mania-player-payload"
 
 export function parseMarbleManiaHostPayload(data: MiniGamePayloadType): MarbleManiaData {
     const payload: MarbleManiaHostPayload = data.gamestatepayload(new MarbleManiaHostPayload())
 
     const entities: MarbleManiaEntity[] = []
     for (let i = 0; i < payload.entitiesLength(); i++) {
+        const entity = payload.entities(i)
         entities.push({
-            id: payload.entities(i).id(),
-            x_pos: payload.entities(i).xPos(),
-            y_pos: payload.entities(i).yPos(),
-            entity_type: payload.entities(i).entityType(),
-            is_finished: payload.entities(i).isFinished()
+            id: entity.id(),
+            x_pos: entity.xPos(),
+            y_pos: entity.yPos(),
+            entity_type: entity.entityType(),
+            is_finished: entity.isFinished(),
+            obstacle_type: entity.obstacleType(),
+            is_circle: entity.isCircle(),
+            width: entity.width(),
+            height: entity.height(),
+            rotation: entity.rotation()
         })
     }
 
@@ -26,13 +32,15 @@ export function parseMarbleManiaHostPayload(data: MiniGamePayloadType): MarbleMa
     }
 }
 
-export function parseMarbleManiaPlayerInputPayload(data: MiniGamePayloadType): MarbleManiaPlayerData {
-    const payload: MarbleManiaPlayerInputPayload = data.gamestatepayload(new MarbleManiaPlayerInputPayload())
+export function parseMarbleManiaPlayerPayload(data: MiniGamePayloadType): MarbleManiaPlayerData {
+    const payload: MarbleManiaPlayerPayload = data.gamestatepayload(new MarbleManiaPlayerPayload())
 
     return {
-        x_pos: payload.xPos(),
+        id: payload.id(),
+        game_phase: payload.gamePhase(),
+        placement_time_left: payload.placementTimeLeft(),
         y_pos: payload.yPos(),
-        action_type: payload.actionType() // 0 = place_marble, 1 = ready_up
+        finish_line_y: payload.finishLineY()
     }
 }
 

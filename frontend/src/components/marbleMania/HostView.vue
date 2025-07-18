@@ -13,13 +13,62 @@ import { Application } from 'vue3-pixi'
 import { Graphics, Sprite, Text, TextStyle, CanvasTextMetrics } from 'pixi.js'
 import { watch } from 'vue'
 
-// Simple sprite mapping (fallback to basic shapes for now)
-const getMarbleSprite = () => 'assets/games/memoryMixer/balloon.svg'
+// Simple sprite mapping (for marbles only)
+const getMarbleSprite = () => '/assets/games/crazyCounting/partyhat.svg'
 const getMarbleSpriteDimensions = () => ({ width: 30, height: 30 })
-const getObstacleSprite = () => 'assets/games/memoryMixer/balloon.svg'
-const getObstacleSpriteDimensions = () => ({ width: 50, height: 50 })
-const getMarbleColor = () => 0x3366ff
-const getObstacleColor = () => 0x8b4513
+
+// Render obstacles as Graphics shapes
+const renderCircleObstacle = (graphics: Graphics, obstacle: any) => {
+  const pos = getEntityScreenPosition(obstacle)
+  const radius = (obstacle.width || 40) / 2
+
+  graphics.lineStyle(2, 0x333333)
+  graphics.beginFill(0x8b4513) // Brown color for obstacles
+  graphics.drawCircle(pos.x + radius, pos.y + radius, radius)
+  graphics.endFill()
+}
+
+const renderRectangleObstacle = (graphics: Graphics, obstacle: any) => {
+  const pos = getEntityScreenPosition(obstacle)
+  const width = obstacle.width || 40
+  const height = obstacle.height || 40
+  const rotation = obstacle.rotation || 0
+
+  // For rotated rectangles, we need to calculate the corners
+  const centerX = pos.x + width / 2
+  const centerY = pos.y + height / 2
+  
+  if (rotation === 0) {
+    // Simple case - no rotation
+    graphics.lineStyle(2, 0x333333)
+    graphics.beginFill(0x8b4513) // Brown color for obstacles
+    graphics.drawRect(pos.x, pos.y, width, height)
+    graphics.endFill()
+  } else {
+    // Rotated rectangle - draw as polygon
+    const halfWidth = width / 2
+    const halfHeight = height / 2
+    const cos = Math.cos(rotation)
+    const sin = Math.sin(rotation)
+    
+    const corners = [
+      { x: -halfWidth, y: -halfHeight },
+      { x: halfWidth, y: -halfHeight },
+      { x: halfWidth, y: halfHeight },
+      { x: -halfWidth, y: halfHeight }
+    ]
+    
+    const rotatedCorners = corners.map(corner => ({
+      x: centerX + corner.x * cos - corner.y * sin,
+      y: centerY + corner.x * sin + corner.y * cos
+    }))
+    
+    graphics.lineStyle(2, 0x333333)
+    graphics.beginFill(0x8b4513) // Brown color for obstacles
+    graphics.drawPolygon(rotatedCorners.flatMap(c => [c.x, c.y]))
+    graphics.endFill()
+  }
+}
 
 defineProps<{
   width: number
@@ -143,6 +192,15 @@ const render = (graphics: Graphics) => {
     graphics.drawRect(timerX + 2, timerY + 2, (timerWidth - 4) * progress, timerHeight - 4)
     graphics.endFill()
   }
+  
+  // Draw obstacles
+  for (const obstacle of getObstacles()) {
+    if (obstacle.is_circle) {
+      renderCircleObstacle(graphics, obstacle)
+    } else {
+      renderRectangleObstacle(graphics, obstacle)
+    }
+  }
 }
 
 // Render results background
@@ -254,7 +312,7 @@ defineExpose({
         </div>
         <div class="absolute top-0 text text-white z-10">
           <div class="flex flex-col justify-center items-center mt-32">
-            <div v-if="payloadData.game_phase === 0" class="text-2xl flex flex-col justify-center items-center">
+            <div v-if="payloadData.game_phase === 0" class="text-3xl flex flex-col justify-center items-center">
               <div>
                 Drop your marbles in the green zone!
               </div>
@@ -274,7 +332,6 @@ defineExpose({
                   :width="getMarbleSpriteDimensions().width"
                   :height="getMarbleSpriteDimensions().height"
                   :texture="getMarbleSprite()"
-                  :tint="getMarbleColor()"
                 />
                 <!-- Marble ID text -->
                 <Text
@@ -283,7 +340,7 @@ defineExpose({
                     y: getEntityScreenPosition(marble).y - 20
                   }"
                   :text="marble.id"
-                  :style="textStyle"
+                  :style="{fontFamily: ['Helvetica', 'Arial', 'sans-serif'], fontSize: 18, fill: 'white', stroke: 'black', strokeThickness: 4}"
                 />
                 <!-- Finished indicator -->
                 <Sprite
@@ -297,16 +354,7 @@ defineExpose({
                   texture="/assets/games/marbleMania/checkmark.png"
                 />
               </template>
-              <!-- Render obstacles -->
-              <template v-for="obstacle in getObstacles()" :key="obstacle.id">
-                <Sprite
-                  :position="getEntityScreenPosition(obstacle)"
-                  :width="getObstacleSpriteDimensions().width"
-                  :height="getObstacleSpriteDimensions().height"
-                  :texture="getObstacleSprite()"
-                  :tint="getObstacleColor()"
-                />
-              </template>
+              <!-- Obstacles are now rendered via Graphics in the render function -->
             </Application>
           </div>
         </div>

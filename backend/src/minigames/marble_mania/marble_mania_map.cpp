@@ -37,8 +37,21 @@ MarbleManiaMap::~MarbleManiaMap() {
 }
 
 void MarbleManiaMap::CreatePlayers(const std::vector<Client*>& clients) {
-    for (Client* client : clients) {
-        if (client && m_playerMarbles.find(client) == m_playerMarbles.end()) {
+    // Calculate spacing for marbles in drop zone
+    float dropZoneWidth = m_dropZoneMax.x - m_dropZoneMin.x;
+    float spacing = dropZoneWidth / (clients.size() + 1);
+    
+    for (size_t i = 0; i < clients.size(); i++) {
+        Client* client = clients[i];
+        if (client && !client->isHost && m_playerMarbles.find(client) == m_playerMarbles.end()) {
+            // Calculate initial position in drop zone
+            float x = m_dropZoneMin.x + spacing * (i + 1);
+            float y = m_dropZoneMin.y + 20; // A bit below the top of drop zone
+            Vector2D initialPosition(x, y);
+            
+            // Create marble for player
+            auto marble = std::make_unique<MarbleManiaMarble>(initialPosition, client);
+            m_playerMarbles[client] = std::move(marble);
             m_playersReady[client] = false;
         }
     }
@@ -90,6 +103,40 @@ bool MarbleManiaMap::AllPlayersReady() const {
         }
     }
     return !m_playersReady.empty();
+}
+
+void MarbleManiaMap::MovePlayerMarble(Client* client, float deltaX, float deltaY) {
+    if (m_currentPhase != GamePhase::PLACEMENT) {
+        return;
+    }
+    
+    auto it = m_playerMarbles.find(client);
+    if (it == m_playerMarbles.end()) {
+        return;
+    }
+    
+    MarbleManiaMarble* marble = it->second.get();
+    Vector2D currentPos = marble->GetPosition();
+    
+    // Apply movement with sensitivity scaling
+    float sensitivity = 2.0f;
+    Vector2D newPos = currentPos + Vector2D(deltaX * sensitivity, deltaY * sensitivity);
+    
+    // Clamp to drop zone bounds
+    newPos.x = std::max(m_dropZoneMin.x + 20.0f, std::min(m_dropZoneMax.x - 20.0f, newPos.x));
+    newPos.y = std::max(m_dropZoneMin.y + 10.0f, std::min(m_dropZoneMax.y - 10.0f, newPos.y));
+    
+    // Check if position is occupied by another marble
+    if (!IsPositionOccupied(newPos, 20.0f, marble)) {
+        marble->SetPosition(newPos);
+    }
+}
+
+void MarbleManiaMap::SetPlayerReady(Client* client, bool ready) {
+    auto it = m_playersReady.find(client);
+    if (it != m_playersReady.end()) {
+        it->second = ready;
+    }
 }
 
 void MarbleManiaMap::Update(float deltaTime) {
@@ -169,6 +216,16 @@ void MarbleManiaMap::AddMovingRectangle(const Vector2D& position, float width, f
         MarbleManiaObstacle::CreateMovingRectangle(position, width, height, direction, speed, distance)));
 }
 
+void MarbleManiaMap::AddSpinningCircle(const Vector2D& position, float radius, float rotationSpeed) {
+    m_obstacles.push_back(std::unique_ptr<MarbleManiaObstacle>(
+        MarbleManiaObstacle::CreateSpinningCircle(position, radius, rotationSpeed)));
+}
+
+void MarbleManiaMap::AddSpinningRectangle(const Vector2D& position, float width, float height, float rotationSpeed) {
+    m_obstacles.push_back(std::unique_ptr<MarbleManiaObstacle>(
+        MarbleManiaObstacle::CreateSpinningRectangle(position, width, height, rotationSpeed)));
+}
+
 std::vector<std::pair<Client*, float>> MarbleManiaMap::GetFinishedMarbles() const {
     std::vector<std::pair<Client*, float>> finished;
     
@@ -220,7 +277,7 @@ void MarbleManiaMap::UpdatePhysics(float deltaTime) {
 
 void MarbleManiaMap::UpdateObstacles(float deltaTime) {
     for (auto& obstacle : m_obstacles) {
-        obstacle->UpdateMovement(deltaTime);
+        obstacle->Update(deltaTime); // Use the combined Update method
     }
 }
 
@@ -255,8 +312,13 @@ void MarbleManiaMap::UpdatePlacements() {
 }
 
 bool MarbleManiaMap::IsPositionOccupied(const Vector2D& position, float radius) const {
+    return IsPositionOccupied(position, radius, nullptr);
+}
+
+bool MarbleManiaMap::IsPositionOccupied(const Vector2D& position, float radius, const MarbleManiaMarble* excludeMarble) const {
     for (const auto& pair : m_playerMarbles) {
-        if (pair.second->GetPosition().Distance(position) < radius + pair.second->GetRadius()) {
+        if (pair.second.get() != excludeMarble && 
+            pair.second->GetPosition().Distance(position) < radius + pair.second->GetRadius()) {
             return true;
         }
     }
@@ -283,4 +345,12 @@ void MarbleManiaMap::CreateDefaultObstacles() {
     
     // Moving rectangles
     AddMovingRectangle(Vector2D(0, 300), 60, 15, Vector2D(1, 0), 30, 120);
+    
+    // Spinning circles
+    AddSpinningCircle(Vector2D(-75, 75), 20, 2.0f); // 2 rad/s rotation
+    AddSpinningCircle(Vector2D(75, 175), 18, -1.5f); // Counter-clockwise
+    
+    // Spinning rectangles  
+    AddSpinningRectangle(Vector2D(-25, 325), 50, 12, 1.0f);
+    AddSpinningRectangle(Vector2D(25, 225), 40, 10, -2.5f);
 }
