@@ -340,8 +340,8 @@ void MarbleManiaMap::CreateDefaultObstacles() {
     AddStaticRectangle(Vector2D(50, 250), 80, 15);
     
     // Moving circles
-    AddMovingCircle(Vector2D(-200, 100), 15, Vector2D(1, 0), 50, 100);
-    AddMovingCircle(Vector2D(200, 150), 15, Vector2D(-1, 0), 40, 80);
+    AddMovingCircle(Vector2D(-200, 100), 50, Vector2D(1, 0), 50, 100);
+    AddMovingCircle(Vector2D(200, 150), 25, Vector2D(-1, 0), 40, 80);
     
     // Moving rectangles
     AddMovingRectangle(Vector2D(0, 300), 60, 15, Vector2D(1, 0), 30, 120);
@@ -351,6 +351,6 @@ void MarbleManiaMap::CreateDefaultObstacles() {
     AddSpinningCircle(Vector2D(75, 175), 18, -1.5f); // Counter-clockwise
     
     // Spinning rectangles  
-    AddSpinningRectangle(Vector2D(-25, 325), 50, 12, 1.0f);
-    AddSpinningRectangle(Vector2D(25, 225), 40, 10, -2.5f);
+    AddSpinningRectangle(Vector2D(-350, 325), 200, 12, 1.0f);
+    AddSpinningRectangle(Vector2D(150, 225), 200, 10, -2.5f);
 }

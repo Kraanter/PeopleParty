@@ -336,10 +336,10 @@ defineExpose({
                 <!-- Marble ID text -->
                 <Text
                   :position="{
-                    x: getCenteredTextPosition(marble.id, getEntityScreenPosition(marble).x + getMarbleSpriteDimensions().width / 2),
+                    x: getCenteredTextPosition(marble.player_name || marble.id, getEntityScreenPosition(marble).x + getMarbleSpriteDimensions().width / 2),
                     y: getEntityScreenPosition(marble).y - 20
                   }"
-                  :text="marble.id"
+                  :text="marble.player_name || marble.id"
                   :style="{fontFamily: ['Helvetica', 'Arial', 'sans-serif'], fontSize: 18, fill: 'white', stroke: 'black', strokeThickness: 4}"
                 />
                 <!-- Finished indicator -->

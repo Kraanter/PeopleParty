@@ -16,6 +16,7 @@ export function parseMarbleManiaHostPayload(data: MiniGamePayloadType): MarbleMa
             y_pos: entity.yPos(),
             entity_type: entity.entityType(),
             is_finished: entity.isFinished(),
+            player_name: entity.playerName() ? decodeURI(entity.playerName()) : undefined,
             obstacle_type: entity.obstacleType(),
             is_circle: entity.isCircle(),
             width: entity.width(),

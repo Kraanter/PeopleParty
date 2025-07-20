@@ -115,16 +115,18 @@ const move = ({ x, y }: any) => {
 const getMarbleProgress = () => {
   if (!payloadData.value.finish_line_y) return 0
   
-  // Assuming start is at a higher Y value (top) and finish is at lower Y (marble falls down)
-  // Progress goes from 0% (start) to 100% (finish)
-  const startY = -300  // World top boundary
-  const finishY = payloadData.value.finish_line_y
+  // Start is at top (higher Y value), finish is at bottom (lower Y value)
+  // Progress goes from 0% (start at top) to 100% (finish at bottom)
+  const startY = -300  // World top boundary (start position)
+  const finishY = payloadData.value.finish_line_y  // Finish line position
   const currentY = payloadData.value.y_pos
   
-  const totalDistance = finishY - startY
-  const currentProgress = currentY - startY
+  const totalDistance = finishY - startY  // Total distance from start to finish
+  const currentProgress = currentY - startY  // Current distance from start
   
-  return Math.max(0, Math.min(100, (currentProgress / totalDistance) * 100))
+  // Invert the percentage so 0% is at top and 100% is at bottom
+  const progressPercent = Math.max(0, Math.min(100, (currentProgress / totalDistance) * 100))
+  return progressPercent
 }
 
 // Send lock position command
@@ -219,20 +221,21 @@ defineExpose({
         <div class="flex flex-col items-center">
           <div class="text-white mb-2">Progress</div>
           <div class="relative w-8 h-64 bg-gray-700 rounded border-2 border-white">
-            <!-- Finish line marker -->
-            <div class="absolute w-full h-2 bg-red-500 top-0 rounded"></div>
-            <div class="absolute -right-16 -top-1 text-white text-sm">Finish</div>
+            <!-- Start marker (at top) -->
+            <div class="absolute w-full h-2 bg-green-500 top-0 rounded"></div>
+            <div class="absolute -right-12 -top-1 text-white text-sm">START</div>
             
-            <!-- Start marker -->
-            <div class="absolute w-full h-2 bg-green-500 bottom-0 rounded"></div>
-            <div class="absolute -right-12 -bottom-1 text-white text-sm">Start</div>
+            <!-- Finish line marker (at bottom) -->
+            <div class="absolute w-full h-2 bg-red-500 bottom-0 rounded"></div>
+            <div class="absolute -right-16 -bottom-1 text-white text-sm">FINISH</div>
             
-            <!-- Marble position indicator -->
+            <!-- Marble position indicator - moves from top (0%) to bottom (100%) -->
             <div 
-              class="absolute w-6 h-6 bg-blue-500 rounded-full border-2 border-white transform -translate-x-1"
-              :style="{ bottom: `${getMarbleProgress()}%` }"
+              class="absolute w-6 h-6 bg-blue-500 rounded-full border-2 border-white transform -translate-x-1 -translate-y-3"
+              :style="{ top: `${getMarbleProgress()}%` }"
             ></div>
           </div>
+          <div class="text-white mt-2 text-sm">{{ Math.round(getMarbleProgress()) }}%</div>
         </div>
       </div>
       

@@ -88,26 +88,6 @@ void MarbleMania_MiniGame::process_input(const MiniGamePayloadType *payload, Cli
             }
             break;
         }
-        case GameStateType_JoystickEvent: {
-            auto input = payload->gamestatepayload_as_JoystickEventPayload();
-
-            // Handle joystick events during placement phase
-            if (map->GetCurrentPhase() == GamePhase::PLACEMENT) {
-                switch (input->event_type()) {
-                    case JoystickEventType_Start: {
-                        // Player started moving marble
-                        break;
-                    }
-                    case JoystickEventType_Stop: {
-                        // Player stopped moving marble
-                        break;
-                    }
-                    default:
-                        break;
-                }
-            }
-            break;
-        }
         default:
             break;
     }
@@ -156,6 +136,7 @@ void MarbleMania_MiniGame::send_host_update()
     
     // Add player marbles
     for (const auto& pair : map->GetPlayerMarbles()) {
+        const Client* client = pair.first;
         const MarbleManiaMarble* marble = pair.second.get();
         Vector2D pos = marble->GetPosition();
         
@@ -164,6 +145,7 @@ void MarbleMania_MiniGame::send_host_update()
             pos.x, pos.y,
             0, // 0 = marble
             marble->HasFinished(),
+            builder.CreateString(client->name), // player_name for marbles
             0, // obstacle_type (ignored for marbles)
             true, // is_circle (marbles are always circles)
             marble->GetRadius() * 2, // width
@@ -181,6 +163,7 @@ void MarbleMania_MiniGame::send_host_update()
             pos.x, pos.y,
             1, // 1 = obstacle
             false, // is_finished (obstacles never finish)
+            builder.CreateString(""), // player_name (empty for obstacles)
             static_cast<uint8_t>(obstacle->GetObstacleType()),
             obstacle->IsCircle(),
             obstacle->GetWidth(),

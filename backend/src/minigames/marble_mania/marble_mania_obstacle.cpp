@@ -54,19 +54,12 @@ void MarbleManiaObstacle::UpdateMovement(float deltaTime) {
     
     m_movementTimer += deltaTime;
     
-    // Calculate how far we should have moved
-    float targetDistance = m_movementSpeed * m_movementTimer;
+    // Calculate movement using sine wave for smooth back-and-forth motion
+    float cycle = m_movementTimer * m_movementSpeed / m_movementDistance; // Speed controls cycle frequency
+    float offsetDistance = (m_movementDistance / 2.0f) * sin(cycle * M_PI); // Oscillate between -distance/2 and +distance/2
     
-    // Check if we need to reverse direction
-    if (targetDistance >= m_movementDistance) {
-        m_movingForward = !m_movingForward;
-        m_movementTimer = 0.0f;
-        targetDistance = 0.0f;
-    }
-    
-    // Calculate new position
-    Vector2D direction = m_movingForward ? m_movementDirection : m_movementDirection * -1;
-    Vector2D newPosition = m_originalPosition + direction * targetDistance;
+    // Calculate new position based on oscillation
+    Vector2D newPosition = m_originalPosition + m_movementDirection * offsetDistance;
     
     // Update position
     SetPosition(newPosition);
