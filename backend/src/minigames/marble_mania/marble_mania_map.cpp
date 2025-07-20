@@ -63,6 +63,11 @@ void MarbleManiaMap::RemovePlayer(Client* client) {
         m_playerMarbles.erase(it);
     }
     
+    auto bodyIt = m_marblePhysicsBodies.find(client);
+    if (bodyIt != m_marblePhysicsBodies.end()) {
+        m_marblePhysicsBodies.erase(bodyIt);
+    }
+    
     auto readyIt = m_playersReady.find(client);
     if (readyIt != m_playersReady.end()) {
         m_playersReady.erase(readyIt);
@@ -149,7 +154,6 @@ void MarbleManiaMap::Update(float deltaTime) {
             
         case GamePhase::PHYSICS_SIMULATION:
             UpdatePhysics(deltaTime);
-            UpdateObstacles(deltaTime);
             CheckFinishLine();
             
             // Update marble timers
@@ -178,6 +182,10 @@ void MarbleManiaMap::StartPhysicsSimulation() {
     m_currentPhase = GamePhase::PHYSICS_SIMULATION;
     m_gameTime = 0.0f;
     
+    // Clear any existing physics body tracking
+    m_marblePhysicsBodies.clear();
+    m_obstaclePhysicsBodies.clear();
+    
     // Add all marbles to physics world
     for (auto& pair : m_playerMarbles) {
         MarbleManiaMarble* marble = pair.second.get();
@@ -185,6 +193,7 @@ void MarbleManiaMap::StartPhysicsSimulation() {
         // Copy properties from marble to physics body
         body->SetRestitution(marble->GetRestitution());
         body->SetFriction(marble->GetFriction());
+        m_marblePhysicsBodies[pair.first] = body;
     }
     
     // Add obstacles to physics world
@@ -192,7 +201,16 @@ void MarbleManiaMap::StartPhysicsSimulation() {
         RigidBody* body = m_physicsWorld->CreateBody(obstacle->GetPosition(), obstacle->GetMass(), obstacle->GetRadius());
         body->SetRestitution(obstacle->GetRestitution());
         body->SetFriction(obstacle->GetFriction());
-        body->SetStatic(obstacle->IsStatic());
+        
+        // Spinning obstacles should remain static in physics (they don't physically move, just rotate visually)
+        if (obstacle->GetObstacleType() == ObstacleType::SPINNING_CIRCLE || 
+            obstacle->GetObstacleType() == ObstacleType::SPINNING_RECTANGLE) {
+            body->SetStatic(true);
+        } else {
+            body->SetStatic(obstacle->IsStatic());
+        }
+        
+        m_obstaclePhysicsBodies.push_back(body);
     }
 }
 
@@ -260,17 +278,39 @@ bool MarbleManiaMap::IsValidDropPosition(const Vector2D& position) const {
 }
 
 void MarbleManiaMap::UpdatePhysics(float deltaTime) {
+    // First update obstacle positions/rotations
+    UpdateObstacles(deltaTime);
+    
+    // Update obstacle physics bodies with their new positions (only for moving obstacles)
+    for (size_t i = 0; i < m_obstacles.size() && i < m_obstaclePhysicsBodies.size(); ++i) {
+        
+        // Only update physics body position for moving obstacles
+        if (m_obstacles[i]->GetObstacleType() == ObstacleType::MOVING_CIRCLE || 
+            m_obstacles[i]->GetObstacleType() == ObstacleType::MOVING_RECTANGLE) {
+            
+            // Update physics body position to match obstacle position
+            m_obstaclePhysicsBodies[i]->SetPosition(m_obstacles[i]->GetPosition());
+            m_obstaclePhysicsBodies[i]->SetStatic(false);
+            m_obstaclePhysicsBodies[i]->SetMass(1000.0f); // Very heavy so marbles don't push them
+            // Set velocity to zero to prevent physics from moving them independently
+            m_obstaclePhysicsBodies[i]->SetVelocity(Vector2D(0, 0));
+        }
+        // Spinning obstacles don't need position updates - they stay in the same place
+        // Static obstacles also don't need updates
+    }
+    
+    // Handle custom rectangle collisions BEFORE physics step
+    HandleRectangleCollisions(deltaTime);
+    
+    // Step the physics simulation
     m_physicsWorld->Step(deltaTime);
     
     // Update marble positions from physics world
-    const auto& bodies = m_physicsWorld->GetBodies();
-    int marbleIndex = 0;
-    
     for (auto& pair : m_playerMarbles) {
-        if (marbleIndex < bodies.size()) {
-            pair.second->SetPosition(bodies[marbleIndex]->GetPosition());
-            pair.second->SetVelocity(bodies[marbleIndex]->GetVelocity());
-            marbleIndex++;
+        auto bodyIt = m_marblePhysicsBodies.find(pair.first);
+        if (bodyIt != m_marblePhysicsBodies.end()) {
+            pair.second->SetPosition(bodyIt->second->GetPosition());
+            pair.second->SetVelocity(bodyIt->second->GetVelocity());
         }
     }
 }
@@ -351,6 +391,90 @@ void MarbleManiaMap::CreateDefaultObstacles() {
     AddSpinningCircle(Vector2D(75, 175), 18, -1.5f); // Counter-clockwise
     
     // Spinning rectangles  
-    AddSpinningRectangle(Vector2D(-350, 325), 200, 12, 1.0f);
-    AddSpinningRectangle(Vector2D(150, 225), 200, 10, -2.5f);
+    AddSpinningRectangle(Vector2D(-350, 325), 200, 20, 1.0f);
+    AddSpinningRectangle(Vector2D(150, 225), 200, 20, -2.5f);
+}
+
+void MarbleManiaMap::HandleRectangleCollisions(float deltaTime) {
+    // Handle collisions between marbles and rectangular obstacles
+    for (auto& marblePair : m_playerMarbles) {
+        MarbleManiaMarble* marble = marblePair.second.get();
+        auto bodyIt = m_marblePhysicsBodies.find(marblePair.first);
+        if (bodyIt == m_marblePhysicsBodies.end()) continue;
+        
+        RigidBody* marbleBody = bodyIt->second;
+        Vector2D marblePos = marbleBody->GetPosition();
+        float marbleRadius = marbleBody->GetRadius();
+        Vector2D marbleVel = marbleBody->GetVelocity();
+        
+        // Check collision with all rectangular obstacles
+        for (auto& obstacle : m_obstacles) {
+            // Only handle rectangular obstacles (static, moving, or spinning)
+            if (obstacle->IsCircle()) continue;
+            
+            // Check if marble collides with this rectangle
+            if (obstacle->CheckCollisionWithCircle(marblePos, marbleRadius)) {
+                // Calculate collision response
+                Vector2D obstaclePos = obstacle->GetPosition();
+                float rotation = obstacle->GetCurrentRotation();
+                
+                // Calculate collision normal and penetration
+                Vector2D collisionNormal = CalculateRectangleCollisionNormal(
+                    marblePos, marbleRadius, obstaclePos, 
+                    obstacle->GetWidth(), obstacle->GetHeight(), rotation);
+                
+                if (collisionNormal.Length() > 0) {
+                    collisionNormal.Normalize();
+                    
+                    // Separate marble from obstacle
+                    float separation = marbleRadius + 1.0f; // Small buffer
+                    Vector2D newPos = obstaclePos + collisionNormal * separation;
+                    marbleBody->SetPosition(newPos);
+                    
+                    // Reflect velocity with restitution
+                    float restitution = obstacle->GetRestitution();
+                    Vector2D normalVel = collisionNormal * marbleVel.Dot(collisionNormal);
+                    Vector2D tangentVel = marbleVel - normalVel;
+                    
+                    // Apply restitution to normal component, keep tangent component with friction
+                    Vector2D newVel = tangentVel * (1.0f - obstacle->GetFriction()) - normalVel * restitution;
+                    marbleBody->SetVelocity(newVel);
+                }
+            }
+        }
+    }
+}
+
+Vector2D MarbleManiaMap::CalculateRectangleCollisionNormal(
+    const Vector2D& circleCenter, float circleRadius,
+    const Vector2D& rectCenter, float rectWidth, float rectHeight, float rotation) {
+    
+    // Transform circle center to rectangle's local coordinate system
+    Vector2D localCenter = circleCenter - rectCenter;
+    
+    // Rotate by negative rotation to align with rectangle
+    float cos_rot = cos(-rotation);
+    float sin_rot = sin(-rotation);
+    Vector2D rotatedCenter = Vector2D(
+        localCenter.x * cos_rot - localCenter.y * sin_rot,
+        localCenter.x * sin_rot + localCenter.y * cos_rot
+    );
+    
+    // Find closest point on rectangle to circle center
+    float halfWidth = rectWidth / 2;
+    float halfHeight = rectHeight / 2;
+    
+    float closestX = std::max(-halfWidth, std::min(halfWidth, rotatedCenter.x));
+    float closestY = std::max(-halfHeight, std::min(halfHeight, rotatedCenter.y));
+    
+    // Calculate normal from closest point to circle center (in local space)
+    Vector2D localNormal = rotatedCenter - Vector2D(closestX, closestY);
+    
+    // Transform normal back to world space
+    Vector2D worldNormal = Vector2D(
+        localNormal.x * cos_rot + localNormal.y * sin_rot,
+        -localNormal.x * sin_rot + localNormal.y * cos_rot
+    );
+    
+    return worldNormal;
 }

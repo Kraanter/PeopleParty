@@ -1,6 +1,7 @@
 #include "marble_mania_obstacle.h"
 #include <sstream>
 #include <cmath>
+#include <algorithm>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -86,6 +87,44 @@ void MarbleManiaObstacle::Update(float deltaTime) {
     UpdateRotation(deltaTime);
 }
 
+bool MarbleManiaObstacle::CheckCollisionWithCircle(const Vector2D& circleCenter, float circleRadius) const {
+    if (m_isCircle) {
+        // Simple circle-circle collision
+        float distance = GetPosition().Distance(circleCenter);
+        return distance < (GetRadius() + circleRadius);
+    } else {
+        // Rectangle-circle collision (accounting for rotation)
+        Vector2D rectCenter = GetPosition();
+        float rotation = GetCurrentRotation();
+        
+        // Transform circle center to rectangle's local coordinate system
+        Vector2D localCenter = circleCenter - rectCenter;
+        
+        // Rotate the circle center by negative rotation to align with rectangle
+        float cos_rot = cos(-rotation);
+        float sin_rot = sin(-rotation);
+        Vector2D rotatedCenter = Vector2D(
+            localCenter.x * cos_rot - localCenter.y * sin_rot,
+            localCenter.x * sin_rot + localCenter.y * cos_rot
+        );
+        
+        // Check collision with axis-aligned rectangle
+        float halfWidth = m_width / 2;
+        float halfHeight = m_height / 2;
+        
+        // Find closest point on rectangle to circle center
+        float closestX = std::max(-halfWidth, std::min(halfWidth, rotatedCenter.x));
+        float closestY = std::max(-halfHeight, std::min(halfHeight, rotatedCenter.y));
+        
+        // Calculate distance from circle center to closest point
+        float dx = rotatedCenter.x - closestX;
+        float dy = rotatedCenter.y - closestY;
+        float distanceSquared = dx * dx + dy * dy;
+        
+        return distanceSquared < (circleRadius * circleRadius);
+    }
+}
+
 MarbleManiaObstacle* MarbleManiaObstacle::CreateStaticCircle(const Vector2D& position, float radius) {
     MarbleManiaObstacle* obstacle = new MarbleManiaObstacle(position, ObstacleType::STATIC_CIRCLE, true);
     obstacle->SetRadius(radius);
@@ -128,7 +167,20 @@ MarbleManiaObstacle* MarbleManiaObstacle::CreateSpinningCircle(const Vector2D& p
 
 MarbleManiaObstacle* MarbleManiaObstacle::CreateSpinningRectangle(const Vector2D& position, float width, float height, float rotationSpeed) {
     MarbleManiaObstacle* obstacle = new MarbleManiaObstacle(position, ObstacleType::SPINNING_RECTANGLE, false);
-    obstacle->SetRadius(sqrt(width * width + height * height) / 2); // Approximate radius for broad-phase
+    
+    // For thin rectangles, use a much smaller collision radius
+    float aspectRatio = std::max(width, height) / std::min(width, height);
+    
+    if (aspectRatio > 5.0f) {
+        // Very thin rectangle - use thickness plus small margin as radius
+        obstacle->SetRadius(std::min(width, height) / 2 + 5.0f);
+    } else {
+        // More square rectangle - use standard calculation
+        float diagonalRadius = sqrt(width * width + height * height) / 2;
+        float maxDimensionRadius = std::max(width, height) / 2;
+        obstacle->SetRadius(std::min(diagonalRadius, maxDimensionRadius * 1.2f));
+    }
+    
     obstacle->SetDimensions(width, height);
     obstacle->SetRotationSpeed(rotationSpeed);
     return obstacle;

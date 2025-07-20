@@ -27,6 +27,10 @@ private:
     std::map<Client*, std::unique_ptr<MarbleManiaMarble>> m_playerMarbles;
     std::vector<std::unique_ptr<MarbleManiaObstacle>> m_obstacles;
     
+    // Physics body tracking
+    std::map<Client*, RigidBody*> m_marblePhysicsBodies;
+    std::vector<RigidBody*> m_obstaclePhysicsBodies;
+    
     // Game state
     GamePhase m_currentPhase;
     float m_gameTime;
@@ -90,6 +94,9 @@ public:
 private:
     void UpdatePhysics(float deltaTime);
     void UpdateObstacles(float deltaTime);
+    void HandleRectangleCollisions(float deltaTime);
+    Vector2D CalculateRectangleCollisionNormal(const Vector2D& circleCenter, float circleRadius,
+                                              const Vector2D& rectCenter, float rectWidth, float rectHeight, float rotation);
     void CheckFinishLine();
     void UpdatePlacements();
     bool IsPositionOccupied(const Vector2D& position, float radius) const;

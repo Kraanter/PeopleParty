@@ -63,6 +63,9 @@ public:
     // Update method
     void Update(float deltaTime);
     
+    // Collision detection for rotated rectangles
+    bool CheckCollisionWithCircle(const Vector2D& circleCenter, float circleRadius) const;
+    
     // Factory methods
     static MarbleManiaObstacle* CreateStaticCircle(const Vector2D& position, float radius);
     static MarbleManiaObstacle* CreateStaticRectangle(const Vector2D& position, float width, float height);

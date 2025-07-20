@@ -13,9 +13,22 @@ import { Application } from 'vue3-pixi'
 import { Graphics, Sprite, Text, TextStyle, CanvasTextMetrics } from 'pixi.js'
 import { watch } from 'vue'
 
-// Simple sprite mapping (for marbles only)
-const getMarbleSprite = () => '/assets/games/crazyCounting/partyhat.svg'
-const getMarbleSpriteDimensions = () => ({ width: 30, height: 30 })
+// Render marbles as Graphics circles
+const renderMarble = (graphics: Graphics, marble: any) => {
+  const pos = getEntityScreenPosition(marble)
+  const radius = 15 // Standard marble radius
+  
+  graphics.lineStyle(2, 0x2d5016) // Dark green outline
+  graphics.beginFill(0x4ade80) // Green color for marbles
+  graphics.drawCircle(pos.x + radius, pos.y + radius, radius)
+  graphics.endFill()
+  
+  // Add a small highlight for 3D effect
+  graphics.lineStyle(0)
+  graphics.beginFill(0x86efac, 0.6) // Light green highlight
+  graphics.drawCircle(pos.x + radius - 5, pos.y + radius - 5, radius * 0.3)
+  graphics.endFill()
+}
 
 // Render obstacles as Graphics shapes
 const renderCircleObstacle = (graphics: Graphics, obstacle: any) => {
@@ -201,6 +214,11 @@ const render = (graphics: Graphics) => {
       renderRectangleObstacle(graphics, obstacle)
     }
   }
+  
+  // Draw marbles
+  for (const marble of getMarbles()) {
+    renderMarble(graphics, marble)
+  }
 }
 
 // Render results background
@@ -325,18 +343,12 @@ defineExpose({
           <div class="relative">
             <Application :key="applicationId" :width="800" :height="600" background-color="black">
               <Graphics :x="0" :y="0" @render="render" />
-              <!-- Render marbles -->
+              <!-- Render marble labels and finished indicators -->
               <template v-for="marble in getMarbles()" :key="marble.id">
-                <Sprite
-                  :position="getEntityScreenPosition(marble)"
-                  :width="getMarbleSpriteDimensions().width"
-                  :height="getMarbleSpriteDimensions().height"
-                  :texture="getMarbleSprite()"
-                />
                 <!-- Marble ID text -->
                 <Text
                   :position="{
-                    x: getCenteredTextPosition(marble.player_name || marble.id, getEntityScreenPosition(marble).x + getMarbleSpriteDimensions().width / 2),
+                    x: getCenteredTextPosition(marble.player_name || marble.id, getEntityScreenPosition(marble).x + 15),
                     y: getEntityScreenPosition(marble).y - 20
                   }"
                   :text="marble.player_name || marble.id"
