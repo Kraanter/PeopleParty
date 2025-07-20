@@ -10,7 +10,7 @@ import {
 import { useWebSocketStore } from '@/stores/confettiStore'
 import type { MarbleManiaPlayerData, MarbleManiaResult } from './MarbleManiaModels'
 import { parseMarbleManiaPlayerPayload, parseMarbleManiaResultPayload } from './MarbleManiaProcessor'
-import { sendPlayerAction, sendPlayerEvent } from '@/util/joystickMessageBuilder'
+import { sendPlayerAction } from '@/util/joystickMessageBuilder'
 import JoystickComponent from '../highwayHustle/JoystickComponent.vue'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import {
@@ -53,6 +53,8 @@ const payloadData = ref<MarbleManiaPlayerData>({
   y_pos: 0,
   finish_line_y: 0,
 })
+
+const lockedIn = ref(false)
 
 // minigame results
 const results = ref<MarbleManiaResult>({
@@ -149,6 +151,8 @@ const lockPosition = () => {
   // Send the message
   const message = buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType)
   websocketStore.sendMessage(message)
+
+  lockedIn.value = true
 }
 
 defineExpose({
@@ -179,29 +183,31 @@ defineExpose({
       </div>
       
       <div v-if="payloadData.game_phase == 0" class="flex flex-col justify-center items-center">
-        <div class="text-xl text-white mb-4">Place Your Marble!</div>
-        <div class="text-lg text-white mb-4">Time left: {{ Math.ceil(payloadData.placement_time_left) }}s</div>
-        
-        <!-- Joystick for marble placement -->
-        <JoystickComponent
-          class="no-project-style"
-          style="margin: 20px"
-          :size="200"
-          base-color="lightgray"
-          stick-color="blue"
-          :throttle="50"
-          @move="move"
-          @start="sendPlayerEvent('marbleMania', 'start')"
-          @stop="sendPlayerEvent('marbleMania', 'stop')"
-        />
-        
-        <!-- Lock in button -->
-        <button 
-          @click="lockPosition"
-          class="mt-4 px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-xl font-bold rounded-lg"
-        >
-          Lock Position!
-        </button>
+        <div v-if="!lockedIn">
+
+          <div class="text-xl text-white mb-4">Place Your Marble!</div>
+          <div class="text-lg text-white mb-4">Time left: {{ Math.ceil(payloadData.placement_time_left) }}s</div>
+          
+          <!-- Joystick for marble placement -->
+          <JoystickComponent
+            class="no-project-style"
+            style="margin: 20px"
+            :size="200"
+            base-color="lightgray"
+            stick-color="blue"
+            :throttle="100"
+            @move="move"
+          />
+            
+            <!-- Lock in button -->
+          <button 
+            @click="lockPosition"
+            class="mt-4 px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-xl font-bold rounded-lg"
+          >
+            Lock Position!
+          </button>
+        </div>
+        <div v-else class="text-2xl text-white">Your marble is locked in!</div>
       </div>
       
       <div v-else-if="payloadData.game_phase == 1" class="flex flex-col gap-4 w-full h-full justify-center items-center">

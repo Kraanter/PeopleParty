@@ -119,7 +119,7 @@ void MarbleManiaMap::MovePlayerMarble(Client* client, float deltaX, float deltaY
     Vector2D currentPos = marble->GetPosition();
     
     // Apply movement with sensitivity scaling
-    float sensitivity = 2.0f;
+    float sensitivity = 10.0f;
     Vector2D newPos = currentPos + Vector2D(deltaX * sensitivity, deltaY * sensitivity);
     
     // Clamp to drop zone bounds
