@@ -1,21 +1,22 @@
 #ifndef MARBLE_MANIA_OBSTACLE_H
 #define MARBLE_MANIA_OBSTACLE_H
 
-#include "../../util/physics/rigid_body.h"
+#include "../../util/physics/physics_object.h"
 #include "../../util/math/vector2d.h"
 #include <string>
 
 enum class ObstacleType {
-    STATIC_CIRCLE,
-    STATIC_RECTANGLE,
-    MOVING_CIRCLE,
-    MOVING_RECTANGLE,
-    SPINNING_CIRCLE,
-    SPINNING_RECTANGLE
+    STATIC_CIRCLE = 0,
+    STATIC_RECTANGLE = 1,
+    MOVING_CIRCLE = 2,
+    MOVING_RECTANGLE = 3,
+    SPINNING_CIRCLE = 4,
+    SPINNING_RECTANGLE = 5
 };
 
-class MarbleManiaObstacle : public RigidBody {
+class MarbleManiaObstacle {
 private:
+    PhysicsObject* m_physicsObject; // Owned by the physics world
     ObstacleType m_type;
     std::string m_id;
     
@@ -25,56 +26,61 @@ private:
     float m_movementSpeed;
     float m_movementDistance;
     float m_movementTimer;
-    bool m_movingForward;
     
     // For spinning obstacles
     float m_rotationSpeed;
-    float m_currentRotation;
     
-    // Shape properties
+    // Shape properties (cached for easy access)
     bool m_isCircle;
     float m_width;
     float m_height;
     
 public:
-    MarbleManiaObstacle(const Vector2D& position, ObstacleType type, bool isCircle = true);
+    MarbleManiaObstacle(PhysicsObject* physicsObject, ObstacleType type, const std::string& id);
+    ~MarbleManiaObstacle() = default;
     
-    // Type management
+    // Basic properties
     ObstacleType GetObstacleType() const { return m_type; }
-    void SetId(const std::string& id) { m_id = id; }
     const std::string& GetId() const { return m_id; }
+    
+    // Physics object access
+    PhysicsObject* GetPhysicsObject() { return m_physicsObject; }
+    const PhysicsObject* GetPhysicsObject() const { return m_physicsObject; }
+    
+    // Position and transform
+    Vector2D GetPosition() const { return m_physicsObject->GetPosition(); }
+    void SetPosition(const Vector2D& position) { m_physicsObject->SetPosition(position); }
+    
+    float GetCurrentRotation() const { return m_physicsObject->GetRotation(); }
+    void SetRotation(float rotation) { m_physicsObject->SetRotation(rotation); }
     
     // Shape properties
     bool IsCircle() const { return m_isCircle; }
-    void SetDimensions(float width, float height) { m_width = width; m_height = height; }
     float GetWidth() const { return m_width; }
     float GetHeight() const { return m_height; }
     
+    float GetRadius() const {
+        if (m_isCircle) return m_width / 2.0f;
+        return std::max(m_width, m_height) / 2.0f; // Approximation for rectangles
+    }
+    
     // Movement properties (for moving obstacles)
     void SetMovementPattern(const Vector2D& direction, float speed, float distance);
-    void UpdateMovement(float deltaTime);
+    const Vector2D& GetMovementDirection() const { return m_movementDirection; }
+    float GetMovementSpeed() const { return m_movementSpeed; }
+    float GetMovementDistance() const { return m_movementDistance; }
     
     // Rotation properties (for spinning obstacles)
     void SetRotationSpeed(float speed) { m_rotationSpeed = speed; }
     float GetRotationSpeed() const { return m_rotationSpeed; }
-    float GetCurrentRotation() const { return m_currentRotation; }
-    void UpdateRotation(float deltaTime);
     
-    // Update method
+    // Update methods
     void Update(float deltaTime);
     
-    // Collision detection for rotated rectangles
-    bool CheckCollisionWithCircle(const Vector2D& circleCenter, float circleRadius) const;
-    
-    // Factory methods
-    static MarbleManiaObstacle* CreateStaticCircle(const Vector2D& position, float radius);
-    static MarbleManiaObstacle* CreateStaticRectangle(const Vector2D& position, float width, float height);
-    static MarbleManiaObstacle* CreateMovingCircle(const Vector2D& position, float radius, 
-                                                  const Vector2D& direction, float speed, float distance);
-    static MarbleManiaObstacle* CreateMovingRectangle(const Vector2D& position, float width, float height,
-                                                     const Vector2D& direction, float speed, float distance);
-    static MarbleManiaObstacle* CreateSpinningCircle(const Vector2D& position, float radius, float rotationSpeed);
-    static MarbleManiaObstacle* CreateSpinningRectangle(const Vector2D& position, float width, float height, float rotationSpeed);
+private:
+    void UpdateMovement(float deltaTime);
+    void UpdateRotation(float deltaTime);
+    void CacheShapeProperties();
 };
 
 #endif // MARBLE_MANIA_OBSTACLE_H

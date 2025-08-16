@@ -4,32 +4,27 @@
 #include <map>
 #include <vector>
 #include <memory>
-#include "../../util/physics/physics_world.h"
-#include "../../util/physics/spatial_grid.h"
+#include "../../util/physics/physics.h"
 #include "marble_mania_marble.h"
 #include "marble_mania_obstacle.h"
 #include "../../client.h"
 
 enum class GamePhase {
-    PLACEMENT,
-    PHYSICS_SIMULATION,
-    FINISHED
+    PLACEMENT = 0,
+    PHYSICS_SIMULATION = 1,
+    FINISHED = 2
 };
 
 class MarbleManiaMarble;
+class MarbleManiaObstacle;
 
 class MarbleManiaMap {
 private:
     std::unique_ptr<PhysicsWorld> m_physicsWorld;
-    std::unique_ptr<SpatialGrid> m_spatialGrid;
     
     // Game objects
     std::map<Client*, std::unique_ptr<MarbleManiaMarble>> m_playerMarbles;
     std::vector<std::unique_ptr<MarbleManiaObstacle>> m_obstacles;
-    
-    // Physics body tracking
-    std::map<Client*, RigidBody*> m_marblePhysicsBodies;
-    std::vector<RigidBody*> m_obstaclePhysicsBodies;
     
     // Game state
     GamePhase m_currentPhase;
@@ -45,6 +40,7 @@ private:
     // Placement tracking
     std::map<Client*, bool> m_playersReady;
     int m_finishedMarbles;
+    int m_nextPlacement;
     
 public:
     MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLine);
@@ -67,14 +63,14 @@ public:
     void Update(float deltaTime);
     void StartPhysicsSimulation();
     
-    // Obstacle management
+    // Obstacle management - factory methods
     void CreateObstacles();
-    void AddStaticCircle(const Vector2D& position, float radius);
-    void AddStaticRectangle(const Vector2D& position, float width, float height);
-    void AddMovingCircle(const Vector2D& position, float radius, const Vector2D& direction, float speed, float distance);
-    void AddMovingRectangle(const Vector2D& position, float width, float height, const Vector2D& direction, float speed, float distance);
-    void AddSpinningCircle(const Vector2D& position, float radius, float rotationSpeed);
-    void AddSpinningRectangle(const Vector2D& position, float width, float height, float rotationSpeed);
+    MarbleManiaObstacle* AddStaticCircle(const Vector2D& position, float radius);
+    MarbleManiaObstacle* AddStaticRectangle(const Vector2D& position, float width, float height, float rotation = 0.0f);
+    MarbleManiaObstacle* AddMovingCircle(const Vector2D& position, float radius, const Vector2D& direction, float speed, float distance);
+    MarbleManiaObstacle* AddMovingRectangle(const Vector2D& position, float width, float height, const Vector2D& direction, float speed, float distance);
+    MarbleManiaObstacle* AddSpinningCircle(const Vector2D& position, float radius, float rotationSpeed);
+    MarbleManiaObstacle* AddSpinningRectangle(const Vector2D& position, float width, float height, float rotationSpeed);
     
     // Results
     std::vector<std::pair<Client*, float>> GetFinishedMarbles() const;
@@ -94,14 +90,11 @@ public:
 private:
     void UpdatePhysics(float deltaTime);
     void UpdateObstacles(float deltaTime);
-    void HandleRectangleCollisions(float deltaTime);
-    Vector2D CalculateRectangleCollisionNormal(const Vector2D& circleCenter, float circleRadius,
-                                              const Vector2D& rectCenter, float rectWidth, float rectHeight, float rotation);
     void CheckFinishLine();
     void UpdatePlacements();
-    bool IsPositionOccupied(const Vector2D& position, float radius) const;
-    bool IsPositionOccupied(const Vector2D& position, float radius, const MarbleManiaMarble* excludeMarble) const;
+    bool IsPositionOccupied(const Vector2D& position, float radius, const MarbleManiaMarble* excludeMarble = nullptr) const;
     void CreateDefaultObstacles();
+    std::string GenerateObstacleId(const std::string& type, const Vector2D& position) const;
 };
 
 #endif // MARBLE_MANIA_MAP_H

@@ -1,83 +1,55 @@
 #ifndef PHYSICS_WORLD_H
 #define PHYSICS_WORLD_H
 
+#include "physics_object.h"
+#include "collision_detector.h"
 #include <vector>
 #include <memory>
-#include "../math/vector2d.h"
-#include "rigid_body.h"
-#include "collision.h"
 
-struct Boundary {
-    Vector2D start;
-    Vector2D end;
-    
-    Boundary(const Vector2D& s, const Vector2D& e) : start(s), end(e) {}
-};
-
+// Main physics simulation class
 class PhysicsWorld {
 private:
-    std::vector<std::unique_ptr<RigidBody>> m_bodies;
-    std::vector<Boundary> m_boundaries;
-    
-    Vector2D m_gravity;
-    float m_damping;
+    std::vector<std::unique_ptr<PhysicsObject>> m_objects;
     Vector2D m_worldMin;
     Vector2D m_worldMax;
+    bool m_hasBoundaries;
     
-    // Collision detection optimization
-    bool m_enableBroadPhase;
+    // World boundaries (static rectangle objects)
+    std::vector<PhysicsObject*> m_boundaries;
     
 public:
-    PhysicsWorld();
-    PhysicsWorld(const Vector2D& worldMin, const Vector2D& worldMax);
+    PhysicsWorld(const Vector2D& worldMin = Vector2D(-1000, -1000), 
+                 const Vector2D& worldMax = Vector2D(1000, 1000));
     ~PhysicsWorld();
     
-    // World properties
-    void SetGravity(const Vector2D& gravity) { m_gravity = gravity; }
-    const Vector2D& GetGravity() const { return m_gravity; }
+    // Object management
+    PhysicsObject* AddObject(std::unique_ptr<PhysicsObject> object);
+    void RemoveObject(PhysicsObject* object);
+    void Clear();
     
-    void SetDamping(float damping) { m_damping = damping; }
-    float GetDamping() const { return m_damping; }
+    // World boundaries
+    void SetWorldBounds(const Vector2D& worldMin, const Vector2D& worldMax);
+    void EnableBoundaries(bool enable);
     
-    void SetWorldBounds(const Vector2D& min, const Vector2D& max);
-    const Vector2D& GetWorldMin() const { return m_worldMin; }
-    const Vector2D& GetWorldMax() const { return m_worldMax; }
-    
-    // Body management
-    RigidBody* CreateBody(const Vector2D& position, float mass, float radius);
-    void RemoveBody(RigidBody* body);
-    void ClearBodies();
-    
-    const std::vector<std::unique_ptr<RigidBody>>& GetBodies() const { return m_bodies; }
-    
-    // Boundary management
-    void AddBoundary(const Vector2D& start, const Vector2D& end);
-    void ClearBoundaries();
-    const std::vector<Boundary>& GetBoundaries() const { return m_boundaries; }
-    
-    // Physics simulation
+    // Simulation
     void Step(float deltaTime);
-    void SetBroadPhaseEnabled(bool enabled) { m_enableBroadPhase = enabled; }
     
-    // Utility methods
-    void ApplyGravityToAll();
-    void ApplyDampingToAll();
-    void CheckWorldBoundaries();
+    // Access
+    const std::vector<std::unique_ptr<PhysicsObject>>& GetObjects() const { return m_objects; }
+    size_t GetObjectCount() const { return m_objects.size(); }
     
-    // Query methods
-    RigidBody* GetBodyAt(const Vector2D& position) const;
-    std::vector<RigidBody*> GetBodiesInRadius(const Vector2D& center, float radius) const;
+    // Utility
+    std::vector<PhysicsObject*> GetObjectsInRadius(const Vector2D& center, float radius) const;
+    PhysicsObject* GetObjectAtPoint(const Vector2D& point) const;
     
 private:
-    // Internal physics methods
-    void IntegrateAll(float deltaTime);
-    void DetectCollisions();
-    void ResolveCollisions();
+    void UpdateObjects(float deltaTime);
+    void DetectAndResolveCollisions();
+    void CheckBoundaryCollisions();
+    void CreateBoundaries();
+    void DestroyBoundaries();
     
-    // Collision detection helpers
-    bool BroadPhaseCheck(const RigidBody& body1, const RigidBody& body2) const;
-    void HandleBodyCollision(RigidBody& body1, RigidBody& body2);
-    void HandleBoundaryCollision(RigidBody& body, const Boundary& boundary);
+    bool IsPointInShape(const Vector2D& point, const CollisionShape& shape) const;
 };
 
 #endif // PHYSICS_WORLD_H
