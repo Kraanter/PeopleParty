@@ -39,13 +39,24 @@ jobs:
         run: |
           npm install
           npm run build
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: tag and push frontend image
         run: |
-          docker build --push \
+          docker buildx build \
+            --platform linux/arm/v7 \
+            --push \
             --tag ghcr.io/${{ env.IMAGE_NAME }}portal:staging frontend/.
+
       - name: tag and push backend image
         run: |
-          docker build --push \
+          docker buildx build \
+            --platform linux/arm/v7 \
+            --push \
             --tag ghcr.io/${{ env.IMAGE_NAME }}backend:staging backend/.
       - name: Clean up dangling images
         run: docker image prune -f -a
