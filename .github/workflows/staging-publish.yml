@@ -39,24 +39,13 @@ jobs:
         run: |
           npm install
           npm run build
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: tag and push frontend image
         run: |
-          docker buildx build \
-            --platform linux/arm/v7 \
-            --push \
+          docker build --push \
             --tag ghcr.io/${{ env.IMAGE_NAME }}portal:staging frontend/.
-
       - name: tag and push backend image
         run: |
-          docker buildx build \
-            --platform linux/arm/v7 \
-            --push \
+          docker build --push \
             --tag ghcr.io/${{ env.IMAGE_NAME }}backend:staging backend/.
       - name: Clean up dangling images
         run: docker image prune -f -a
@@ -65,4 +54,3 @@ jobs:
     uses: ./.github/workflows/staging-deploy.yml
     if: ${{ inputs.deploy-skylab || github.ref == 'refs/heads/staging' }}
     secrets: inherit
-
