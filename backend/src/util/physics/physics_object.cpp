@@ -96,7 +96,7 @@ void PhysicsObject::HandleCollision(const PhysicsObject& other, const Vector2D& 
     // Apply friction
     Vector2D tangent = relativeVelocity - collisionNormal * velocityAlongNormal;
     if (tangent.Length() > 0.001f) {
-        tangent = tangent.Normalized();
+        tangent.Normalize();
         
         float frictionMagnitude = std::abs(impulseScalar) * std::max(m_friction, other.GetFriction());
         Vector2D frictionImpulse = tangent * -frictionMagnitude;
@@ -125,7 +125,9 @@ void PhysicsObject::ApplyAirResistance(float deltaTime) {
     float velocityMagnitude = m_velocity.Length();
     if (velocityMagnitude > 0.001f) {
         float airResistance = 0.01f * velocityMagnitude * velocityMagnitude;
-        Vector2D resistanceForce = m_velocity.Normalized() * -airResistance;
+        Vector2D resistanceDirection = m_velocity;
+        resistanceDirection.Normalize();
+        Vector2D resistanceForce = resistanceDirection * -airResistance;
         ApplyForce(resistanceForce);
     }
 }
@@ -133,6 +135,8 @@ void PhysicsObject::ApplyAirResistance(float deltaTime) {
 void PhysicsObject::LimitVelocity() {
     float speed = m_velocity.Length();
     if (speed > MAX_VELOCITY) {
-        m_velocity = m_velocity.Normalized() * MAX_VELOCITY;
+        Vector2D normalizedVelocity = m_velocity;
+        normalizedVelocity.Normalize();
+        m_velocity = normalizedVelocity * MAX_VELOCITY;
     }
 }

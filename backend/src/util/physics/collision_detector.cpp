@@ -92,7 +92,8 @@ CollisionInfo CollisionDetector::CircleVsRectangle(const CircleShape& circle, co
             if (distance < minDistance) {
                 minDistance = distance;
                 Vector2D edgeVector = edgeEnd - edgeStart;
-                bestNormal = Vector2D(-edgeVector.y, edgeVector.x).Normalized();
+                bestNormal = Vector2D(-edgeVector.y, edgeVector.x);
+                bestNormal.Normalize();
             }
         }
         
@@ -100,7 +101,8 @@ CollisionInfo CollisionDetector::CircleVsRectangle(const CircleShape& circle, co
         return CollisionInfo(bestNormal, penetrationDepth, closestPoint);
     }
     
-    Vector2D normal = distance.Normalized();
+    Vector2D normal = distance;
+    normal.Normalize();
     float penetrationDepth = circleRadius - distanceLength;
     
     return CollisionInfo(normal, penetrationDepth, closestPoint);
@@ -177,11 +179,15 @@ Vector2D CollisionDetector::GetRectangleAxis(const RectangleShape& rectangle, in
     if (axisIndex == 0) {
         // First axis: edge from corner 0 to corner 1
         Vector2D edge = corners[1] - corners[0];
-        return Vector2D(-edge.y, edge.x).Normalized(); // Perpendicular to edge
+        Vector2D perpendicular = Vector2D(-edge.y, edge.x);
+        perpendicular.Normalize();
+        return perpendicular; // Perpendicular to edge
     } else {
         // Second axis: edge from corner 1 to corner 2
         Vector2D edge = corners[2] - corners[1];
-        return Vector2D(-edge.y, edge.x).Normalized(); // Perpendicular to edge
+        Vector2D perpendicular = Vector2D(-edge.y, edge.x);
+        perpendicular.Normalize();
+        return perpendicular; // Perpendicular to edge
     }
 }
 
