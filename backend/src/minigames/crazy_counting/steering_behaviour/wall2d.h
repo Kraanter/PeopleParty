@@ -1,7 +1,7 @@
 #ifndef WALL_H
 #define WALL_H
 
-#include "vector2d.h"
+#include "../../../util/math/vector2d.h"
 
 class Wall2D 
 {

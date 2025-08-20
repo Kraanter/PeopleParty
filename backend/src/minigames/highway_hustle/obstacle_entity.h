@@ -2,39 +2,24 @@
 #define PEOPLEPARTY_BACKEND_OBSTACLE_ENTITY_H
 
 #include <utility>
-#include "../crazy_counting/steering_behaviour/vector2d.h"
+#include "../../util/math/base_entity.h"
 #include <string>
 #include <algorithm>
 
-class Obstacle_Entity {
+class Obstacle_Entity : public Base_Entity {
 public:
-    int width = 50;
-    int height = 50;
     std::string id;
     Vector2D position;
     Vector2D velocity;
     int car_type = 0; // (0-?) determines the obstacle vehicle type
 public:
-    Obstacle_Entity() { Obstacle_Entity(Vector2D(0, 0), Vector2D(0, 0)); };
-    Obstacle_Entity(Vector2D pos, Vector2D vel) {
-        position = pos;
-        velocity = vel;
+    Obstacle_Entity() : Base_Entity() {};
+    Obstacle_Entity(Vector2D pos, Vector2D vel) : Base_Entity(pos, vel) {
         car_type = std::rand() % 13; // give random type (0-12)
         set_dimensions(car_type);
-    }
+    };
     void update(unsigned long delta_time) {
         position += velocity * (delta_time * 2.0f);
-    };
-    //todo: change this in its own class when refactoring (and remove it from moving as well)
-    bool check_colision(Obstacle_Entity* other, int margin = 0) {
-        // check if the two obstacles are colliding, with a margin
-        if (position.x < other->position.x + other->width + margin &&
-            position.x + width > other->position.x - margin &&
-            position.y < other->position.y + other->height + margin &&
-            position.y + height > other->position.y - margin) {
-            return true;
-        }
-        return false;
     };
 private:
     void set_dimensions(int car_type) {

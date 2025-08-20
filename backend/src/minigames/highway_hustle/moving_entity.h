@@ -1,25 +1,18 @@
 #ifndef PEOPLEPARTY_BACKEND_MOVING_ENTITY_H
 #define PEOPLEPARTY_BACKEND_MOVING_ENTITY_H
 
-#include "obstacle_entity.h"
+#include "../../util/math/base_entity.h"
 
-class Moving_Entity {
+class Moving_Entity : public Base_Entity {
 private:
     bool joystick_is_moving = false;
-    int width = 50;
-    int height = 50;
 public:
-    Vector2D position;
-    Vector2D velocity;
     bool is_dead = false;
     int final_score = 0;
     int car_type = 0; // ranges from 0-11 (12 car colors), also indicates starting position
 public:
-    Moving_Entity() { Moving_Entity(0, 0); };
-    Moving_Entity(float x, float y) {
-        position = Vector2D(x, y);
-        velocity = Vector2D(0, 0);
-    }
+    Moving_Entity() : Base_Entity() {};
+    Moving_Entity(Vector2D pos, Vector2D vel) : Base_Entity(pos, vel) {};
     void update(unsigned long delta_time) {
         position += velocity * (delta_time * 2.0f);
 
@@ -67,17 +60,6 @@ public:
     };
     void change_joystick_is_moving(bool is_moving) {
         joystick_is_moving = is_moving;
-    };
-    //todo: change this in its own class when refactoring (remove from obstacle as well)
-    bool check_colision(Obstacle_Entity* other, int margin = 0) {
-        // check if the two obstacles are colliding, with a margin
-        if (position.x < other->position.x + other->width + margin &&
-            position.x + width > other->position.x - margin &&
-            position.y < other->position.y + other->height + margin &&
-            position.y + height > other->position.y - margin) {
-            return true;
-        }
-        return false;
     };
     void set_dimensions(int car_type) {
         // sprites have different dimensions

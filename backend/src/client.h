@@ -3,7 +3,7 @@
 #include <uWebSockets/WebSocket.h>
 
 #include "party.h"
-#include "typedefs.h"
+#include "util/typedefs.h"
 
 class Party;
 

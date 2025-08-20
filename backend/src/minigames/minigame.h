@@ -7,8 +7,8 @@
 
 
 #include "../game_state.h"
-#include "../thread_timer.h"
-#include "../defines.h"
+#include "../util/thread_timer.h"
+#include "../util/defines.h"
 
 class Game;
 
