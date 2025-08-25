@@ -8,52 +8,66 @@ MarbleManiaMap::MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMa
     , m_currentPhase(GamePhase::PLACEMENT), m_gameTime(0.0f)
     , m_finishedMarbles(0), m_nextPlacement(1)
 {
-    // Create physics world with boundaries
-    m_physicsWorld = std::make_unique<PhysicsWorld>(worldMin, worldMax);
-    m_physicsWorld->EnableBoundaries(true);
+    // Create Box2D world with gravity
+    b2Vec2 gravity(0.0f, 9.81f); // 9.81 m/s^2 downward
+    m_world = std::make_unique<b2World>(gravity);
     
     // Set up drop zone (top portion of the world)
     float dropZoneHeight = 100.0f;
     m_dropZoneMin = Vector2D(worldMin.x + 50, worldMin.y + 20);
     m_dropZoneMax = Vector2D(worldMax.x - 50, worldMin.y + dropZoneHeight);
     
-    // Create obstacles
+    // Create boundaries and obstacles
+    CreateBoundaries();
     CreateObstacles();
 }
 
 MarbleManiaMap::~MarbleManiaMap() {
-    // Physics world will automatically clean up physics objects
+    // Clean up boundary bodies
+    for (b2Body* body : m_boundaryBodies) {
+        m_world->DestroyBody(body);
+    }
+    m_boundaryBodies.clear();
+    
+    // Box2D world will automatically clean up all remaining bodies
 }
 
 void MarbleManiaMap::CreatePlayers(const std::vector<Client*>& clients) {
-    float marbleRadius = 15.0f;
-    float spacing = 50.0f;
-    float startX = m_dropZoneMin.x + spacing;
+    float marbleRadius = 0.15f; // 15cm in meters (Box2D uses meters)
+    float spacing = 0.5f; // 50cm spacing
+    float startX = (m_dropZoneMin.x + spacing) / 100.0f; // Convert to meters
     
     for (size_t i = 0; i < clients.size(); i++) {
         Client* client = clients[i];
+
+        // If client is host, skip creating a marble
+        if (client->isHost) {
+            continue;
+        }
         
-        // Calculate initial position in drop zone
+        // Calculate initial position in drop zone (convert to meters)
         Vector2D position(
             startX + (i * spacing), 
-            m_dropZoneMin.y + 30
+            (m_dropZoneMin.y + 30) / 100.0f
         );
         
         // Ensure position is within drop zone
-        if (position.x > m_dropZoneMax.x - marbleRadius) {
-            position.x = m_dropZoneMax.x - marbleRadius;
+        if (position.x > (m_dropZoneMax.x - marbleRadius * 100.0f) / 100.0f) {
+            position.x = (m_dropZoneMax.x - marbleRadius * 100.0f) / 100.0f;
         }
         
-        // Create physics object for marble
-        auto marblePhysics = PhysicsFactory::CreateDynamicCircle(position, marbleRadius, 1.0f, 0.8f, 0.2f);
+        // Create Box2D body for marble (initially static)
+        b2Body* marbleBody = CreateCircleBody(position, marbleRadius, true);
         
-        // Initially set as static during placement phase
-        marblePhysics->SetType(ObjectType::STATIC);
-        
-        PhysicsObject* physicsPtr = m_physicsWorld->AddObject(std::move(marblePhysics));
+        // Set physics properties
+        b2Fixture* fixture = marbleBody->GetFixtureList();
+        fixture->SetRestitution(0.8f);  // Bouncy
+        fixture->SetFriction(0.2f);     // Low friction
+        fixture->SetDensity(1.0f);      // Standard density
+        marbleBody->ResetMassData();
         
         // Create marble wrapper
-        auto marble = std::make_unique<MarbleManiaMarble>(physicsPtr, client, marbleRadius);
+        auto marble = std::make_unique<MarbleManiaMarble>(marbleBody, client, marbleRadius);
         
         m_playerMarbles[client] = std::move(marble);
         m_playersReady[client] = false;
@@ -63,8 +77,8 @@ void MarbleManiaMap::CreatePlayers(const std::vector<Client*>& clients) {
 void MarbleManiaMap::RemovePlayer(Client* client) {
     auto marbleIt = m_playerMarbles.find(client);
     if (marbleIt != m_playerMarbles.end()) {
-        // Remove physics object from world
-        m_physicsWorld->RemoveObject(marbleIt->second->GetPhysicsObject());
+        // Remove Box2D body from world
+        m_world->DestroyBody(marbleIt->second->GetBody());
         
         // Remove marble and ready state
         m_playerMarbles.erase(marbleIt);
@@ -108,7 +122,7 @@ void MarbleManiaMap::MovePlayerMarble(Client* client, float deltaX, float deltaY
     
     MarbleManiaMarble* marble = marbleIt->second.get();
     Vector2D currentPos = marble->GetPosition();
-    Vector2D newPos = currentPos + Vector2D(deltaX * 2.0f, deltaY * 2.0f); // Scale movement
+    Vector2D newPos = currentPos + Vector2D(deltaX * 5.0f, deltaY * 5.0f); // Scale movement
     
     // Clamp to drop zone
     float radius = marble->GetRadius();
@@ -163,14 +177,17 @@ void MarbleManiaMap::StartPhysicsSimulation() {
     
     // Make all marbles dynamic so they fall
     for (auto& pair : m_playerMarbles) {
-        pair.second->GetPhysicsObject()->SetType(ObjectType::DYNAMIC);
+        pair.second->GetBody()->SetType(b2_dynamicBody);
     }
     
     m_gameTime = 0.0f; // Reset game time for finish time tracking
 }
 
 void MarbleManiaMap::UpdatePhysics(float deltaTime) {
-    m_physicsWorld->Step(deltaTime);
+    // Step the Box2D world
+    int32 velocityIterations = 6;
+    int32 positionIterations = 2;
+    m_world->Step(deltaTime, velocityIterations, positionIterations);
 }
 
 void MarbleManiaMap::UpdateObstacles(float deltaTime) {
@@ -201,13 +218,18 @@ void MarbleManiaMap::CreateObstacles() {
 }
 
 MarbleManiaObstacle* MarbleManiaMap::AddStaticCircle(const Vector2D& position, float radius) {
-    auto physicsObject = PhysicsFactory::CreateStaticCircle(position, radius);
-    physicsObject->SetRestitution(0.8f); // Bouncy obstacles
+    // Convert to meters
+    Vector2D pos(position.x / 100.0f, position.y / 100.0f);
+    float r = radius / 100.0f;
     
-    PhysicsObject* physicsPtr = m_physicsWorld->AddObject(std::move(physicsObject));
+    b2Body* body = CreateCircleBody(pos, r, true);
+    
+    // Set bouncy properties
+    b2Fixture* fixture = body->GetFixtureList();
+    fixture->SetRestitution(0.8f);
     
     std::string id = GenerateObstacleId("static_circle", position);
-    auto obstacle = std::make_unique<MarbleManiaObstacle>(physicsPtr, ObstacleType::STATIC_CIRCLE, id);
+    auto obstacle = std::make_unique<MarbleManiaObstacle>(body, ObstacleType::STATIC_CIRCLE, id);
     
     MarbleManiaObstacle* obstaclePtr = obstacle.get();
     m_obstacles.push_back(std::move(obstacle));
@@ -216,13 +238,19 @@ MarbleManiaObstacle* MarbleManiaMap::AddStaticCircle(const Vector2D& position, f
 }
 
 MarbleManiaObstacle* MarbleManiaMap::AddStaticRectangle(const Vector2D& position, float width, float height, float rotation) {
-    auto physicsObject = PhysicsFactory::CreateStaticRectangle(position, width, height, rotation);
-    physicsObject->SetRestitution(0.8f); // Bouncy obstacles
+    // Convert to meters
+    Vector2D pos(position.x / 100.0f, position.y / 100.0f);
+    float w = width / 100.0f;
+    float h = height / 100.0f;
     
-    PhysicsObject* physicsPtr = m_physicsWorld->AddObject(std::move(physicsObject));
+    b2Body* body = CreateRectangleBody(pos, w, h, rotation, true);
+    
+    // Set bouncy properties
+    b2Fixture* fixture = body->GetFixtureList();
+    fixture->SetRestitution(0.8f);
     
     std::string id = GenerateObstacleId("static_rect", position);
-    auto obstacle = std::make_unique<MarbleManiaObstacle>(physicsPtr, ObstacleType::STATIC_RECTANGLE, id);
+    auto obstacle = std::make_unique<MarbleManiaObstacle>(body, ObstacleType::STATIC_RECTANGLE, id);
     
     MarbleManiaObstacle* obstaclePtr = obstacle.get();
     m_obstacles.push_back(std::move(obstacle));
@@ -231,14 +259,18 @@ MarbleManiaObstacle* MarbleManiaMap::AddStaticRectangle(const Vector2D& position
 }
 
 MarbleManiaObstacle* MarbleManiaMap::AddMovingCircle(const Vector2D& position, float radius, const Vector2D& direction, float speed, float distance) {
-    auto physicsObject = PhysicsFactory::CreateStaticCircle(position, radius); // Static but we'll move manually
-    physicsObject->SetRestitution(0.8f);
+    // Convert to meters
+    Vector2D pos(position.x / 100.0f, position.y / 100.0f);
+    float r = radius / 100.0f;
     
-    PhysicsObject* physicsPtr = m_physicsWorld->AddObject(std::move(physicsObject));
+    b2Body* body = CreateCircleBody(pos, r, true); // Static but we'll move manually
+    
+    b2Fixture* fixture = body->GetFixtureList();
+    fixture->SetRestitution(0.8f);
     
     std::string id = GenerateObstacleId("moving_circle", position);
-    auto obstacle = std::make_unique<MarbleManiaObstacle>(physicsPtr, ObstacleType::MOVING_CIRCLE, id);
-    obstacle->SetMovementPattern(direction, speed, distance);
+    auto obstacle = std::make_unique<MarbleManiaObstacle>(body, ObstacleType::MOVING_CIRCLE, id);
+    obstacle->SetMovementPattern(direction, speed, distance); // Keep in pixels for movement logic
     
     MarbleManiaObstacle* obstaclePtr = obstacle.get();
     m_obstacles.push_back(std::move(obstacle));
@@ -247,14 +279,19 @@ MarbleManiaObstacle* MarbleManiaMap::AddMovingCircle(const Vector2D& position, f
 }
 
 MarbleManiaObstacle* MarbleManiaMap::AddMovingRectangle(const Vector2D& position, float width, float height, const Vector2D& direction, float speed, float distance) {
-    auto physicsObject = PhysicsFactory::CreateStaticRectangle(position, width, height);
-    physicsObject->SetRestitution(0.8f);
+    // Convert to meters
+    Vector2D pos(position.x / 100.0f, position.y / 100.0f);
+    float w = width / 100.0f;
+    float h = height / 100.0f;
     
-    PhysicsObject* physicsPtr = m_physicsWorld->AddObject(std::move(physicsObject));
+    b2Body* body = CreateRectangleBody(pos, w, h, 0.0f, true);
+    
+    b2Fixture* fixture = body->GetFixtureList();
+    fixture->SetRestitution(0.8f);
     
     std::string id = GenerateObstacleId("moving_rect", position);
-    auto obstacle = std::make_unique<MarbleManiaObstacle>(physicsPtr, ObstacleType::MOVING_RECTANGLE, id);
-    obstacle->SetMovementPattern(direction, speed, distance);
+    auto obstacle = std::make_unique<MarbleManiaObstacle>(body, ObstacleType::MOVING_RECTANGLE, id);
+    obstacle->SetMovementPattern(direction, speed, distance); // Keep in pixels for movement logic
     
     MarbleManiaObstacle* obstaclePtr = obstacle.get();
     m_obstacles.push_back(std::move(obstacle));
@@ -263,13 +300,17 @@ MarbleManiaObstacle* MarbleManiaMap::AddMovingRectangle(const Vector2D& position
 }
 
 MarbleManiaObstacle* MarbleManiaMap::AddSpinningCircle(const Vector2D& position, float radius, float rotationSpeed) {
-    auto physicsObject = PhysicsFactory::CreateStaticCircle(position, radius);
-    physicsObject->SetRestitution(0.8f);
+    // Convert to meters
+    Vector2D pos(position.x / 100.0f, position.y / 100.0f);
+    float r = radius / 100.0f;
     
-    PhysicsObject* physicsPtr = m_physicsWorld->AddObject(std::move(physicsObject));
+    b2Body* body = CreateCircleBody(pos, r, true);
+    
+    b2Fixture* fixture = body->GetFixtureList();
+    fixture->SetRestitution(0.8f);
     
     std::string id = GenerateObstacleId("spinning_circle", position);
-    auto obstacle = std::make_unique<MarbleManiaObstacle>(physicsPtr, ObstacleType::SPINNING_CIRCLE, id);
+    auto obstacle = std::make_unique<MarbleManiaObstacle>(body, ObstacleType::SPINNING_CIRCLE, id);
     obstacle->SetRotationSpeed(rotationSpeed);
     
     MarbleManiaObstacle* obstaclePtr = obstacle.get();
@@ -279,13 +320,18 @@ MarbleManiaObstacle* MarbleManiaMap::AddSpinningCircle(const Vector2D& position,
 }
 
 MarbleManiaObstacle* MarbleManiaMap::AddSpinningRectangle(const Vector2D& position, float width, float height, float rotationSpeed) {
-    auto physicsObject = PhysicsFactory::CreateStaticRectangle(position, width, height);
-    physicsObject->SetRestitution(0.8f);
+    // Convert to meters
+    Vector2D pos(position.x / 100.0f, position.y / 100.0f);
+    float w = width / 100.0f;
+    float h = height / 100.0f;
     
-    PhysicsObject* physicsPtr = m_physicsWorld->AddObject(std::move(physicsObject));
+    b2Body* body = CreateRectangleBody(pos, w, h, 0.0f, true);
+    
+    b2Fixture* fixture = body->GetFixtureList();
+    fixture->SetRestitution(0.8f);
     
     std::string id = GenerateObstacleId("spinning_rect", position);
-    auto obstacle = std::make_unique<MarbleManiaObstacle>(physicsPtr, ObstacleType::SPINNING_RECTANGLE, id);
+    auto obstacle = std::make_unique<MarbleManiaObstacle>(body, ObstacleType::SPINNING_RECTANGLE, id);
     obstacle->SetRotationSpeed(rotationSpeed);
     
     MarbleManiaObstacle* obstaclePtr = obstacle.get();
@@ -310,8 +356,8 @@ void MarbleManiaMap::CreateDefaultObstacles() {
     AddMovingRectangle(Vector2D(0, 250), 150, 20, Vector2D(1, 0), 100.0f, 200.0f);
     
     // Spinning obstacles
-    AddSpinningRectangle(Vector2D(-150, 300), 120, 15, 2.0f); // Spinning beam
-    AddSpinningRectangle(Vector2D(150, 300), 120, 15, -1.5f); // Counter-rotating beam
+    AddSpinningRectangle(Vector2D(-150, -100), 400, 15, 2.0f); // Spinning beam
+    AddSpinningRectangle(Vector2D(150, -100), 400, 15, -1.5f); // Counter-rotating beam
     
     // Some circular obstacles for variety
     AddStaticCircle(Vector2D(0, 100), 20);
@@ -375,4 +421,84 @@ std::string MarbleManiaMap::GenerateObstacleId(const std::string& type, const Ve
     std::stringstream ss;
     ss << type << "_" << (int)position.x << "_" << (int)position.y;
     return ss.str();
+}
+
+void MarbleManiaMap::CreateBoundaries() {
+    // Convert world bounds to meters
+    float left = m_worldMin.x / 100.0f;
+    float right = m_worldMax.x / 100.0f;
+    float top = m_worldMin.y / 100.0f;
+    float bottom = m_worldMax.y / 100.0f;
+    float thickness = 0.1f; // 10cm thick boundaries
+    
+    // Left wall
+    b2Body* leftWall = CreateRectangleBody(
+        Vector2D(left - thickness/2, (top + bottom) / 2),
+        thickness, bottom - top, 0.0f, true
+    );
+    m_boundaryBodies.push_back(leftWall);
+    
+    // Right wall
+    b2Body* rightWall = CreateRectangleBody(
+        Vector2D(right + thickness/2, (top + bottom) / 2),
+        thickness, bottom - top, 0.0f, true
+    );
+    m_boundaryBodies.push_back(rightWall);
+    
+    // Bottom wall
+    b2Body* bottomWall = CreateRectangleBody(
+        Vector2D((left + right) / 2, bottom + thickness/2),
+        right - left, thickness, 0.0f, true
+    );
+    m_boundaryBodies.push_back(bottomWall);
+    
+    // Top wall (optional, comment out if you want marbles to fall from above)
+    // b2Body* topWall = CreateRectangleBody(
+    //     Vector2D((left + right) / 2, top - thickness/2),
+    //     right - left, thickness, 0.0f, true
+    // );
+    // m_boundaryBodies.push_back(topWall);
+}
+
+b2Body* MarbleManiaMap::CreateCircleBody(const Vector2D& position, float radius, bool isStatic) {
+    b2BodyDef bodyDef;
+    bodyDef.type = isStatic ? b2_staticBody : b2_dynamicBody;
+    bodyDef.position.Set(position.x, position.y);
+    
+    b2Body* body = m_world->CreateBody(&bodyDef);
+    
+    b2CircleShape circleShape;
+    circleShape.m_radius = radius;
+    
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &circleShape;
+    fixtureDef.density = 1.0f;
+    fixtureDef.friction = 0.3f;
+    fixtureDef.restitution = 0.6f;
+    
+    body->CreateFixture(&fixtureDef);
+    
+    return body;
+}
+
+b2Body* MarbleManiaMap::CreateRectangleBody(const Vector2D& position, float width, float height, float rotation, bool isStatic) {
+    b2BodyDef bodyDef;
+    bodyDef.type = isStatic ? b2_staticBody : b2_dynamicBody;
+    bodyDef.position.Set(position.x, position.y);
+    bodyDef.angle = rotation;
+    
+    b2Body* body = m_world->CreateBody(&bodyDef);
+    
+    b2PolygonShape boxShape;
+    boxShape.SetAsBox(width / 2.0f, height / 2.0f);
+    
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &boxShape;
+    fixtureDef.density = 1.0f;
+    fixtureDef.friction = 0.3f;
+    fixtureDef.restitution = 0.6f;
+    
+    body->CreateFixture(&fixtureDef);
+    
+    return body;
 }

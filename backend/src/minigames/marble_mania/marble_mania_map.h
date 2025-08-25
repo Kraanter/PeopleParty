@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 #include <memory>
-#include "../../util/physics/physics.h"
+#include <box2d/box2d.h>
 #include "marble_mania_marble.h"
 #include "marble_mania_obstacle.h"
 #include "../../client.h"
@@ -20,7 +20,7 @@ class MarbleManiaObstacle;
 
 class MarbleManiaMap {
 private:
-    std::unique_ptr<PhysicsWorld> m_physicsWorld;
+    std::unique_ptr<b2World> m_world;
     
     // Game objects
     std::map<Client*, std::unique_ptr<MarbleManiaMarble>> m_playerMarbles;
@@ -41,6 +41,9 @@ private:
     std::map<Client*, bool> m_playersReady;
     int m_finishedMarbles;
     int m_nextPlacement;
+    
+    // Box2D boundaries
+    std::vector<b2Body*> m_boundaryBodies;
     
 public:
     MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLine);
@@ -94,7 +97,12 @@ private:
     void UpdatePlacements();
     bool IsPositionOccupied(const Vector2D& position, float radius, const MarbleManiaMarble* excludeMarble = nullptr) const;
     void CreateDefaultObstacles();
+    void CreateBoundaries();
     std::string GenerateObstacleId(const std::string& type, const Vector2D& position) const;
+    
+    // Box2D factory methods
+    b2Body* CreateCircleBody(const Vector2D& position, float radius, bool isStatic = true);
+    b2Body* CreateRectangleBody(const Vector2D& position, float width, float height, float rotation = 0.0f, bool isStatic = true);
 };
 
 #endif // MARBLE_MANIA_MAP_H

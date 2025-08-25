@@ -6,9 +6,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-MarbleManiaObstacle::MarbleManiaObstacle(PhysicsObject* physicsObject, ObstacleType type, const std::string& id)
-    : m_physicsObject(physicsObject), m_type(type), m_id(id)
-    , m_originalPosition(physicsObject->GetPosition())
+MarbleManiaObstacle::MarbleManiaObstacle(b2Body* body, ObstacleType type, const std::string& id)
+    : m_body(body), m_type(type), m_id(id)
+    , m_originalPosition(GetPosition())
     , m_movementDirection(0, 0), m_movementSpeed(0.0f), m_movementDistance(0.0f), m_movementTimer(0.0f)
     , m_rotationSpeed(0.0f)
     , m_isCircle(false), m_width(40.0f), m_height(40.0f)
@@ -17,21 +17,35 @@ MarbleManiaObstacle::MarbleManiaObstacle(PhysicsObject* physicsObject, ObstacleT
 }
 
 void MarbleManiaObstacle::CacheShapeProperties() {
-    if (!m_physicsObject || !m_physicsObject->GetShape()) {
+    if (!m_body || !m_body->GetFixtureList()) {
         return;
     }
     
-    const CollisionShape* shape = m_physicsObject->GetShape();
-    m_isCircle = (shape->GetType() == ShapeType::CIRCLE);
+    b2Fixture* fixture = m_body->GetFixtureList();
+    const b2Shape* shape = fixture->GetShape();
     
-    if (m_isCircle) {
-        const CircleShape* circle = static_cast<const CircleShape*>(shape);
-        float radius = circle->GetRadius();
+    if (shape->GetType() == b2Shape::e_circle) {
+        m_isCircle = true;
+        const b2CircleShape* circle = static_cast<const b2CircleShape*>(shape);
+        float radius = circle->m_radius;
         m_width = m_height = radius * 2.0f;
-    } else {
-        const RectangleShape* rect = static_cast<const RectangleShape*>(shape);
-        m_width = rect->GetWidth();
-        m_height = rect->GetHeight();
+    } else if (shape->GetType() == b2Shape::e_polygon) {
+        m_isCircle = false;
+        const b2PolygonShape* poly = static_cast<const b2PolygonShape*>(shape);
+        
+        // Calculate bounding box for width/height
+        b2Vec2 min = poly->m_vertices[0];
+        b2Vec2 max = poly->m_vertices[0];
+        
+        for (int i = 1; i < poly->m_count; i++) {
+            if (poly->m_vertices[i].x < min.x) min.x = poly->m_vertices[i].x;
+            if (poly->m_vertices[i].y < min.y) min.y = poly->m_vertices[i].y;
+            if (poly->m_vertices[i].x > max.x) max.x = poly->m_vertices[i].x;
+            if (poly->m_vertices[i].y > max.y) max.y = poly->m_vertices[i].y;
+        }
+        
+        m_width = max.x - min.x;
+        m_height = max.y - min.y;
     }
 }
 
@@ -41,8 +55,8 @@ void MarbleManiaObstacle::SetMovementPattern(const Vector2D& direction, float sp
     m_movementSpeed = speed;
     m_movementDistance = distance;
     
-    // Store the starting position for movement calculations
-    m_originalPosition = m_physicsObject->GetPosition();
+    // Store the starting position for movement calculations (in pixels)
+    m_originalPosition = GetPosition();
 }
 
 void MarbleManiaObstacle::Update(float deltaTime) {
@@ -65,7 +79,7 @@ void MarbleManiaObstacle::UpdateMovement(float deltaTime) {
     Vector2D newPosition = m_originalPosition + m_movementDirection * offsetDistance;
     
     // Update physics object position
-    m_physicsObject->SetPosition(newPosition);
+    SetPosition(newPosition);
 }
 
 void MarbleManiaObstacle::UpdateRotation(float deltaTime) {
@@ -73,7 +87,7 @@ void MarbleManiaObstacle::UpdateRotation(float deltaTime) {
         return;
     }
     
-    float currentRotation = m_physicsObject->GetRotation();
+    float currentRotation = GetCurrentRotation();
     currentRotation += m_rotationSpeed * deltaTime;
     
     // Keep rotation in range [0, 2π]
@@ -84,5 +98,5 @@ void MarbleManiaObstacle::UpdateRotation(float deltaTime) {
         currentRotation += 2.0f * M_PI;
     }
     
-    m_physicsObject->SetRotation(currentRotation);
+    SetRotation(currentRotation);
 }

@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 find_package(uwebsockets REQUIRED)
 find_package(doctest)
 find_package(flatbuffers REQUIRED)
+find_package(box2d REQUIRED)
 
 ### Main project ###
 # Get source files
@@ -26,6 +27,7 @@ add_executable(PeopleParty-Backend ${source_files})
 # Link dependencies
 target_link_libraries(PeopleParty-Backend uwebsockets::uwebsockets)
 target_link_libraries(PeopleParty-Backend flatbuffers::flatbuffers)
+target_link_libraries(PeopleParty-Backend box2d::box2d)
 
 ### Tests ###
 # Disable building tests (not needed, this will reduce build time)

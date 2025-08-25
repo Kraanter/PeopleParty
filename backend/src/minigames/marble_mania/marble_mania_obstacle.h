@@ -1,8 +1,8 @@
 #ifndef MARBLE_MANIA_OBSTACLE_H
 #define MARBLE_MANIA_OBSTACLE_H
 
-#include "../../util/physics/physics_object.h"
 #include "../../util/math/vector2d.h"
+#include <box2d/box2d.h>
 #include <string>
 
 enum class ObstacleType {
@@ -16,7 +16,7 @@ enum class ObstacleType {
 
 class MarbleManiaObstacle {
 private:
-    PhysicsObject* m_physicsObject; // Owned by the physics world
+    b2Body* m_body; // Owned by the Box2D world
     ObstacleType m_type;
     std::string m_id;
     
@@ -36,7 +36,7 @@ private:
     float m_height;
     
 public:
-    MarbleManiaObstacle(PhysicsObject* physicsObject, ObstacleType type, const std::string& id);
+    MarbleManiaObstacle(b2Body* body, ObstacleType type, const std::string& id);
     ~MarbleManiaObstacle() = default;
     
     // Basic properties
@@ -44,24 +44,31 @@ public:
     const std::string& GetId() const { return m_id; }
     
     // Physics object access
-    PhysicsObject* GetPhysicsObject() { return m_physicsObject; }
-    const PhysicsObject* GetPhysicsObject() const { return m_physicsObject; }
+    b2Body* GetBody() { return m_body; }
+    const b2Body* GetBody() const { return m_body; }
     
     // Position and transform
-    Vector2D GetPosition() const { return m_physicsObject->GetPosition(); }
-    void SetPosition(const Vector2D& position) { m_physicsObject->SetPosition(position); }
+    Vector2D GetPosition() const { 
+        b2Vec2 pos = m_body->GetPosition();
+        return Vector2D(pos.x * 100.0f, pos.y * 100.0f); // Convert from meters to pixels
+    }
+    void SetPosition(const Vector2D& position) { 
+        m_body->SetTransform(b2Vec2(position.x / 100.0f, position.y / 100.0f), m_body->GetAngle());
+    }
     
-    float GetCurrentRotation() const { return m_physicsObject->GetRotation(); }
-    void SetRotation(float rotation) { m_physicsObject->SetRotation(rotation); }
+    float GetCurrentRotation() const { return m_body->GetAngle(); }
+    void SetRotation(float rotation) { 
+        m_body->SetTransform(m_body->GetPosition(), rotation);
+    }
     
     // Shape properties
     bool IsCircle() const { return m_isCircle; }
-    float GetWidth() const { return m_width; }
-    float GetHeight() const { return m_height; }
+    float GetWidth() const { return m_width * 100.0f; } // Convert from meters to pixels
+    float GetHeight() const { return m_height * 100.0f; } // Convert from meters to pixels
     
     float GetRadius() const {
-        if (m_isCircle) return m_width / 2.0f;
-        return std::max(m_width, m_height) / 2.0f; // Approximation for rectangles
+        if (m_isCircle) return (m_width * 100.0f) / 2.0f; // Convert from meters to pixels
+        return std::max(m_width, m_height) * 100.0f / 2.0f; // Approximation for rectangles
     }
     
     // Movement properties (for moving obstacles)
