@@ -1,108 +1,81 @@
-#ifndef MARBLE_MANIA_MAP_H
-#define MARBLE_MANIA_MAP_H
+#ifndef PEOPLEPARTY_BACKEND_MARBLE_MANIA_MAP_H
+#define PEOPLEPARTY_BACKEND_MARBLE_MANIA_MAP_H
 
-#include <map>
 #include <vector>
+#include <map>
 #include <memory>
+#include <string>
 #include <box2d/box2d.h>
+#include "../../client.h"
+#include "../../util/math/vector2d.h"
+
 #include "marble_mania_marble.h"
 #include "marble_mania_obstacle.h"
-#include "../../client.h"
 
-enum class GamePhase {
-    PLACEMENT = 0,
-    PHYSICS_SIMULATION = 1,
-    FINISHED = 2
-};
-
+// forward declaration
+class Client;
 class MarbleManiaMarble;
 class MarbleManiaObstacle;
 
+
+enum class GamePhase : uint8_t { PLACEMENT = 0, SIMULATION = 1, FINISHED = 2 };
+
 class MarbleManiaMap {
-private:
-    std::unique_ptr<b2World> m_world;
-    
-    // Game objects
-    std::map<Client*, std::unique_ptr<MarbleManiaMarble>> m_playerMarbles;
-    std::vector<std::unique_ptr<MarbleManiaObstacle>> m_obstacles;
-    
-    // Game state
-    GamePhase m_currentPhase;
-    float m_gameTime;
-    float m_finishLine;
-    
-    // Map properties
-    Vector2D m_worldMin;
-    Vector2D m_worldMax;
-    Vector2D m_dropZoneMin;
-    Vector2D m_dropZoneMax;
-    
-    // Placement tracking
-    std::map<Client*, bool> m_playersReady;
-    int m_finishedMarbles;
-    int m_nextPlacement;
-    
-    // Box2D boundaries
-    std::vector<b2Body*> m_boundaryBodies;
-    
 public:
-    MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLine);
+    MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY);
     ~MarbleManiaMap();
-    
-    // Game phase management
-    void SetPhase(GamePhase phase) { m_currentPhase = phase; }
-    GamePhase GetCurrentPhase() const { return m_currentPhase; }
-    
-    // Player management
+
+    // Players
     void CreatePlayers(const std::vector<Client*>& clients);
-    void RemovePlayer(Client* client);
-    bool PlaceMarble(Client* client, const Vector2D& position);
-    void MovePlayerMarble(Client* client, float deltaX, float deltaY);
+    void CreatePlayers(const std::map<int, Client*>& clients);
+    void CreatePlayers(const std::map<int, std::unique_ptr<Client>>& clients);
+
+    // Placement: x,y are joystick deltas in [-1..1] (relative motion)
+    void MovePlayerMarble(Client* client, float x, float y);
     void SetPlayerReady(Client* client, bool ready);
-    bool IsPlayerReady(Client* client) const;
     bool AllPlayersReady() const;
-    
-    // Game simulation
-    void Update(float deltaTime);
+
+    // Simulation
     void StartPhysicsSimulation();
-    
-    // Obstacle management - factory methods
-    void CreateObstacles();
-    MarbleManiaObstacle* AddStaticCircle(const Vector2D& position, float radius);
-    MarbleManiaObstacle* AddStaticRectangle(const Vector2D& position, float width, float height, float rotation = 0.0f);
-    MarbleManiaObstacle* AddMovingCircle(const Vector2D& position, float radius, const Vector2D& direction, float speed, float distance);
-    MarbleManiaObstacle* AddMovingRectangle(const Vector2D& position, float width, float height, const Vector2D& direction, float speed, float distance);
-    MarbleManiaObstacle* AddSpinningCircle(const Vector2D& position, float radius, float rotationSpeed);
-    MarbleManiaObstacle* AddSpinningRectangle(const Vector2D& position, float width, float height, float rotationSpeed);
-    
+    void Update(float dt);
+
+    // Accessors
+    GamePhase GetCurrentPhase() const { return phase_; }
+    const std::map<Client*, std::unique_ptr<MarbleManiaMarble>>& GetPlayerMarbles() const { return marbles_; }
+    const std::vector<std::unique_ptr<MarbleManiaObstacle>>& GetObstacles() const { return obstacles_; }
+    float GetFinishLine() const { return finishLineY_; }
+
+    Vector2D GetWorldMin() const { return worldMin_; }
+    Vector2D GetWorldMax() const { return worldMax_; }
+
     // Results
-    std::vector<std::pair<Client*, float>> GetFinishedMarbles() const;
-    std::vector<std::pair<Client*, int>> GetFinalPlacements() const;
-    
-    // Getters
-    const std::map<Client*, std::unique_ptr<MarbleManiaMarble>>& GetPlayerMarbles() const { return m_playerMarbles; }
-    const std::vector<std::unique_ptr<MarbleManiaObstacle>>& GetObstacles() const { return m_obstacles; }
-    float GetGameTime() const { return m_gameTime; }
-    float GetFinishLine() const { return m_finishLine; }
-    
-    // Drop zone validation
-    bool IsValidDropPosition(const Vector2D& position) const;
-    const Vector2D& GetDropZoneMin() const { return m_dropZoneMin; }
-    const Vector2D& GetDropZoneMax() const { return m_dropZoneMax; }
-    
+    std::vector<std::pair<Client*, int>> GetFinalPlacements() const { return finalPlacements_; }
+
 private:
-    void UpdatePhysics(float deltaTime);
-    void UpdateObstacles(float deltaTime);
-    void CheckFinishLine();
-    void UpdatePlacements();
-    bool IsPositionOccupied(const Vector2D& position, float radius, const MarbleManiaMarble* excludeMarble = nullptr) const;
-    void CreateDefaultObstacles();
-    void CreateBoundaries();
-    std::string GenerateObstacleId(const std::string& type, const Vector2D& position) const;
-    
-    // Box2D factory methods
-    b2Body* CreateCircleBody(const Vector2D& position, float radius, bool isStatic = true);
-    b2Body* CreateRectangleBody(const Vector2D& position, float width, float height, float rotation = 0.0f, bool isStatic = true);
+    void createWorldBounds_();
+    void spawnDefaultObstacles_(); // example layout
+    void computeFinalPlacements_();
+    bool everyoneFinished_() const;
+
+    Vector2D clampToDropZone_(const Vector2D& p) const;
+
+private:
+    b2World world_;
+    Vector2D worldMin_;
+    Vector2D worldMax_;
+    float finishLineY_;
+
+    GamePhase phase_ = GamePhase::PLACEMENT;
+
+    std::map<Client*, std::unique_ptr<MarbleManiaMarble>> marbles_;
+    std::map<Client*, bool> ready_;
+
+    std::vector<std::unique_ptr<MarbleManiaObstacle>> obstacles_;
+
+    float simTime_ = 0.0f;
+    float maxSimTime_ = 60.0f;
+
+    std::vector<std::pair<Client*, int>> finalPlacements_;
 };
 
-#endif // MARBLE_MANIA_MAP_H
+#endif // PEOPLEPARTY_BACKEND_MARBLE_MANIA_MAP_H

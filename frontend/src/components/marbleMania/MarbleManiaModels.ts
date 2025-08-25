@@ -1,24 +1,30 @@
 // host
+export interface MMVec2 { x: number; y: number }
+
+export type MMShape =
+  | { kind: 'circle'; radius: number }
+  | { kind: 'rect'; width: number; height: number }
+  | { kind: 'poly'; vertices: MMVec2[] } // local-space verts, rotation applied at entity
+
+export interface MarbleManiaEntity {
+  id: string;
+  type: 'marble' | 'obstacle';
+  pos: MMVec2;            // CENTER position in world coords
+  rotation: number;       // radians
+  finished: boolean;      // marbles only
+  player_name?: string;   // marbles only
+  shape: MMShape;
+  restitution?: number;
+  friction?: number;
+}
+
 export interface MarbleManiaData {
   entities: MarbleManiaEntity[];
   game_phase: number; // 0 = placement, 1 = simulation, 2 = finished
   placement_time_left: number;
   finish_line_y: number;
-}
-
-export interface MarbleManiaEntity {
-  id: string;
-  x_pos: number;
-  y_pos: number;
-  entity_type: number; // 0 = marble, 1 = obstacle
-  is_finished: boolean;
-  player_name?: string; // Player name for marbles (empty for obstacles)
-  // Obstacle-specific properties (ignored for marbles)
-  obstacle_type?: number; // 0 = static_circle, 1 = static_rectangle, 2 = moving_circle, 3 = moving_rectangle, 4 = spinning_circle, 5 = spinning_rectangle
-  is_circle?: boolean;
-  width?: number;
-  height?: number;
-  rotation?: number; // Current rotation angle in radians
+  world_min: MMVec2;
+  world_max: MMVec2;
 }
 
 // player

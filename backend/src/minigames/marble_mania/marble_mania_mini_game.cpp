@@ -128,66 +128,130 @@ void MarbleMania_MiniGame::update(int delta_time) {
 
 void MarbleMania_MiniGame::send_host_update()
 {
-    // Create the flatbuffer object
     flatbuffers::FlatBufferBuilder builder;
-    
-    // Create entity data for all marbles and obstacles
+
     std::vector<flatbuffers::Offset<FBMarbleManiaEntity>> entities;
-    
-    // Add player marbles
+
+    // Helper: create FBVec2
+    auto make_vec2 = [&](float x, float y) {
+        return CreateFBVec2(builder, x, y);
+    };
+
+    // --- Player marbles ---
     for (const auto& pair : map->GetPlayerMarbles()) {
         const Client* client = pair.first;
         const MarbleManiaMarble* marble = pair.second.get();
-        Vector2D pos = marble->GetPosition();
-        
-        auto entityOffset = CreateFBMarbleManiaEntity(builder,
-            builder.CreateString(marble->GetId()),
-            pos.x, pos.y,
-            0, // 0 = marble
-            marble->HasFinished(),
-            builder.CreateString(client->name), // player_name for marbles
-            0, // obstacle_type (ignored for marbles)
-            true, // is_circle (marbles are always circles)
-            marble->GetRadius() * 2, // width
-            marble->GetRadius() * 2, // height  
-            0.0f); // rotation (marbles don't have rotation)
-        entities.push_back(entityOffset);
+        Vector2D p = marble->GetPosition();
+
+        // Shape = circle
+        auto circle = CreateFBCircle(builder, marble->GetRadius());
+        auto pos    = make_vec2(p.x, p.y);
+        auto id     = builder.CreateString(marble->GetId());
+        auto name   = builder.CreateString(client->name);
+
+        auto entity = CreateFBMarbleManiaEntity(
+            builder,
+            id,
+            FBEntityType::FBEntityType_Marble,
+            pos,
+            /*rotation=*/0.0f,                 // marbles visually don't need rotation
+            /*finished=*/marble->HasFinished(),
+            name,
+            FBShape::FBShape_FBCircle,         // union type
+            circle.Union(),                    // union value
+            /*restitution=*/0.8f,
+            /*friction=*/0.2f
+        );
+        entities.push_back(entity);
     }
-    
-    // Add obstacles
-    for (const auto& obstacle : map->GetObstacles()) {
-        Vector2D pos = obstacle->GetPosition();
-        
-        auto entityOffset = CreateFBMarbleManiaEntity(builder,
-            builder.CreateString(obstacle->GetId()),
-            pos.x, pos.y,
-            1, // 1 = obstacle
-            false, // is_finished (obstacles never finish)
-            builder.CreateString(""), // player_name (empty for obstacles)
-            static_cast<uint8_t>(obstacle->GetObstacleType()),
-            obstacle->IsCircle(),
-            obstacle->GetWidth(),
-            obstacle->GetHeight(),
-            obstacle->GetCurrentRotation());
-        entities.push_back(entityOffset);
+
+    // --- Obstacles (static) ---
+    for (const auto& obsPtr : map->GetObstacles()) {
+        const auto& obs = *obsPtr;
+        Vector2D p = obs.GetPosition();
+
+        flatbuffers::Offset<void> shape_value;
+        FBShape shape_type = FBShape::FBShape_NONE;
+
+        switch (obs.GetObstacleType()) {
+            case ObstacleType::Circle: {
+                float radius = obs.GetWidth() * 0.5f;
+                auto circle = CreateFBCircle(builder, radius);
+                shape_type  = FBShape::FBShape_FBCircle;
+                shape_value = circle.Union();
+                break;
+            }
+            case ObstacleType::Rectangle: {
+                auto rect = CreateFBRect(builder, obs.GetWidth(), obs.GetHeight());
+                shape_type  = FBShape::FBShape_FBRect;
+                shape_value = rect.Union();
+                break;
+            }
+            case ObstacleType::Triangle: {
+                // Provide polygon vertices in LOCAL space (pre-rotation)
+                auto vertsLocal = obs.GetTriangleLocalVerts();
+                std::vector<flatbuffers::Offset<FBVec2>> vertsFB;
+                vertsFB.reserve(vertsLocal.size());
+                for (auto& v : vertsLocal) {
+                    vertsFB.push_back(CreateFBVec2(builder, v.x, v.y));
+                }
+                auto vertsVec = builder.CreateVector(vertsFB);
+                auto poly = CreateFBPoly(builder, vertsVec);
+                shape_type  = FBShape::FBShape_FBPoly;
+                shape_value = poly.Union();
+                break;
+            }
+        }
+
+        auto pos  = make_vec2(p.x, p.y);
+        auto id   = builder.CreateString(obs.GetId());
+        auto name = builder.CreateString("");   // obstacles don't have names
+
+        auto entity = CreateFBMarbleManiaEntity(
+            builder,
+            id,
+            FBEntityType::FBEntityType_Obstacle,
+            pos,
+            /*rotation=*/obs.GetCurrentRotation(),
+            /*finished=*/false,
+            name,
+            shape_type,
+            shape_value,
+            /*restitution=*/0.6f,
+            /*friction=*/0.4f
+        );
+        entities.push_back(entity);
     }
-    
-    // Create the host payload
+
+    // --- Host payload ---
     auto entitiesVector = builder.CreateVector(entities);
-    auto hostPayload = CreateMarbleManiaHostPayload(builder, 
+    auto worldMin = map->GetWorldMin();   // add simple getters if you don't have them yet
+    auto worldMax = map->GetWorldMax();
+
+    auto payload = CreateMarbleManiaHostPayload(
+        builder,
         entitiesVector,
         static_cast<uint8_t>(map->GetCurrentPhase()),
         placementTimeLeft,
-        map->GetFinishLine());
+        map->GetFinishLine(),
+        CreateFBVec2(builder, worldMin.x, worldMin.y),
+        CreateFBVec2(builder, worldMax.x, worldMax.y)
+    );
 
     auto miniGame = builder.CreateString(get_camel_case_name());
-    auto gameStatePayload = CreateMiniGamePayloadType(builder, miniGame, GameStateType_MarbleManiaHost,
-                                                      GameStatePayload_MarbleManiaHostPayload, hostPayload.Union());
-    
-    // Send payload to host
-    game->party->send_gamestate([](Client* client) { return client->party->host == client; }, 
-                               builder, gameStatePayload.Union());
+    auto gameStatePayload = CreateMiniGamePayloadType(
+        builder, miniGame,
+        GameStateType_MarbleManiaHost,
+        GameStatePayload_MarbleManiaHostPayload,
+        payload.Union()
+    );
+
+    game->party->send_gamestate(
+        [](Client* client) { return client->party->host == client; },
+        builder, gameStatePayload.Union()
+    );
 }
+
 
 void MarbleMania_MiniGame::send_player_update(Client *client) {
     flatbuffers::FlatBufferBuilder builder;
