@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, defineProps, watch } from 'vue'
+import { ref, defineProps, watch, computed, onMounted, onUnmounted } from 'vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import Introduction from '@/components/introduction/Introduction.vue'
 import {
@@ -25,6 +25,13 @@ defineProps<{ width: number; height: number }>()
 enum ViewState { None, Introduction, MiniGame, Results }
 const viewState = ref<ViewState>(ViewState.None)
 
+// Container dimensions
+const containerHeight = ref(800) // Will be updated dynamically
+const containerRef = ref<HTMLElement>()
+
+// Camera system
+const cameraOffset = ref({ x: 0, y: 0 })
+
 // introduction
 const intro = ref<IntroductionData>({ title: '', description: '', time_left: 0 })
 
@@ -41,11 +48,77 @@ const payloadData = ref<MarbleManiaData>({
 // final results
 const results = ref<MarbleManiaResult>({ results: [] })
 
+// Fixed camera viewport dimensions - independent of world size
+const canvasWidth = computed(() => {
+  // Fixed width - shows full world width (800 units) at a comfortable scale
+  return Math.min(800, containerHeight.value - 200) // Cap at reasonable size
+})
+
+const canvasHeight = computed(() => {
+  // Fixed height for camera viewport - shows only a portion of the world
+  const maxHeight = containerHeight.value - 200 // Leave space for UI elements
+  return Math.min(600, maxHeight) // Fixed viewport height, independent of world height
+})
+
+// Camera system - follows the lowest marble with fixed viewport
+const updateCamera = () => {
+  const marbles = getMarbles()
+  if (marbles.length === 0) {
+    // Reset to top during placement or when no marbles
+    cameraOffset.value.y = payloadData.value.world_min.y
+    return
+  }
+  
+  // Find the lowest marble (highest Y value since Y increases downward)
+  const lowestMarble = marbles.reduce((lowest, marble) => 
+    marble.pos.y > lowest.pos.y ? marble : lowest
+  )
+  
+  // Calculate camera viewport height in world units
+  const worldWidth = payloadData.value.world_max.x - payloadData.value.world_min.x
+  
+  // How much world space does our fixed camera viewport cover?
+  const cameraWorldHeight = (canvasHeight.value / canvasWidth.value) * worldWidth // Maintain aspect ratio
+  
+  // Position camera so lowest marble appears at 75% down from the top of viewport
+  let targetCameraTop = lowestMarble.pos.y - (cameraWorldHeight * 0.75)
+  
+  // Clamp camera so it doesn't go beyond world boundaries
+  const maxCameraTop = payloadData.value.world_max.y - cameraWorldHeight
+  const minCameraTop = payloadData.value.world_min.y
+  
+  targetCameraTop = Math.max(minCameraTop, Math.min(maxCameraTop, targetCameraTop))
+  
+  cameraOffset.value.y = targetCameraTop
+  cameraOffset.value.x = payloadData.value.world_min.x // Always show full width
+}
+
+// Update container height based on window size
+const updateContainerHeight = () => {
+  containerHeight.value = window.innerHeight - 100 // Leave some margin for UI
+}
+
+onMounted(() => {
+  updateContainerHeight()
+  window.addEventListener('resize', updateContainerHeight)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateContainerHeight)
+})
+
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
     case GameStateType.MarbleManiaHost: {
       viewState.value = ViewState.MiniGame
       payloadData.value = parseMarbleManiaHostPayload(data)
+      // Update camera when simulation is running or finished
+      if (payloadData.value.game_phase === 1 || payloadData.value.game_phase === 2) {
+        updateCamera()
+      } else {
+        // Reset camera during placement phase to show the top area
+        cameraOffset.value = { x: payloadData.value.world_min.x, y: payloadData.value.world_min.y }
+      }
       break
     }
     case GameStateType.MiniGameIntroduction: {
@@ -69,19 +142,26 @@ const update = (data: MiniGamePayloadType) => {
   return []
 }
 
-// ---------- Rendering helpers (center-based) ----------
+// ---------- Rendering helpers (center-based with dynamic camera) ----------
 
-const CANVAS_W = 800
-const CANVAS_H = 600
 const PAD = 10 // border padding
 
 const worldToScreen = (w: MMVec2) => {
-  const wm = payloadData.value.world_min
-  const wx = payloadData.value.world_max
-  const worldW = wx.x - wm.x
-  const worldH = wx.y - wm.y
-  const x = (w.x - wm.x) * (CANVAS_W - 2 * PAD) / worldW + PAD
-  const y = (w.y - wm.y) * (CANVAS_H - 2 * PAD) / worldH + PAD
+  const worldWidth = payloadData.value.world_max.x - payloadData.value.world_min.x
+  
+  // Calculate how much world space our camera viewport covers
+  const cameraWorldHeight = (canvasHeight.value / canvasWidth.value) * worldWidth
+  
+  // Camera world bounds
+  const cameraWorldMin = {
+    x: cameraOffset.value.x,
+    y: cameraOffset.value.y
+  }
+  
+  // Map world coordinates to screen coordinates within the camera viewport
+  const x = (w.x - cameraWorldMin.x) * (canvasWidth.value - 2 * PAD) / worldWidth + PAD
+  const y = (w.y - cameraWorldMin.y) * (canvasHeight.value - 2 * PAD) / cameraWorldHeight + PAD
+  
   return { x, y }
 }
 
@@ -93,6 +173,64 @@ const rotateLocal = (v: MMVec2, rot: number): MMVec2 => {
 }
 
 const add = (a: MMVec2, b: MMVec2): MMVec2 => ({ x: a.x + b.x, y: a.y + b.y })
+
+// Camera culling - check if an entity should be rendered based on camera viewport
+const isEntityInCameraView = (entity: MarbleManiaEntity): boolean => {
+  const worldWidth = payloadData.value.world_max.x - payloadData.value.world_min.x
+  const cameraWorldHeight = (canvasHeight.value / canvasWidth.value) * worldWidth
+  
+  // Current camera bounds in world coordinates
+  const cameraMinX = cameraOffset.value.x
+  const cameraMaxX = cameraOffset.value.x + worldWidth
+  const cameraMinY = cameraOffset.value.y
+  const cameraMaxY = cameraOffset.value.y + cameraWorldHeight
+  
+  // Calculate entity bounds with some margin for edge cases
+  let entityMinX = entity.pos.x
+  let entityMaxX = entity.pos.x
+  let entityMinY = entity.pos.y
+  let entityMaxY = entity.pos.y
+  
+  // Add entity size-based margins
+  if (entity.shape.kind === 'circle') {
+    const radius = entity.shape.radius
+    entityMinX -= radius
+    entityMaxX += radius
+    entityMinY -= radius
+    entityMaxY += radius
+  } else if (entity.shape.kind === 'rect') {
+    const hw = entity.shape.width / 2
+    const hh = entity.shape.height / 2
+    // For rotated rectangles, use conservative bounds
+    const maxExtent = Math.max(hw, hh) * 1.5 // Extra margin for rotation
+    entityMinX -= maxExtent
+    entityMaxX += maxExtent
+    entityMinY -= maxExtent
+    entityMaxY += maxExtent
+  } else if (entity.shape.kind === 'poly') {
+    // For polygons, find the maximum extent from vertices
+    let maxExtent = 50 // Default margin
+    for (const vertex of entity.shape.vertices) {
+      const extent = Math.sqrt(vertex.x * vertex.x + vertex.y * vertex.y)
+      maxExtent = Math.max(maxExtent, extent)
+    }
+    entityMinX -= maxExtent
+    entityMaxX += maxExtent
+    entityMinY -= maxExtent
+    entityMaxY += maxExtent
+  }
+  
+  // Add extra margin to prevent pop-in/pop-out
+  const margin = 50 // World units
+  entityMinX -= margin
+  entityMaxX += margin
+  entityMinY -= margin
+  entityMaxY += margin
+  
+  // Check if entity bounds intersect with camera bounds
+  return !(entityMaxX < cameraMinX || entityMinX > cameraMaxX || 
+           entityMaxY < cameraMinY || entityMinY > cameraMaxY)
+}
 
 // ---------- Drawing primitives ----------
 
@@ -173,26 +311,42 @@ const renderPolyObstacle = (g: Graphics, e: MarbleManiaEntity) => {
 const render = (g: Graphics) => {
   g.clear()
 
-  // frame
+  // World boundaries - only left and right borders (fixed to world, not camera)
   g.lineStyle(4, 0xffffff)
-  g.drawRect(PAD, PAD, CANVAS_W - 2 * PAD, CANVAS_H - 2 * PAD)
+  
+  // Left world boundary
+  const leftBoundary = worldToScreen({ x: payloadData.value.world_min.x, y: 0 })
+  g.moveTo(leftBoundary.x, 0)
+  g.lineTo(leftBoundary.x, canvasHeight.value)
+  
+  // Right world boundary  
+  const rightBoundary = worldToScreen({ x: payloadData.value.world_max.x, y: 0 })
+  g.moveTo(rightBoundary.x, 0)
+  g.lineTo(rightBoundary.x, canvasHeight.value)
 
-  // drop zone (top band)
+  // drop zone (top band) - only show during placement phase
   if (payloadData.value.game_phase === 0) {
+    // Position drop zone to match backend bounds exactly
+    const dropZoneLeft = worldToScreen({ x: payloadData.value.world_min.x + 10, y: payloadData.value.world_min.y + 20 })
+    const dropZoneRight = worldToScreen({ x: payloadData.value.world_max.x - 10, y: payloadData.value.world_min.y + 120 })
+    
     g.lineStyle(2, 0x00ff00)
     g.beginFill(0x00ff00, 0.1)
-    g.drawRect(PAD + 50, PAD + 10, CANVAS_W - 2 * (PAD + 50), 100)
+    g.drawRect(dropZoneLeft.x, dropZoneLeft.y, dropZoneRight.x - dropZoneLeft.x, dropZoneRight.y - dropZoneLeft.y)
     g.endFill()
   }
 
   // finish line
   const fy = worldToScreen({ x: 0, y: payloadData.value.finish_line_y }).y
+  const finishLeft = worldToScreen({ x: payloadData.value.world_min.x, y: payloadData.value.finish_line_y })
+  const finishRight = worldToScreen({ x: payloadData.value.world_max.x, y: payloadData.value.finish_line_y })
+  
   g.lineStyle(4, 0xff0000)
-  g.moveTo(PAD, fy)
-  g.lineTo(CANVAS_W - PAD, fy)
+  g.moveTo(finishLeft.x, fy)
+  g.lineTo(finishRight.x, fy)
   g.beginFill(0xff0000)
-  for (let x = PAD; x < CANVAS_W - PAD; x += 20) {
-    if (Math.floor((x - PAD) / 20) % 2 === 0) {
+  for (let x = finishLeft.x; x < finishRight.x; x += 20) {
+    if (Math.floor((x - finishLeft.x) / 20) % 2 === 0) {
       g.drawRect(x, fy - 5, 20, 10)
     }
   }
@@ -200,7 +354,7 @@ const render = (g: Graphics) => {
 
   // placement timer
   if (payloadData.value.game_phase === 0 && payloadData.value.placement_time_left > 0) {
-    const timerW = 200, timerH = 20, timerX = CANVAS_W / 2 - timerW / 2, timerY = PAD + 120
+    const timerW = 200, timerH = 20, timerX = canvasWidth.value / 2 - timerW / 2, timerY = PAD + 120
     g.lineStyle(2, 0xffffff)
     g.beginFill(0x333333)
     g.drawRect(timerX, timerY, timerW, timerH)
@@ -211,15 +365,18 @@ const render = (g: Graphics) => {
     g.endFill()
   }
 
-  // obstacles
+  // obstacles - only render those visible in camera view
   for (const e of getObstacles()) {
+    if (!isEntityInCameraView(e)) continue // Skip off-screen obstacles
+    
     if (e.shape.kind === 'circle') renderCircleObstacle(g, e)
     else if (e.shape.kind === 'rect') renderRectObstacle(g, e)
     else renderPolyObstacle(g, e)
   }
 
-  // marbles
+  // marbles - only render those visible in camera view
   for (const e of getMarbles()) {
+    if (!isEntityInCameraView(e)) continue // Skip off-screen marbles
     renderMarble(g, e)
   }
 }
@@ -228,13 +385,27 @@ const renderResults = (g: Graphics) => {
   g.clear()
   g.lineStyle(2, 0x333333)
   g.beginFill(0x1a1a1a, 0.8)
-  g.drawRect(0, 0, CANVAS_W, CANVAS_H)
+  g.drawRect(0, 0, canvasWidth.value, canvasHeight.value)
   g.endFill()
 
-  g.lineStyle(3, 0xffd700)
-  g.beginFill(0x333333, 0.9)
-  g.drawRoundedRect(CANVAS_W / 2 - 200, 50, 400, 60, 10)
-  g.endFill()
+  // Draw marbles for each result entry
+  results.value.results.forEach((result, idx) => {
+    const marbleX = canvasWidth.value / 2 - 180 // Position marble to the left of text
+    const marbleY = 50 + idx * 60
+    const marbleRadius = 16
+
+    // Draw marble (green with highlight like in game)
+    g.lineStyle(2, 0x2d5016)
+    g.beginFill(0x4ade80)
+    g.drawCircle(marbleX, marbleY, marbleRadius)
+    g.endFill()
+
+    // Add marble highlight
+    g.lineStyle(0)
+    g.beginFill(0x86efac, 0.6)
+    g.drawCircle(marbleX - marbleRadius * 0.3, marbleY - marbleRadius * 0.3, marbleRadius * 0.3)
+    g.endFill()
+  })
 }
 
 // utils
@@ -275,7 +446,7 @@ defineExpose({ update })
 </script>
 
 <template>
-  <div class="h-full">
+  <div ref="containerRef" class="h-full">
     <div v-if="viewState == ViewState.Introduction">
       <Introduction :data="intro" logoSVG="/assets/games/MarbleMania/MarbleManiaLogo.svg" />
     </div>
@@ -291,7 +462,7 @@ defineExpose({ update })
         </div>
 
         <div class="absolute top-0 text text-white z-10">
-          <div class="flex flex-col justify-center items-center mt-32">
+          <div class="flex flex-col justify-center items-center mt-72">
             <div v-if="payloadData.game_phase === 0" class="text-3xl flex flex-col justify-center items-center">
               <div>Drop your marbles in the green zone!</div>
             </div>
@@ -301,10 +472,15 @@ defineExpose({ update })
         <div class="relative">
           <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
           <div class="relative">
-            <Application :key="applicationId" :width="800" :height="600" background-color="black">
+            <Application 
+              :key="applicationId" 
+              :width="canvasWidth" 
+              :height="canvasHeight" 
+              background-color="black"
+            >
               <Graphics :x="0" :y="0" @render="render" />
-              <!-- marble labels & finished icons -->
-              <template v-for="marble in getMarbles()" :key="marble.id">
+              <!-- marble labels & finished icons - only for visible marbles -->
+              <template v-for="marble in getMarbles().filter(m => isEntityInCameraView(m))" :key="marble.id">
                 <Text
                   :position="{
                     x: getCenteredTextPosition(marble.player_name || marble.id, getEntityCenter(marble).x),
@@ -332,23 +508,23 @@ defineExpose({ update })
       <div class="relative">
         <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
         <div class="relative">
-          <Application :width="800" :height="600" background-color="black">
+          <Application :width="canvasWidth" :height="canvasHeight" background-color="black">
             <Graphics :x="0" :y="0" @render="renderResults" />
             <template v-for="(result, idx) in results.results" :key="result.name">
               <Text
-                :position="{ x: getCenteredTextPosition(`${formatOrdinals(result.placement)}. ${result.name}`, 400), y: 150 + idx * 60 }"
+                :position="{ x: getCenteredTextPosition(`${formatOrdinals(result.placement)}. ${result.name}`, canvasWidth / 2 - 100), y: 25 + idx * 60 }"
                 :text="`${formatOrdinals(result.placement)}. ${result.name}`"
                 :style="{ fontFamily: ['Helvetica','Arial','sans-serif'], fontSize: 24, fill: result.has_finished ? 'white' : 'gray', stroke: 'black', strokeThickness: 3 }"
               />
               <Text
                 v-if="result.has_finished"
-                :position="{ x: getCenteredTextPosition(`Time: ${result.time_to_finish.toFixed(2)}s`, 400), y: 175 + idx * 60 }"
+                :position="{ x: getCenteredTextPosition(`Time: ${result.time_to_finish.toFixed(2)}s`, canvasWidth / 2 - 100), y: 50 + idx * 60 }"
                 :text="`Time: ${result.time_to_finish.toFixed(2)}s`"
                 :style="{ fontFamily: ['Helvetica','Arial','sans-serif'], fontSize: 16, fill: 'lightblue', stroke: 'black', strokeThickness: 2 }"
               />
               <Text
                 v-else
-                :position="{ x: getCenteredTextPosition('Did not finish', 400), y: 175 + idx * 60 }"
+                :position="{ x: getCenteredTextPosition('Did not finish', canvasWidth / 2 - 100), y: 50 + idx * 60 }"
                 text="Did not finish"
                 :style="{ fontFamily: ['Helvetica','Arial','sans-serif'], fontSize: 16, fill: 'red', stroke: 'black', strokeThickness: 2 }"
               />

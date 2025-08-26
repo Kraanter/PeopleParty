@@ -22,7 +22,7 @@ enum class GamePhase : uint8_t { PLACEMENT = 0, SIMULATION = 1, FINISHED = 2 };
 
 class MarbleManiaMap {
 public:
-    MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY);
+    MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY, float finishLineOffset = 10.0f);
     ~MarbleManiaMap();
 
     // Scaling factor for Box2D optimization (divide by this for physics, multiply for frontend)
@@ -73,6 +73,7 @@ private:
     Vector2D worldMin_;
     Vector2D worldMax_;
     float finishLineY_;
+    float finishLineOffset_;
 
     GamePhase phase_ = GamePhase::PLACEMENT;
 

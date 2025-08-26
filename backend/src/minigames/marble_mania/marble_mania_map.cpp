@@ -6,11 +6,12 @@
 static b2Vec2 toB2(const Vector2D& v){ return b2Vec2(v.x, v.y); }
 static Vector2D toV2(const b2Vec2& v){ return Vector2D{v.x, v.y}; }
 
-MarbleManiaMap::MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY)
+MarbleManiaMap::MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY, float finishLineOffset)
 : world_(b2Vec2(0.0f, 5.0f)) // normal is 9.8, but then the marbles fall too fast
 , worldMin_(worldMin)
 , worldMax_(worldMax)
 , finishLineY_(finishLineY)
+, finishLineOffset_(finishLineOffset)
 {
     createWorldBounds_();
     spawnDefaultObstacles_();
@@ -68,6 +69,48 @@ void MarbleManiaMap::spawnDefaultObstacles_() {
     // Static triangle
     {
         Vector2D pos = ToPhysicsCoords(Vector2D{120.0f, 120.0f});
+        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
+            world_, "obs_tri_1", ObstacleType::Triangle, pos,
+            ToPhysicsScale(80.0f), ToPhysicsScale(70.0f), 0.2f));
+    }
+    // Static triangle
+    {
+        Vector2D pos = ToPhysicsCoords(Vector2D{-100.0f, 200.0f});
+        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
+            world_, "obs_tri_1", ObstacleType::Triangle, pos,
+            ToPhysicsScale(80.0f), ToPhysicsScale(70.0f), 0.2f));
+    }
+    // Static rectangle (can set a rotation angle)
+    {
+        Vector2D pos = ToPhysicsCoords(Vector2D{50.0f, 300.0f});
+        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
+            world_, "obs_rect_1", ObstacleType::Rectangle, pos,
+            ToPhysicsScale(140.0f), ToPhysicsScale(20.0f), 0.3f));
+    }
+    // Static circle bumper
+    {
+        Vector2D pos = ToPhysicsCoords(Vector2D{-150.0f, 400.0f});
+        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
+            world_, "obs_circle_1", ObstacleType::Circle, pos,
+            ToPhysicsScale(60.0f), ToPhysicsScale(60.0f), 0.0f));
+    }
+    // Static circle bumper
+    {
+        Vector2D pos = ToPhysicsCoords(Vector2D{200.0f, 500.0f});
+        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
+            world_, "obs_circle_1", ObstacleType::Circle, pos,
+            ToPhysicsScale(60.0f), ToPhysicsScale(60.0f), 0.0f));
+    }
+    // static rectangle (can set a rotation angle)
+    {
+        Vector2D pos = ToPhysicsCoords(Vector2D{-200.0f, 600.0f});
+        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
+            world_, "obs_rect_1", ObstacleType::Rectangle, pos,
+            ToPhysicsScale(140.0f), ToPhysicsScale(20.0f), -0.5f));
+    }
+    // static triangle
+    {
+        Vector2D pos = ToPhysicsCoords(Vector2D{0.0f, 600.0f});
         obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
             world_, "obs_tri_1", ObstacleType::Triangle, pos,
             ToPhysicsScale(80.0f), ToPhysicsScale(70.0f), 0.2f));
@@ -228,7 +271,8 @@ void MarbleManiaMap::Update(float dt) {
 
     if (phase_ == GamePhase::SIMULATION) {
         // Finish line check (y increases downward) - convert to world coords for comparison
-        float physicsFinishLine = ToPhysicsScale(finishLineY_);
+        // Use finish line + offset so marbles must cross further into the finish line
+        float physicsFinishLine = ToPhysicsScale(finishLineY_ + finishLineOffset_);
         for (auto& kv : marbles_) {
             auto& m = *kv.second;
             if (!m.HasFinished() && m.GetPosition().y >= physicsFinishLine) {

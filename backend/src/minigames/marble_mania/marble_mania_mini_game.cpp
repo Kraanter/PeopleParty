@@ -3,10 +3,11 @@
 MarbleMania_MiniGame::MarbleMania_MiniGame(Game *game) : MiniGame(game) {
     // Initialize map with world bounds and finish line
     Vector2D worldMin(-400, -300);
-    Vector2D worldMax(400, 400);
-    float finishLine = 350.0f; // Y coordinate of finish line
+    Vector2D worldMax(400, 800);
+    float finishLine = 750.0f; // Y coordinate of finish line
+    float finishLineOffset = 15.0f; // Offset to require marbles to cross further into finish line
     
-    map = new MarbleManiaMap(worldMin, worldMax, finishLine);
+    map = new MarbleManiaMap(worldMin, worldMax, finishLine, finishLineOffset);
     
     // Initialize game state
     placementPhaseComplete = false;
@@ -110,19 +111,21 @@ void MarbleMania_MiniGame::update(int delta_time) {
         }
     }
     
-    // Check if game is finished
-    if (map->GetCurrentPhase() == GamePhase::FINISHED) {
-        minigame_timer.clear();
-        start_result();
-        return;
-    }
-    
     // Send updates to clients
     send_host_update();
     
     // Send individual updates to players
     for (const auto& pair : map->GetPlayerMarbles()) {
         send_player_update(pair.first);
+    }
+
+    // Check if game is finished
+    if (map->GetCurrentPhase() == GamePhase::FINISHED) {
+        minigame_timer.clear();
+        timer.setTimeout([this]() { 
+            start_result(); 
+        }, 2 SECONDS);
+        return;
     }
 }
 
