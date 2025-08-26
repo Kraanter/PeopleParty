@@ -1,4 +1,5 @@
 #include "marble_mania_obstacle.h"
+#include "marble_mania_map.h"
 
 static b2Vec2 toB2(const Vector2D& v){ return b2Vec2(v.x, v.y); }
 static Vector2D toV2(const b2Vec2& v){ return Vector2D{v.x, v.y}; }
@@ -60,6 +61,19 @@ Vector2D MarbleManiaObstacle::GetPosition() const {
     return toV2(body_->GetPosition());
 }
 
+Vector2D MarbleManiaObstacle::GetWorldPosition() const {
+    Vector2D physicsPos = GetPosition();
+    return Vector2D{physicsPos.x * MarbleManiaMap::PHYSICS_SCALE, physicsPos.y * MarbleManiaMap::PHYSICS_SCALE};
+}
+
+float MarbleManiaObstacle::GetWorldWidth() const {
+    return width_ * MarbleManiaMap::PHYSICS_SCALE;
+}
+
+float MarbleManiaObstacle::GetWorldHeight() const {
+    return height_ * MarbleManiaMap::PHYSICS_SCALE;
+}
+
 float MarbleManiaObstacle::GetCurrentRotation() const {
     return body_->GetAngle();
 }
@@ -69,4 +83,11 @@ std::vector<Vector2D> MarbleManiaObstacle::GetTriangleLocalVerts() const {
     const float hw = width_ * 0.5f;
     const float hh = height_ * 0.5f;
     return { {-hw, +hh}, {0.f, -hh}, {+hw, +hh} }; // local (pre-rotation) verts
+}
+
+std::vector<Vector2D> MarbleManiaObstacle::GetTriangleWorldLocalVerts() const {
+    if (type_ != ObstacleType::Triangle) return {};
+    const float hw = GetWorldWidth() * 0.5f;
+    const float hh = GetWorldHeight() * 0.5f;
+    return { {-hw, +hh}, {0.f, -hh}, {+hw, +hh} }; // local (pre-rotation) verts in world scale
 }

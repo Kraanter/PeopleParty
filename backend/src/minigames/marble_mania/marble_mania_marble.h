@@ -20,8 +20,10 @@ public:
     void EnableGravity(bool enable);
 
     // Accessors
-    Vector2D GetPosition() const;
+    Vector2D GetPosition() const;  // Returns physics coordinates
+    Vector2D GetWorldPosition() const;  // Returns world coordinates (scaled up)
     float GetRadius() const { return radius_; }
+    float GetWorldRadius() const;  // Returns world radius (scaled up)
     bool HasFinished() const { return finished_; }
     void MarkFinished(float timeToFinishSeconds);
     float GetTimeToFinish() const { return timeToFinish_; }

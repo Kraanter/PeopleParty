@@ -32,16 +32,20 @@ public:
     ~MarbleManiaObstacle();
 
     // For frontend
-    Vector2D GetPosition() const;
+    Vector2D GetPosition() const;  // Returns physics coordinates
+    Vector2D GetWorldPosition() const;  // Returns world coordinates (scaled up)
     float GetCurrentRotation() const; // radians
     const std::string& GetId() const { return id_; }
     ObstacleType GetObstacleType() const { return type_; }
     bool IsCircle() const { return type_ == ObstacleType::Circle; }
     float GetWidth() const { return width_; }
     float GetHeight() const { return height_; }
+    float GetWorldWidth() const;  // Returns world width (scaled up)
+    float GetWorldHeight() const;  // Returns world height (scaled up)
 
     // Triangle vertices in local space (useful for flatbuffers polygon)
     std::vector<Vector2D> GetTriangleLocalVerts() const;
+    std::vector<Vector2D> GetTriangleWorldLocalVerts() const;  // Scaled up for world coords
 
     b2Body* GetBody() const { return body_; }
 

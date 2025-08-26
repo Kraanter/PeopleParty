@@ -1,4 +1,5 @@
 #include "marble_mania_marble.h"
+#include "marble_mania_map.h"
 
 static b2Vec2 toB2(const Vector2D& v){ return b2Vec2(v.x, v.y); }
 static Vector2D toV2(const b2Vec2& v){ return Vector2D{v.x, v.y}; }
@@ -50,6 +51,15 @@ void MarbleManiaMarble::EnableGravity(bool enable) {
 
 Vector2D MarbleManiaMarble::GetPosition() const {
     return toV2(body_->GetPosition());
+}
+
+Vector2D MarbleManiaMarble::GetWorldPosition() const {
+    Vector2D physicsPos = GetPosition();
+    return Vector2D{physicsPos.x * MarbleManiaMap::PHYSICS_SCALE, physicsPos.y * MarbleManiaMap::PHYSICS_SCALE};
+}
+
+float MarbleManiaMarble::GetWorldRadius() const {
+    return radius_ * MarbleManiaMap::PHYSICS_SCALE;
 }
 
 void MarbleManiaMarble::MarkFinished(float t) {

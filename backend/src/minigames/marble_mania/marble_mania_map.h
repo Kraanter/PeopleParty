@@ -25,6 +25,9 @@ public:
     MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY);
     ~MarbleManiaMap();
 
+    // Scaling factor for Box2D optimization (divide by this for physics, multiply for frontend)
+    static constexpr float PHYSICS_SCALE = 100.0f;
+
     // Players
     void CreatePlayers(const std::vector<Client*>& clients);
     void CreatePlayers(const std::map<int, Client*>& clients);
@@ -50,6 +53,12 @@ public:
 
     // Results
     std::vector<std::pair<Client*, int>> GetFinalPlacements() const { return finalPlacements_; }
+
+    // Helper functions for coordinate scaling
+    Vector2D ToPhysicsCoords(const Vector2D& worldCoords) const;
+    Vector2D ToWorldCoords(const Vector2D& physicsCoords) const;
+    float ToPhysicsScale(float worldValue) const;
+    float ToWorldScale(float physicsValue) const;
 
 private:
     void createWorldBounds_();

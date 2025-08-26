@@ -7,7 +7,7 @@ static b2Vec2 toB2(const Vector2D& v){ return b2Vec2(v.x, v.y); }
 static Vector2D toV2(const b2Vec2& v){ return Vector2D{v.x, v.y}; }
 
 MarbleManiaMap::MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY)
-: world_(b2Vec2(0.0f, 20.0f)) // gravity downward; set to (0,0) for full zero-gravity world
+: world_(b2Vec2(0.0f, 5.0f)) // normal is 9.8, but then the marbles fall too fast
 , worldMin_(worldMin)
 , worldMax_(worldMax)
 , finishLineY_(finishLineY)
@@ -21,7 +21,10 @@ MarbleManiaMap::~MarbleManiaMap() {
 }
 
 void MarbleManiaMap::createWorldBounds_() {
-    // Static borders (edge shapes)
+    // Static borders (edge shapes) - convert to physics scale
+    Vector2D physicsMin = ToPhysicsCoords(worldMin_);
+    Vector2D physicsMax = ToPhysicsCoords(worldMax_);
+    
     b2BodyDef bd;
     b2Body* bounds = world_.CreateBody(&bd);
 
@@ -32,39 +35,42 @@ void MarbleManiaMap::createWorldBounds_() {
     fd.restitution = 0.3f;
 
     // bottom
-    edge.SetTwoSided(b2Vec2(worldMin_.x, worldMax_.y), b2Vec2(worldMax_.x, worldMax_.y));
+    edge.SetTwoSided(b2Vec2(physicsMin.x, physicsMax.y), b2Vec2(physicsMax.x, physicsMax.y));
     bounds->CreateFixture(&fd);
     // top
-    edge.SetTwoSided(b2Vec2(worldMin_.x, worldMin_.y), b2Vec2(worldMax_.x, worldMin_.y));
+    edge.SetTwoSided(b2Vec2(physicsMin.x, physicsMin.y), b2Vec2(physicsMax.x, physicsMin.y));
     bounds->CreateFixture(&fd);
     // left
-    edge.SetTwoSided(b2Vec2(worldMin_.x, worldMin_.y), b2Vec2(worldMin_.x, worldMax_.y));
+    edge.SetTwoSided(b2Vec2(physicsMin.x, physicsMin.y), b2Vec2(physicsMin.x, physicsMax.y));
     bounds->CreateFixture(&fd);
     // right
-    edge.SetTwoSided(b2Vec2(worldMax_.x, worldMin_.y), b2Vec2(worldMax_.x, worldMax_.y));
+    edge.SetTwoSided(b2Vec2(physicsMax.x, physicsMin.y), b2Vec2(physicsMax.x, physicsMax.y));
     bounds->CreateFixture(&fd);
 }
 
 void MarbleManiaMap::spawnDefaultObstacles_() {
-    // Example static layout — tweak as desired.
+    // Example static layout — tweak as desired. Convert coordinates to physics scale
 
     // Static circle bumper
     {
+        Vector2D pos = ToPhysicsCoords(Vector2D{0.0f, -50.0f});
         obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_circle_1", ObstacleType::Circle, Vector2D{0.0f, -50.0f},
-            60.0f, 60.0f, 0.0f));
+            world_, "obs_circle_1", ObstacleType::Circle, pos,
+            ToPhysicsScale(60.0f), ToPhysicsScale(60.0f), 0.0f));
     }
     // Static rectangle (can set a rotation angle)
     {
+        Vector2D pos = ToPhysicsCoords(Vector2D{-150.0f, 50.0f});
         obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_rect_1", ObstacleType::Rectangle, Vector2D{-150.0f, 50.0f},
-            140.0f, 20.0f, 0.3f));
+            world_, "obs_rect_1", ObstacleType::Rectangle, pos,
+            ToPhysicsScale(140.0f), ToPhysicsScale(20.0f), 0.3f));
     }
     // Static triangle
     {
+        Vector2D pos = ToPhysicsCoords(Vector2D{120.0f, 120.0f});
         obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_tri_1", ObstacleType::Triangle, Vector2D{120.0f, 120.0f},
-            80.0f, 70.0f, 0.2f));
+            world_, "obs_tri_1", ObstacleType::Triangle, pos,
+            ToPhysicsScale(80.0f), ToPhysicsScale(70.0f), 0.2f));
     }
 }
 
@@ -83,7 +89,8 @@ void MarbleManiaMap::CreatePlayers(const std::vector<Client*>& clients) {
         float y = worldMin_.y + 40.0f;
 
         std::stringstream ss; ss << "marble_" << (idx + 1);
-        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), Vector2D{x, y}, 10.0f);
+        Vector2D physicsPos = ToPhysicsCoords(Vector2D{x, y});
+        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), physicsPos, ToPhysicsScale(10.0f));
         ready_[c] = false;
         ++idx;
     }
@@ -105,7 +112,8 @@ void MarbleManiaMap::CreatePlayers(const std::map<int, Client*>& clients) {
         float y = worldMin_.y + 40.0f;
 
         std::stringstream ss; ss << "marble_" << (idx + 1);
-        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), Vector2D{x, y}, 10.0f);
+        Vector2D physicsPos = ToPhysicsCoords(Vector2D{x, y});
+        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), physicsPos, ToPhysicsScale(10.0f));
         ready_[c] = false;
         ++idx;
     }
@@ -127,7 +135,8 @@ void MarbleManiaMap::CreatePlayers(const std::map<int, std::unique_ptr<Client>>&
         float y = worldMin_.y + 40.0f;
 
         std::stringstream ss; ss << "marble_" << (idx + 1);
-        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), Vector2D{x, y}, 10.0f);
+        Vector2D physicsPos = ToPhysicsCoords(Vector2D{x, y});
+        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), physicsPos, ToPhysicsScale(10.0f));
         ready_[c] = false;
         ++idx;
     }
@@ -150,10 +159,10 @@ void MarbleManiaMap::MovePlayerMarble(Client* client, float x, float y) {
 
     // Treat (x,y) as joystick deltas in [-1..1]
     const float pixelsPerTick = 10.0f; // tune feel
-    Vector2D cur = it->second->GetPosition();
+    Vector2D cur = ToWorldCoords(it->second->GetPosition()); // Convert from physics to world coords
     Vector2D next { cur.x + x * pixelsPerTick, cur.y + y * pixelsPerTick };
     next = clampToDropZone_(next);
-    it->second->Teleport(next);
+    it->second->Teleport(ToPhysicsCoords(next)); // Convert back to physics coords
 }
 
 void MarbleManiaMap::SetPlayerReady(Client* client, bool ready) {
@@ -196,7 +205,7 @@ void MarbleManiaMap::computeFinalPlacements_() {
     for (const auto& kv : marbles_) {
         Client* c = kv.first;
         const auto& m = *kv.second;
-        rows.push_back(Row{ c, m.HasFinished(), m.GetTimeToFinish(), m.GetPosition().y });
+        rows.push_back(Row{ c, m.HasFinished(), m.GetTimeToFinish(), m.GetWorldPosition().y });
     }
 
     std::sort(rows.begin(), rows.end(), [](const Row& a, const Row& b){
@@ -218,10 +227,11 @@ void MarbleManiaMap::Update(float dt) {
     simTime_ += dt;
 
     if (phase_ == GamePhase::SIMULATION) {
-        // Finish line check (y increases downward)
+        // Finish line check (y increases downward) - convert to world coords for comparison
+        float physicsFinishLine = ToPhysicsScale(finishLineY_);
         for (auto& kv : marbles_) {
             auto& m = *kv.second;
-            if (!m.HasFinished() && m.GetPosition().y >= finishLineY_) {
+            if (!m.HasFinished() && m.GetPosition().y >= physicsFinishLine) {
                 m.MarkFinished(simTime_);
             }
         }
@@ -230,4 +240,21 @@ void MarbleManiaMap::Update(float dt) {
             phase_ = GamePhase::FINISHED;
         }
     }
+}
+
+// Helper functions for coordinate scaling
+Vector2D MarbleManiaMap::ToPhysicsCoords(const Vector2D& worldCoords) const {
+    return Vector2D{worldCoords.x / PHYSICS_SCALE, worldCoords.y / PHYSICS_SCALE};
+}
+
+Vector2D MarbleManiaMap::ToWorldCoords(const Vector2D& physicsCoords) const {
+    return Vector2D{physicsCoords.x * PHYSICS_SCALE, physicsCoords.y * PHYSICS_SCALE};
+}
+
+float MarbleManiaMap::ToPhysicsScale(float worldValue) const {
+    return worldValue / PHYSICS_SCALE;
+}
+
+float MarbleManiaMap::ToWorldScale(float physicsValue) const {
+    return physicsValue * PHYSICS_SCALE;
 }

@@ -141,10 +141,10 @@ void MarbleMania_MiniGame::send_host_update()
     for (const auto& pair : map->GetPlayerMarbles()) {
         const Client* client = pair.first;
         const MarbleManiaMarble* marble = pair.second.get();
-        Vector2D p = marble->GetPosition();
+        Vector2D p = marble->GetWorldPosition(); // Use world coordinates for frontend
 
         // Shape = circle
-        auto circle = CreateFBCircle(builder, marble->GetRadius());
+        auto circle = CreateFBCircle(builder, marble->GetWorldRadius());
         auto pos    = make_vec2(p.x, p.y);
         auto id     = builder.CreateString(marble->GetId());
         auto name   = builder.CreateString(client->name);
@@ -168,28 +168,28 @@ void MarbleMania_MiniGame::send_host_update()
     // --- Obstacles (static) ---
     for (const auto& obsPtr : map->GetObstacles()) {
         const auto& obs = *obsPtr;
-        Vector2D p = obs.GetPosition();
+        Vector2D p = obs.GetWorldPosition(); // Use world coordinates for frontend
 
         flatbuffers::Offset<void> shape_value;
         FBShape shape_type = FBShape::FBShape_NONE;
 
         switch (obs.GetObstacleType()) {
             case ObstacleType::Circle: {
-                float radius = obs.GetWidth() * 0.5f;
+                float radius = obs.GetWorldWidth() * 0.5f;
                 auto circle = CreateFBCircle(builder, radius);
                 shape_type  = FBShape::FBShape_FBCircle;
                 shape_value = circle.Union();
                 break;
             }
             case ObstacleType::Rectangle: {
-                auto rect = CreateFBRect(builder, obs.GetWidth(), obs.GetHeight());
+                auto rect = CreateFBRect(builder, obs.GetWorldWidth(), obs.GetWorldHeight());
                 shape_type  = FBShape::FBShape_FBRect;
                 shape_value = rect.Union();
                 break;
             }
             case ObstacleType::Triangle: {
-                // Provide polygon vertices in LOCAL space (pre-rotation)
-                auto vertsLocal = obs.GetTriangleLocalVerts();
+                // Provide polygon vertices in LOCAL space (pre-rotation) - use world scale
+                auto vertsLocal = obs.GetTriangleWorldLocalVerts();
                 std::vector<flatbuffers::Offset<FBVec2>> vertsFB;
                 vertsFB.reserve(vertsLocal.size());
                 for (auto& v : vertsLocal) {
@@ -267,7 +267,7 @@ void MarbleMania_MiniGame::send_player_update(Client *client) {
         builder.CreateString(marbleIt->second->GetId()),
         static_cast<uint8_t>(map->GetCurrentPhase()),
         placementTimeLeft,
-        marbleIt->second->GetPosition().y,
+        marbleIt->second->GetWorldPosition().y,  // Use world coordinates
         map->GetFinishLine());
 
     auto miniGame = builder.CreateString(get_camel_case_name());
