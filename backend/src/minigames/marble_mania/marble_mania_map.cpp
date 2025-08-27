@@ -6,15 +6,16 @@
 static b2Vec2 toB2(const Vector2D& v){ return b2Vec2(v.x, v.y); }
 static Vector2D toV2(const b2Vec2& v){ return Vector2D{v.x, v.y}; }
 
-MarbleManiaMap::MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY, float finishLineOffset)
+MarbleManiaMap::MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY, float finishLineOffset, unsigned int mapSeed)
 : world_(b2Vec2(0.0f, 5.0f)) // normal is 9.8, but then the marbles fall too fast
 , worldMin_(worldMin)
 , worldMax_(worldMax)
 , finishLineY_(finishLineY)
 , finishLineOffset_(finishLineOffset)
+, mapSeed_(mapSeed)
 {
     createWorldBounds_();
-    spawnDefaultObstacles_();
+    generateObstacles_();
 }
 
 MarbleManiaMap::~MarbleManiaMap() {
@@ -49,71 +50,29 @@ void MarbleManiaMap::createWorldBounds_() {
     bounds->CreateFixture(&fd);
 }
 
-void MarbleManiaMap::spawnDefaultObstacles_() {
-    // Example static layout — tweak as desired. Convert coordinates to physics scale
-
-    // Static circle bumper
-    {
-        Vector2D pos = ToPhysicsCoords(Vector2D{0.0f, -50.0f});
+void MarbleManiaMap::generateObstacles_() {
+    // Create map generator
+    float marbleRadius = 15.0f;  // Should match marble radius
+    MarbleManiaMapGenerator generator(worldMin_.x, worldMax_.x, worldMin_.y, worldMax_.y, marbleRadius, mapSeed_);
+    
+    // Optional: customize generation parameters
+    generator.SetObstacleDensity(0.00003f);  // Very sparse obstacle placement
+    generator.SetPlatformInterval(1000.0f);   // Platform every 1000 units
+    generator.SetMinTilt(0.08f);            // Minimum ~4.5 degrees
+    generator.SetMaxTilt(0.35f);            // Maximum ~20 degrees
+    
+    // Generate obstacles
+    auto obstacleInfos = generator.GenerateObstacles();
+    
+    // Create actual obstacles from the generated info
+    for (const auto& info : obstacleInfos) {
+        Vector2D physicsPos = ToPhysicsCoords(info.position);
+        float physicsWidth = ToPhysicsScale(info.width);
+        float physicsHeight = ToPhysicsScale(info.height);
+        
         obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_circle_1", ObstacleType::Circle, pos,
-            ToPhysicsScale(60.0f), ToPhysicsScale(60.0f), 0.0f));
-    }
-    // Static rectangle (can set a rotation angle)
-    {
-        Vector2D pos = ToPhysicsCoords(Vector2D{-150.0f, 50.0f});
-        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_rect_1", ObstacleType::Rectangle, pos,
-            ToPhysicsScale(140.0f), ToPhysicsScale(20.0f), 0.3f));
-    }
-    // Static triangle
-    {
-        Vector2D pos = ToPhysicsCoords(Vector2D{120.0f, 120.0f});
-        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_tri_1", ObstacleType::Triangle, pos,
-            ToPhysicsScale(80.0f), ToPhysicsScale(70.0f), 0.2f));
-    }
-    // Static triangle
-    {
-        Vector2D pos = ToPhysicsCoords(Vector2D{-100.0f, 200.0f});
-        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_tri_1", ObstacleType::Triangle, pos,
-            ToPhysicsScale(80.0f), ToPhysicsScale(70.0f), 0.2f));
-    }
-    // Static rectangle (can set a rotation angle)
-    {
-        Vector2D pos = ToPhysicsCoords(Vector2D{50.0f, 300.0f});
-        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_rect_1", ObstacleType::Rectangle, pos,
-            ToPhysicsScale(140.0f), ToPhysicsScale(20.0f), 0.3f));
-    }
-    // Static circle bumper
-    {
-        Vector2D pos = ToPhysicsCoords(Vector2D{-150.0f, 400.0f});
-        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_circle_1", ObstacleType::Circle, pos,
-            ToPhysicsScale(60.0f), ToPhysicsScale(60.0f), 0.0f));
-    }
-    // Static circle bumper
-    {
-        Vector2D pos = ToPhysicsCoords(Vector2D{200.0f, 500.0f});
-        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_circle_1", ObstacleType::Circle, pos,
-            ToPhysicsScale(60.0f), ToPhysicsScale(60.0f), 0.0f));
-    }
-    // static rectangle (can set a rotation angle)
-    {
-        Vector2D pos = ToPhysicsCoords(Vector2D{-200.0f, 600.0f});
-        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_rect_1", ObstacleType::Rectangle, pos,
-            ToPhysicsScale(140.0f), ToPhysicsScale(20.0f), -0.5f));
-    }
-    // static triangle
-    {
-        Vector2D pos = ToPhysicsCoords(Vector2D{0.0f, 600.0f});
-        obstacles_.push_back(std::make_unique<MarbleManiaObstacle>(
-            world_, "obs_tri_1", ObstacleType::Triangle, pos,
-            ToPhysicsScale(80.0f), ToPhysicsScale(70.0f), 0.2f));
+            world_, info.id, info.type, physicsPos,
+            physicsWidth, physicsHeight, info.rotation));
     }
 }
 
@@ -133,7 +92,7 @@ void MarbleManiaMap::CreatePlayers(const std::vector<Client*>& clients) {
 
         std::stringstream ss; ss << "marble_" << (idx + 1);
         Vector2D physicsPos = ToPhysicsCoords(Vector2D{x, y});
-        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), physicsPos, ToPhysicsScale(10.0f));
+        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), physicsPos, ToPhysicsScale(15.0f));
         ready_[c] = false;
         ++idx;
     }
@@ -156,7 +115,7 @@ void MarbleManiaMap::CreatePlayers(const std::map<int, Client*>& clients) {
 
         std::stringstream ss; ss << "marble_" << (idx + 1);
         Vector2D physicsPos = ToPhysicsCoords(Vector2D{x, y});
-        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), physicsPos, ToPhysicsScale(10.0f));
+        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), physicsPos, ToPhysicsScale(15.0f));
         ready_[c] = false;
         ++idx;
     }
@@ -179,7 +138,7 @@ void MarbleManiaMap::CreatePlayers(const std::map<int, std::unique_ptr<Client>>&
 
         std::stringstream ss; ss << "marble_" << (idx + 1);
         Vector2D physicsPos = ToPhysicsCoords(Vector2D{x, y});
-        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), physicsPos, ToPhysicsScale(10.0f));
+        marbles_[c] = std::make_unique<MarbleManiaMarble>(world_, ss.str(), physicsPos, ToPhysicsScale(15.0f));
         ready_[c] = false;
         ++idx;
     }
@@ -190,7 +149,7 @@ Vector2D MarbleManiaMap::clampToDropZone_(const Vector2D& p) const {
     float minY = worldMin_.y + 20.0f;
     float maxY = worldMin_.y + 120.0f;
     Vector2D out = p;
-    out.x = std::max(worldMin_.x + 10.0f, std::min(worldMax_.x - 10.0f, out.x));
+    out.x = std::max(worldMin_.x + 15.0f, std::min(worldMax_.x - 15.0f, out.x));
     out.y = std::max(minY, std::min(maxY, out.y));
     return out;
 }

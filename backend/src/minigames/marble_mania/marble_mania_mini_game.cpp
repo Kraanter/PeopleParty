@@ -1,13 +1,18 @@
 #include "marble_mania_mini_game.h"
+#include <ctime>
+#include <cstdlib>
 
 MarbleMania_MiniGame::MarbleMania_MiniGame(Game *game) : MiniGame(game) {
-    // Initialize map with world bounds and finish line
+    // Initialize map with extended world bounds for much longer procedural maps
     Vector2D worldMin(-400, -300);
-    Vector2D worldMax(400, 800);
-    float finishLine = 750.0f; // Y coordinate of finish line
+    Vector2D worldMax(400, 5000);  // Extended from 800 to 5000 for much longer maps
+    float finishLine = 4950.0f; // Finish line near the end of the extended world
     float finishLineOffset = 15.0f; // Offset to require marbles to cross further into finish line
     
-    map = new MarbleManiaMap(worldMin, worldMax, finishLine, finishLineOffset);
+    // Generate a random seed for procedural map generation
+    unsigned int mapSeed = static_cast<unsigned int>(time(nullptr)) ^ static_cast<unsigned int>(rand());
+    
+    map = new MarbleManiaMap(worldMin, worldMax, finishLine, finishLineOffset, mapSeed);
     
     // Initialize game state
     placementPhaseComplete = false;

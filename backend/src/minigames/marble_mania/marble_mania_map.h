@@ -11,6 +11,7 @@
 
 #include "marble_mania_marble.h"
 #include "marble_mania_obstacle.h"
+#include "marble_mania_map_generator.h"
 
 // forward declaration
 class Client;
@@ -22,7 +23,7 @@ enum class GamePhase : uint8_t { PLACEMENT = 0, SIMULATION = 1, FINISHED = 2 };
 
 class MarbleManiaMap {
 public:
-    MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY, float finishLineOffset = 10.0f);
+    MarbleManiaMap(const Vector2D& worldMin, const Vector2D& worldMax, float finishLineY, float finishLineOffset = 10.0f, unsigned int mapSeed = 0);
     ~MarbleManiaMap();
 
     // Scaling factor for Box2D optimization (divide by this for physics, multiply for frontend)
@@ -62,7 +63,7 @@ public:
 
 private:
     void createWorldBounds_();
-    void spawnDefaultObstacles_(); // example layout
+    void generateObstacles_(); // procedural generation
     void computeFinalPlacements_();
     bool everyoneFinished_() const;
 
@@ -74,6 +75,7 @@ private:
     Vector2D worldMax_;
     float finishLineY_;
     float finishLineOffset_;
+    unsigned int mapSeed_;
 
     GamePhase phase_ = GamePhase::PLACEMENT;
 
@@ -83,7 +85,7 @@ private:
     std::vector<std::unique_ptr<MarbleManiaObstacle>> obstacles_;
 
     float simTime_ = 0.0f;
-    float maxSimTime_ = 60.0f;
+    float maxSimTime_ = 90.0f;
 
     std::vector<std::pair<Client*, int>> finalPlacements_;
 };
