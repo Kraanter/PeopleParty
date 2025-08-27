@@ -31,6 +31,8 @@ const containerRef = ref<HTMLElement>()
 
 // Camera system
 const cameraOffset = ref({ x: 0, y: 0 })
+const smoothedCameraY = ref(0) // Smoothed camera position for interpolation
+const cameraSmoothing = 0.25 // Smoothing factor (0.25 = 25% movement per frame)
 
 // introduction
 const intro = ref<IntroductionData>({ title: '', description: '', time_left: 0 })
@@ -65,7 +67,9 @@ const updateCamera = () => {
   const marbles = getMarbles()
   if (marbles.length === 0) {
     // Reset to top during placement or when no marbles
-    cameraOffset.value.y = payloadData.value.world_min.y
+    const targetY = payloadData.value.world_min.y
+    smoothedCameraY.value = targetY
+    cameraOffset.value.y = targetY
     return
   }
   
@@ -79,9 +83,9 @@ const updateCamera = () => {
   
   // How much world space does our fixed camera viewport cover?
   const cameraWorldHeight = (canvasHeight.value / canvasWidth.value) * worldWidth // Maintain aspect ratio
-  
-  // Position camera so lowest marble appears at 75% down from the top of viewport
-  let targetCameraTop = lowestMarble.pos.y - (cameraWorldHeight * 0.75)
+
+  // Position camera so lowest marble appears at 66% down from the top of viewport
+  let targetCameraTop = lowestMarble.pos.y - (cameraWorldHeight * 0.66)
   
   // Clamp camera so it doesn't go beyond world boundaries
   const maxCameraTop = payloadData.value.world_max.y - cameraWorldHeight
@@ -89,7 +93,10 @@ const updateCamera = () => {
   
   targetCameraTop = Math.max(minCameraTop, Math.min(maxCameraTop, targetCameraTop))
   
-  cameraOffset.value.y = targetCameraTop
+  // Smooth camera interpolation - gradually move toward target
+  smoothedCameraY.value += (targetCameraTop - smoothedCameraY.value) * cameraSmoothing
+  
+  cameraOffset.value.y = smoothedCameraY.value
   cameraOffset.value.x = payloadData.value.world_min.x // Always show full width
 }
 
@@ -114,10 +121,16 @@ const update = (data: MiniGamePayloadType) => {
       payloadData.value = parseMarbleManiaHostPayload(data)
       // Update camera when simulation is running or finished
       if (payloadData.value.game_phase === 1 || payloadData.value.game_phase === 2) {
+        // Initialize smoothed camera position if it hasn't been set yet
+        if (smoothedCameraY.value === 0) {
+          smoothedCameraY.value = cameraOffset.value.y
+        }
         updateCamera()
       } else {
         // Reset camera during placement phase to show the top area
-        cameraOffset.value = { x: payloadData.value.world_min.x, y: payloadData.value.world_min.y }
+        const topPosition = payloadData.value.world_min.y
+        cameraOffset.value = { x: payloadData.value.world_min.x, y: topPosition }
+        smoothedCameraY.value = topPosition // Keep smoothed position in sync
       }
       break
     }
