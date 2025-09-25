@@ -50,6 +50,36 @@ const payloadData = ref<MarbleManiaData>({
 // final results
 const results = ref<MarbleManiaResult>({ results: [] })
 
+// Player color mapping
+const playerColorMap = new Map<string, number>()
+const colorPalette = [
+  0x4ade80, // Bright green
+  0x3b82f6, // Bright blue
+  0xf97316, // Orange
+  0xeab308, // Yellow
+  0xa855f7, // Purple
+  0x06b6d4, // Cyan
+  0xef4444, // Red
+  0xf59e0b, // Amber
+  0x10b981, // Emerald
+  0x8b5cf6, // Violet
+  0xf43f5e, // Rose
+  0x0ea5e9, // Light blue
+  0x84cc16, // Lime
+  0xf472b6, // Pink
+  0x6366f1, // Indigo
+  0x14b8a6  // Teal
+]
+
+const getPlayerColor = (playerId: string): number => {
+  if (!playerColorMap.has(playerId)) {
+    // Assign color based on current map size (cycling through palette)
+    const colorIndex = playerColorMap.size % colorPalette.length
+    playerColorMap.set(playerId, colorPalette[colorIndex])
+  }
+  return playerColorMap.get(playerId)!
+}
+
 // Fixed camera viewport dimensions - independent of world size
 const canvasWidth = computed(() => {
   // Fixed width - shows full world width (800 units) at a comfortable scale
@@ -273,14 +303,27 @@ const renderMarble = (g: Graphics, e: MarbleManiaEntity) => {
   const rY = Math.abs(worldToScreen({ x: e.pos.x, y: e.pos.y + radiusWorld }).y - center.y)
   const r = (rX + rY) * 0.5
 
-  g.lineStyle(2, 0x2d5016)
-  g.beginFill(0x4ade80)
+  // Get player-specific color
+  const playerId = e.player_name || e.id
+  const playerColor = getPlayerColor(playerId)
+  
+  // Calculate darker border color (reduce brightness by ~40%)
+  const borderColor = Math.floor((playerColor & 0xff) * 0.6) |
+                     (Math.floor(((playerColor >> 8) & 0xff) * 0.6) << 8) |
+                     (Math.floor(((playerColor >> 16) & 0xff) * 0.6) << 16)
+
+  g.lineStyle(2, borderColor)
+  g.beginFill(playerColor)
   g.drawCircle(center.x, center.y, r)
   g.endFill()
 
-  // little highlight
+  // little highlight (lighter version of player color)
+  const highlightColor = Math.min(255, Math.floor((playerColor & 0xff) * 1.3)) |
+                        (Math.min(255, Math.floor(((playerColor >> 8) & 0xff) * 1.3)) << 8) |
+                        (Math.min(255, Math.floor(((playerColor >> 16) & 0xff) * 1.3)) << 16)
+  
   g.lineStyle(0)
-  g.beginFill(0x86efac, 0.6)
+  g.beginFill(highlightColor, 0.6)
   g.drawCircle(center.x - r * 0.3, center.y - r * 0.3, r * 0.3)
   g.endFill()
 }
@@ -354,10 +397,19 @@ const renderOffScreenIndicators = (g: Graphics) => {
     // Calculate distance above camera view
     const distanceAbove = Math.round(cameraMinY - marble.pos.y)
     
-    // Draw dot at top of screen (use same color as regular marbles)
+    // Get player-specific color for the dot
+    const playerId = marble.player_name || marble.id
+    const playerColor = getPlayerColor(playerId)
+    
+    // Calculate darker border color (same logic as marble rendering)
+    const borderColor = Math.floor((playerColor & 0xff) * 0.6) |
+                       (Math.floor(((playerColor >> 8) & 0xff) * 0.6) << 8) |
+                       (Math.floor(((playerColor >> 16) & 0xff) * 0.6) << 16)
+    
+    // Draw dot at top of screen (use same color as the player's marble)
     const dotY = 20 // 20 pixels from top
-    g.lineStyle(2, 0x2d5016) // Same border color as marbles
-    g.beginFill(0x4ade80) // Same fill color as marbles
+    g.lineStyle(2, borderColor) // Same border color as marbles
+    g.beginFill(playerColor) // Same fill color as marbles
     g.drawCircle(screenPos.x, dotY, 6) // 6 pixel radius dot
     g.endFill()
     
@@ -469,15 +521,27 @@ const renderResults = (g: Graphics) => {
     const marbleY = 50 + idx * 60
     const marbleRadius = 16
 
-    // Draw marble (green with highlight like in game)
-    g.lineStyle(2, 0x2d5016)
-    g.beginFill(0x4ade80)
+    // Get player-specific color
+    const playerColor = getPlayerColor(result.name)
+    
+    // Calculate darker border color
+    const borderColor = Math.floor((playerColor & 0xff) * 0.6) |
+                       (Math.floor(((playerColor >> 8) & 0xff) * 0.6) << 8) |
+                       (Math.floor(((playerColor >> 16) & 0xff) * 0.6) << 16)
+
+    // Draw marble with player's color
+    g.lineStyle(2, borderColor)
+    g.beginFill(playerColor)
     g.drawCircle(marbleX, marbleY, marbleRadius)
     g.endFill()
 
-    // Add marble highlight
+    // Add marble highlight (lighter version of player color)
+    const highlightColor = Math.min(255, Math.floor((playerColor & 0xff) * 1.3)) |
+                          (Math.min(255, Math.floor(((playerColor >> 8) & 0xff) * 1.3)) << 8) |
+                          (Math.min(255, Math.floor(((playerColor >> 16) & 0xff) * 1.3)) << 16)
+    
     g.lineStyle(0)
-    g.beginFill(0x86efac, 0.6)
+    g.beginFill(highlightColor, 0.6)
     g.drawCircle(marbleX - marbleRadius * 0.3, marbleY - marbleRadius * 0.3, marbleRadius * 0.3)
     g.endFill()
   })

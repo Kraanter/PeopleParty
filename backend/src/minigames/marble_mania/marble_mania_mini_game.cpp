@@ -45,6 +45,9 @@ void MarbleMania_MiniGame::resume() {
     result_timer.resume();
     introduction_timer.resume();
     timer.resume();
+
+    // set sended_obstacles to false to resend obstacles on resume
+    sended_obstacles = false;
 }
 
 void MarbleMania_MiniGame::introduction_update(int delta_time)

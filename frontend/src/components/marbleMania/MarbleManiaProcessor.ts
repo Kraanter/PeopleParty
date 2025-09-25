@@ -107,7 +107,7 @@ export function parseMarbleManiaResultPayload(data: MiniGamePayloadType): Marble
   const results: MarbleManiaResultPair[] = []
   for (let i = 0; i < payload.resultsLength(); i++) {
     results.push({
-      name: payload.results(i)!.name(),
+      name: decodeURI(payload.results(i)!.name()),
       placement: payload.results(i)!.placement(),
       time_to_finish: payload.results(i)!.timeToFinish(),
       has_finished: payload.results(i)!.hasFinished()

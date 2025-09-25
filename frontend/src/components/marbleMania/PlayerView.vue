@@ -179,16 +179,13 @@ defineExpose({
   </template>
   <template v-else-if="viewState == ViewState.MiniGame">
     <div class="flex flex-col h-full w-full justify-center items-center">
-      <div class="flex flex-col justify-center items-center mb-4">
-        <div class="text-2xl text-white mb-2">Your Marble</div>
-        <div class="text-lg text-white">{{ payloadData.id }}</div>
-      </div>
       
       <div v-if="payloadData.game_phase == 0" class="flex flex-col justify-center items-center">
-        <div v-if="!lockedIn">
-
-          <div class="text-xl text-white mb-4">Place Your Marble!</div>
-          <div class="text-lg text-white mb-4">Time left: {{ Math.ceil(payloadData.placement_time_left) }}s</div>
+        <div v-if="!lockedIn" class="flex flex-col gap-4 w-full h-full justify-center items-center">
+          <div class="flex flex-col justify-center items-center mb-4">
+            <div class="text-4xl text-white mb-4">Place Your Marble!</div>
+            <div class="text-2xl text-white mb-4">Time left: {{ Math.ceil(payloadData.placement_time_left) }}s</div>
+          </div>
           
           <!-- Joystick for marble placement -->
           <JoystickComponent
@@ -257,7 +254,7 @@ defineExpose({
           <div class="text-2xl">
             Finish Time:
           </div>
-          <div class="text-4xl mt-2 bg-gray-600 p-2 rounded-2xl">
+          <div class="text-4xl text-white mt-2 bg-gray-600 p-2 rounded-2xl">
             {{ personalResult.time_to_finish.toFixed(2) }}s
           </div>
         </div>
