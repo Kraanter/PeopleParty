@@ -13,7 +13,7 @@ class MarbleManiaMap;
 
 class MarbleMania_MiniGame : public MiniGame {
 private:
-    int target_fps = 20;
+    int target_fps = 15;
     int result_time = 5 SECONDS;
     ThreadTimer introduction_timer;
     ThreadTimer minigame_timer;
@@ -23,6 +23,7 @@ private:
     MarbleManiaMap* map;
     bool placementPhaseComplete;
     float placementTimeLeft;
+    bool sended_obstacles = false;
 public:
     MarbleMania_MiniGame(Game* game);
     ~MarbleMania_MiniGame();

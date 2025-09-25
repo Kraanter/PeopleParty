@@ -20,9 +20,6 @@ table FBMarbleManiaEntity {
   finished: bool;
   player_name: string;
   shape: FBShape;
-  // Optional render/physics hints (frontend can ignore if not needed)
-  restitution: float = 0.6;
-  friction: float = 0.4;
 }
 
 table MarbleManiaHostPayload {

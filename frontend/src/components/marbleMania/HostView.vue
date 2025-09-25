@@ -118,7 +118,23 @@ const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
     case GameStateType.MarbleManiaHost: {
       viewState.value = ViewState.MiniGame
-      payloadData.value = parseMarbleManiaHostPayload(data)
+
+      // do not overwrite obstacles if already present
+      if (payloadData.value.entities.length === 0) {
+        payloadData.value = parseMarbleManiaHostPayload(data)
+      } else {
+        // Update dynamic data only (game phase, timers, marble positions)
+        const newData = parseMarbleManiaHostPayload(data)
+        payloadData.value.game_phase = newData.game_phase
+        payloadData.value.placement_time_left = newData.placement_time_left
+        payloadData.value.finish_line_y = newData.finish_line_y
+        // Update marble positions and finished states
+        payloadData.value.entities = payloadData.value.entities.map(e => {
+          if (e.type !== 'marble') return e // Only update marbles
+          const updated = newData.entities.find(ne => ne.id === e.id && ne.type === 'marble')
+          return updated ? { ...e, pos: updated.pos, finished: updated.finished } : e
+        })
+      }
       // Update camera when simulation is running or finished
       if (payloadData.value.game_phase === 1 || payloadData.value.game_phase === 2) {
         // Initialize smoothed camera position if it hasn't been set yet

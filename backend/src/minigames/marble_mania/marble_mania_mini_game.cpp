@@ -166,69 +166,69 @@ void MarbleMania_MiniGame::send_host_update()
             /*finished=*/marble->HasFinished(),
             name,
             FBShape::FBShape_FBCircle,         // union type
-            circle.Union(),                    // union value
-            /*restitution=*/0.8f,
-            /*friction=*/0.2f
+            circle.Union()                    // union value
         );
         entities.push_back(entity);
     }
 
     // --- Obstacles (static) ---
-    for (const auto& obsPtr : map->GetObstacles()) {
-        const auto& obs = *obsPtr;
-        Vector2D p = obs.GetWorldPosition(); // Use world coordinates for frontend
-
-        flatbuffers::Offset<void> shape_value;
-        FBShape shape_type = FBShape::FBShape_NONE;
-
-        switch (obs.GetObstacleType()) {
-            case ObstacleType::Circle: {
-                float radius = obs.GetWorldWidth() * 0.5f;
-                auto circle = CreateFBCircle(builder, radius);
-                shape_type  = FBShape::FBShape_FBCircle;
-                shape_value = circle.Union();
-                break;
-            }
-            case ObstacleType::Rectangle: {
-                auto rect = CreateFBRect(builder, obs.GetWorldWidth(), obs.GetWorldHeight());
-                shape_type  = FBShape::FBShape_FBRect;
-                shape_value = rect.Union();
-                break;
-            }
-            case ObstacleType::Triangle: {
-                // Provide polygon vertices in LOCAL space (pre-rotation) - use world scale
-                auto vertsLocal = obs.GetTriangleWorldLocalVerts();
-                std::vector<flatbuffers::Offset<FBVec2>> vertsFB;
-                vertsFB.reserve(vertsLocal.size());
-                for (auto& v : vertsLocal) {
-                    vertsFB.push_back(CreateFBVec2(builder, v.x, v.y));
+    if (!sended_obstacles) {
+        sended_obstacles = true;
+        // add obstacles only once at start of simulation
+        for (const auto& obsPtr : map->GetObstacles()) {
+            const auto& obs = *obsPtr;
+            Vector2D p = obs.GetWorldPosition(); // Use world coordinates for frontend
+    
+            flatbuffers::Offset<void> shape_value;
+            FBShape shape_type = FBShape::FBShape_NONE;
+    
+            switch (obs.GetObstacleType()) {
+                case ObstacleType::Circle: {
+                    float radius = obs.GetWorldWidth() * 0.5f;
+                    auto circle = CreateFBCircle(builder, radius);
+                    shape_type  = FBShape::FBShape_FBCircle;
+                    shape_value = circle.Union();
+                    break;
                 }
-                auto vertsVec = builder.CreateVector(vertsFB);
-                auto poly = CreateFBPoly(builder, vertsVec);
-                shape_type  = FBShape::FBShape_FBPoly;
-                shape_value = poly.Union();
-                break;
+                case ObstacleType::Rectangle: {
+                    auto rect = CreateFBRect(builder, obs.GetWorldWidth(), obs.GetWorldHeight());
+                    shape_type  = FBShape::FBShape_FBRect;
+                    shape_value = rect.Union();
+                    break;
+                }
+                case ObstacleType::Triangle: {
+                    // Provide polygon vertices in LOCAL space (pre-rotation) - use world scale
+                    auto vertsLocal = obs.GetTriangleWorldLocalVerts();
+                    std::vector<flatbuffers::Offset<FBVec2>> vertsFB;
+                    vertsFB.reserve(vertsLocal.size());
+                    for (auto& v : vertsLocal) {
+                        vertsFB.push_back(CreateFBVec2(builder, v.x, v.y));
+                    }
+                    auto vertsVec = builder.CreateVector(vertsFB);
+                    auto poly = CreateFBPoly(builder, vertsVec);
+                    shape_type  = FBShape::FBShape_FBPoly;
+                    shape_value = poly.Union();
+                    break;
+                }
             }
+    
+            auto pos  = make_vec2(p.x, p.y);
+            auto id   = builder.CreateString(obs.GetId());
+            auto name = builder.CreateString("");   // obstacles don't have names
+    
+            auto entity = CreateFBMarbleManiaEntity(
+                builder,
+                id,
+                FBEntityType::FBEntityType_Obstacle,
+                pos,
+                /*rotation=*/obs.GetCurrentRotation(),
+                /*finished=*/false,
+                name,
+                shape_type,
+                shape_value
+            );
+            entities.push_back(entity);
         }
-
-        auto pos  = make_vec2(p.x, p.y);
-        auto id   = builder.CreateString(obs.GetId());
-        auto name = builder.CreateString("");   // obstacles don't have names
-
-        auto entity = CreateFBMarbleManiaEntity(
-            builder,
-            id,
-            FBEntityType::FBEntityType_Obstacle,
-            pos,
-            /*rotation=*/obs.GetCurrentRotation(),
-            /*finished=*/false,
-            name,
-            shape_type,
-            shape_value,
-            /*restitution=*/0.6f,
-            /*friction=*/0.4f
-        );
-        entities.push_back(entity);
     }
 
     // --- Host payload ---

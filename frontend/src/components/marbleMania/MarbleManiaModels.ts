@@ -14,8 +14,6 @@ export interface MarbleManiaEntity {
   finished: boolean;      // marbles only
   player_name?: string;   // marbles only
   shape: MMShape;
-  restitution?: number;
-  friction?: number;
 }
 
 export interface MarbleManiaData {

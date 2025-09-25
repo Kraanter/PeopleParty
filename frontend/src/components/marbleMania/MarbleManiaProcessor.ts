@@ -73,8 +73,6 @@ export function parseMarbleManiaHostPayload(data: MiniGamePayloadType): MarbleMa
       finished: e.finished(),
       player_name: e.playerName() ? decodeURI(e.playerName()!) : undefined,
       shape: shape!,
-      restitution: e.restitution?.() ?? undefined,
-      friction: e.friction?.() ?? undefined
     })
   }
 
