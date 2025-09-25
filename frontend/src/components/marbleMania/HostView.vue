@@ -75,7 +75,7 @@ const updateCamera = () => {
   
   // Find the lowest marble (highest Y value since Y increases downward)
   const lowestMarble = marbles.reduce((lowest, marble) => 
-    marble.pos.y > lowest.pos.y ? marble : lowest
+    marble.pos.y > lowest.pos.y && !marble.finished ? marble : lowest
   )
   
   // Calculate camera viewport height in world units

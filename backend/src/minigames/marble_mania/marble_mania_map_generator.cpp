@@ -223,8 +223,8 @@ ObstacleInfo MarbleManiaMapGenerator::createPlatform_(float y, PlatformType type
             
         case PlatformType::CENTER:
             // Ensure marble-width clearance from walls
-            float minX = worldMinX_ + platform.width * 0.4f + marbleRadius_ * 2;
-            float maxX = worldMaxX_ - platform.width * 0.4f - marbleRadius_ * 2;
+            float minX = worldMinX_ + platform.width * 0.4f + marbleRadius_ * 4;
+            float maxX = worldMaxX_ - platform.width * 0.4f - marbleRadius_ * 4;
             platform.position.x = minX + unitDist_(rng_) * (maxX - minX);
             
             // Random tilt direction
