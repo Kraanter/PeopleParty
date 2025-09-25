@@ -197,7 +197,7 @@ defineExpose({
             :size="200"
             base-color="lightgray"
             stick-color="blue"
-            :throttle="100"
+            :throttle="50"
             @move="move"
           />
             

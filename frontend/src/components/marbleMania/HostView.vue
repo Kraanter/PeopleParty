@@ -319,6 +319,49 @@ const renderPolyObstacle = (g: Graphics, e: MarbleManiaEntity) => {
   g.endFill()
 }
 
+// Off-screen marble indicators
+const renderOffScreenIndicators = (g: Graphics) => {
+  const marbles = getMarbles()
+  const cameraMinY = cameraOffset.value.y
+  
+  // Find marbles that are above the camera view (have lower Y values than camera min)
+  const offScreenMarbles = marbles.filter(marble => {
+    // Marble is above camera view if its Y position is less than camera minimum Y
+    return marble.pos.y < cameraMinY
+  })
+  
+  // Render indicators for off-screen marbles
+  offScreenMarbles.forEach(marble => {
+    // Convert marble's world X position to screen X
+    const screenPos = worldToScreen({ x: marble.pos.x, y: cameraMinY })
+    
+    // Calculate distance above camera view
+    const distanceAbove = Math.round(cameraMinY - marble.pos.y)
+    
+    // Draw dot at top of screen (use same color as regular marbles)
+    const dotY = 20 // 20 pixels from top
+    g.lineStyle(2, 0x2d5016) // Same border color as marbles
+    g.beginFill(0x4ade80) // Same fill color as marbles
+    g.drawCircle(screenPos.x, dotY, 6) // 6 pixel radius dot
+    g.endFill()
+    
+    // Create and render text using PIXI Text
+    const textY = dotY + 18
+    const distanceText = `${distanceAbove}`
+    
+    // Draw text background (simplified approach)
+    const textWidth = distanceText.length * 8 // Approximate width
+    const textHeight = 14
+    
+    g.lineStyle(0)
+    g.beginFill(0x000000, 0.8)
+    g.drawRect(screenPos.x - textWidth/2 - 2, textY - textHeight/2 - 1, textWidth + 4, textHeight + 2)
+    g.endFill()
+    
+    // Text will be rendered via HTML overlay (see template)
+  })
+}
+
 // ---------- Render loops ----------
 
 const render = (g: Graphics) => {
@@ -392,6 +435,9 @@ const render = (g: Graphics) => {
     if (!isEntityInCameraView(e)) continue // Skip off-screen marbles
     renderMarble(g, e)
   }
+
+  // off-screen marble indicators - show dots for marbles above the camera view
+  renderOffScreenIndicators(g)
 }
 
 const renderResults = (g: Graphics) => {
@@ -424,6 +470,25 @@ const renderResults = (g: Graphics) => {
 // utils
 const getMarbles = () => payloadData.value.entities.filter(e => e.type === 'marble')
 const getObstacles = () => payloadData.value.entities.filter(e => e.type === 'obstacle')
+
+// Get off-screen marble indicators data
+const getOffScreenMarbles = () => {
+  const marbles = getMarbles()
+  const cameraMinY = cameraOffset.value.y
+  
+  return marbles
+    .filter(marble => marble.pos.y < cameraMinY)
+    .map(marble => {
+      const screenPos = worldToScreen({ x: marble.pos.x, y: cameraMinY })
+      const distanceAbove = Math.round((cameraMinY - marble.pos.y) / 5) // scale down for readability
+      return {
+        id: marble.id,
+        screenX: screenPos.x,
+        distance: distanceAbove,
+        playerName: marble.player_name
+      }
+    })
+}
 
 const applicationId = ref(0)
 watch(
@@ -492,6 +557,24 @@ defineExpose({ update })
               background-color="black"
             >
               <Graphics :x="0" :y="0" @render="render" />
+              
+              <!-- Off-screen marble indicator texts -->
+              <template v-for="marble in getOffScreenMarbles()" :key="`off-screen-${marble.id}`">
+                <Text
+                  :position="{ x: marble.screenX, y: 38 }"
+                  :text="marble.distance.toString()"
+                  :style="{ 
+                    fontFamily: ['Arial','sans-serif'], 
+                    fontSize: 20, 
+                    fill: 'white', 
+                    stroke: 'black', 
+                    strokeThickness: 3,
+                    align: 'center'
+                  }"
+                  anchor="0.5"
+                />
+              </template>
+              
               <!-- marble labels & finished icons - only for visible marbles -->
               <template v-for="marble in getMarbles().filter(m => isEntityInCameraView(m))" :key="marble.id">
                 <Text
