@@ -1,0 +1,34 @@
+table FBVec2 {
+  x: float;
+  y: float;
+}
+
+enum FBEntityType: ubyte { Marble = 0, Obstacle = 1 }
+
+// Shapes
+table FBCircle { radius: float; }
+table FBRect   { width: float; height: float; }
+table FBPoly   { vertices: [FBVec2]; } // CCW, local-space (rotation applied separately)
+
+union FBShape { FBCircle, FBRect, FBPoly }
+
+table FBMarbleManiaEntity {
+  id: string;
+  type: FBEntityType;
+  pos: FBVec2;
+  rotation: float;
+  finished: bool;
+  player_name: string;
+  shape: FBShape;
+}
+
+table MarbleManiaHostPayload {
+  entities: [FBMarbleManiaEntity];
+  game_phase: ubyte;         // 0=placement,1=simulation,2=finished
+  placement_time_left: float;
+  finish_line_y: float;
+  world_min: FBVec2;         // for framing
+  world_max: FBVec2;
+}
+
+root_type MarbleManiaHostPayload;

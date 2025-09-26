@@ -2,6 +2,7 @@
 uwebsockets/20.71.0
 doctest/2.4.11
 flatbuffers/24.3.25
+box2d/2.4.1
 
 [generators]
 CMakeDeps
