@@ -4,6 +4,7 @@
 #include "../game_state.h"
 #include "../util/thread_timer.h"
 #include <map>
+#include <vector>
 
 class Game;
 
@@ -23,6 +24,7 @@ private:
 private:
     ThreadTimer timer;
     int remaining_time;
+    std::vector<std::string> vote_skipped_players;
 };
 
 

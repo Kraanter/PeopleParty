@@ -10,6 +10,7 @@ table LeaderboardInformationPayload {
     leaderboard_time_left: ulong;
     podium: bool;
     leaderboard: [FBLeaderboardPlayer];
+    vote_skipped: [string];
 }
 
 
@@ -17,15 +18,21 @@ table LeaderboardHostSkipPayload {
     skip: bool;
 }
 
+table LeaderboardPlayerSkipPayload {
+    name: string;
+}
+
 
 enum LeaderboardType: byte {
     LeaderboardInformation,
     LeaderboardHostSkip,
+    LeaderboardPlayerSkip
 }
 
 union LeaderboardPayload {
     LeaderboardInformationPayload,
     LeaderboardHostSkipPayload,
+    LeaderboardPlayerSkipPayload,
 }
 
 table LeaderboardPayloadType {
