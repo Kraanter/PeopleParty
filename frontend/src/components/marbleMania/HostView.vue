@@ -688,7 +688,7 @@ defineExpose({ update })
             <Graphics :x="0" :y="0" @render="renderResults" />
             <template v-for="(result, idx) in results.results" :key="result.name">
               <Text
-                :position="{ x: getCenteredTextPosition(`${formatOrdinals(result.placement)}. ${result.name}`, canvasWidth / 2 - 100), y: 25 + idx * 60 }"
+                :position="{ x: 150, y: 25 + idx * 60 }"
                 :text="`${formatOrdinals(result.placement)}. ${result.name}`"
                 :style="{ fontFamily: ['Helvetica','Arial','sans-serif'], fontSize: 24, fill: result.has_finished ? 'white' : 'gray', stroke: 'black', strokeThickness: 3 }"
               />

@@ -211,7 +211,7 @@ defineExpose({
         </div>
         <div class="absolute top-0 text text-white z-10">
           <div class="flex flex-col justify-center items-center mt-64">
-            <div v-if="Math.round(payloadData.distance / 10) < 0" class="text-4xl flex flex-col justify-center items-center">
+            <div v-if="Math.round(payloadData.distance / 10) < 0 && viewState != ViewState.Results" class="text-4xl flex flex-col justify-center items-center">
               <div>
                 Check on your screen which car you are!
               </div>
