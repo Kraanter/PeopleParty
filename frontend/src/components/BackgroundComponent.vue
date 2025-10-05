@@ -1,35 +1,60 @@
 <script setup lang="ts">
-import { type ObservablePoint, TilingSprite } from 'pixi.js'
+import { type ObservablePoint } from 'pixi.js'
 import { Application, onTick } from 'vue3-pixi'
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useColorStore } from '@/stores/colorStore'
 import { storeToRefs } from 'pinia'
 
 const colorStore = useColorStore()
-
 const { colorPalette } = storeToRefs(colorStore)
 
-let bgTexture = '/drawing.png'
-let bgPos = ref({ x: 0, y: 0 })
+const bgTexture = '/drawing.png'
+
 // @ts-ignore
 const bgScale: ObservablePoint = { x: 0.3, y: 0.3 }
 
+// Use non-reactive position that resets to prevent infinite growth
+let xPosition = 0
+const ANIMATION_SPEED = 0.5
+const RESET_THRESHOLD = 512 * bgScale.x // multiple with the scale
+// needs to be a multiple of 512 (image width)
+
+// Create reactive position that updates efficiently
+const bgPos = ref({ x: 0, y: 0 })
+
+// Optimized animation loop
 onTick(() => {
-  bgPos.value.x += 0.5
+  // Increment internal position
+  xPosition += ANIMATION_SPEED
+  
+  // Reset position periodically to prevent infinite growth
+  if (xPosition >= RESET_THRESHOLD) {
+    xPosition = 0
+  }
+  
+  // Update reactive position (only when necessary)
+  bgPos.value = { x: xPosition, y: 0 }
 })
 
-let width = ref(window.innerWidth)
-let height = ref(window.innerHeight)
+const width = ref(window.innerWidth)
+const height = ref(window.innerHeight)
 
-// Listen for window resize events
-window.addEventListener('resize', resize)
-
-// Resize function window
-function resize() {
-  // Resize the renderer
+// Optimized resize function
+const resize = () => {
   width.value = window.innerWidth
   height.value = window.innerHeight
 }
+
+// Properly manage event listeners
+onMounted(() => {
+  window.addEventListener('resize', resize, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', resize)
+  // Reset position on cleanup
+  xPosition = 0
+})
 </script>
 
 <template>

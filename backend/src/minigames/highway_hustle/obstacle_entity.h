@@ -9,8 +9,6 @@
 class Obstacle_Entity : public Base_Entity {
 public:
     std::string id;
-    Vector2D position;
-    Vector2D velocity;
     int car_type = 0; // (0-?) determines the obstacle vehicle type
 public:
     Obstacle_Entity() : Base_Entity() {};

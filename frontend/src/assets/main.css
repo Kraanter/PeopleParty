@@ -14,6 +14,40 @@
 
 body {
   @apply overflow-hidden w-dvw h-dvh text-text bg-secondary;
+  /* Fallback for browsers without dvh support */
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  /* Prevent mobile browsers from zooming */
+  touch-action: manipulation;
+  /* Ensure consistent rendering */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Handle orientation changes and prevent layout shifts */
+@media screen and (orientation: landscape) {
+  body {
+    /* Maintain portrait-like layout even in landscape */
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+  }
+}
+
+/* Additional mobile-specific styles */
+#app {
+  /* Ensure app fills the viewport properly */
+  width: 100%;
+  height: 100%;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+  /* Prevent text selection on mobile */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .text-body {

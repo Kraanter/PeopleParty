@@ -8,7 +8,7 @@ import { buildMessage } from '../util/flatbufferMessageBuilder'
 import { MessageType } from '../flatbuffers/message-type';
 import { Payload } from '../flatbuffers/payload';
 import PartyButton from './PartyButton.vue'
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const { partyCode } = storeToRefs(useWebSocketStore())
 const websocketStore = useWebSocketStore()
@@ -37,12 +37,14 @@ const togglePauseGame = () => {
   }, 1000)
 }
 
+const hostName = computed(() => window.location.host)
+
 </script>
 <template>
   <div
     class="w-[95%] mx-auto bg-white grid grid-cols-3 grid-rows-1 rounded-lg mt-2 mb-8 px-4 max-h-20 h-full text-2xl justify-center items-center cartoonShadow"
   >
-    <p>Join now at <span class="font-bold">peopleparty.nl</span></p>
+    <p>Join now at <span class="font-bold">{{ hostName }}</span></p>
     <div class="w-full row-span-3 -mt-4 h-28 my-auto">
       <PeoplePartyLogo />
     </div>
