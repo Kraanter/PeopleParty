@@ -310,7 +310,7 @@ const skipVotePlayerLeaderboard = () => {
     <!-- vote skip button -->
      <div v-if="!playerVoteSkipped" class="absolute bottom-0 w-full flex justify-center mb-14">
       <div>
-        <PartyButton class="pb-3 px-3" @disabled="playerVoteSkipped" @click="skipVotePlayerLeaderboard">
+        <PartyButton class="pb-3 px-3" @click="skipVotePlayerLeaderboard">
           <span class="text-xl">Vote Skip</span>
         </PartyButton>
       </div>
