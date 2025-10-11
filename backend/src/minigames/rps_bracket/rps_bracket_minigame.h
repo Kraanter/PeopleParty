@@ -52,7 +52,6 @@ private:
     void send_match_update(const RPS_Match match);
 private:
     ThreadTimer introduction_timer;
-    int introduction_time = 7 SECONDS;
     ThreadTimer result_timer;
     const int result_time = 5 SECONDS;
     std::vector<Client*> players;

@@ -7,7 +7,8 @@
 #include "../../game.h"
 
 RPSBracket_MiniGame::RPSBracket_MiniGame(Game *game) : MiniGame(game) {
-
+    min_players = 2;
+    max_players = 64;
 }
 
 RPSBracket_MiniGame::~RPSBracket_MiniGame() {
