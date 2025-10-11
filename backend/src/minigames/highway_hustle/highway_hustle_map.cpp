@@ -5,6 +5,8 @@ HighwayHustle_Map::HighwayHustle_Map(float x, float y) {
     map_width = x;
 
     distance_travelled = -5000; // start at -5000 to give 5s of time to let the players know who is who.
+
+    max_players = 12;
 }
 
 HighwayHustle_Map::~HighwayHustle_Map() {

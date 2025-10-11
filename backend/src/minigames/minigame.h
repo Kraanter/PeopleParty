@@ -31,6 +31,9 @@ protected:
     void finished() override;
     void process_input(const Message *payload, Client *from) override;
     void send_minigame_introduction(const std::string &minigame_name_camel_case, int time_left, const std::string &minigame_name, const std::string &minigame_description);
+public:
+    int min_players = 2;
+    int max_players = -1; // -1 = no limit
 protected:
     ThreadTimer timer;
     int introduction_time = 7 SECONDS;
