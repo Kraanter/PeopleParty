@@ -2,6 +2,8 @@
 
 HighwayHustle_MiniGame::HighwayHustle_MiniGame(Game *game) : MiniGame(game) {
     map = new HighwayHustle_Map(750, 480);
+    
+    max_players = 12;
 }
 
 HighwayHustle_MiniGame::~HighwayHustle_MiniGame() {
