@@ -1,0 +1,5 @@
+table MarbleManiaPlayerInputPayload {
+    lock: bool;
+}
+
+root_type MarbleManiaPlayerInputPayload;

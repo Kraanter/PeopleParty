@@ -29,6 +29,7 @@ export type Leaderboard = {
   time_left: number
   podium: boolean
   players: LeaderboardPlayer[]
+  vote_skipped: string[]
 }
 
 export type LeaderboardPlayer = {
@@ -262,10 +263,20 @@ export const useWebSocketStore = defineStore('websocket', () => {
                 deltaPosition: Number(payload.leaderboard(i)?.deltaPosition()) ?? 0
               })
             }
+
+            const voteSkippedPlayers: string[] = []
+            for (let i = 0; i < payload.voteSkippedLength(); i++) {
+              const submittedString = payload.voteSkipped(i)
+              if (submittedString === null) continue
+              voteSkippedPlayers.push(decodeURI(submittedString))
+            }
+            console.log('vote skipped players', voteSkippedPlayers, clientName.value, voteSkippedPlayers.includes(clientName.value))
+
             viewStore.setViewData({
               time_left: Number(payload.leaderboardTimeLeft()),
               podium: payload.podium(),
-              players: newEntries.filter((p) => p && !!p.name)
+              players: newEntries.filter((p) => p && !!p.name),
+              vote_skipped: voteSkippedPlayers
             })
             break
           }

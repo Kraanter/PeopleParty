@@ -34,6 +34,35 @@ void Leaderboard::process_input(const Message *payload, Client *from) {
                     }
                     break;
                 }
+                case LeaderboardType_LeaderboardPlayerSkip: {
+                    auto input = leaderboardPayload->leaderboardpayload_as_LeaderboardPlayerSkipPayload();
+                    if (input == nullptr) return;
+                    if (from == nullptr) return;
+                    if (from->isHost) return; // host can't vote to skip
+
+                    // check if player already voted to skip
+                    auto name = input->name()->str();
+                    for (const auto& player_name : vote_skipped_players) {
+                        if (player_name == name) {
+                            return; // player already voted to skip
+                        }
+                    }
+                    vote_skipped_players.push_back(name);
+
+                    // check if enough players voted to skip
+                    int num_players = 0;
+                    for (Client* client: game->get_clients()) {
+                        if (client->isHost) continue;
+                        num_players++;
+                    }
+                    int min_to_skip = std::ceil(num_players / 2.0);
+
+                    if ((int)vote_skipped_players.size() >= min_to_skip) {
+                        timer.clear();
+                        finished();
+                        return;
+                    }
+                }
             }
             break;
         }
@@ -90,8 +119,15 @@ void Leaderboard::send_leaderboard_information() {
 
     auto entities_vector = builder.CreateVector(players_buffer);
 
+    // add vote skipped players
+    std::vector<flatbuffers::Offset<flatbuffers::String>> vote_skipped_players_buffer;
+    for (const auto& player_name : vote_skipped_players) {
+        vote_skipped_players_buffer.push_back(builder.CreateString(player_name));
+    }
+    auto vote_skipped_players_vector = builder.CreateVector(vote_skipped_players_buffer);
+
     // Encode payload to binary
-    auto payload = CreateLeaderboardInformationPayload(builder, remaining_time, game->party->settings->game_finished, entities_vector);
+    auto payload = CreateLeaderboardInformationPayload(builder, remaining_time, game->party->settings->game_finished, entities_vector, vote_skipped_players_vector);
 
     auto leaderboardPayload = CreateLeaderboardPayloadType(builder, LeaderboardType_LeaderboardInformation,
                                                       LeaderboardPayload_LeaderboardInformationPayload, payload.Union());

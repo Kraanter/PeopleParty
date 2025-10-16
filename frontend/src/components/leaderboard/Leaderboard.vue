@@ -12,6 +12,7 @@ import {
   LeaderboardHostSkipPayload,
   LeaderboardPayload,
   LeaderboardPayloadType,
+  LeaderboardPlayerSkipPayload,
   LeaderboardType,
   MessageType,
   Payload
@@ -60,6 +61,19 @@ const formatOrdinals = (n: number) => {
   return `${n}${suffix}`
 }
 
+const playerVoteSkipped = computed(() => {
+  return leaderboard.value?.vote_skipped?.includes(websocketStore.clientName) ?? false
+})
+
+const amountOfPlayersVoteSkipped = computed(() => {
+  return leaderboard.value?.vote_skipped?.length ?? 0
+})
+
+const minPlayersToSkip = computed(() => {
+  const min = Math.ceil((leaderboard?.value?.players.length ?? 1) / 2);
+  return min == 0 ? 1 : min;
+})
+
 const skipLeaderboard = () => {
   let builder = new flatbuffers.Builder()
 
@@ -78,6 +92,31 @@ const skipLeaderboard = () => {
   websocketStore.sendMessage(
     buildMessage(builder, message, MessageType.Leaderboard, Payload.LeaderboardPayloadType)
   )
+}
+
+const skipVotePlayerLeaderboard = () => {
+  if (playerVoteSkipped.value) {
+    return
+  }
+
+  let builder = new flatbuffers.Builder()
+
+  let skipPayload = LeaderboardPlayerSkipPayload.createLeaderboardPlayerSkipPayload(
+    builder,
+    builder.createString(websocketStore.clientName)
+  )
+
+  let message = LeaderboardPayloadType.createLeaderboardPayloadType(
+    builder,
+    LeaderboardType.LeaderboardPlayerSkip,
+    LeaderboardPayload.LeaderboardPlayerSkipPayload,
+    skipPayload
+  )
+
+  websocketStore.sendMessage(
+    buildMessage(builder, message, MessageType.Leaderboard, Payload.LeaderboardPayloadType)
+  )
+  console.log('voted to skip leaderboard', websocketStore.clientName)
 }
 </script>
 <template>
@@ -101,19 +140,27 @@ const skipLeaderboard = () => {
         <div class="col-start-2 mx-auto">
           <TimeComponent :timeLeft="timeLeft" />
         </div>
-        <div class="mx-auto">
-          <PartyButton class="w-24" @click="skipLeaderboard">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="size-12 text-white mx-8"
-            >
-              <path
+        <div class="grid grid-cols-2">
+          <div>
+            <div v-if="amountOfPlayersVoteSkipped !== 0" class="mt-2">
+              <span class="text-2xl text-primary">players voted to skip: </span>
+              <span class="text-2xl font-bold">{{ amountOfPlayersVoteSkipped }} / {{ minPlayersToSkip }}</span>
+            </div>
+          </div>
+          <div class="mx-auto mt-2">
+            <PartyButton class="w-24" @click="skipLeaderboard">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="size-12 text-white mx-8"
+                >
+                <path
                 d="M5.055 7.06C3.805 6.347 2.25 7.25 2.25 8.69v8.122c0 1.44 1.555 2.343 2.805 1.628L12 14.471v2.34c0 1.44 1.555 2.343 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256l-7.108-4.061C13.555 6.346 12 7.249 12 8.689v2.34L5.055 7.061Z"
-              />
-            </svg>
-          </PartyButton>
+                />
+              </svg>
+            </PartyButton>
+          </div>
         </div>
       </div>
       <div v-if="leaderboard.podium && sortedLeaderboard.length > 2" style="height: 75vh;">
@@ -260,6 +307,14 @@ const skipLeaderboard = () => {
         </n-card>
       </div>
     </n-scrollbar>
+    <!-- vote skip button -->
+     <div v-if="!playerVoteSkipped" class="absolute bottom-0 w-full flex justify-center mb-14">
+      <div>
+        <PartyButton class="pb-3 px-3" @click="skipVotePlayerLeaderboard">
+          <span class="text-xl">Vote Skip</span>
+        </PartyButton>
+      </div>
+    </div>
   </div>
 </template>
 <style scoped>

@@ -2,25 +2,14 @@
 import { ref, defineProps, computed } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
-import {
-  GameStatePayload,
-  GameStateType,
-  JoystickDataPayload,
-  JoystickEventPayload,
-  JoystickEventType,
-  MessageType,
-  MiniGameIntroductionPayload,
-  MiniGamePayloadType,
-  Payload,
-} from '@/flatbuffers/messageClass'
-import * as flatbuffers from 'flatbuffers'
-import { buildMessage } from '@/util/flatbufferMessageBuilder'
+import { GameStateType, MiniGameIntroductionPayload, MiniGamePayloadType } from '@/flatbuffers/messageClass'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import type { HighwayHustlePlayerData, HighwayHustleResult } from './HighwayHustleModels'
 import { parseHighwayHustlePlayerPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
 //import Joystick from 'vue-joystick-component'
 import JoystickComponent from './JoystickComponent.vue'
 import { getPlayerSprite, getPlayerSpriteDimensions } from './HighwayHustleSpriteMap'
+import { sendPlayerAction, sendPlayerEvent } from '@/util/joystickMessageBuilder'
 
 const websocketStore = useWebSocketStore()
 
@@ -90,68 +79,8 @@ const update = (data: MiniGamePayloadType) => {
   return []
 }
 
-const sendPlayerAction = (x: number, y: number) => {
-  let builder = new flatbuffers.Builder()
-
-  let playerInput = JoystickDataPayload.createJoystickDataPayload(
-    builder,
-    x,
-    y,
-  )
-
-  let miniGame = builder.createString('highwayHustle')
-
-  let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
-    builder,
-    miniGame,
-    GameStateType.JoystickData,
-    GameStatePayload.JoystickDataPayload,
-    playerInput
-  )
-
-  websocketStore.sendMessage(
-    buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType)
-  )
-}
-
-const sendPlayerEvent = (event: string) => {
-  let builder = new flatbuffers.Builder()
-
-  let eventType: JoystickEventType;
-  switch (event) {
-    case 'start':
-      eventType = JoystickEventType.Start
-      break
-    case 'stop':
-      eventType = JoystickEventType.Stop
-      break
-    default:
-      eventType = JoystickEventType.Stop
-      break
-  }
-
-  let playerInput = JoystickEventPayload.createJoystickEventPayload(
-    builder,
-    eventType,
-  )
-
-  let miniGame = builder.createString('highwayHustle')
-
-  let miniGamePayload = MiniGamePayloadType.createMiniGamePayloadType(
-    builder,
-    miniGame,
-    GameStateType.JoystickEvent,
-    GameStatePayload.JoystickEventPayload,
-    playerInput
-  )
-
-  websocketStore.sendMessage(
-    buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType)
-  )
-}
-
 const move = ({ x, y }: any) => {
-  sendPlayerAction(x, y)
+  sendPlayerAction('highwayHustle', x, y)
 }
 
 const pr = new Intl.PluralRules('en-US', { type: 'ordinal' })
@@ -216,8 +145,8 @@ defineExpose({
         stick-color="black"
         :throttle="100"
         @move="move"
-        @start="sendPlayerEvent('start')"
-        @stop="sendPlayerEvent('stop')"
+        @start="sendPlayerEvent('highwayHustle', 'start')"
+        @stop="sendPlayerEvent('highwayHustle', 'stop')"
       />
     </div>
   </template>

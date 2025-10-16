@@ -22,6 +22,8 @@ void Game::add_minigames() {
     if (party->settings->IsMiniGameEnabled("launch_party")) { temp_minigames.push_back(new LaunchParty_Minigame(this)); }
     if (party->settings->IsMiniGameEnabled("right_on_time")) { temp_minigames.push_back(new RightOnTime_Minigame(this)); }
     if (party->settings->IsMiniGameEnabled("highway_hustle")) { temp_minigames.push_back(new HighwayHustle_MiniGame(this)); }
+    if (party->settings->IsMiniGameEnabled("marble_mania")) { temp_minigames.push_back(new MarbleMania_MiniGame(this)); }
+    // also add new minigames in frontend/src/components/partyManagment/minigamePlayerBounds.ts
 
     auto rd = std::random_device{};
     auto rng = std::default_random_engine{rd()};
@@ -133,7 +135,9 @@ void Game::update_leaderboard(std::vector<std::pair<Client *, int>> minigame_res
 }
 
 void Game::handle_new_minigame() {
-    if (last_minigame != "" && party->settings->number_of_rounds != 0 && party->settings->current_round >= party->settings->number_of_rounds)
+    // If last minigame, go to party prep
+    if (party->settings->game_finished == true ||
+        last_minigame != "" && party->settings->number_of_rounds != 0 && party->settings->current_round >= party->settings->number_of_rounds)
     {
         // reset the game
         party->settings->game_finished = false;
@@ -155,11 +159,51 @@ void Game::handle_new_minigame() {
 
         return;
     }
+    // start next minigame
     else
     {
         if (miniGames.size() < 1)
         {
             add_minigames();
+        }
+
+        // check if the minigame meets the min/max players requirements
+        while (true)
+        {
+            // check the first minigame in the queue
+            MiniGame* mg = miniGames.front();
+
+            // get player count (exclude host and spectators)
+            auto clients = get_clients();
+            int player_count = 0;
+            for (auto client : clients) {
+                if (!client->isHost) {
+                    player_count++;
+                }
+            }
+
+            //int player_count = get_clients()..size();
+            if ((mg->min_players != -1 && player_count < mg->min_players) || (mg->max_players != -1 && player_count > mg->max_players))
+            {
+                // does not meet requirements, remove from queue and delete
+                miniGames.pop();
+                delete mg;
+                party->settings->number_of_rounds++;
+
+                // if no more minigames, go to leaderboard
+                if (miniGames.size() < 1)
+                {
+                    party->settings->game_finished = true;
+                    current_gamestate = new Leaderboard(this);
+                    ((Leaderboard *)current_gamestate)->start();
+                    return;
+                }
+            }
+            else
+            {
+                // meets requirements, break the loop and start the minigame
+                break;
+            }
         }
 
         current_gamestate = (GameState *)miniGames.front();

@@ -111,6 +111,9 @@ void MemoryMixer_MiniGame::set_round_difficulty(int current_round, double amount
     if ((current_round == 1 || current_round == 2) && max_on_card < 2) {
         max_on_card = 2;
     }
+
+    // for now 'remove' the max_on_card (removing this causes the round 4 break bug)
+    max_on_card = 99;
 }
 
 void MemoryMixer_MiniGame::introduction_update(int delta_time) {
