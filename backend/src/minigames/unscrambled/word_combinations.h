@@ -8,24 +8,9 @@
 
 class Word_Combinations {
 private:
-    std::vector<std::vector<std::string>> word_combinations; // will be a vector of > group of 5 words
-public:
-    Word_Combinations() {
-        load_word_combinations();
-    };
-    ~Word_Combinations() {
-        word_combinations.clear();
-    }
-    std::vector<std::vector<std::string>> get_random_word_combinations(int amount) {
-        std::vector<std::vector<std::string>> selected_combinations;
-        std::sample(word_combinations.begin(), word_combinations.end(),
-                    std::back_inserter(selected_combinations),
-                    amount,
-                    std::mt19937{std::random_device{}()});
-        return selected_combinations;
-    }
-private:
-    void load_word_combinations() {
+    static inline std::vector<std::vector<std::string>> word_combinations; // will be a vector of > group of 5 words
+    
+    static void load_word_combinations() {
         // hardcoded word combinations for simplicity
         // Each set shares many common letters to make scrambled words confusing
         word_combinations = {
@@ -149,6 +134,19 @@ private:
             // Set 40: c, o, n, t, r, i, b, u (11-13 letters) - Long words
             {"contribution", "distribution", "tribulations", "incubator", "contributor"},
         };
+    }
+    
+public:
+    static std::vector<std::vector<std::string>> get_random_word_combinations(int amount) {
+        if (word_combinations.empty()) {
+            load_word_combinations();
+        }
+        std::vector<std::vector<std::string>> selected_combinations;
+        std::sample(word_combinations.begin(), word_combinations.end(),
+                    std::back_inserter(selected_combinations),
+                    amount,
+                    std::mt19937{std::random_device{}()});
+        return selected_combinations;
     }
 };
 

@@ -1,0 +1,7 @@
+table UnscrambledHostPayload {
+    time: long;
+    round: short;
+    scrambled_word: string;
+}
+
+root_type UnscrambledHostPayload;

@@ -5,6 +5,7 @@
 #include <random>
 #include <math.h>
 #include "../minigame.h"
+#include "word_combinations.h"
 
 class Unscrambled_Minigame : public MiniGame {
 private:
@@ -13,10 +14,15 @@ private:
     ThreadTimer introduction_timer;
     ThreadTimer minigame_timer;
     ThreadTimer result_timer;
-    std::map<Client*, int> players; // score: int = amount of correct words
+    std::map<Client*, std::pair<int, bool>> players; // score: int = amount of correct words, bool = has submitted for current round
     int current_round = 1;
     int current_phase = 0; // 0 = play minigame, 1 = round result
     int time = 0; // time in ms
+    // game data
+    std::vector<std::vector<std::string>> combinations;
+    std::vector<int> round_target;
+    std::string current_word;
+    std::string current_scrambled_word;
 public:
     Unscrambled_Minigame(Game *game);
     ~Unscrambled_Minigame();
@@ -38,6 +44,8 @@ private:
     void send_round_result_data(int client_id);
     void send_result_data(int client_id);
     void introduction_update(int delta_time);
+    void select_random_word();
+    void unscramble_word_step();
 };
 
 
