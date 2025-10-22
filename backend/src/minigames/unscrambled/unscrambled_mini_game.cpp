@@ -1,7 +1,7 @@
 #include "unscrambled_mini_game.h"
 #include "../../game.h"
 
-Unscrambled_Minigame::Unscrambled_Minigame(Game *game) : MiniGame(game) {
+Unscrambled_MiniGame::Unscrambled_MiniGame(Game *game) : MiniGame(game) {
     combinations = Word_Combinations::get_random_word_combinations(5);
 
     // loop 0-max_rounds to set a random round_target for each round
@@ -11,7 +11,7 @@ Unscrambled_Minigame::Unscrambled_Minigame(Game *game) : MiniGame(game) {
     }
 }
 
-Unscrambled_Minigame::~Unscrambled_Minigame() {
+Unscrambled_MiniGame::~Unscrambled_MiniGame() {
     introduction_timer.clear();
     minigame_timer.clear();
     result_timer.clear();
@@ -22,26 +22,26 @@ Unscrambled_Minigame::~Unscrambled_Minigame() {
     round_target.clear();
 }
 
-void Unscrambled_Minigame::start_introduction() {
+void Unscrambled_MiniGame::start_introduction() {
     update_interval = 500 MILLISECONDS;
     introduction_timer.setInterval([this]() { introduction_update(update_interval); }, update_interval);
 }
 
-void Unscrambled_Minigame::pause() {
+void Unscrambled_MiniGame::pause() {
     minigame_timer.pause();
     result_timer.pause();
     timer.pause();
     introduction_timer.pause();
 }
 
-void Unscrambled_Minigame::resume() {
+void Unscrambled_MiniGame::resume() {
     minigame_timer.resume();
     result_timer.resume();
     timer.resume();
     introduction_timer.resume();
 }
 
-void Unscrambled_Minigame::introduction_update(int delta_time) {
+void Unscrambled_MiniGame::introduction_update(int delta_time) {
     introduction_time -= delta_time;
 
     if (introduction_time <= 0) {
@@ -53,7 +53,7 @@ void Unscrambled_Minigame::introduction_update(int delta_time) {
     send_minigame_introduction(get_camel_case_name(), introduction_time, get_display_name(), get_description());
 }
 
-void Unscrambled_Minigame::select_random_word() {
+void Unscrambled_MiniGame::select_random_word() {
     // select the set with index of current_round - 1
     auto &word_set = combinations[current_round - 1];
 
@@ -79,7 +79,7 @@ void Unscrambled_Minigame::select_random_word() {
     }
 }
 
-void Unscrambled_Minigame::unscramble_word_step() {
+void Unscrambled_MiniGame::unscramble_word_step() {
     // if allready unscrambled, return
     if (current_word == current_scrambled_word) {
         return;
@@ -100,7 +100,7 @@ void Unscrambled_Minigame::unscramble_word_step() {
     }
 }
 
-void Unscrambled_Minigame::start_minigame() {
+void Unscrambled_MiniGame::start_minigame() {
     time = 30 SECONDS; // rounds of 30 seconds
     current_round = 1;
     current_phase = 0;
@@ -118,13 +118,8 @@ void Unscrambled_Minigame::start_minigame() {
     minigame_timer.setInterval([this]() { update(100 MILLISECONDS); }, 100 MILLISECONDS);
 }
 
-void Unscrambled_Minigame::update(int delta_time) {
+void Unscrambled_MiniGame::update(int delta_time) {
     time -= delta_time;
-
-    // if phase is 1, just return (to wait for timer to finish)
-    if (current_phase == 1) {
-        return;
-    }
 
     // if time is up, go to next round/phase
     if (time <= 0) {
@@ -149,7 +144,13 @@ void Unscrambled_Minigame::update(int delta_time) {
             for (auto &player : players) {
                 player.second.second = false;
             }
+            return;
         }
+    }
+
+    // if phase is 1, just return (to wait for timer to finish)
+    if (current_phase == 1) {
+        return;
     }
 
     // unscramble phase
@@ -169,9 +170,21 @@ void Unscrambled_Minigame::update(int delta_time) {
             send_player_payload_data(player.first->client_id);
         }
     }
+
+    // if all players have submitted, go to next round/phase
+    bool all_submitted = true;
+    for (const auto &player : players) {
+        if (!player.second.second) {
+            all_submitted = false;
+            break;
+        }
+    }
+    if (all_submitted) {
+        time = 0;
+    }
 }
 
-void Unscrambled_Minigame::process_input(const MiniGamePayloadType *payload, Client *from) {
+void Unscrambled_MiniGame::process_input(const MiniGamePayloadType *payload, Client *from) {
     switch(payload->gamestatetype()) {
         case GameStateType_UnscrambledPlayerInput: {
             auto input_payload = payload->gamestatepayload_as_UnscrambledPlayerInputPayload();
@@ -191,7 +204,7 @@ void Unscrambled_Minigame::process_input(const MiniGamePayloadType *payload, Cli
     }
 }
 
-void Unscrambled_Minigame::send_host_payload_data(int client_id) {
+void Unscrambled_MiniGame::send_host_payload_data(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
     auto payload = CreateUnscrambledHostPayload(builder, time, current_round, builder.CreateString(current_scrambled_word));
@@ -204,7 +217,7 @@ void Unscrambled_Minigame::send_host_payload_data(int client_id) {
     game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 }
 
-void Unscrambled_Minigame::send_player_payload_data(int client_id) {
+void Unscrambled_MiniGame::send_player_payload_data(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
     // create vector of current word set
@@ -226,7 +239,7 @@ void Unscrambled_Minigame::send_player_payload_data(int client_id) {
     game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 }
 
-void Unscrambled_Minigame::send_round_result_data(int client_id) {
+void Unscrambled_MiniGame::send_round_result_data(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
     // create vector of results
@@ -246,7 +259,7 @@ void Unscrambled_Minigame::send_round_result_data(int client_id) {
     game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 }
 
-void Unscrambled_Minigame::start_result() {
+void Unscrambled_MiniGame::start_result() {
     send_result_data(game->party->host->client_id);
     for (auto &player : players) {
         send_result_data(player.first->client_id);
@@ -257,7 +270,7 @@ void Unscrambled_Minigame::start_result() {
     }, result_time);
 }
 
-void Unscrambled_Minigame::send_result_data(int client_id) {
+void Unscrambled_MiniGame::send_result_data(int client_id) {
     flatbuffers::FlatBufferBuilder builder;
 
     // create vector of minigame results
@@ -279,7 +292,7 @@ void Unscrambled_Minigame::send_result_data(int client_id) {
     game->party->send_gamestate([client_id](Client* client) { return client->client_id == client_id; }, builder, gameStatePayload.Union());
 }
 
-std::vector<std::pair<Client *, int>> Unscrambled_Minigame::getMinigameResult() {
+std::vector<std::pair<Client *, int>> Unscrambled_MiniGame::getMinigameResult() {
     std::vector<std::pair<Client *, std::pair<int, bool>>> local_players;
     for (auto &player : this->players) {
         local_players.push_back(player);

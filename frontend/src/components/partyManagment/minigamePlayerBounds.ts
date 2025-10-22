@@ -7,4 +7,5 @@ export const minigamePlayerBounds: { name: string, min: number, max: number }[] 
     { name: "right_on_time", min: 1, max: -1 },
     { name: "highway_hustle", min: 2, max: 12 },
     { name: "marble_mania", min: 1, max: -1 },
+    { name: "unscrambled", min: 1, max: -1 },
 ]

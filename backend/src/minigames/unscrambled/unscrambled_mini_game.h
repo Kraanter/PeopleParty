@@ -7,7 +7,7 @@
 #include "../minigame.h"
 #include "word_combinations.h"
 
-class Unscrambled_Minigame : public MiniGame {
+class Unscrambled_MiniGame : public MiniGame {
 private:
     int max_rounds = 4;
     int result_time = 5 SECONDS;
@@ -24,8 +24,8 @@ private:
     std::string current_word;
     std::string current_scrambled_word;
 public:
-    Unscrambled_Minigame(Game *game);
-    ~Unscrambled_Minigame();
+    Unscrambled_MiniGame(Game *game);
+    ~Unscrambled_MiniGame();
     void start_introduction() override;
     void start_minigame() override;
     void start_result() override;
