@@ -45,7 +45,8 @@ export function parseUnscrambledRoundResults(data: MiniGamePayloadType, clientNa
             results.push({
                 name: decodeURI(result.name()) || '',
                 submitted: result.submitted(),
-                guess: result.guess()
+                guess: result.guess(),
+                time_taken: Number(result.timeTaken())
             })
         }
     }
@@ -67,6 +68,7 @@ export function parseUnscrambledResults(data: MiniGamePayloadType): UnscrambledR
         results.push({
             name: decodeURI(result.name()) || '',
             correct: result.correct(),
+            time_taken: Number(result.timeTaken()),
             placement: result.placement()
         })
     }

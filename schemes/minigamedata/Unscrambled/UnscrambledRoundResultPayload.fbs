@@ -2,6 +2,7 @@ table FBUnscrambledRoundResultPair {
     name: string;
     submitted: bool;
     guess: short;
+    time_taken: long;
 }
 
 table UnscrambledRoundResultPayload {

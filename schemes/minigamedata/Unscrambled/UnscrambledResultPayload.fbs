@@ -1,6 +1,7 @@
 table FBUnscrambledResultPair {
     name: string;
     correct: short;
+    time_taken: long;
     placement: short;
 }
 

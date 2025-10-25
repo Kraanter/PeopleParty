@@ -7,14 +7,24 @@
 #include "../minigame.h"
 #include "word_combinations.h"
 
+class Unscrampled_player_data {
+public:
+    int score = 0;
+    bool has_submitted = false;
+    int guess = -1;
+    int time_taken = 0;
+    int temp_time_taken = 0; // used for round results only
+};
+
 class Unscrambled_MiniGame : public MiniGame {
 private:
     int max_rounds = 4;
     int result_time = 5 SECONDS;
+    int round_time = 20 SECONDS;
     ThreadTimer introduction_timer;
     ThreadTimer minigame_timer;
     ThreadTimer result_timer;
-    std::map<Client*, std::pair<int, bool>> players; // score: int = amount of correct words, bool = has submitted for current round
+    std::map<Client*, Unscrampled_player_data> players;
     int current_round = 1;
     int current_phase = 0; // 0 = play minigame, 1 = round result
     int time = 0; // time in ms

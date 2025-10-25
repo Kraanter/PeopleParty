@@ -2,7 +2,7 @@
 #include "../../game.h"
 
 Unscrambled_MiniGame::Unscrambled_MiniGame(Game *game) : MiniGame(game) {
-    combinations = Word_Combinations::get_random_word_combinations(5);
+    combinations = Word_Combinations::get_random_word_combinations(max_rounds);
 
     // loop 0-max_rounds to set a random round_target for each round
     for (int i = 0; i < max_rounds; i++) {
@@ -54,16 +54,19 @@ void Unscrambled_MiniGame::introduction_update(int delta_time) {
 }
 
 void Unscrambled_MiniGame::select_random_word() {
+    if (current_round - 1 >= combinations.size()) {
+        return; // out of bounds
+    }
     // select the set with index of current_round - 1
     auto &word_set = combinations[current_round - 1];
 
-    // select a random word from the set
-    int word_index = rand() % word_set.size();
+    // word is the round_target of current round
+    int word_index = round_target[current_round - 1];
     current_word = word_set[word_index];
 
     // scramble the word
     while (true) {
-        // loop until 60% different
+        // loop until 70% different
         std::string test_scramble = current_word;
         std::shuffle(test_scramble.begin(), test_scramble.end(), std::mt19937{std::random_device{}()});
         int diff_count = 0;
@@ -72,7 +75,7 @@ void Unscrambled_MiniGame::select_random_word() {
                 diff_count++;
             }
         }
-        if (diff_count >= current_word.size() * 0.6) {
+        if (diff_count >= current_word.size() * 0.7) {
             current_scrambled_word = test_scramble;
             break;
         }
@@ -101,15 +104,18 @@ void Unscrambled_MiniGame::unscramble_word_step() {
 }
 
 void Unscrambled_MiniGame::start_minigame() {
-    time = 30 SECONDS; // rounds of 30 seconds
+    time = round_time;
     current_round = 1;
     current_phase = 0;
 
     // add players to the game
     for (auto client : game->party->get_clients()) {
         if (!client->isHost) {
-            players[client].first = 0; // initial score is 0
-            players[client].second = false; // initial submission status is false
+            players[client].score = 0;
+            players[client].has_submitted = false;
+            players[client].guess = -1;
+            players[client].time_taken = 0;
+            players[client].temp_time_taken = 0;
         }
     }
 
@@ -126,6 +132,13 @@ void Unscrambled_MiniGame::update(int delta_time) {
         if (current_phase == 0 && current_round <= max_rounds) {
             // go to round result
             current_phase = 1;
+            for (auto &player : players) {
+                if (!player.second.has_submitted) {
+                    // it has not submitted, time_taken is max
+                    player.second.time_taken += round_time;
+                    player.second.temp_time_taken = round_time;
+                }
+            }
             send_round_result_data(game->party->host->client_id);
             for (auto &player : players) {
                 send_round_result_data(player.first->client_id);
@@ -136,13 +149,15 @@ void Unscrambled_MiniGame::update(int delta_time) {
         } else {
             // go to next round
             current_round++;
-            time = 30 SECONDS;
+            time = round_time;
             current_phase = 0;
             select_random_word();
 
             // reset player submission status
             for (auto &player : players) {
-                player.second.second = false;
+                player.second.has_submitted = false;
+                player.second.guess = -1;
+                player.second.temp_time_taken = 0;
             }
             return;
         }
@@ -174,7 +189,7 @@ void Unscrambled_MiniGame::update(int delta_time) {
     // if all players have submitted, go to next round/phase
     bool all_submitted = true;
     for (const auto &player : players) {
-        if (!player.second.second) {
+        if (!player.second.has_submitted) {
             all_submitted = false;
             break;
         }
@@ -190,13 +205,16 @@ void Unscrambled_MiniGame::process_input(const MiniGamePayloadType *payload, Cli
             auto input_payload = payload->gamestatepayload_as_UnscrambledPlayerInputPayload();
             if (input_payload) {
                 auto &player_data = players[from];
-                if (!player_data.second) { // only process if not allready submitted
+                if (!player_data.has_submitted) { // only process if not allready submitted
                     // check if the guess is correct
                     if (input_payload->guess() == round_target[current_round - 1]) {
                         // correct
-                        player_data.first += 1; // increase score by 1
+                        player_data.score += 1; // increase score by 1
                     }
-                    player_data.second = true; // mark as submitted
+                    player_data.has_submitted = true; // mark as submitted
+                    player_data.guess = input_payload->guess();
+                    player_data.temp_time_taken = round_time - time;
+                    player_data.time_taken += round_time - time;
                 }
             }
             break;
@@ -227,9 +245,9 @@ void Unscrambled_MiniGame::send_player_payload_data(int client_id) {
     }
     auto words_vector = builder.CreateVector(word_vector);
 
-    auto submitted = players[game->party->get_client(client_id)].second;
+    auto player = players[game->party->get_client(client_id)];
 
-    auto payload = CreateUnscrambledPlayerPayload(builder, time, current_round, words_vector, submitted);
+    auto payload = CreateUnscrambledPlayerPayload(builder, time, current_round, words_vector, player.has_submitted);
 
     auto miniGame = builder.CreateString(get_camel_case_name());
     
@@ -246,7 +264,7 @@ void Unscrambled_MiniGame::send_round_result_data(int client_id) {
     std::vector<flatbuffers::Offset<FBUnscrambledRoundResultPair>> results_vector;
     for (const auto &player : players) {
         auto name = builder.CreateString(player.first->name);
-        results_vector.push_back(CreateFBUnscrambledRoundResultPair(builder, name, player.second.second, 0));
+        results_vector.push_back(CreateFBUnscrambledRoundResultPair(builder, name, player.second.score, player.second.guess, player.second.temp_time_taken));
     }
     auto resultsPayload = builder.CreateVector(results_vector);
 
@@ -278,7 +296,7 @@ void Unscrambled_MiniGame::send_result_data(int client_id) {
     auto minigame_results = getMinigameResult();
     for (const auto &result : minigame_results) {
         auto name = builder.CreateString(result.first->name);
-        results_vector.push_back(CreateFBUnscrambledResultPair(builder, name, players[result.first].first, result.second));
+        results_vector.push_back(CreateFBUnscrambledResultPair(builder, name, players[result.first].score, players[result.first].time_taken, result.second));
     }
     auto resultsPayload = builder.CreateVector(results_vector);
 
@@ -293,24 +311,27 @@ void Unscrambled_MiniGame::send_result_data(int client_id) {
 }
 
 std::vector<std::pair<Client *, int>> Unscrambled_MiniGame::getMinigameResult() {
-    std::vector<std::pair<Client *, std::pair<int, bool>>> local_players;
+    std::vector<std::pair<Client *, Unscrampled_player_data>> local_players;
     for (auto &player : this->players) {
         local_players.push_back(player);
     }
 
-    sort(local_players.begin(), local_players.end(), [&](const std::pair<Client *, std::pair<int, bool>> &a, const std::pair<Client *, std::pair<int, bool>> &b) {
-        if (a.second.first == b.second.first)  {
-            return true;
+    sort(local_players.begin(), local_players.end(), [&](const std::pair<Client *, Unscrampled_player_data> &a, const std::pair<Client *, Unscrampled_player_data> &b) {
+        if (a.second.score == b.second.score)  {
+            if (a.second.time_taken == b.second.time_taken) {
+                return true;
+            }
+            return a.second.time_taken < b.second.time_taken;
         }
-        return b.second.first < a.second.first;
+        return b.second.score < a.second.score;
     });
 
 
     // give placement to players (players can have the same placement)
     std::vector<std::pair<Client *, int>> result;
     for (int i = 0; i < local_players.size(); i++) {
-        // if the total_diff value of the previous player is the same, give the same placement as previous player
-        if (i != 0 && local_players[i].second.first == local_players[i - 1].second.first) {
+        // if the score and time_taken of the previous player is the same, give the same placement as previous player
+        if (i != 0 && local_players[i].second.score == local_players[i - 1].second.score && local_players[i].second.time_taken == local_players[i - 1].second.time_taken) {
             int previous_placement = result[i - 1].second;
             result.push_back(std::make_pair(local_players[i].first, previous_placement));
         } else {

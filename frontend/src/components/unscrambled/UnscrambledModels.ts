@@ -17,6 +17,7 @@ export interface UnscrambledRoundResultPair {
   name: string;
   submitted: boolean;
   guess: number;
+  time_taken: number;
 }
 
 export interface UnscrambledRoundResults {
@@ -29,6 +30,7 @@ export interface UnscrambledRoundResults {
 export interface UnscrambledResultPair {
   name: string;
   correct: number;
+  time_taken: number;
   placement: number;
 }
 
