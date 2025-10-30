@@ -129,7 +129,8 @@ void WebSocket::init() {
            .open =
                [](auto *ws) {
                  std::cout << "connection started with host" << std::endl;
-                 Party *p = party_repository.CreateParty();
+
+                 Party *p = party_repository.CreateParty(ws->getUserData()->isLocalhost);
                  Client *c = client_repository.CreateClient("HOST", p, ws);
                  c->isHost = true;
                  p->host = c;
@@ -139,6 +140,15 @@ void WebSocket::init() {
 
                  send_host_message(ws);
                  p->start_game();
+               },
+           .upgrade =
+               [](auto *res, uWS::HttpRequest * req, auto *context) {
+                 // 'req->getHeader("host")' outputs on local 'localhost:5173'
+                 res->template upgrade<SocketData>(
+                     {.isLocalhost = req->getHeader("host").find("localhost") != std::string::npos},
+                     req->getHeader("sec-websocket-key"),
+                     req->getHeader("sec-websocket-protocol"),
+                     req->getHeader("sec-websocket-extensions"), context);
                },
            .message =
                [](auto *ws, std::string_view message, uWS::OpCode opCode) {

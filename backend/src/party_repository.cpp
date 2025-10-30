@@ -4,8 +4,8 @@
 
 PartyRepository::PartyRepository() {}
 
-Party* PartyRepository::CreateParty() {
-  Party* p = new Party();
+Party* PartyRepository::CreateParty(bool local_env) {
+  Party* p = new Party(local_env);
   parties[p->party_id] = *p;
   return &parties[p->party_id];
 }

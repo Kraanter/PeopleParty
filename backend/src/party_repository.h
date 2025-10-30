@@ -9,7 +9,7 @@ class PartyRepository {
 
  public:
   PartyRepository();
-  Party* CreateParty();
+  Party* CreateParty(bool local_env);
   void RemoveParty(int party_id);
   bool contains(int party_id);
   bool contains(Party party);

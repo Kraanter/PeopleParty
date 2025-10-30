@@ -24,7 +24,8 @@ void Game::add_minigames() {
     if (party->settings->IsMiniGameEnabled("highway_hustle")) { temp_minigames.push_back(new HighwayHustle_MiniGame(this)); }
     if (party->settings->IsMiniGameEnabled("marble_mania")) { temp_minigames.push_back(new MarbleMania_MiniGame(this)); }
     if (party->settings->IsMiniGameEnabled("unscrambled")) { temp_minigames.push_back(new Unscrambled_MiniGame(this)); }
-    // also add new minigames in frontend/src/components/partyManagment/minigamePlayerBounds.ts
+    // add a rule in frontend/src/components/partyManagment/minigamePlayerBounds.ts
+    // ONLY IF minigame min/max is different than 1/-1 players (-1 = no limit)
 
     auto rd = std::random_device{};
     auto rng = std::default_random_engine{rd()};
