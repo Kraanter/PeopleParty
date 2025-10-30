@@ -1,0 +1,12 @@
+table FBUnscrambledResultPair {
+    name: string;
+    correct: short;
+    time_taken: long;
+    placement: short;
+}
+
+table UnscrambledResultPayload {
+    minigame_results: [FBUnscrambledResultPair];
+}
+
+root_type UnscrambledResultPayload;

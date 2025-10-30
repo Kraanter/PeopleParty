@@ -16,13 +16,23 @@ git clone git@github.com:Kraanter/PeopleParty.git
 ```
 when using ssh authentication.
 
+
 2. Install Conan
 See [conan.io](https://conan.io/downloads)
+(Macos):
+```
+brew install conan
+```
 
 3. Install CMake
 Find the correct distribution on [this page](https://cmake.org/download/) and
 install it. When using some fancy IDE like CLion it will already be included in
 there.
+
+(Macos):
+```
+brew install cmake
+```
 
 4. Install dependancies
 Go to the root of the backend project
@@ -51,19 +61,6 @@ windows users might need to run this instead
 cmake .. -G "Visual Studio 17 2022" -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Debug
 ```
 
-6. Install formatter
-Install pre-commit like explained [here](https://pre-commit.com/#install).
-
-Install clang-format
-```sh
-pip install clang-format
-```
-
-Install the hooks
-```sh
-pre-commit install
-```
-
 
 ## Run backend
 After you generated your cmake directory run the following commands, replace
@@ -88,4 +85,19 @@ build/PeopleParty-Backend-Tests
 - Windows:
 ```sh
 build/Debug/PeopleParty-Backend-Tests
+```
+
+
+# optional
+6. Install formatter
+Install pre-commit like explained [here](https://pre-commit.com/#install).
+
+Install clang-format
+```sh
+pip install clang-format
+```
+
+Install the hooks
+```sh
+pre-commit install
 ```

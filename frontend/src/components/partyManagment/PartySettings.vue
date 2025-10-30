@@ -4,7 +4,7 @@ import { NInputNumber, NSwitch, NSlider, } from 'naive-ui'
 import * as flatbuffers from 'flatbuffers'
 import { MessageType, PartyPrepPayload, PartyPrepPayloadType, PartyPrepSettingsMiniGamePayload, PartyPrepSettingsRoundsPayload, PartyPrepType, Payload } from '@/flatbuffers/messageClass';
 import { buildMessage } from '@/util/flatbufferMessageBuilder';
-import { minigamePlayerBounds } from './minigamePlayerBounds';
+import { minigamePlayerBoundExceptions } from './minigamePlayerBounds';
 import { defineProps } from 'vue'
 
 const websocketStore = useWebSocketStore()
@@ -39,8 +39,8 @@ const nameToFirstLetterCapital = (name: string) => {
 const minigameIsOutOfBounds = (name: string, enabled: boolean, playerCount: number) => {
     if (playerCount <= 0) return false
     if (!enabled) return false
-    const minigame = minigamePlayerBounds.find(mg => mg.name === name)
-    if (!minigame) return false
+    const minigame = minigamePlayerBoundExceptions.find(mg => mg.name === name)
+    if (!minigame) return false // no exception so no bounds
 
     if (minigame.min > 0 && playerCount < minigame.min) return true
     if (minigame.max > 0 && playerCount > minigame.max) return true
@@ -173,13 +173,11 @@ const updateVolume = (value: number) => {
 
                                 <!-- recommended amount of players -->
                                 <div v-if="playerCount > 0 && minigameIsOutOfBounds(miniGame.name, miniGame.enabled, playerCount)" class="absolute left-2 bottom-2">
-                                    <div class="rounded-xl px-2 py-1 flex items-center gap-1" style="background-color: rgb(255 255 255 / .8);">
+                                    <div class="rounded-xl px-2 py-1 flex items-center gap-1" style="background-color: rgb(255 255 255);">
                                         <img :src="`./assets/person.svg`" class="h-4 w-4"/>
                                         <span class="text-sm font-bold text-black">
                                             {{
-                                                minigamePlayerBounds.find(mg => mg.name === miniGame.name)?.min
-                                                    ? minigamePlayerBounds.find(mg => mg.name === miniGame.name)?.min + (minigamePlayerBounds.find(mg => mg.name === miniGame.name)?.max && minigamePlayerBounds.find(mg => mg.name === miniGame.name)?.max > 0 ? ' - ' + minigamePlayerBounds.find(mg => mg.name === miniGame.name)?.max : '+')
-                                                    : 'Any'
+                                                    minigamePlayerBoundExceptions.find(mg => mg.name === miniGame.name)?.min + (minigamePlayerBoundExceptions.find(mg => mg.name === miniGame.name)?.max && minigamePlayerBoundExceptions.find(mg => mg.name === miniGame.name)?.max > 0 ? ' - ' + minigamePlayerBoundExceptions.find(mg => mg.name === miniGame.name)?.max : '+')
                                             }}
                                         </span>
                                     </div>

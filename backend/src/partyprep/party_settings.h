@@ -18,7 +18,8 @@ public:
 
 class PartySettings {
 public:
-    PartySettings();
+    PartySettings() : PartySettings(false) {};
+    PartySettings(bool local_env);
     void ToggleMiniGame(std::string name, bool enabled);
     void SetNumberOfRounds(int rounds);
     bool IsMiniGameEnabled(std::string name);
@@ -28,6 +29,7 @@ public:
     int current_round;
     bool game_finished;
     std::vector<MiniGameSettings*> minigames; // minigames that will be played
+    bool local_env;
 };
 
 #endif  // Party_Settings_H

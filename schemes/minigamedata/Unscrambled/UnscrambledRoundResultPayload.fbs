@@ -1,0 +1,14 @@
+table FBUnscrambledRoundResultPair {
+    name: string;
+    submitted: bool;
+    guess: short;
+    time_taken: long;
+}
+
+table UnscrambledRoundResultPayload {
+    round: short;
+    correct: short;
+    results: [FBUnscrambledRoundResultPair];
+}
+
+root_type UnscrambledRoundResultPayload;

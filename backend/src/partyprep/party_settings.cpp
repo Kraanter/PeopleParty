@@ -1,6 +1,6 @@
 #include "party_settings.h"
 
-std::vector<std::string> getMiniGameNames() {
+std::vector<std::string> getMiniGameNames(bool local_env = false) {
     std::string path = "src/minigames";
     std::vector<std::string> directories;
 
@@ -19,7 +19,8 @@ std::vector<std::string> getMiniGameNames() {
                   }
 
                   // If "disabled" file is not found, add directory to the list
-                  if (!contains_disabled) {
+                  // Or if the environment is local
+                  if (local_env || !contains_disabled) {
                       directories.push_back(entry.path().filename().string());
                   }
             }
@@ -36,12 +37,13 @@ MiniGameSettings::MiniGameSettings(std::string name) {
     this->enabled = true;
 }
 
-PartySettings::PartySettings() {
+PartySettings::PartySettings(bool local_env) {
     this->current_round = 0;
     this->game_finished = false;
+    this->local_env = local_env;
 
     // fill playable minigames
-    std::vector<std::string> minigame_names = getMiniGameNames();
+    std::vector<std::string> minigame_names = getMiniGameNames(local_env);
     for (const auto& name : minigame_names) {
         this->minigames.push_back(new MiniGameSettings(name));
     }

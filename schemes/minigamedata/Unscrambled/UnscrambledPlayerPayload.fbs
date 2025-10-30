@@ -1,0 +1,8 @@
+table UnscrambledPlayerPayload {
+    time: long;
+    round: short;
+    words: [string];
+    submitted: bool;
+}
+
+root_type UnscrambledPlayerPayload;

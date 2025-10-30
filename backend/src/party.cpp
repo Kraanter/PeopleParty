@@ -3,11 +3,11 @@
 #include "util/globals.h"
 #include "game.h"
 
-Party::Party() {
+Party::Party(bool local_env) {
   party_id = generate_party_id();
   host = nullptr;
   game = nullptr;
-  settings = new PartySettings();
+  settings = new PartySettings(local_env);
 }
 
 Party::~Party() {

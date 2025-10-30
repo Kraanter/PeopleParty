@@ -18,7 +18,8 @@ class Party {
   PartySettings *settings;
 
  public:
-  Party();
+  Party() : Party(false) {};
+  Party(bool local_env);
   ~Party();
   void start_game();
   void stop_game();

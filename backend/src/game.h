@@ -19,6 +19,7 @@
 #include "minigames/right_on_time/right_on_time_mini_game.h"
 #include "minigames/highway_hustle/highway_hustle_mini_game.h"
 #include "minigames/marble_mania/marble_mania_mini_game.h"
+#include "minigames/unscrambled/unscrambled_mini_game.h"
 #include <queue>
 #include <map>
 #include <algorithm>

@@ -1,0 +1,5 @@
+table UnscrambledPlayerInputPayload {
+    guess: short;
+}
+
+root_type UnscrambledPlayerInputPayload;
