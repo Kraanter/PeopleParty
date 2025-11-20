@@ -65,7 +65,8 @@ button {
     box-shadow 0.1s ease-in-out;
 }
 
-button:active {
+/* Parent div (wrapper) handles the active state */
+.button-wrapper:active button {
   transform: translate(0.5rem, 0.5rem);
   box-shadow: 0.1rem 0.1rem 0 #000;
 }

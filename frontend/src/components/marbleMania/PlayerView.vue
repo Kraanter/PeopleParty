@@ -21,6 +21,7 @@ import {
   Payload,
 } from '@/flatbuffers/messageClass'
 import * as flatbuffers from 'flatbuffers'
+import PartyButton from '../PartyButton.vue'
 
 const websocketStore = useWebSocketStore()
 
@@ -199,12 +200,12 @@ defineExpose({
           />
             
             <!-- Lock in button -->
-          <button 
+          <PartyButton 
             @click="lockPosition"
             class="mt-4 px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-xl font-bold rounded-lg"
           >
             Lock Position!
-          </button>
+          </PartyButton>
         </div>
         <div v-else class="text-2xl text-white">Your marble is locked in!</div>
       </div>
