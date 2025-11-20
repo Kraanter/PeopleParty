@@ -29,11 +29,13 @@ const emit = defineEmits(['click'])
       </div>
       <div class="row-span-5 row-start-1 w-full h-full flex flex-col justify-end gap-4 max-h-full">
         <div class="grid grid-cols-3 grid-rows-2">
-          <PartyButton
-            @click="showSettings = !showSettings"
-            class="row-start-2 col-start-3 flex justify-center items-center"
-          ><span class="text-xl">{{ showSettings ? 'Players' : 'Settings' }}</span>
-          </PartyButton>
+          <div class="row-start-2 col-start-3">
+            <PartyButton
+              @click="showSettings = !showSettings"
+              class="flex justify-center items-center"
+            ><span class="text-xl">{{ showSettings ? 'Players' : 'Settings' }}</span>
+            </PartyButton>
+          </div>
         </div>
         <n-card>
           <div class="w-full h-full flex flex-col justify-center items-center">

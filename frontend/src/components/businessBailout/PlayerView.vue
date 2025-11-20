@@ -117,6 +117,7 @@ defineExpose({ update })
       </div>
       <div
         class="flex justify-center mt-8 relative overflow-clip tems-center row-span-2 h-full w-full"
+        @click="click"
       >
         <button :disabled="locked" @click="click" class="eject-button">
           <span v-if="locked">Locked</span>
