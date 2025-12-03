@@ -1,0 +1,11 @@
+table FBTeambasedPongResultPair {
+  name: string;
+  placement: ushort;
+  rounds_won: ushort; // played_matches count
+}
+
+table TeambasedPongResultPayload {
+  results: [FBTeambasedPongResultPair];
+}
+
+root_type TeambasedPongResultPayload;

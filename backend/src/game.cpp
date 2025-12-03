@@ -24,6 +24,7 @@ void Game::add_minigames() {
     if (party->settings->IsMiniGameEnabled("highway_hustle")) { temp_minigames.push_back(new HighwayHustle_MiniGame(this)); }
     if (party->settings->IsMiniGameEnabled("marble_mania")) { temp_minigames.push_back(new MarbleMania_MiniGame(this)); }
     if (party->settings->IsMiniGameEnabled("unscrambled")) { temp_minigames.push_back(new Unscrambled_MiniGame(this)); }
+    if (party->settings->IsMiniGameEnabled("teambased_pong")) { temp_minigames.push_back(new TeambasedPong_MiniGame(this)); }
     // add a rule in frontend/src/components/partyManagment/minigamePlayerBounds.ts
     // ONLY IF minigame min/max is different than 1/-1 players (-1 = no limit)
 
