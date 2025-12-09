@@ -15,15 +15,16 @@ class TeambasedPong_Player;
 
 class TeambasedPong_MiniGame : public MiniGame {
 private:
-    int target_fps = 30;
-    int result_time = 5 SECONDS;
-    int round_time = 60 SECONDS; // Max time per round before tie
-    int round_result_time = 5 SECONDS; // Time to show round results
+    int target_fps = 20;
+    int result_time = 10 SECONDS;
+    int preview_time = 2 SECONDS; // Preview time before game starts
+    int round_time = 60 SECONDS; // Max time per round before tie (excluding preview)
+    int round_result_time = 10 SECONDS; // Time to show round results
+    int delta_time = 0; // update interval, set in constructor
     
     ThreadTimer introduction_timer;
     ThreadTimer minigame_timer;
     ThreadTimer result_timer;
-    ThreadTimer round_result_timer;
     
     // Game state
     PongPhase current_phase = PongPhase::PLAYING;

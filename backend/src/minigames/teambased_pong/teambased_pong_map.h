@@ -25,7 +25,7 @@ public:
     
     // Ball properties
     static constexpr float BALL_RADIUS = 10.0f;
-    static constexpr float BALL_INITIAL_SPEED = 200.0f;
+    static constexpr float BALL_INITIAL_SPEED = 100.0f;
     static constexpr float BALL_SPEED_INCREASE = 1.02f; // 2% increase per bounce
     static constexpr float BALL_MAX_SPEED = 600.0f;
     

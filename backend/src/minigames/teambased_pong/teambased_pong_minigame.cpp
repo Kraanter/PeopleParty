@@ -3,17 +3,17 @@
 #include <algorithm>
 #include <random>
 
-TeambasedPong_MiniGame::TeambasedPong_MiniGame(Game* game) 
-    : MiniGame(game) {
+TeambasedPong_MiniGame::TeambasedPong_MiniGame(Game* game) : MiniGame(game) {
     min_players = 2;
     max_players = -1; // No limit
+
+    delta_time = floor(1000 / target_fps);
 }
 
 TeambasedPong_MiniGame::~TeambasedPong_MiniGame() {
     introduction_timer.clear();
     minigame_timer.clear();
     result_timer.clear();
-    round_result_timer.clear();
     
     if (map) {
         delete map;
@@ -36,14 +36,14 @@ void TeambasedPong_MiniGame::start_introduction() {
 
 void TeambasedPong_MiniGame::introduction_update(int delta_time) {
     // Introduction countdown logic
-    static int elapsed = 0;
-    elapsed += delta_time;
+    introduction_time -= delta_time;
     
-    if (elapsed >= introduction_time) {
-        elapsed = 0;
+    if (introduction_time <= 0) {
         introduction_timer.clear();
         start_minigame();
     }
+
+    send_minigame_introduction(get_camel_case_name(), introduction_time, get_display_name(), get_description());
 }
 
 void TeambasedPong_MiniGame::start_minigame() {
@@ -67,14 +67,12 @@ void TeambasedPong_MiniGame::start_minigame() {
     start_new_round();
     
     // Start update loop
-    minigame_timer.setInterval([this]() {
-        update(1000 / target_fps);
-    }, 1000 / target_fps);
+    minigame_timer.setInterval([this]() { update(delta_time); }, delta_time);
 }
 
 void TeambasedPong_MiniGame::start_new_round() {
     current_round++;
-    remaining_round_time = round_time;
+    remaining_round_time = round_time + preview_time; // Include preview time
     current_phase = PongPhase::PLAYING;
     
     // Use the pre-assigned next teams as current teams
@@ -178,39 +176,62 @@ void TeambasedPong_MiniGame::update_playing_phase(int delta_time) {
     // Update remaining time
     remaining_round_time -= delta_time;
     
-    // Calculate combined team inputs
-    calculate_team_input();
+    // Check if we're in preview phase (first 2 seconds)
+    bool is_preview = remaining_round_time > round_time;
     
-    // Update physics
-    float dt = delta_time / 1000.0f; // Convert to seconds
-    map->Update(dt);
-    
-    // Check for scoring
-    Team scoring_team = map->GetScoringTeam();
-    if (scoring_team != Team::SPECTATOR) {
-        end_current_round(scoring_team);
-        return;
+    if (!is_preview) {
+        // Active gameplay - calculate input and update physics
+        calculate_team_input();
+        
+        // Update physics
+        float dt = delta_time / 1000.0f; // Convert to seconds
+        map->Update(dt);
+        
+        // Check for scoring
+        Team scoring_team = map->GetScoringTeam();
+        if (scoring_team != Team::SPECTATOR) {
+            end_current_round(scoring_team);
+            return;
+        }
     }
     
-    // Check for timeout (tie)
+    // Check for timeout (tie) - only after preview
     if (remaining_round_time <= 0) {
         // Tie - both teams eliminated equally
         end_current_round(Team::SPECTATOR);
         return;
     }
     
-    // Send updates to clients
+    // Send updates to clients (in both preview and active gameplay)
     send_host_update();
+    for (auto client : game->get_clients()) {
+        if (!client->isHost) {
+            send_player_update(client);
+        }
+    }
 }
 
 void TeambasedPong_MiniGame::update_round_result_phase(int delta_time) {
-    // This phase is timer-based, no updates needed during the phase
-    // The round_result_timer will automatically transition when time's up
+    // Update remaining time
+    remaining_round_time -= delta_time;
+    
+    // Send updates to clients (helps when someone joins mid-game or on resume)
+    send_round_result();
+    
+    // Check if round result time is over
+    if (remaining_round_time <= 0) {
+        // Check if game is over or continue to next round
+        if (active_players.size() <= 1) {
+            start_result();
+        } else {
+            start_new_round();
+        }
+    }
 }
 
 void TeambasedPong_MiniGame::end_current_round(Team winning_team) {
-    minigame_timer.clear();
     current_phase = PongPhase::ROUND_RESULT;
+    remaining_round_time = round_result_time; // Reset timer for round result phase
     last_round_winner = winning_team;
     
     // Update player match counts
@@ -244,30 +265,13 @@ void TeambasedPong_MiniGame::end_current_round(Team winning_team) {
         active_players.end()
     );
     
-    // Check if we have a winner or need to continue
-    if (active_players.size() <= 1) {
-        // Game over - show final results
-        send_round_result(); // Show final round result first
-        
-        round_result_timer.setTimeout([this]() {
-            start_result();
-        }, round_result_time);
-    } else {
-        // Prepare teams for next round
+    // Prepare teams for next round if game continues
+    if (active_players.size() > 1) {
         prepare_next_round_teams();
-        
-        // Send round result showing who won and next teams
-        send_round_result();
-        
-        // Wait for round_result_time, then start next round
-        round_result_timer.setTimeout([this]() {
-            start_new_round();
-            
-            minigame_timer.setInterval([this]() {
-                update(1000 / target_fps);
-            }, 1000 / target_fps);
-        }, round_result_time);
     }
+    
+    // Send initial round result
+    send_round_result();
 }
 
 void TeambasedPong_MiniGame::start_result() {
@@ -287,14 +291,12 @@ void TeambasedPong_MiniGame::pause() {
     introduction_timer.pause();
     minigame_timer.pause();
     result_timer.pause();
-    round_result_timer.pause();
 }
 
 void TeambasedPong_MiniGame::resume() {
     introduction_timer.resume();
     minigame_timer.resume();
     result_timer.resume();
-    round_result_timer.resume();
 }
 
 std::vector<std::pair<Client*, int>> TeambasedPong_MiniGame::getMinigameResult() {
