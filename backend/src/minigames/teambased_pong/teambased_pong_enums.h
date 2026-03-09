@@ -2,8 +2,9 @@
 #define PEOPLEPARTY_BACKEND_TEAMBASED_PONG_ENUMS_H
 
 enum class PongPhase : uint8_t {
-    PLAYING = 0,      // Active pong gameplay
-    ROUND_RESULT = 1  // Showing results between rounds
+    ROUND_PREP = 0,   // Showing team assignments before round
+    PLAYING = 1,      // Active pong gameplay
+    ROUND_RESULT = 2  // Showing results between rounds
 };
 
 enum class Team : uint8_t {

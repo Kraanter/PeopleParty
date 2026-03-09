@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, defineProps, watch } from 'vue'
+import { ref, watch, computed, onUnmounted } from 'vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import Introduction from '@/components/introduction/Introduction.vue'
 import {
@@ -10,12 +10,14 @@ import {
 import type {
   TeambasedPongHostData,
   TeambasedPongRoundResult,
-  TeambasedPongResult
+  TeambasedPongResult,
+  TeambasedPongRoundPrepData
 } from './TeambasedPongModels'
 import {
   parseTeambasedPongHostPayload,
   parseTeambasedPongRoundResult,
-  parseTeambasedPongResult
+  parseTeambasedPongResult,
+  parseTeambasedPongRoundPrepPayload
 } from './TeambasedPongProcessor'
 import { PongRoundWinner } from './TeambasedPongModels'
 import { Application } from 'vue3-pixi'
@@ -29,6 +31,7 @@ const props = defineProps<{
 enum ViewState {
   None,
   Introduction,
+  RoundPrep,
   MiniGame,
   RoundResult,
   Results
@@ -71,9 +74,39 @@ const roundResult = ref<TeambasedPongRoundResult>({
   next_team_b_players: []
 })
 
+// round prep data
+const roundPrepData = ref<TeambasedPongRoundPrepData>({
+  current_round: 0,
+  time_left: 0,
+  team_a_players: [],
+  team_b_players: []
+})
+
 // final results
 const results = ref<TeambasedPongResult>({
   results: []
+})
+
+// Canvas sizing - dynamically tracks container width and maintains aspect ratio
+const gameCanvasRef = ref<HTMLElement | null>(null)
+const canvasWidth = ref(780)
+const MAP_ASPECT = 800 / 600
+const canvasHeight = computed(() => Math.round(canvasWidth.value / MAP_ASPECT))
+const scale = computed(() => canvasWidth.value / payloadData.value.map_width)
+
+let resizeObserver: ResizeObserver | null = null
+watch(gameCanvasRef, (el) => {
+  resizeObserver?.disconnect()
+  if (el) {
+    canvasWidth.value = el.clientWidth
+    resizeObserver = new ResizeObserver((entries) => {
+      canvasWidth.value = entries[0].contentRect.width
+    })
+    resizeObserver.observe(el)
+  }
+})
+onUnmounted(() => {
+  resizeObserver?.disconnect()
 })
 
 const update = (data: MiniGamePayloadType) => {
@@ -100,6 +133,11 @@ const update = (data: MiniGamePayloadType) => {
       roundResult.value = parseTeambasedPongRoundResult(data)
       break
     }
+    case GameStateType.TeambasedPongRoundPrep: {
+      viewState.value = ViewState.RoundPrep
+      roundPrepData.value = parseTeambasedPongRoundPrepPayload(data)
+      break
+    }
     case GameStateType.TeambasedPongResult: {
       viewState.value = ViewState.Results
       results.value = parseTeambasedPongResult(data)
@@ -109,52 +147,93 @@ const update = (data: MiniGamePayloadType) => {
   return []
 }
 
+// Render static pong field for round prep background
+const renderPrepBackground = (graphics: Graphics) => {
+  graphics.clear()
+
+  const cw = canvasWidth.value
+  const ch = canvasHeight.value
+  const s = cw / 800 // scale from map coords to canvas
+
+  // Draw center line
+  graphics.lineStyle(3, 0xffffff, 0.5)
+  for (let y = 0; y < ch; y += 30) {
+    graphics.moveTo(cw / 2, y)
+    graphics.lineTo(cw / 2, y + 15)
+  }
+
+  // Draw paddles at center positions
+  graphics.lineStyle(0)
+  graphics.beginFill(0x00ff00)
+  graphics.drawRect(
+    30 * s - (20 / 2) * s,
+    ch / 2 - (120 / 2) * s,
+    20 * s,
+    120 * s
+  )
+  graphics.endFill()
+
+  graphics.beginFill(0xff0000)
+  graphics.drawRect(
+    (800 - 30) * s - (20 / 2) * s,
+    ch / 2 - (120 / 2) * s,
+    20 * s,
+    120 * s
+  )
+  graphics.endFill()
+
+  // Draw ball at center
+  graphics.beginFill(0xffffff)
+  graphics.drawCircle(cw / 2, ch / 2, 10 * s)
+  graphics.endFill()
+}
+
 // Render the pong game
 const renderPongGame = (graphics: Graphics) => {
   graphics.clear()
 
-  const canvasWidth = 780
-  const canvasHeight = 530
-  const scaleX = canvasWidth / payloadData.value.map_width
-  const scaleY = canvasHeight / payloadData.value.map_height
+  const cw = canvasWidth.value
+  const ch = canvasHeight.value
+  const s = scale.value
+  const mw = payloadData.value.map_width
+  const mh = payloadData.value.map_height
 
   // Draw center line
   graphics.lineStyle(3, 0xffffff, 0.5)
-  for (let y = 0; y < canvasHeight; y += 30) {
-    graphics.moveTo(canvasWidth / 2, y)
-    graphics.lineTo(canvasWidth / 2, y + 15)
+  for (let y = 0; y < ch; y += 30) {
+    graphics.moveTo(cw / 2, y)
+    graphics.lineTo(cw / 2, y + 15)
   }
 
   // Draw paddles
   graphics.lineStyle(0)
   graphics.beginFill(0x00ff00) // Team A - Green
-
-  const paddleAX = (payloadData.value.paddle_a_x + payloadData.value.map_width / 2) * scaleX
-  const paddleAY = (payloadData.value.paddle_a_y + payloadData.value.map_height / 2) * scaleY
+  const paddleAX = (payloadData.value.paddle_a_x + mw / 2) * s
+  const paddleAY = (payloadData.value.paddle_a_y + mh / 2) * s
   graphics.drawRect(
-    paddleAX - (payloadData.value.paddle_width / 2) * scaleX,
-    paddleAY - (payloadData.value.paddle_height / 2) * scaleY,
-    payloadData.value.paddle_width * scaleX,
-    payloadData.value.paddle_height * scaleY
+    paddleAX - (payloadData.value.paddle_width / 2) * s,
+    paddleAY - (payloadData.value.paddle_height / 2) * s,
+    payloadData.value.paddle_width * s,
+    payloadData.value.paddle_height * s
   )
   graphics.endFill()
 
   graphics.beginFill(0xff0000) // Team B - Red
-  const paddleBX = (payloadData.value.paddle_b_x + payloadData.value.map_width / 2) * scaleX
-  const paddleBY = (payloadData.value.paddle_b_y + payloadData.value.map_height / 2) * scaleY
+  const paddleBX = (payloadData.value.paddle_b_x + mw / 2) * s
+  const paddleBY = (payloadData.value.paddle_b_y + mh / 2) * s
   graphics.drawRect(
-    paddleBX - (payloadData.value.paddle_width / 2) * scaleX,
-    paddleBY - (payloadData.value.paddle_height / 2) * scaleY,
-    payloadData.value.paddle_width * scaleX,
-    payloadData.value.paddle_height * scaleY
+    paddleBX - (payloadData.value.paddle_width / 2) * s,
+    paddleBY - (payloadData.value.paddle_height / 2) * s,
+    payloadData.value.paddle_width * s,
+    payloadData.value.paddle_height * s
   )
   graphics.endFill()
 
   // Draw ball
   graphics.beginFill(0xffffff)
-  const ballX = (payloadData.value.ball_x + payloadData.value.map_width / 2) * scaleX
-  const ballY = (payloadData.value.ball_y + payloadData.value.map_height / 2) * scaleY
-  graphics.drawCircle(ballX, ballY, 10)
+  const ballX = (payloadData.value.ball_x + mw / 2) * s
+  const ballY = (payloadData.value.ball_y + mh / 2) * s
+  graphics.drawCircle(ballX, ballY, 10 * s)
   graphics.endFill()
 }
 
@@ -195,40 +274,89 @@ defineExpose({
   <template v-if="viewState == ViewState.Introduction">
     <Introduction logoSVG="/assets/logo.svg" :data="intro" />
   </template>
+
+  <template v-else-if="viewState == ViewState.RoundPrep">
+    <div class="m-4 relative flex items-center justify-center w-full h-full">
+      <!-- Background: static pong field with blur -->
+      <div class="absolute inset-0 flex items-center justify-center prep-background">
+        <Application :width="canvasWidth" :height="canvasHeight" :backgroundAlpha="1" :backgroundColor="0x000000">
+          <Graphics @render="renderPrepBackground" />
+        </Application>
+      </div>
+
+      <!-- Foreground: round info + team rosters -->
+      <div class="relative z-10 flex flex-col items-center justify-center w-full h-full p-8">
+        <div class="text-5xl text-white font-bold mb-8">Round {{ roundPrepData.current_round }}</div>
+        <div class="text-3xl text-white mb-8">Starting in {{ formatTime(roundPrepData.time_left) }}s</div>
+
+        <div class="flex justify-between w-full max-w-4xl">
+          <div class="flex-1 bg-green-700 bg-opacity-50 rounded-lg p-6 mr-4">
+            <div class="text-3xl text-white font-bold mb-4">Team A (Green)</div>
+            <div class="text-white">
+              <div
+                v-for="player in roundPrepData.team_a_players"
+                :key="player.name"
+                class="text-2xl mb-1"
+              >
+                {{ player.name }}
+              </div>
+            </div>
+          </div>
+          <div class="flex-1 bg-red-700 bg-opacity-50 rounded-lg p-6 ml-4">
+            <div class="text-3xl text-white font-bold mb-4">Team B (Red)</div>
+            <div class="text-white">
+              <div
+                v-for="player in roundPrepData.team_b_players"
+                :key="player.name"
+                class="text-2xl mb-1"
+              >
+                {{ player.name }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
   
   <template v-else-if="viewState == ViewState.MiniGame">
-    <div class="flex flex-col items-center justify-center w-full h-full p-4">
-      <!-- Round and Time Info -->
-      <div class="flex justify-between w-full max-w-4xl mb-4">
-        <div class="text-3xl text-white">Round {{ payloadData.current_round }}</div>
-        <div class="text-3xl text-white">Time: {{ formatTime(payloadData.time_left) }}s</div>
-      </div>
-
-      <!-- Team Information -->
-      <div class="flex justify-between w-full max-w-4xl mb-4">
-        <div class="flex-1 bg-green-700 bg-opacity-50 rounded-lg p-3 mr-2">
-          <div class="text-2xl text-white font-bold mb-2">Team A (Green)</div>
-          <div class="text-white">
-            <div v-for="player in payloadData.team_a_players" :key="player.name" class="text-lg">
-              {{ player.name }}
+    <div class="m-6">
+      <div class="flex flex-col items-center justify-center w-full h-full p-4">
+        <!-- Round and Time Info -->
+        <div class="flex justify-between w-full max-w-7xl mb-2">
+          <div class="text-3xl text-white">Round {{ payloadData.current_round }}</div>
+          <div class="text-3xl text-white">Time: {{ formatTime(payloadData.time_left) }}s</div>
+        </div>
+        
+        <!-- Game area: teams on sides, canvas in center -->
+        <div class="flex items-stretch w-full max-w-7xl">
+          <!-- Team A (left side) -->
+          <div class="w-40 bg-green-700 bg-opacity-50 rounded-lg p-3 mr-2 flex flex-col">
+            <div class="text-lg text-white font-bold mb-2">Team A</div>
+            <div class="text-white overflow-y-auto flex-1">
+              <div v-for="player in payloadData.team_a_players" :key="player.name" class="text-sm mb-0.5">
+                {{ player.name }}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Game Canvas -->
+          <div ref="gameCanvasRef" class="bg-black rounded-lg overflow-hidden flex-1">
+            <Application :width="canvasWidth" :height="canvasHeight" :backgroundAlpha="1" :backgroundColor="0x000000">
+              <Graphics @render="renderPongGame" />
+            </Application>
+          </div>
+          
+          <!-- Team B (right side) -->
+          <div class="w-40 bg-red-700 bg-opacity-50 rounded-lg p-3 ml-2 flex flex-col">
+            <div class="text-lg text-white font-bold mb-2">Team B</div>
+            <div class="text-white overflow-y-auto flex-1">
+              <div v-for="player in payloadData.team_b_players" :key="player.name" class="text-sm mb-0.5">
+                {{ player.name }}
+              </div>
             </div>
           </div>
         </div>
-        <div class="flex-1 bg-red-700 bg-opacity-50 rounded-lg p-3 ml-2">
-          <div class="text-2xl text-white font-bold mb-2">Team B (Red)</div>
-          <div class="text-white">
-            <div v-for="player in payloadData.team_b_players" :key="player.name" class="text-lg">
-              {{ player.name }}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Game Canvas -->
-      <div class="bg-black rounded-lg overflow-hidden">
-        <Application :width="780" :height="530" :backgroundAlpha="1" :backgroundColor="0x000000">
-          <Graphics @render="renderPongGame" />
-        </Application>
       </div>
     </div>
   </template>
@@ -291,4 +419,9 @@ defineExpose({
   </template>
 </template>
 
-<style scoped></style>
+<style scoped>
+.prep-background {
+  filter: blur(4px);
+  opacity: 0.7;
+}
+</style>

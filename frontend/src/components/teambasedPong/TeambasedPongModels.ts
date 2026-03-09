@@ -47,7 +47,6 @@ export interface TeambasedPongRoundResult {
   round_winner: PongRoundWinner
   winning_player_name: string
   time_left: number
-  is_first_round: boolean
   has_next_round: boolean
   next_team_a_players: NextTeamPlayer[]
   next_team_b_players: NextTeamPlayer[]
@@ -61,4 +60,15 @@ export interface TeambasedPongResultPair {
 
 export interface TeambasedPongResult {
   results: TeambasedPongResultPair[]
+}
+
+export interface RoundPrepPlayer {
+  name: string
+}
+
+export interface TeambasedPongRoundPrepData {
+  current_round: number
+  time_left: number
+  team_a_players: RoundPrepPlayer[]
+  team_b_players: RoundPrepPlayer[]
 }

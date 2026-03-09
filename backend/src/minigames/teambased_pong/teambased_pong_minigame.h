@@ -17,8 +17,8 @@ class TeambasedPong_MiniGame : public MiniGame {
 private:
     int target_fps = 20;
     int result_time = 10 SECONDS;
-    int preview_time = 5 SECONDS; // Preview time before game starts
-    int round_time = 60 SECONDS; // Max time per round before tie (excluding preview)
+    int round_prep_time = 5 SECONDS; // Time to show team assignments before round
+    int round_time = 60 SECONDS; // Max time per round before tie
     int round_result_time = 10 SECONDS; // Time to show round results
     int delta_time = 0; // update interval, set in constructor
     
@@ -67,6 +67,7 @@ private:
     void introduction_update(int delta_time);
     
     // Phase management
+    void update_round_prep_phase(int delta_time);
     void update_playing_phase(int delta_time);
     void update_round_result_phase(int delta_time);
     
@@ -81,6 +82,7 @@ private:
     void send_player_update(Client* client);
     void send_result_data(int client_id);
     void send_round_result(); // Shows who won and next teams
+    void send_round_prep_update(); // Shows team assignments before round
 };
 
 #endif //PEOPLEPARTY_BACKEND_TEAMBASED_PONG_MINIGAME_H

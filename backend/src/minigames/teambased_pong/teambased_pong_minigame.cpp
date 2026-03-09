@@ -72,28 +72,15 @@ void TeambasedPong_MiniGame::start_minigame() {
 
 void TeambasedPong_MiniGame::start_new_round() {
     current_round++;
-    remaining_round_time = round_time + preview_time; // Include preview time
-    current_phase = PongPhase::PLAYING;
+    remaining_round_time = round_prep_time;
+    current_phase = PongPhase::ROUND_PREP;
     
     // Use the pre-assigned next teams as current teams
     teamA_clients = next_teamA_clients;
     teamB_clients = next_teamB_clients;
     
-    // Note: Team enums are already updated in prepare_next_round_teams()
-    // No need to update them again here
-    
-    // Create/reset map
-    if (map) {
-        delete map;
-    }
-    map = new TeambasedPong_Map();
-    map->Initialize();
-    
-    // Send round start message to clients
-    send_host_update();
-    for (auto client : game->get_clients()) {
-        send_player_update(client);
-    }
+    // Send round prep update to all clients
+    send_round_prep_update();
 }
 
 void TeambasedPong_MiniGame::prepare_next_round_teams() {
@@ -160,6 +147,9 @@ void TeambasedPong_MiniGame::calculate_team_input() {
 
 void TeambasedPong_MiniGame::update(int delta_time) {
     switch (current_phase) {
+        case PongPhase::ROUND_PREP:
+            update_round_prep_phase(delta_time);
+            break;
         case PongPhase::PLAYING:
             update_playing_phase(delta_time);
             break;
@@ -169,39 +159,59 @@ void TeambasedPong_MiniGame::update(int delta_time) {
     }
 }
 
+void TeambasedPong_MiniGame::update_round_prep_phase(int delta_time) {
+    remaining_round_time -= delta_time;
+    
+    send_round_prep_update();
+    
+    if (remaining_round_time <= 0) {
+        // Transition to PLAYING: create map and start physics
+        if (map) {
+            delete map;
+        }
+        map = new TeambasedPong_Map();
+        map->Initialize();
+        
+        current_phase = PongPhase::PLAYING;
+        remaining_round_time = round_time;
+        
+        send_host_update();
+        for (auto client : game->get_clients()) {
+            if (!client->isHost) {
+                send_player_update(client);
+            }
+        }
+    }
+}
+
 void TeambasedPong_MiniGame::update_playing_phase(int delta_time) {
     if (!map) return;
     
     // Update remaining time
     remaining_round_time -= delta_time;
     
-    // Check if we're in preview phase (first 2 seconds)
-    bool is_preview = remaining_round_time > round_time;
+    // Active gameplay - calculate input and update physics
+    calculate_team_input();
     
-    if (!is_preview) {
-        // Active gameplay - calculate input and update physics
-        calculate_team_input();
-        
-        // Update physics
-        float dt = delta_time / 1000.0f; // Convert to seconds
-        map->Update(dt);
-        
-        // Check for scoring
-        Team scoring_team = map->GetScoringTeam();
-        if (scoring_team != Team::SPECTATOR) {
-            end_current_round(scoring_team);
-            return;
-        }
+    // Update physics
+    float dt = delta_time / 1000.0f; // Convert to seconds
+    map->Update(dt);
+    
+    // Check for scoring
+    Team scoring_team = map->GetScoringTeam();
+    if (scoring_team != Team::SPECTATOR) {
+        end_current_round(scoring_team);
+        return;
     }
     
-    // Check for timeout (tie) - only after preview
+    // Check for timeout (tie)
     if (remaining_round_time <= 0) {
         // Tie - both teams eliminated equally
         end_current_round(Team::SPECTATOR);
         return;
     }
     
-    // Send updates to clients (in both preview and active gameplay)
+    // Send updates to clients
     send_host_update();
     for (auto client : game->get_clients()) {
         if (!client->isHost) {
@@ -514,14 +524,12 @@ void TeambasedPong_MiniGame::send_round_result() {
     // Create the round result payload
     auto winner_name = builder.CreateString(winning_player_name);
     bool has_next_round = active_players.size() > 1;
-    bool is_first_round = current_round == 1;
     
     auto payload = CreateTeambasedPongRoundResultPayload(
         builder,
         round_winner,
         winner_name,
         round_result_time,
-        is_first_round,
         has_next_round,
         next_team_a_vector,
         next_team_b_vector
@@ -572,6 +580,46 @@ void TeambasedPong_MiniGame::send_result_data(int client_id) {
         miniGame, 
         GameStateType_TeambasedPongResult,
         GameStatePayload_TeambasedPongResultPayload, 
+        payload.Union()
+    );
+    
+    // Send to all clients
+    game->party->send_gamestate([](Client* client) { return client == client; }, builder, gameStatePayload.Union());
+}
+
+void TeambasedPong_MiniGame::send_round_prep_update() {
+    flatbuffers::FlatBufferBuilder builder;
+    
+    // Build team A players
+    std::vector<flatbuffers::Offset<FBRoundPrepPlayer>> team_a_buffer;
+    for (auto client : teamA_clients) {
+        auto name = builder.CreateString(client->name);
+        team_a_buffer.push_back(CreateFBRoundPrepPlayer(builder, name));
+    }
+    auto team_a_vector = builder.CreateVector(team_a_buffer);
+    
+    // Build team B players
+    std::vector<flatbuffers::Offset<FBRoundPrepPlayer>> team_b_buffer;
+    for (auto client : teamB_clients) {
+        auto name = builder.CreateString(client->name);
+        team_b_buffer.push_back(CreateFBRoundPrepPlayer(builder, name));
+    }
+    auto team_b_vector = builder.CreateVector(team_b_buffer);
+    
+    auto payload = CreateTeambasedPongRoundPrepPayload(
+        builder,
+        current_round,
+        remaining_round_time,
+        team_a_vector,
+        team_b_vector
+    );
+    
+    auto miniGame = builder.CreateString(get_camel_case_name());
+    auto gameStatePayload = CreateMiniGamePayloadType(
+        builder,
+        miniGame,
+        GameStateType_TeambasedPongRoundPrep,
+        GameStatePayload_TeambasedPongRoundPrepPayload,
         payload.Union()
     );
     

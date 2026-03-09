@@ -11,12 +11,14 @@ import { useWebSocketStore } from '@/stores/confettiStore'
 import type {
   TeambasedPongPlayerData,
   TeambasedPongRoundResult,
-  TeambasedPongResult
+  TeambasedPongResult,
+  TeambasedPongRoundPrepData
 } from './TeambasedPongModels'
 import {
   parseTeambasedPongPlayerPayload,
   parseTeambasedPongRoundResult,
-  parseTeambasedPongResult
+  parseTeambasedPongResult,
+  parseTeambasedPongRoundPrepPayload
 } from './TeambasedPongProcessor'
 import { PongTeam, PongRoundWinner } from './TeambasedPongModels'
 import JoystickComponent from '../shared/JoystickComponent.vue'
@@ -32,6 +34,7 @@ const props = defineProps<{
 enum ViewState {
   None,
   Introduction,
+  RoundPrep,
   MiniGame,
   RoundResult,
   Results
@@ -62,6 +65,14 @@ const roundResult = ref<TeambasedPongRoundResult>({
   has_next_round: false,
   next_team_a_players: [],
   next_team_b_players: []
+})
+
+// round prep data
+const roundPrepData = ref<TeambasedPongRoundPrepData>({
+  current_round: 0,
+  time_left: 0,
+  team_a_players: [],
+  team_b_players: []
 })
 
 // final results
@@ -95,6 +106,11 @@ const update = (data: MiniGamePayloadType) => {
     case GameStateType.TeambasedPongRoundResult: {
       viewState.value = ViewState.RoundResult
       roundResult.value = parseTeambasedPongRoundResult(data)
+      break
+    }
+    case GameStateType.TeambasedPongRoundPrep: {
+      viewState.value = ViewState.RoundPrep
+      roundPrepData.value = parseTeambasedPongRoundPrepPayload(data)
       break
     }
     case GameStateType.TeambasedPongResult: {
@@ -135,6 +151,24 @@ const getTeamName = () => {
     default:
       return 'Spectator'
   }
+}
+
+const getRoundPrepTeamColor = () => {
+  const playerName = websocketStore.clientName
+  const inTeamA = roundPrepData.value.team_a_players.some((p) => p.name === playerName)
+  if (inTeamA) return 'bg-green-700'
+  const inTeamB = roundPrepData.value.team_b_players.some((p) => p.name === playerName)
+  if (inTeamB) return 'bg-red-700'
+  return 'bg-gray-700'
+}
+
+const getRoundPrepTeamName = () => {
+  const playerName = websocketStore.clientName
+  const inTeamA = roundPrepData.value.team_a_players.some((p) => p.name === playerName)
+  if (inTeamA) return 'Team A (Green)'
+  const inTeamB = roundPrepData.value.team_b_players.some((p) => p.name === playerName)
+  if (inTeamB) return 'Team B (Red)'
+  return 'Eliminated'
 }
 
 const getRoundWinnerText = () => {
@@ -205,6 +239,19 @@ defineExpose({
         <div class="w-full h-full mt-16">
           <p class="text-4xl text-white">{{ intro.description }}</p>
         </div>
+      </div>
+    </div>
+  </template>
+
+  <template v-else-if="viewState == ViewState.RoundPrep">
+    <div class="flex flex-col items-center justify-center w-full h-full p-6">
+      <div class="text-4xl text-white font-bold mb-6">Round {{ roundPrepData.current_round }}</div>
+      <div class="text-2xl text-white mb-6">Starting in {{ formatTime(roundPrepData.time_left) }}s</div>
+
+      <div
+        :class="[getRoundPrepTeamColor(), 'p-6 rounded-lg mb-4']"
+      >
+        <div class="text-3xl text-white font-bold text-center">{{ getRoundPrepTeamName() }}</div>
       </div>
     </div>
   </template>

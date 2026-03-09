@@ -4,8 +4,10 @@ import type {
   TeambasedPongPlayerData,
   TeambasedPongRoundResult,
   TeambasedPongResult,
+  TeambasedPongRoundPrepData,
   TeamPlayer,
   NextTeamPlayer,
+  RoundPrepPlayer,
   TeambasedPongResultPair
 } from './TeambasedPongModels'
 import { PongTeam, PongRoundWinner } from './TeambasedPongModels'
@@ -13,6 +15,7 @@ import { TeambasedPongHostPayload } from '@/flatbuffers/teambased-pong-host-payl
 import { TeambasedPongPlayerPayload } from '@/flatbuffers/teambased-pong-player-payload'
 import { TeambasedPongRoundResultPayload } from '@/flatbuffers/teambased-pong-round-result-payload'
 import { TeambasedPongResultPayload } from '@/flatbuffers/teambased-pong-result-payload'
+import { TeambasedPongRoundPrepPayload } from '@/flatbuffers/teambased-pong-round-prep-payload'
 
 export function parseTeambasedPongHostPayload(data: MiniGamePayloadType): TeambasedPongHostData {
   const payload: TeambasedPongHostPayload = data.gamestatepayload(
@@ -24,7 +27,7 @@ export function parseTeambasedPongHostPayload(data: MiniGamePayloadType): Teamba
     const player = payload.teamAPlayers(i)
     if (player) {
       team_a_players.push({
-        name: player.name() || ''
+        name: decodeURI(player.name() || '')
       })
     }
   }
@@ -34,7 +37,7 @@ export function parseTeambasedPongHostPayload(data: MiniGamePayloadType): Teamba
     const player = payload.teamBPlayers(i)
     if (player) {
       team_b_players.push({
-        name: player.name() || ''
+        name: decodeURI(player.name() || '')
       })
     }
   }
@@ -84,7 +87,7 @@ export function parseTeambasedPongRoundResult(
     const player = payload.nextTeamAPlayers(i)
     if (player) {
       next_team_a_players.push({
-        name: player.name() || ''
+        name: decodeURI(player.name() || '')
       })
     }
   }
@@ -94,16 +97,15 @@ export function parseTeambasedPongRoundResult(
     const player = payload.nextTeamBPlayers(i)
     if (player) {
       next_team_b_players.push({
-        name: player.name() || ''
+        name: decodeURI(player.name() || '')
       })
     }
   }
 
   return {
     round_winner: payload.roundWinner() as PongRoundWinner,
-    winning_player_name: payload.winningPlayerName() || '',
+    winning_player_name: decodeURI(payload.winningPlayerName() || ''),
     time_left: payload.timeLeft(),
-    is_first_round: payload.isFirstRound(),
     has_next_round: payload.hasNextRound(),
     next_team_a_players: next_team_a_players,
     next_team_b_players: next_team_b_players
@@ -129,5 +131,40 @@ export function parseTeambasedPongResult(data: MiniGamePayloadType): TeambasedPo
 
   return {
     results: results
+  }
+}
+
+export function parseTeambasedPongRoundPrepPayload(
+  data: MiniGamePayloadType
+): TeambasedPongRoundPrepData {
+  const payload: TeambasedPongRoundPrepPayload = data.gamestatepayload(
+    new TeambasedPongRoundPrepPayload()
+  )
+
+  const team_a_players: RoundPrepPlayer[] = []
+  for (let i = 0; i < payload.teamAPlayersLength(); i++) {
+    const player = payload.teamAPlayers(i)
+    if (player) {
+      team_a_players.push({
+        name: decodeURI(player.name() || '')
+      })
+    }
+  }
+
+  const team_b_players: RoundPrepPlayer[] = []
+  for (let i = 0; i < payload.teamBPlayersLength(); i++) {
+    const player = payload.teamBPlayers(i)
+    if (player) {
+      team_b_players.push({
+        name: decodeURI(player.name() || '')
+      })
+    }
+  }
+
+  return {
+    current_round: payload.currentRound(),
+    time_left: payload.timeLeft(),
+    team_a_players: team_a_players,
+    team_b_players: team_b_players
   }
 }

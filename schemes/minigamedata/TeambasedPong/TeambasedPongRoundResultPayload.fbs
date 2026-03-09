@@ -13,7 +13,6 @@ table TeambasedPongRoundResultPayload {
   round_winner: PongRoundWinner; // Who won this round
   winning_player_name: string; // Only set if SINGLE_WINNER
   time_left: int; // milliseconds remaining in round result display
-  is_first_round: bool; // if first round, only show next teams players
   has_next_round: bool; // false if this was the final round
   next_team_a_players: [FBNextTeamPlayer]; // Team assignments for next round
   next_team_b_players: [FBNextTeamPlayer]; // Team assignments for next round
