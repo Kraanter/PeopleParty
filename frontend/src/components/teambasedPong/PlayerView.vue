@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, defineProps, computed } from 'vue'
+import { ref, computed } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import {
@@ -109,6 +109,10 @@ const update = (data: MiniGamePayloadType) => {
 const move = ({ y }: any) => {
   // Only send Y axis for pong paddle control
   sendPlayerAction('teambasedPong', 0, y)
+}
+
+const stop = () => {
+  sendPlayerAction('teambasedPong', 0, 0)
 }
 
 const getTeamColor = () => {
@@ -229,6 +233,7 @@ defineExpose({
           stick-color="black"
           :throttle="100"
           @move="move"
+          @stop="stop"
         />
       </div>
 

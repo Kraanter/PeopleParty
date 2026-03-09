@@ -17,7 +17,7 @@ class TeambasedPong_MiniGame : public MiniGame {
 private:
     int target_fps = 20;
     int result_time = 10 SECONDS;
-    int preview_time = 2 SECONDS; // Preview time before game starts
+    int preview_time = 5 SECONDS; // Preview time before game starts
     int round_time = 60 SECONDS; // Max time per round before tie (excluding preview)
     int round_result_time = 10 SECONDS; // Time to show round results
     int delta_time = 0; // update interval, set in constructor

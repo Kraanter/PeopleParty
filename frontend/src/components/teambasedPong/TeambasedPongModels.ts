@@ -47,6 +47,7 @@ export interface TeambasedPongRoundResult {
   round_winner: PongRoundWinner
   winning_player_name: string
   time_left: number
+  is_first_round: boolean
   has_next_round: boolean
   next_team_a_players: NextTeamPlayer[]
   next_team_b_players: NextTeamPlayer[]

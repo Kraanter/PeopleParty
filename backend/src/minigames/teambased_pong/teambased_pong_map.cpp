@@ -2,6 +2,33 @@
 #include <cmath>
 #include <random>
 
+void PongContactListener::PreSolve(b2Contact* contact, const b2Manifold* oldManifold) {
+    if (!ball) return;
+
+    b2Body* bodyA = contact->GetFixtureA()->GetBody();
+    b2Body* bodyB = contact->GetFixtureB()->GetBody();
+
+    bool ballIsA = (bodyA == ball);
+    bool ballIsB = (bodyB == ball);
+    if (!ballIsA && !ballIsB) return;
+
+    // Disable Box2D’s impulse solver for this contact — we apply the bounce manually.
+    contact->SetEnabled(false);
+
+    b2Body* other = ballIsA ? bodyB : bodyA;
+
+    // Capture velocity on the very first contact hit this step.
+    bool already_registered = hit_left_paddle || hit_right_paddle || hit_top_wall || hit_bottom_wall;
+    if (!already_registered) {
+        ball_vel_at_contact = ball->GetLinearVelocity();
+    }
+
+    if      (other == paddleA)    hit_left_paddle  = true;
+    else if (other == paddleB)    hit_right_paddle = true;
+    else if (other == topWall)    hit_top_wall     = true;
+    else if (other == bottomWall) hit_bottom_wall  = true;
+}
+
 TeambasedPong_Map::TeambasedPong_Map() 
     : world_(b2Vec2(0.0f, 0.0f)) { // No gravity for pong
 }
@@ -14,6 +41,14 @@ void TeambasedPong_Map::Initialize() {
     CreateWalls();
     CreatePaddles();
     CreateBall();
+
+    // Point the listener at our bodies and register it with the world.
+    contact_listener_.ball       = ball_;
+    contact_listener_.paddleA    = paddleA_;
+    contact_listener_.paddleB    = paddleB_;
+    contact_listener_.topWall    = topWall_;
+    contact_listener_.bottomWall = bottomWall_;
+    world_.SetContactListener(&contact_listener_);
 }
 
 void TeambasedPong_Map::CreateWalls() {
@@ -147,26 +182,45 @@ void TeambasedPong_Map::Update(float dt) {
         paddleB_->SetTransform(b2Vec2(currentPos.x, targetY), 0.0f);
     }
     
-    // Check for paddle collisions and increase ball speed
+    // Reset contact flags before stepping so each step starts clean.
+    contact_listener_.hit_left_paddle  = false;
+    contact_listener_.hit_right_paddle = false;
+    contact_listener_.hit_top_wall     = false;
+    contact_listener_.hit_bottom_wall  = false;
+
+    world_.Step(dt, 8, 3); // velocityIterations=8, positionIterations=3
+
+    // Apply manual velocity inversion based on what was hit this step.
+    // PreSolve disabled Box2D’s impulse, so the ball velocity is still the
+    // pre-contact value captured in ball_vel_at_contact.
     if (ball_) {
-        b2Vec2 velocity = ball_->GetLinearVelocity();
-        float speed = velocity.Length();
-        
-        // If ball speed changed significantly (collision), increase it
-        float worldSpeed = ToWorldScale(speed);
-        if (std::abs(worldSpeed - current_ball_speed_) > 10.0f) {
-            current_ball_speed_ = std::min(BALL_MAX_SPEED, worldSpeed * BALL_SPEED_INCREASE);
-            
-            // Normalize and apply new speed
-            velocity.Normalize();
-            velocity.x *= ToPhysicsScale(current_ball_speed_);
-            velocity.y *= ToPhysicsScale(current_ball_speed_);
-            ball_->SetLinearVelocity(velocity);
+        b2Vec2 vel = contact_listener_.ball_vel_at_contact;
+        bool hit_paddle = contact_listener_.hit_left_paddle || contact_listener_.hit_right_paddle;
+        bool hit_wall   = contact_listener_.hit_top_wall    || contact_listener_.hit_bottom_wall;
+
+        if (contact_listener_.hit_left_paddle) {
+            vel.x =  std::abs(vel.x); // always bounce right away from left paddle
+        } else if (contact_listener_.hit_right_paddle) {
+            vel.x = -std::abs(vel.x); // always bounce left away from right paddle
+        }
+
+        if (contact_listener_.hit_top_wall) {
+            vel.y = -std::abs(vel.y); // always bounce downward away from top wall
+        } else if (contact_listener_.hit_bottom_wall) {
+            vel.y =  std::abs(vel.y); // always bounce upward away from bottom wall
+        }
+
+        if (hit_paddle || hit_wall) {
+            if (hit_paddle) {
+                // Increase ball speed on every paddle bounce
+                float newWorldSpeed = ToWorldScale(vel.Length()) * BALL_SPEED_INCREASE;
+                current_ball_speed_ = std::min(BALL_MAX_SPEED, newWorldSpeed);
+                vel.Normalize();
+                vel *= ToPhysicsScale(current_ball_speed_);
+            }
+            ball_->SetLinearVelocity(vel);
         }
     }
-    
-    // Step the physics world
-    world_.Step(dt, 8, 3); // velocityIterations=8, positionIterations=3
 }
 
 void TeambasedPong_Map::SetTeamInput(Team team, float input_y) {

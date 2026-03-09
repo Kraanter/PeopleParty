@@ -6,6 +6,26 @@
 #include "../../util/math/vector2d.h"
 #include "teambased_pong_player.h"
 
+// Intercepts ball collisions in PreSolve so we can disable Box2D's built-in impulse
+// and apply our own clean velocity inversion after world_.Step().
+class PongContactListener : public b2ContactListener {
+public:
+    b2Body* ball     = nullptr;
+    b2Body* paddleA  = nullptr;
+    b2Body* paddleB  = nullptr;
+    b2Body* topWall  = nullptr;
+    b2Body* bottomWall = nullptr;
+
+    // Set by PreSolve, consumed and reset by Update()
+    bool hit_left_paddle  = false;
+    bool hit_right_paddle = false;
+    bool hit_top_wall     = false;
+    bool hit_bottom_wall  = false;
+    b2Vec2 ball_vel_at_contact{0.0f, 0.0f}; // ball velocity captured before Box2D runs
+
+    void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
+};
+
 class TeambasedPong_Map {
 public:
     TeambasedPong_Map();
@@ -63,7 +83,8 @@ private:
     void CreateBall();
     
     b2World world_;
-    
+    PongContactListener contact_listener_;
+
     // Physics bodies
     b2Body* paddleA_ = nullptr;
     b2Body* paddleB_ = nullptr;

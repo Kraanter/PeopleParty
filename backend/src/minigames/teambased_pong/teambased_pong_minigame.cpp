@@ -30,8 +30,8 @@ void TeambasedPong_MiniGame::start_introduction() {
     );
     
     introduction_timer.setInterval([this]() {
-        introduction_update(100);
-    }, 100 MILLISECONDS);
+        introduction_update(500 MILLISECONDS);
+    }, 500 MILLISECONDS);
 }
 
 void TeambasedPong_MiniGame::introduction_update(int delta_time) {
@@ -52,7 +52,7 @@ void TeambasedPong_MiniGame::start_minigame() {
     active_players.clear();
     
     for (auto client : game->get_clients()) {
-        if (!client->isSpectating) {
+        if (!client->isHost) {
             TeambasedPong_Player player(client, Team::SPECTATOR);
             players[client->client_id] = player;
             active_players.push_back(client);
@@ -79,17 +79,8 @@ void TeambasedPong_MiniGame::start_new_round() {
     teamA_clients = next_teamA_clients;
     teamB_clients = next_teamB_clients;
     
-    // Update player team assignments
-    for (auto client : teamA_clients) {
-        if (players.find(client->client_id) != players.end()) {
-            players[client->client_id].team = Team::TEAM_A;
-        }
-    }
-    for (auto client : teamB_clients) {
-        if (players.find(client->client_id) != players.end()) {
-            players[client->client_id].team = Team::TEAM_B;
-        }
-    }
+    // Note: Team enums are already updated in prepare_next_round_teams()
+    // No need to update them again here
     
     // Create/reset map
     if (map) {
@@ -121,8 +112,16 @@ void TeambasedPong_MiniGame::prepare_next_round_teams() {
         Client* client = shuffled_players[i];
         if (i < half) {
             next_teamA_clients.push_back(client);
+            // Update player team enum immediately
+            if (players.find(client->client_id) != players.end()) {
+                players[client->client_id].team = Team::TEAM_A;
+            }
         } else {
             next_teamB_clients.push_back(client);
+            // Update player team enum immediately
+            if (players.find(client->client_id) != players.end()) {
+                players[client->client_id].team = Team::TEAM_B;
+            }
         }
     }
 }
@@ -256,7 +255,13 @@ void TeambasedPong_MiniGame::end_current_round(Team winning_team) {
         }
     }
     
-    // Remove losers from active players
+    // Set losers to SPECTATOR team and remove from active players
+    for (auto client : losers) {
+        if (players.find(client->client_id) != players.end()) {
+            players[client->client_id].team = Team::SPECTATOR;
+        }
+    }
+    
     active_players.erase(
         std::remove_if(active_players.begin(), active_players.end(),
             [&losers](Client* c) {
@@ -345,6 +350,16 @@ void TeambasedPong_MiniGame::process_input(const MiniGamePayloadType* payload, C
                 // Update player's joystick Y value (only Y axis needed for pong)
                 // Invert Y axis to match expected controls
                 players[from->client_id].joystick_y = -input->y_pos();
+            }
+            break;
+        }
+        case GameStateType_JoystickEvent: {
+            auto input = payload->gamestatepayload_as_JoystickEventPayload();
+            if (input && players.find(from->client_id) != players.end()) {
+                // if there is a stop event, reset joystick Y value to 0
+                if (input->event_type() == JoystickEventType_Stop) {
+                    players[from->client_id].joystick_y = 0.0f;
+                }
             }
             break;
         }
@@ -499,12 +514,14 @@ void TeambasedPong_MiniGame::send_round_result() {
     // Create the round result payload
     auto winner_name = builder.CreateString(winning_player_name);
     bool has_next_round = active_players.size() > 1;
+    bool is_first_round = current_round == 1;
     
     auto payload = CreateTeambasedPongRoundResultPayload(
         builder,
         round_winner,
         winner_name,
         round_result_time,
+        is_first_round,
         has_next_round,
         next_team_a_vector,
         next_team_b_vector

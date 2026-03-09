@@ -103,6 +103,7 @@ export function parseTeambasedPongRoundResult(
     round_winner: payload.roundWinner() as PongRoundWinner,
     winning_player_name: payload.winningPlayerName() || '',
     time_left: payload.timeLeft(),
+    is_first_round: payload.isFirstRound(),
     has_next_round: payload.hasNextRound(),
     next_team_a_players: next_team_a_players,
     next_team_b_players: next_team_b_players
