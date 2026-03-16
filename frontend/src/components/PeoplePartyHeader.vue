@@ -50,7 +50,7 @@ const hostName = computed(() => window.location.host)
     </div>
     <div class="grid grid-cols-2 grid-rows-1 justify-center items-center">
       <div class="h-full col-span-1 mr-8">
-        <PartyButton class="text-xxl" @click="togglePauseGame">
+        <PartyButton btnClass="text-xxl" @click="togglePauseGame">
             <span v-if="!websocketStore.isPaused">Pause</span>
             <span v-if="websocketStore.isPaused">Resume</span>
         </PartyButton>

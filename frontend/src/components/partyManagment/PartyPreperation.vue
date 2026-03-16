@@ -32,7 +32,7 @@ const emit = defineEmits(['click'])
           <div class="row-start-2 col-start-3">
             <PartyButton
               @click="showSettings = !showSettings"
-              class="flex justify-center items-center"
+              btnClass="flex justify-center items-center"
             ><span class="text-xl">{{ showSettings ? 'Players' : 'Settings' }}</span>
             </PartyButton>
           </div>
@@ -71,7 +71,7 @@ const emit = defineEmits(['click'])
           <PartyButton
             id="startGame"
             @click="emit('click')"
-            class="xl:py-12 py-4 md:py-8"
+            btnClass="xl:py-12 py-4 md:py-8"
             :disabled="playerCount < 1"
             >{{ playerCount < 1 ? 'Waiting for players...' : 'Start Game' }}
           </PartyButton>

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, defineProps } from 'vue'
+import { ref } from 'vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import TimeComponent from '../TimeComponent.vue'
 import {

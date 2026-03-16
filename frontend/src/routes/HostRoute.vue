@@ -109,7 +109,7 @@ const skipLeaderboard = () => {
     </div>
     <div class="flex flex-col h-full justify-between p-8 items-center">
       <div id="partyButton">
-        <PartyButton class="py-8 px-12" @click="host()">Host a party!</PartyButton>
+        <PartyButton btnClass="py-8 px-12" @click="host()">Host a party!</PartyButton>
       </div>
 
       <div class="grid grid-cols-3 justify-between w-full">

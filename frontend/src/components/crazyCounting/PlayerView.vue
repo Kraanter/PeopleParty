@@ -222,7 +222,7 @@ const sendPlayerAction = (action: Input) => {
         <PartyButton
           :disabled="isDisabled"
           @click="sendPlayerAction(Input.Submit)"
-          class="bg-sky-400 absolute h-2/3 w-full"
+          btnClass="bg-sky-400 absolute h-2/3 w-full"
           >Lock</PartyButton
         >
       </div>
@@ -231,13 +231,13 @@ const sendPlayerAction = (action: Input) => {
           <PartyButton
             :disabled="isDisabled"
             @click="sendPlayerAction(Input.Increase)"
-            class="rounded-full col-start-2 aspect-square"
+            btnClass="rounded-full col-start-2 aspect-square"
             >+</PartyButton
           >
           <PartyButton
             :disabled="isDisabled"
             @click="sendPlayerAction(Input.Decrease)"
-            class="rounded-full"
+            btnClass="rounded-full"
             >-</PartyButton
           >
         </div>

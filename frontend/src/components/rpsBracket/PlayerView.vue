@@ -244,8 +244,8 @@ defineExpose({ update })
             <div v-for="(choice, i) in RPSMap" @click="player_action(i)" :key="choice">
               <PartyButton
                 :disabled="playerData.winner != ''"
-                class="m-2 !text-lg"
-                :class="{
+                btnClass="m-2 !text-lg"
+                :cndClass="{
                   '!bg-sky-400': i == playerData.choice,
                   'bg-primary': i != playerData.choice
                 }"
