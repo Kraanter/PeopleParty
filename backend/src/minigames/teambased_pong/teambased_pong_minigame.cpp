@@ -394,7 +394,8 @@ void TeambasedPong_MiniGame::send_host_update() {
     std::vector<flatbuffers::Offset<FBTeamPlayer>> team_a_buffer;
     for (auto client : teamA_clients) {
         auto name = builder.CreateString(client->name);
-        team_a_buffer.push_back(CreateFBTeamPlayer(builder, name));
+        auto direction = (players[client->client_id].joystick_y + 1.0f) / 2.0f * 100.0f;
+        team_a_buffer.push_back(CreateFBTeamPlayer(builder, name, direction));
     }
     auto team_a_vector = builder.CreateVector(team_a_buffer);
     
@@ -402,7 +403,8 @@ void TeambasedPong_MiniGame::send_host_update() {
     std::vector<flatbuffers::Offset<FBTeamPlayer>> team_b_buffer;
     for (auto client : teamB_clients) {
         auto name = builder.CreateString(client->name);
-        team_b_buffer.push_back(CreateFBTeamPlayer(builder, name));
+        auto direction = (players[client->client_id].joystick_y + 1.0f) / 2.0f * 100.0f;
+        team_b_buffer.push_back(CreateFBTeamPlayer(builder, name, direction));
     }
     auto team_b_vector = builder.CreateVector(team_b_buffer);
     

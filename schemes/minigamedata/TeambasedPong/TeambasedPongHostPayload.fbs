@@ -1,5 +1,6 @@
 table FBTeamPlayer {
   name: string;
+  direction: ushort; // 0-100%
 }
 
 table TeambasedPongHostPayload {

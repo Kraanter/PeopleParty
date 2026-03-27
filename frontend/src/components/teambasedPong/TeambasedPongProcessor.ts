@@ -27,7 +27,8 @@ export function parseTeambasedPongHostPayload(data: MiniGamePayloadType): Teamba
     const player = payload.teamAPlayers(i)
     if (player) {
       team_a_players.push({
-        name: decodeURI(player.name() || '')
+        name: decodeURI(player.name() || ''),
+        direction: player.direction() || 50
       })
     }
   }
@@ -37,7 +38,8 @@ export function parseTeambasedPongHostPayload(data: MiniGamePayloadType): Teamba
     const player = payload.teamBPlayers(i)
     if (player) {
       team_b_players.push({
-        name: decodeURI(player.name() || '')
+        name: decodeURI(player.name() || ''),
+        direction: player.direction() || 50
       })
     }
   }

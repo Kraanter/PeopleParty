@@ -94,6 +94,33 @@ const MAP_ASPECT = 800 / 600
 const canvasHeight = computed(() => Math.round(canvasWidth.value / MAP_ASPECT))
 const scale = computed(() => canvasWidth.value / payloadData.value.map_width)
 
+// Per-player direction smoothing state to avoid marker teleporting between network ticks.
+const smoothedTeamAInputs = new Map<string, number>()
+const smoothedTeamBInputs = new Map<string, number>()
+const inputSmoothingFactor = 0.2
+
+const clampDirection = (value: number) => Math.max(0, Math.min(100, value))
+
+const getSmoothedDirection = (
+  smoothingMap: Map<string, number>,
+  playerKey: string,
+  targetDirection: number
+) => {
+  const target = clampDirection(targetDirection)
+  const current = smoothingMap.get(playerKey) ?? target
+  const next = current + (target - current) * inputSmoothingFactor
+  smoothingMap.set(playerKey, next)
+  return next
+}
+
+const pruneMissingPlayers = (smoothingMap: Map<string, number>, activePlayerKeys: Set<string>) => {
+  for (const key of smoothingMap.keys()) {
+    if (!activePlayerKeys.has(key)) {
+      smoothingMap.delete(key)
+    }
+  }
+}
+
 let resizeObserver: ResizeObserver | null = null
 watch(gameCanvasRef, (el) => {
   resizeObserver?.disconnect()
@@ -197,6 +224,16 @@ const renderPongGame = (graphics: Graphics) => {
   const s = scale.value
   const mw = payloadData.value.map_width
   const mh = payloadData.value.map_height
+  const halfPaddleHeight = (payloadData.value.paddle_height / 2) * s
+
+  pruneMissingPlayers(
+    smoothedTeamAInputs,
+    new Set(payloadData.value.team_a_players.map((player) => player.name))
+  )
+  pruneMissingPlayers(
+    smoothedTeamBInputs,
+    new Set(payloadData.value.team_b_players.map((player) => player.name))
+  )
 
   // Draw center line
   graphics.lineStyle(3, 0xffffff, 0.5)
@@ -217,6 +254,15 @@ const renderPongGame = (graphics: Graphics) => {
     payloadData.value.paddle_height * s
   )
   graphics.endFill()
+  // Draw each players input
+  for (const player of payloadData.value.team_a_players) {
+    const smoothedDirection = getSmoothedDirection(smoothedTeamAInputs, player.name, player.direction)
+    if (Math.abs(smoothedDirection - 50) < 0.5) continue // skip near-neutral input
+    const inputY = paddleAY + ((smoothedDirection - 50) / 50) * halfPaddleHeight
+    graphics.beginFill(0xffffff)
+    graphics.drawCircle(paddleAX - 20 * s, inputY, 8 * s)
+    graphics.endFill()
+  }
 
   graphics.beginFill(0xff0000) // Team B - Red
   const paddleBX = (payloadData.value.paddle_b_x + mw / 2) * s
@@ -228,6 +274,15 @@ const renderPongGame = (graphics: Graphics) => {
     payloadData.value.paddle_height * s
   )
   graphics.endFill()
+  // Draw each players input
+  for (const player of payloadData.value.team_b_players) {
+    const smoothedDirection = getSmoothedDirection(smoothedTeamBInputs, player.name, player.direction)
+    if (Math.abs(smoothedDirection - 50) < 0.5) continue // skip near-neutral input
+    const inputY = paddleBY + ((smoothedDirection - 50) / 50) * halfPaddleHeight
+    graphics.beginFill(0xffffff)
+    graphics.drawCircle(paddleBX + 20 * s, inputY, 8 * s)
+    graphics.endFill()
+  }
 
   // Draw ball
   graphics.beginFill(0xffffff)

@@ -1,5 +1,6 @@
 export interface TeamPlayer {
   name: string
+  direction: number // 0-100% of their joystick input
 }
 
 export interface TeambasedPongHostData {
