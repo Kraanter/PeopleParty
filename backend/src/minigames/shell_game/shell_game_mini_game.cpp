@@ -254,8 +254,20 @@ void ShellGame_MiniGame::update_cup_positions(int dt)
         }
     }
 
+    // Compute depth arc: sin(progress * π), peaks at midpoint of the swap
+    if (swap_total_distance > 0.0f)
+    {
+        float remaining = std::abs(cups[swap_cup_a].target_x - cups[swap_cup_a].x_pos);
+        float progress = 1.0f - (remaining / swap_total_distance);
+        float arc = std::sin(progress * M_PI);
+        cups[swap_cup_a].depth =  arc;   // closer cup: grows
+        cups[swap_cup_b].depth = -arc;   // farther cup: shrinks
+    }
+
     if (cups[swap_cup_a].is_at_target() && cups[swap_cup_b].is_at_target())
     {
+        cups[swap_cup_a].depth = 0.0f;
+        cups[swap_cup_b].depth = 0.0f;
         swaps_remaining--;
         swap_cup_a = -1;
         swap_cup_b = -1;
@@ -288,6 +300,11 @@ void ShellGame_MiniGame::start_next_swap()
     float target_b = cups[a].x_pos;
     cups[a].target_x = target_a;
     cups[b].target_x = target_b;
+
+    // Record total swap distance and reset depth for the arc calculation
+    swap_total_distance = std::abs(target_a - cups[a].x_pos);
+    cups[a].depth = 0.0f;
+    cups[b].depth = 0.0f;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -415,7 +432,7 @@ void ShellGame_MiniGame::send_host_update()
     cup_offsets.reserve(cups.size());
     for (const auto& cup : cups)
     {
-        cup_offsets.push_back(CreateFBShellGameCup(builder, cup.x_pos));
+        cup_offsets.push_back(CreateFBShellGameCup(builder, cup.x_pos, cup.depth));
     }
     auto cups_vec = builder.CreateVector(cup_offsets);
 

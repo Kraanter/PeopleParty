@@ -174,14 +174,21 @@ const renderGame = (g: Graphics) => {
     g.endFill()
   }
 
-  // Draw cups — lift the ball cup upward during REVEAL and ROUND_RESULT
-  const LIFT_Y = 60  // pixels to lift the revealed cup
-  cups.forEach((cup, i) => {
+  // Draw cups — sorted by depth so the "farther" cup renders behind the "closer" one.
+  // Lift the ball cup upward during REVEAL and ROUND_RESULT.
+  const LIFT_Y = 60
+  const MAX_DEPTH_SCALE = 0.25
+  const drawOrder = cups
+    .map((cup, i) => ({ cup, i }))
+    .sort((a, b) => a.cup.depth - b.cup.depth)  // most negative (farthest) drawn first
+
+  drawOrder.forEach(({ cup, i }) => {
     const cx = cup.x_pos * sv
     const isLifted = ballIdx >= 0 && i === ballIdx
     const cy = (isLifted ? CUP_Y - LIFT_Y : CUP_Y) * sv
-    const cw = CUP_WIDTH * sv
-    const ch = CUP_HEIGHT * sv
+    const depthScale = 1 + cup.depth * MAX_DEPTH_SCALE
+    const cw = CUP_WIDTH * sv * depthScale
+    const ch = CUP_HEIGHT * sv * depthScale
 
     // Cup body
     g.beginFill(COLOR_CUP)
@@ -189,13 +196,14 @@ const renderGame = (g: Graphics) => {
     g.endFill()
 
     // Cup rim (wider band at the bottom)
+    const ds = sv * depthScale
     g.beginFill(COLOR_CUP_RIM)
-    g.drawRoundedRect(cx - (cw / 2 + 4 * sv), cy + ch - 14 * sv, cw + 8 * sv, 14 * sv, 4 * sv)
+    g.drawRoundedRect(cx - (cw / 2 + 4 * ds), cy + ch - 14 * ds, cw + 8 * ds, 14 * ds, 4 * ds)
     g.endFill()
 
     // Cup top cap
     g.beginFill(COLOR_CUP_RIM)
-    g.drawRoundedRect(cx - cw / 2 - 2 * sv, cy, cw + 4 * sv, 10 * sv, 4 * sv)
+    g.drawRoundedRect(cx - cw / 2 - 2 * ds, cy, cw + 4 * ds, 10 * ds, 4 * ds)
     g.endFill()
 
     // Number label background circle (during GUESS and ROUND_RESULT)
@@ -276,7 +284,7 @@ defineExpose({ update })
         <div class="text-white text-xl font-bold">Round {{ hostData.current_round }}</div>
         <div class="text-yellow-300 text-xl font-bold">{{ phaseLabel }}</div>
         <div class="text-white text-xl font-bold">
-          Players: {{ hostData.active_players }}
+          Players left: {{ hostData.active_players }}
         </div>
       </div>
 

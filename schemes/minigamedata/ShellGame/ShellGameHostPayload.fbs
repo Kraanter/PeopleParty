@@ -7,6 +7,7 @@ enum ShellGamePhase: byte {
 
 table FBShellGameCup {
   x_pos: float;
+  depth: float;   // sin-arc value: +1 = closest, -1 = farthest, 0 = idle
 }
 
 table ShellGameHostPayload {

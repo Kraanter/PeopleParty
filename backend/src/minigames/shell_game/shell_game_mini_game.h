@@ -22,6 +22,7 @@ struct ShellGame_Cup
 {
     float x_pos;
     float target_x;
+    float depth = 0.0f;  // sin-arc depth: +1 = closest (bigger), -1 = farthest (smaller), 0 = idle
 
     bool is_at_target() const { return std::abs(x_pos - target_x) < 1.0f; }
 };
@@ -107,9 +108,10 @@ private:
 
     // Shuffle state
     int swaps_remaining;
-    int swap_cup_a;         // -1 if not currently animating a swap
+    int swap_cup_a;             // -1 if not currently animating a swap
     int swap_cup_b;
-    float cup_speed;        // pixels per millisecond
+    float cup_speed;            // pixels per millisecond
+    float swap_total_distance;  // total distance of the current swap (for progress calculation)
 
     // Per-phase timing
     int reveal_time;

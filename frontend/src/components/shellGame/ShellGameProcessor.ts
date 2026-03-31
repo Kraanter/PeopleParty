@@ -23,7 +23,7 @@ export function parseShellGameHostPayload(data: MiniGamePayloadType): ShellGameH
   for (let i = 0; i < payload.cupsLength(); i++) {
     const cup: FBShellGameCup | null = payload.cups(i, new FBShellGameCup())
     if (cup) {
-      cups.push({ x_pos: cup.xPos() })
+      cups.push({ x_pos: cup.xPos(), depth: cup.depth() })
     }
   }
 

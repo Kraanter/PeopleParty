@@ -7,6 +7,7 @@ export enum ShellGamePhase {
 
 export interface ShellGameCup {
   x_pos: number
+  depth: number  // sin-arc value: +1 = closest, -1 = farthest, 0 = idle
 }
 
 export interface ShellGameHostData {

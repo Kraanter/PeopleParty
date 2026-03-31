@@ -127,17 +127,23 @@ defineExpose({ update })
 <template>
   <!-- Introduction -->
   <template v-if="viewState === ViewState.Introduction">
-    <div class="flex flex-col h-full justify-center items-center gap-6 p-6 text-center">
-      <TimeComponent :timeLeft="intro.time_left" />
-      <p class="text-3xl text-white font-bold">{{ intro.title }}</p>
-      <p class="text-xl text-gray-200">{{ intro.description }}</p>
+    <div class="flex flex-col m-2 text-center gap-4 h-full justify-center items-center">
+      <div class="w-full flex justify-center px-8">
+        <div>
+          <TimeComponent :timeLeft="intro.time_left" />
+        </div>
+      </div>
+      <div>
+        <div class="w-full h-full mt-16">
+          <p class="text-4xl text-white">{{ intro.description }}</p>
+        </div>
+      </div>
     </div>
   </template>
 
   <!-- In-game: eliminated -->
   <template v-else-if="viewState === ViewState.MiniGame && playerData.is_eliminated">
     <div class="flex flex-col h-full justify-center items-center gap-4 p-6 text-center">
-      <div class="text-6xl">😬</div>
       <p class="text-4xl text-red-400 font-bold">Eliminated!</p>
       <p class="text-xl text-gray-300">You survived {{ playerData.current_round - 1 }} round{{ playerData.current_round !== 2 ? 's' : '' }}.</p>
       <p class="text-lg text-gray-400 mt-4">Watch the others!</p>
@@ -147,7 +153,6 @@ defineExpose({ update })
   <!-- In-game: REVEAL phase -->
   <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellGamePhase.REVEAL">
     <div class="flex flex-col h-full justify-center items-center gap-6 p-6 text-center">
-      <div class="text-7xl">👀</div>
       <p class="text-4xl text-white font-bold">Watch the ball!</p>
       <p class="text-2xl text-yellow-300">Round {{ playerData.current_round }}</p>
       <div class="mt-4">
@@ -159,7 +164,6 @@ defineExpose({ update })
   <!-- In-game: SHUFFLE phase -->
   <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellGamePhase.SHUFFLE">
     <div class="flex flex-col h-full justify-center items-center gap-6 p-6 text-center">
-      <div class="text-7xl">🔄</div>
       <p class="text-4xl text-white font-bold">Don't lose it!</p>
       <p class="text-2xl text-yellow-300">Track the cup with the ball…</p>
     </div>
@@ -182,13 +186,12 @@ defineExpose({ update })
           style="background-color: #8b5e3c"
           @click="sendCupGuess(i)"
         >
-          🪣 {{ i + 1 }}
+          {{ i + 1 }}
         </button>
       </div>
 
       <!-- Already guessed -->
       <div v-else class="flex flex-col items-center gap-3 mt-4">
-        <div class="text-5xl">✅</div>
         <p class="text-2xl text-green-400 font-bold">Guess locked in!</p>
         <p class="text-lg text-gray-300">Waiting for others…</p>
       </div>
@@ -199,12 +202,10 @@ defineExpose({ update })
   <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellGamePhase.ROUND_RESULT">
     <div class="flex flex-col h-full justify-center items-center gap-6 p-6 text-center">
       <template v-if="playerData.was_correct">
-        <div class="text-7xl">🎉</div>
         <p class="text-5xl text-green-400 font-bold">Correct!</p>
         <p class="text-2xl text-white">You survived round {{ playerData.current_round }}!</p>
       </template>
       <template v-else>
-        <div class="text-7xl">😭</div>
         <p class="text-5xl text-red-400 font-bold">Wrong!</p>
         <p class="text-2xl text-white">Eliminated in round {{ playerData.current_round }}</p>
       </template>
