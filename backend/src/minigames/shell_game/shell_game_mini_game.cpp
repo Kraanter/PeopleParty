@@ -101,10 +101,12 @@ void ShellGame_MiniGame::update(int dt)
             break;
         case ShellGame_Phase::ROUND_RESULT:
             update_round_result_phase(dt);
+            return;
             break;
     }
 
     send_host_update();
+    send_all_player_updates();
 }
 
 void ShellGame_MiniGame::update_reveal_phase(int dt)
@@ -145,6 +147,7 @@ void ShellGame_MiniGame::update_guess_phase(int dt)
 void ShellGame_MiniGame::update_round_result_phase(int dt)
 {
     remaining_time -= dt;
+    send_all_player_updates();
     if (remaining_time <= 0)
     {
         process_round_end();
