@@ -213,7 +213,12 @@ void TeambasedPong_Map::Update(float dt) {
         if (hit_paddle || hit_wall) {
             if (hit_paddle) {
                 // Increase ball speed on every paddle bounce
-                float newWorldSpeed = ToWorldScale(vel.Length()) * BALL_SPEED_INCREASE;
+                if (ToWorldScale(vel.Length()) > BALL_SPEED_THRESHOLD_HIGH) {
+                    vel *= BALL_SPEED_INCREASE_HIGH;
+                } else {
+                    vel *= BALL_SPEED_INCREASE;
+                }
+                float newWorldSpeed = ToWorldScale(vel.Length());
                 current_ball_speed_ = std::min(BALL_MAX_SPEED, newWorldSpeed);
                 vel.Normalize();
                 vel *= ToPhysicsScale(current_ball_speed_);

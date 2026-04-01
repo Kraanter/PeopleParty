@@ -45,9 +45,11 @@ public:
     
     // Ball properties
     static constexpr float BALL_RADIUS = 10.0f;
-    static constexpr float BALL_INITIAL_SPEED = 100.0f;
-    static constexpr float BALL_SPEED_INCREASE = 1.02f; // 2% increase per bounce
-    static constexpr float BALL_MAX_SPEED = 600.0f;
+    static constexpr float BALL_INITIAL_SPEED = 125.0f;
+    static constexpr float BALL_SPEED_INCREASE = 1.07f; // 7% increase per bounce
+    static constexpr float BALL_SPEED_INCREASE_HIGH = 1.05f; // 5% increase when ball is fast
+    static constexpr float BALL_SPEED_THRESHOLD_HIGH = 500.0f; // Speed threshold for high-speed increase
+    static constexpr float BALL_MAX_SPEED = 1000.0f;
     
     // Initialize the map
     void Initialize();

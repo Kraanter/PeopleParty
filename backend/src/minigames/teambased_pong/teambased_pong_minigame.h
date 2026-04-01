@@ -15,7 +15,7 @@ class TeambasedPong_Player;
 
 class TeambasedPong_MiniGame : public MiniGame {
 private:
-    int target_fps = 20;
+    int target_fps = 30;
     int result_time = 10 SECONDS;
     int round_prep_time = 5 SECONDS; // Time to show team assignments before round
     int round_time = 60 SECONDS; // Max time per round before tie

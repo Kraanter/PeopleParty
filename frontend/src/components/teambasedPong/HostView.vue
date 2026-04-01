@@ -259,7 +259,7 @@ const renderPongGame = (graphics: Graphics) => {
     const smoothedDirection = getSmoothedDirection(smoothedTeamAInputs, player.name, player.direction)
     if (Math.abs(smoothedDirection - 50) < 0.5) continue // skip near-neutral input
     const inputY = paddleAY + ((smoothedDirection - 50) / 50) * halfPaddleHeight
-    graphics.beginFill(0xffffff)
+    graphics.beginFill(0x00ff00)
     graphics.drawCircle(paddleAX - 20 * s, inputY, 8 * s)
     graphics.endFill()
   }
@@ -279,7 +279,7 @@ const renderPongGame = (graphics: Graphics) => {
     const smoothedDirection = getSmoothedDirection(smoothedTeamBInputs, player.name, player.direction)
     if (Math.abs(smoothedDirection - 50) < 0.5) continue // skip near-neutral input
     const inputY = paddleBY + ((smoothedDirection - 50) / 50) * halfPaddleHeight
-    graphics.beginFill(0xffffff)
+    graphics.beginFill(0xff0000)
     graphics.drawCircle(paddleBX + 20 * s, inputY, 8 * s)
     graphics.endFill()
   }
