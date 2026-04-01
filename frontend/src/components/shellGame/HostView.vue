@@ -246,7 +246,7 @@ const roundResultRows = computed(() => {
   if (!roundResult.value) return []
   return roundResult.value.player_results
     .slice()
-    .sort((a, b) => (b.was_correct ? 1 : 0) - (a.was_correct ? 1 : 0))
+    .filter(a => !a.was_correct)
 })
 
 // ─── Ordinal formatting ───────────────────────────────────────────────────────
@@ -303,9 +303,9 @@ defineExpose({ update })
     <div class="flex flex-col w-full h-full bg-black">
       <!-- Header bar -->
       <div class="flex items-center justify-between px-4 py-2 bg-black bg-opacity-60">
-        <div class="text-white text-xl font-bold">Round {{ hostData.current_round }}</div>
+        <div class="text-white text-xl font-bold ml-2">Round {{ hostData.current_round }}</div>
         <div class="text-yellow-300 text-xl font-bold">{{ phaseLabel }}</div>
-        <div class="text-white text-xl font-bold">
+        <div class="text-white text-xl font-bold mr-2">
           Players left: {{ hostData.active_players }}
         </div>
       </div>
@@ -357,7 +357,7 @@ defineExpose({ update })
         class="absolute inset-x-0 bottom-0 bg-black bg-opacity-75 px-4 py-3"
       >
         <div class="text-white text-center text-lg font-bold mb-2">
-          Ball was under cup {{ roundResult.correct_cup_index + 1 }} —
+          Ball was under cup {{ roundResult.correct_cup_index + 1 }} <br>
           {{ roundResult.players_remaining }} player(s) continue
         </div>
         <div class="flex flex-wrap justify-center gap-2">
@@ -383,12 +383,12 @@ defineExpose({ update })
       <div class="flex items-end justify-center gap-6 px-12 flex-1 min-h-0">
 
         <!-- 2nd distinct placement — silver, left -->
-        <div class="flex flex-col items-center">
+        <div v-if="podium.slots[1]" class="flex flex-col items-center">
           <div class="flex flex-col items-center gap-0.5 mb-2 max-w-36">
             <div
               v-for="p in (podium.slots[1]?.players ?? [])"
               :key="p.name"
-              class="text-base font-bold text-gray-200 text-center truncate max-w-full"
+              class="text-2xl font-bold text-gray-200 text-center truncate max-w-full"
             >{{ p.name }}</div>
             <div v-if="!podium.slots[1]" class="text-base text-gray-600">—</div>
           </div>
@@ -408,12 +408,12 @@ defineExpose({ update })
         </div>
 
         <!-- 1st distinct placement — gold, center, tallest -->
-        <div class="flex flex-col items-center">
+        <div v-if="podium.slots[0]" class="flex flex-col items-center">
           <div class="flex flex-col items-center gap-0.5 mb-2 max-w-40">
             <div
               v-for="p in (podium.slots[0]?.players ?? [])"
               :key="p.name"
-              class="text-lg font-bold text-yellow-300 text-center truncate max-w-full"
+              class="text-2xl font-bold text-yellow-300 text-center truncate max-w-full"
             >{{ p.name }}</div>
             <div v-if="!podium.slots[0]" class="text-lg text-gray-600">—</div>
           </div>
@@ -433,12 +433,12 @@ defineExpose({ update })
         </div>
 
         <!-- 3rd distinct placement — bronze, right -->
-        <div class="flex flex-col items-center">
+        <div v-if="podium.slots[2]" class="flex flex-col items-center">
           <div class="flex flex-col items-center gap-0.5 mb-2 max-w-36">
             <div
               v-for="p in (podium.slots[2]?.players ?? [])"
               :key="p.name"
-              class="text-base font-bold text-amber-600 text-center truncate max-w-full"
+              class="text-2xl font-bold text-amber-600 text-center truncate max-w-full"
             >{{ p.name }}</div>
             <div v-if="!podium.slots[2]" class="text-base text-gray-600">—</div>
           </div>

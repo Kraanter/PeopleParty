@@ -110,7 +110,8 @@ private:
     int swaps_remaining;
     int swap_cup_a;             // -1 if not currently animating a swap
     int swap_cup_b;
-    float cup_speed;            // pixels per millisecond
+    int swap_duration;          // milliseconds each swap takes, regardless of distance
+    float current_swap_speed;   // pixels per millisecond for the current swap (distance / swap_duration)
     float swap_total_distance;  // total distance of the current swap (for progress calculation)
 
     // Per-phase timing

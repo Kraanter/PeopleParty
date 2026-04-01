@@ -18,7 +18,8 @@ ShellGame_MiniGame::ShellGame_MiniGame(Game* game) : MiniGame(game)
     swaps_remaining = 0;
     swap_cup_a = -1;
     swap_cup_b = -1;
-    cup_speed = 0.5f;
+    swap_duration = 700;
+    current_swap_speed = 0.0f;
     reveal_time = 4 SECONDS;
     guess_time = 8 SECONDS;
     total_swaps = 5;
@@ -242,7 +243,7 @@ void ShellGame_MiniGame::update_cup_positions(int dt)
 {
     if (swap_cup_a == -1) return;
 
-    float delta = cup_speed * dt;
+    float delta = current_swap_speed * dt;
 
     for (int idx : {swap_cup_a, swap_cup_b})
     {
@@ -304,8 +305,11 @@ void ShellGame_MiniGame::start_next_swap()
     cups[a].target_x = target_a;
     cups[b].target_x = target_b;
 
-    // Record total swap distance and reset depth for the arc calculation
+    // Record total swap distance, compute per-swap speed so duration is constant
     swap_total_distance = std::abs(target_a - cups[a].x_pos);
+    current_swap_speed = (swap_duration > 0 && swap_total_distance > 0.0f)
+        ? swap_total_distance / static_cast<float>(swap_duration)
+        : 1.0f;
     cups[a].depth = 0.0f;
     cups[b].depth = 0.0f;
 }
@@ -335,15 +339,22 @@ std::vector<int> ShellGame_MiniGame::get_cups_sorted_by_x() const
 
 void ShellGame_MiniGame::set_difficulty(int round)
 {
-    // Number of cups: starts at 3, +1 every 4 rounds, max 6
-    num_cups = std::min(3 + (round - 1) / 4, 6);
+    // Number of cups: starts at 3, +1 every 3 rounds, max 6
+    num_cups = std::min(3 + (round - 1) / 3, 6);
 
-    // Cup speed (pixels/ms): increases over time
-    if (round <= 3)       cup_speed = 0.45f;
-    else if (round <= 6)  cup_speed = 0.65f;
-    else if (round <= 9)  cup_speed = 0.85f;
-    else if (round <= 12) cup_speed = 1.05f;
-    else                  cup_speed = 1.30f;
+    // Swap duration (ms): each swap takes this long regardless of cup distance
+    // on the rounds when a cup is added, swaps are a bit slower to help players adjust
+    if (round % 3 == 1 && round != 1)
+    {
+        // add some swap time during the rounds a cup is added
+        swap_duration = std::min(swap_duration + 50, 1000);
+    } else if (round < 8) {
+        // slightly decrease swap time
+        swap_duration = std::max(250, swap_duration - 50);
+    } else {
+        // even less decrease
+        swap_duration = std::max(250, swap_duration - 25);
+    }
 
     // Number of swaps: 5 base + 1 per round, capped at 22
     total_swaps = std::min(4 + round, 22);
