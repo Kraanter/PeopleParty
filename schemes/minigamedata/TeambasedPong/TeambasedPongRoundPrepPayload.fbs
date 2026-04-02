@@ -1,0 +1,12 @@
+table FBRoundPrepPlayer {
+  name: string;
+}
+
+table TeambasedPongRoundPrepPayload {
+  current_round: ushort;
+  time_left: int; // milliseconds
+  team_a_players: [FBRoundPrepPlayer];
+  team_b_players: [FBRoundPrepPlayer];
+}
+
+root_type TeambasedPongRoundPrepPayload;

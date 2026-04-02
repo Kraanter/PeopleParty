@@ -71,7 +71,7 @@ onMounted(() => {
       <div id="ctaButtons" class="flex flex-col justify-center items-center p-4">
         <div id="partyButton" class="mb-4">
           <router-link to="/host">
-            <PartyButton class="py-8 px-12">Play Now!</PartyButton>
+            <PartyButton btnClass="py-8 px-12">Play Now!</PartyButton>
           </router-link>
         </div>
         <div class="text-2xl text-black font-semibold underline mt-4 mb-2">
@@ -164,7 +164,7 @@ onMounted(() => {
         </div>
         <div class="flex flex-col items-start">
           <a href="https://github.com/Kraanter/PeopleParty" target="_blank">
-            <PartyButton class="py-4 px-8 bg-white !text-black !text-2xl !text-semibold"
+            <PartyButton btnClass="py-4 px-8 bg-white !text-black !text-2xl !text-semibold"
               >Visit our GitHub</PartyButton
             >
           </a>

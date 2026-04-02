@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { NScrollbar, NCard } from 'naive-ui'
-import { defineProps, toRefs, computed, onMounted, ref, type VNodeRef } from 'vue'
+import { toRefs, computed, onMounted, ref, type VNodeRef } from 'vue'
 import { useWebSocketStore, type Leaderboard } from '@/stores/confettiStore'
 import PeoplePartyHeader from '@/components/PeoplePartyHeader.vue'
 import TimeComponent from '../TimeComponent.vue'
@@ -148,7 +148,7 @@ const skipVotePlayerLeaderboard = () => {
             </div>
           </div>
           <div class="mx-auto mt-2">
-            <PartyButton class="w-24" @click="skipLeaderboard">
+            <PartyButton btnClass="w-24" @click="skipLeaderboard">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -310,7 +310,7 @@ const skipVotePlayerLeaderboard = () => {
     <!-- vote skip button -->
      <div v-if="!playerVoteSkipped" class="absolute bottom-0 w-full flex justify-center mb-14">
       <div>
-        <PartyButton class="pb-3 px-3" @click="skipVotePlayerLeaderboard">
+        <PartyButton btnClass="pb-3 px-3" @click="skipVotePlayerLeaderboard">
           <span class="text-xl">Vote Skip</span>
         </PartyButton>
       </div>

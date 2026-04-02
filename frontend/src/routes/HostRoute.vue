@@ -89,7 +89,11 @@ const skipLeaderboard = () => {
     />
   </div>
   <div v-else class="grid grid-rows-2 pt-12">
-    <div class="fixed size-96" style="right: 9%; top: 40%; transform: rotate(10deg);">
+    <!-- only show the new version when the latest date is less then 90 days old -->
+    <div v-if="releasesStore.releases.length > 0 
+            && releasesStore.releases[0].date 
+            && ((new Date().getTime() - new Date(releasesStore.releases[0].date).getTime()) / (1000 * 60 * 60 * 24)) < 90"
+          class="fixed size-96" style="right: 9%; top: 40%; transform: rotate(10deg);">
       <img src="/assets/update-sticker.svg" class="absolute mt-2" style="z-index: -10; transform: rotate(-8deg);" />
       <div class="flex flex-col justify-center items-center mt-28">
         <div>
@@ -109,7 +113,7 @@ const skipLeaderboard = () => {
     </div>
     <div class="flex flex-col h-full justify-between p-8 items-center">
       <div id="partyButton">
-        <PartyButton class="py-8 px-12" @click="host()">Host a party!</PartyButton>
+        <PartyButton btnClass="py-8 px-12" @click="host()">Host a party!</PartyButton>
       </div>
 
       <div class="grid grid-cols-3 justify-between w-full">

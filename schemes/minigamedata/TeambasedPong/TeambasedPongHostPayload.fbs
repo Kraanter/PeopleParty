@@ -1,0 +1,23 @@
+table FBTeamPlayer {
+  name: string;
+  direction: ushort; // 0-100%
+}
+
+table TeambasedPongHostPayload {
+  current_round: ushort;
+  time_left: int; // milliseconds
+  map_width: float;
+  map_height: float;
+  ball_x: float;
+  ball_y: float;
+  paddle_a_x: float;
+  paddle_a_y: float;
+  paddle_b_x: float;
+  paddle_b_y: float;
+  paddle_width: float;
+  paddle_height: float;
+  team_a_players: [FBTeamPlayer];
+  team_b_players: [FBTeamPlayer];
+}
+
+root_type TeambasedPongHostPayload;

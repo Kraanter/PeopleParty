@@ -20,6 +20,8 @@
 #include "minigames/highway_hustle/highway_hustle_mini_game.h"
 #include "minigames/marble_mania/marble_mania_mini_game.h"
 #include "minigames/unscrambled/unscrambled_mini_game.h"
+#include "minigames/teambased_pong/teambased_pong_minigame.h"
+#include "minigames/shell_game/shell_game_mini_game.h"
 #include <queue>
 #include <map>
 #include <algorithm>

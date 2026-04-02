@@ -1,0 +1,14 @@
+enum PongTeam: byte {
+  TEAM_A = 0,
+  TEAM_B = 1,
+  SPECTATOR = 2
+}
+
+table TeambasedPongPlayerPayload {
+  current_round: ushort;
+  time_left: int; // milliseconds
+  your_team: PongTeam;
+  is_still_playing: bool; // false if eliminated
+}
+
+root_type TeambasedPongPlayerPayload;

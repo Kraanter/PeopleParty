@@ -1,0 +1,12 @@
+// phase values: 0=REVEAL, 1=SHUFFLE, 2=GUESS, 3=ROUND_RESULT
+table ShellGamePlayerPayload {
+  phase: byte;
+  current_round: ushort;
+  time_left: int;
+  num_cups: ushort;
+  is_eliminated: bool;
+  has_guessed: bool;
+  was_correct: bool;    // only meaningful in ROUND_RESULT phase
+}
+
+root_type ShellGamePlayerPayload;

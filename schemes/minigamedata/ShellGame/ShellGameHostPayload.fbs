@@ -1,0 +1,23 @@
+enum ShellGamePhase: byte {
+  REVEAL = 0,
+  SHUFFLE = 1,
+  GUESS = 2,
+  ROUND_RESULT = 3
+}
+
+table FBShellGameCup {
+  x_pos: float;
+  depth: float;   // sin-arc value: +1 = closest, -1 = farthest, 0 = idle
+}
+
+table ShellGameHostPayload {
+  phase: ShellGamePhase;
+  current_round: ushort;
+  time_left: int;          // milliseconds; -1 during SHUFFLE (no timer)
+  cups: [FBShellGameCup];
+  ball_cup_index: short;   // array index of cup with ball; -1 if hidden
+  active_players: ushort;
+  map_width: float;
+}
+
+root_type ShellGameHostPayload;

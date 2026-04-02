@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, defineProps, computed } from 'vue'
+import { ref, computed } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import {
@@ -11,7 +11,7 @@ import { useWebSocketStore } from '@/stores/confettiStore'
 import type { MarbleManiaPlayerData, MarbleManiaResult } from './MarbleManiaModels'
 import { parseMarbleManiaPlayerPayload, parseMarbleManiaResultPayload } from './MarbleManiaProcessor'
 import { sendPlayerAction } from '@/util/joystickMessageBuilder'
-import JoystickComponent from '../highwayHustle/JoystickComponent.vue'
+import JoystickComponent from '../shared/JoystickComponent.vue'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import {
   GameStatePayload,
@@ -202,7 +202,7 @@ defineExpose({
             <!-- Lock in button -->
           <PartyButton 
             @click="lockPosition"
-            class="mt-4 px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-xl font-bold rounded-lg"
+            btnClass="mt-4 px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-xl font-bold rounded-lg"
           >
             Lock Position!
           </PartyButton>

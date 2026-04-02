@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, defineProps, toRefs } from 'vue'
+import { computed, toRefs } from 'vue'
 import type { MemoryMixerGrid, PlayerSubmittedData } from './GridProcessor'
 import { NCard } from 'naive-ui'
 import PartyButton from '../PartyButton.vue'
@@ -88,7 +88,7 @@ const emit = defineEmits(['click'])
                       (playerSubmitted.x != i || playerSubmitted.y != j)) ||
                     eliminatedPlayers.includes(websocketStore.clientName)
                   "
-                  :class="[
+                  :cndClass="[
                     playerSubmitted.x == i && playerSubmitted.y == j ? 'bg-secondary' : 'bg-white',
                     'text-white'
                   ]"

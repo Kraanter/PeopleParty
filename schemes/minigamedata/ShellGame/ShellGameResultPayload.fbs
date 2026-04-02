@@ -1,0 +1,11 @@
+table FBShellGameResultPair {
+  name: string;
+  placement: ushort;
+  rounds_survived: ushort;
+}
+
+table ShellGameResultPayload {
+  results: [FBShellGameResultPair];
+}
+
+root_type ShellGameResultPayload;

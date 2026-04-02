@@ -7,7 +7,7 @@ import { useWebSocketStore } from '@/stores/confettiStore'
 import type { HighwayHustlePlayerData, HighwayHustleResult } from './HighwayHustleModels'
 import { parseHighwayHustlePlayerPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
 //import Joystick from 'vue-joystick-component'
-import JoystickComponent from './JoystickComponent.vue'
+import JoystickComponent from '@/components/shared/JoystickComponent.vue'
 import { getPlayerSprite, getPlayerSpriteDimensions } from './HighwayHustleSpriteMap'
 import { sendPlayerAction, sendPlayerEvent } from '@/util/joystickMessageBuilder'
 
