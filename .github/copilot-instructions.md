@@ -67,7 +67,10 @@ State transitions use `Game::nextGameState<T>()` template pattern with `typeid` 
 1. Create `frontend/src/components/{gameName}/` (camelCase folder name)
 2. Create `HostView.vue` (big screen) and `PlayerView.vue` (mobile controller)
 3. Optional: `{GameName}Models.ts`, `{GameName}Processor.ts`, `{GameName}SpriteMap.ts`
-4. Add case to `GameManager.vue` switch for both host and player views
+4. **No `GameManager.vue` edit needed** — it loads components via
+   `defineAsyncComponent(() => import(\`./${name}/${componentName}View.vue\`))`, a pure dynamic
+   import with no switch/case. The directory name (camelCase) just has to match
+   `get_camel_case_name()` from the backend.
 5. Both views must `defineExpose({ update(data: MiniGamePayloadType) { ... } })`
 
 ---
@@ -86,11 +89,11 @@ State transitions use `Game::nextGameState<T>()` template pattern with `typeid` 
 | Element | Convention | Example |
 |---|---|---|
 | Classes | `PascalCase` | `Game`, `Party`, `Client`, `GameState` |
-| Minigame classes | `{Name}_MiniGame` | `CrazyCounting_MiniGame`, `HighwayHustle_MiniGame` |
+| Minigame classes | `{Name}_MiniGame` (majority) or `{Name}_Minigame` (3 exceptions: `BusinessBailout_Minigame`, `LaunchParty_Minigame`, `RightOnTime_Minigame`) | `CrazyCounting_MiniGame`, `HighwayHustle_MiniGame` |
 | Supporting classes | `{Game}_{Role}` | `CrazyCounting_Entity`, `CrazyCounting_Player` |
 | Methods | `snake_case` | `start_introduction()`, `send_host_update()` |
 | Variables / members | `snake_case` | `party_id`, `remaining_time`, `update_interval` |
-| File names | `snake_case` | `crazy_counting_mini_game.h`, `party_repository.cpp` |
+| File names | `snake_case`; minigame main file is `_mini_game.h/.cpp` (majority) or `_minigame.h/.cpp` (business_bailout, rps_bracket, teambased_pong) — inconsistent, match sibling files | `crazy_counting_mini_game.h`, `party_repository.cpp` |
 | Minigame directories | `snake_case` | `backend/src/minigames/crazy_counting/` |
 | Enums (hand-written) | `SCREAMING_SNAKE_CASE` values | `ROCK`, `PAPER`, `SCISSORS`, `NONE` |
 | Constants | `snake_case` member variables | `const int match_time`, `const int result_time` |
@@ -99,7 +102,10 @@ State transitions use `Game::nextGameState<T>()` template pattern with `typeid` 
 
 ### Header Guards
 
-Use traditional `#ifndef` guards, **not** `#pragma once`:
+Use traditional `#ifndef` guards, **not** `#pragma once` (zero uses of `#pragma once` anywhere in
+the codebase). Most minigame headers use the `PEOPLEPARTY_BACKEND_{NAME}_H` prefix; several core
+files (`client.h`, `party.h`, `thread_timer.h`, etc.) use shorter legacy guards instead — use the
+`PEOPLEPARTY_BACKEND_` prefix for new files:
 ```cpp
 #ifndef PEOPLEPARTY_BACKEND_CRAZYCOUNTING_MINI_GAME_H
 #define PEOPLEPARTY_BACKEND_CRAZYCOUNTING_MINI_GAME_H
@@ -109,9 +115,10 @@ Use traditional `#ifndef` guards, **not** `#pragma once`:
 
 ### Formatting
 
-- **4-space indentation** (no tabs)
-- **Allman braces** for class and function definitions (opening brace on its own line)
-- K&R braces for short inline methods in headers
+- **4-space indentation** is standard in minigame code (no tabs); some core files use 2-space
+- Brace style is mixed, not strictly enforced — function bodies commonly use Allman, but
+  constructors/destructors are frequently written K&R-style on one line, sometimes in the same
+  file as Allman-style functions. Match the file you're editing rather than forcing one style
 - File header comment: `// Created by {author} on {date}.`
 - Includes: `""` for project files, `<>` for library/system headers
 
@@ -126,7 +133,9 @@ Always use the DSL macros from `util/defines.h` — never raw integer millisecon
 
 ### Memory Management
 
-- **Raw pointers** throughout — no smart pointers
+- **Raw pointers** throughout — no smart pointers (one exception: `marble_mania_map` uses
+  `std::unique_ptr`/`make_unique` internally; don't treat that as license to introduce smart
+  pointers elsewhere, every other minigame uses raw pointers)
 - `new`/`delete` manually; `delete` in destructors
 - Repositories store objects by value in `std::map` and return raw `T*` pointers
 - Game entities allocated with `new`, cleaned in destructor loops
@@ -159,6 +168,22 @@ inline uWS::Loop* server_loop;
 
 ### Minigame Implementation Pattern
 
+`MiniGame` (`backend/src/minigames/minigame.h`) extends `GameState`
+(`backend/src/game_state.h`) — the split matters for what you actually need to override:
+
+- **Declared on `MiniGame`** (pure virtual): `start_introduction()`, `start_minigame()`,
+  `start_result()`, `pause()`, `resume()`, `getMinigameResult()`, `get_display_name()`,
+  `get_camel_case_name()`, `get_description()`, plus protected
+  `process_input(const MiniGamePayloadType*, Client*)`
+- **Declared on `GameState`** (inherited pure virtual — easy to forget since it's not in
+  `minigame.h`): `update(int delta_time)`, `clients_changed(int client_id, bool joined)`
+- **Already implemented for you**: `finished()` (in `minigame.cpp` — records leaderboard
+  placement, advances `Game` to the next state; your minigame *calls* it, doesn't override it),
+  and `process_input(const Message*, Client*)` (dispatches into the `MiniGamePayloadType*`
+  overload above)
+- **Not a base class method at all**: `introduction_update(dt)` is a private-method convention
+  every minigame reinvents, not an override
+
 Every minigame follows this lifecycle:
 
 1. **Constructor**: set `min_players`, `max_players`, initialize members
@@ -171,7 +196,9 @@ Every minigame follows this lifecycle:
 8. **`process_input(payload, from)`**: `switch(payload->gamestatetype())` → handle per-type
 9. **`getMinigameResult()`**: return `std::vector<std::pair<Client*, int>>` — client + placement
 
-Player data stored in `std::map<int, PlayerData>` keyed by `client_id`.
+Player data stored in `std::map<int, PlayerData>` keyed by `client_id`. Reference `teambased_pong`
+and `shell_shuffle` (newest addition) as current examples — `shell_game` was deleted from the
+repo, don't reference it.
 
 ### FlatBuffer Building Pattern (C++)
 
@@ -263,7 +290,14 @@ Use `storeToRefs()` for reactive destructuring in consumers.
 
 ### Styling
 
-- **No `<style>` blocks** — all styling via Tailwind utility classes in templates
+- **Tailwind utility classes** are the default for layout/spacing/typography/color. `<style
+  scoped>` is a real, accepted exception used in roughly a dozen components (`launchParty`,
+  `rightOnTime`, `highwayHustle`, `marbleMania`, `teambasedPong`, `leaderboard`, and others) — but
+  only for CSS keyframe animations that Tailwind can't express, never for general styling
+- **Naive UI** (`naive-ui`, see Key Dependencies) is used broadly alongside Tailwind for
+  structured components — `NCard`, `NScrollbar`, etc. across `memoryMixer`, `crazyCounting`,
+  `unscrambled`, `rightOnTime`, `leaderboard`, `partyManagment`, and the route/App shell. Prefer
+  it over hand-rolled equivalents for cards, scrollable lists, etc.
 - Global CSS in `assets/main.css` with Tailwind directives and CSS custom properties
 - Color tokens backed by CSS variables (`bg-primary`, `text-primary` → `var(--color-primary)`)
 - Custom font: `font-kanit` applied at root
@@ -297,9 +331,14 @@ const msg = Message.getRootAsMessage(buf)
 
 - `vue3-pixi` + `pixi.js` v8, configured in `vite.config.ts`
 - `<Application>` component as canvas container
-- Drawing via `:draw` prop with imperative `Graphics` API
+- Drawing via the `@render` event on `<Graphics @render="renderFn">` with imperative `Graphics`
+  API calls inside the handler — there is no `:draw` prop used anywhere in this codebase
 - Sprite lookups in `{GameName}SpriteMap.ts` files
 - `onTick` from `vue3-pixi` for animation loops
+- Responsive canvas sizing (see `teambasedPong/HostView.vue`): a `ResizeObserver` tracks the
+  container's `clientWidth`, `canvasHeight` is derived from a fixed aspect ratio, and a `scale`
+  factor (`canvasWidth / GAME_WORLD_WIDTH`) multiplies every drawn coordinate. Only width is
+  observed — height is always derived, never independently tracked
 
 ### Routing
 
@@ -362,7 +401,10 @@ schemes/
 
 ### Enum Underlying Types
 
-Default to `: byte`. Use `: ubyte` only when explicitly needed (e.g., `FBEntityType: ubyte`).
+Default to `: byte` with SCREAMING_SNAKE_CASE game-constant values. Use `: ubyte` only when
+explicitly needed. Note: `MarbleMania`'s `FBEntityType: ubyte { Marble, Obstacle }` uses `ubyte`
+with PascalCase values — that's legacy and inconsistent with the rule above, don't copy it for
+new schemas.
 
 ### Payload Purpose Suffixes
 
@@ -430,12 +472,16 @@ Three services in all environments:
 | `client` | Vue frontend (SPA) | 80 |
 | `api` | C++ WebSocket backend | 7899 |
 
-Exposed port: `7789` (dev/prod) or `7889` (staging). Production images from `ghcr.io/kraanter/peopleparty*`.
+Exposed port: `7789` (dev/prod) or `7889` (staging), both mapped to nginx's internal port 80.
+Production/staging pull pre-built images from `ghcr.io/kraanter/peopleparty*` and don't publish
+`api`/`client` ports to the host at all — only nginx is host-exposed, `api`/`client` are reachable
+only through its internal proxy.
 
 ### Testing
 
 - Frontend: Cypress scaffolded (`npm run test:unit:dev`, `npm run test:e2e:dev`) — no tests written yet
-- Backend: Doctest framework present but disabled in CMakeLists.txt
+- Backend: Doctest is a Conan dependency, but its CMake test target is fully commented out in
+  `CMakeLists.txt` — there is no `Tests` binary to run, not merely a disabled flag
 
 ---
 
@@ -445,8 +491,8 @@ Exposed port: `7789` (dev/prod) or `7889` (staging). Production images from `ghc
 |---|---|---|---|
 | Backend | uWebSockets | v20.71.0 | WebSocket server (SSL) |
 | Backend | FlatBuffers | v24.3.25 | Binary serialization |
-| Backend | Box2D | v2.4.1 | Physics (minigames) |
-| Backend | Doctest | — | Testing (disabled) |
+| Backend | Box2D | v2.4.1 | Physics — used only by `marble_mania` and `teambased_pong`, not every minigame |
+| Backend | Doctest | v2.4.11 | Testing — Conan dependency present, but the CMake test target is fully commented out; no `Tests` binary is built |
 | Backend | Conan | — | C++ package manager |
 | Frontend | Vue 3 | — | UI framework |
 | Frontend | Pinia | — | State management |
@@ -454,6 +500,7 @@ Exposed port: `7789` (dev/prod) or `7889` (staging). Production images from `ghc
 | Frontend | PixiJS v8 | — | Canvas rendering |
 | Frontend | vue3-pixi | — | Vue ↔ PixiJS bridge |
 | Frontend | Tailwind CSS | — | Utility-first styling |
+| Frontend | Naive UI | v2.38.2 | Structured components (cards, scrollbars, etc.) |
 | Frontend | FlatBuffers.js | — | Binary serialization |
 
 ---
@@ -509,10 +556,18 @@ Exposed port: `7789` (dev/prod) or `7889` (staging). Production images from `ghc
 - **Party IDs** must be numeric 4-digit codes (validated in `websocket.cpp`)
 - **WebSocket binary type** must be `'arraybuffer'` (set in confettiStore)
 - **Minigames must be added** to `Game::add_minigames()` queue — creating the class isn't enough
-- **Frontend component names** must match `GameStateType` enum values for routing in `GameManager.vue`
-- **Timer threads** are not on the uWS event loop — always `server_loop->defer()` before sending WebSocket messages
+- **Frontend component directory name** must match the backend's `get_camel_case_name()` — routing
+  in `GameManager.vue` is a pure dynamic `import(`./${name}/${componentName}View.vue`)`, not a
+  switch/case, so there's no manual wiring step to remember there
+- **Timer threads** are not on the uWS event loop — always `server_loop->defer()` before sending WebSocket messages (or just use `party->send_gamestate()`/`send_message()`, which already defer internally)
 - **FlatBuffer strings/vectors** must be created *before* the table that references them
 - **`Number()` wrap** all FlatBuffer bigint fields in TypeScript; **`decodeURI()`** all string fields
 - **`builder.sh` ordering** is filesystem-dependent — never hardcode `GameStateType` integer values
-- **No `<style>` blocks** in Vue components — Tailwind utility classes only
-- **No smart pointers** in backend — follow existing raw pointer / manual delete patterns
+- **Prefer Tailwind** in Vue components; `<style scoped>` is an accepted exception for CSS
+  animations only (used in ~a dozen components), not for general layout/color
+- **Prefer raw pointers** in backend — `marble_mania_map` is the one existing exception using
+  smart pointers, don't generalize from it
+- **`update(int)` and `clients_changed(int, bool)`** on a minigame come from `GameState`, not
+  `MiniGame` — easy to forget since they aren't declared in `minigame.h`
+- **`shell_game` was removed** from the repo (backend, frontend, and schemas) and replaced by
+  `shell_shuffle` — don't reference the old name

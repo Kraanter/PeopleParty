@@ -1,0 +1,5 @@
+table ShellShufflePlayerInputPayload {
+  cup_index: ushort;    // 0-based left-to-right position of selected cup
+}
+
+root_type ShellShufflePlayerInputPayload;

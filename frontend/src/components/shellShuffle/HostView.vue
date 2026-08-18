@@ -10,12 +10,12 @@ import {
   type MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
 import {
-  parseShellGameHostPayload,
-  parseShellGameRoundResult,
-  parseShellGameResult
-} from './ShellGameProcessor'
-import type { ShellGameHostData, ShellGameRoundResult, ShellGameResult, ShellGameResultPair } from './ShellGameModels'
-import { ShellGamePhase } from './ShellGameModels'
+  parseShellShuffleHostPayload,
+  parseShellShuffleRoundResult,
+  parseShellShuffleResult
+} from './ShellShuffleProcessor'
+import type { ShellShuffleHostData, ShellShuffleRoundResult, ShellShuffleResult, ShellShuffleResultPair } from './ShellShuffleModels'
+import { ShellShufflePhase } from './ShellShuffleModels'
 
 const props = defineProps<{
   width: number
@@ -56,8 +56,8 @@ enum ViewState {
 const viewState = ref<ViewState>(ViewState.None)
 const intro = ref<IntroductionData>({ title: '', description: '', time_left: 0 })
 
-const hostData = ref<ShellGameHostData>({
-  phase: ShellGamePhase.REVEAL,
+const hostData = ref<ShellShuffleHostData>({
+  phase: ShellShufflePhase.REVEAL,
   current_round: 0,
   time_left: 0,
   cups: [],
@@ -66,8 +66,8 @@ const hostData = ref<ShellGameHostData>({
   map_width: 800
 })
 
-const roundResult = ref<ShellGameRoundResult | null>(null)
-const gameResult = ref<ShellGameResult | null>(null)
+const roundResult = ref<ShellShuffleRoundResult | null>(null)
+const gameResult = ref<ShellShuffleResult | null>(null)
 
 // ─── Canvas sizing ────────────────────────────────────────────────────────────
 // Constrain by whichever dimension is the bottleneck so the canvas never
@@ -110,19 +110,19 @@ const canvasOffsetY = computed(() => (containerHeight.value - canvasHeight.value
 
 const phaseLabel = computed(() => {
   switch (hostData.value.phase) {
-    case ShellGamePhase.REVEAL: return 'Watch the ball!'
-    case ShellGamePhase.SHUFFLE: return 'Shuffling…'
-    case ShellGamePhase.GUESS: return 'Players, choose your cup!'
-    case ShellGamePhase.ROUND_RESULT: return 'Reveal!'
+    case ShellShufflePhase.REVEAL: return 'Watch the ball!'
+    case ShellShufflePhase.SHUFFLE: return 'Shuffling…'
+    case ShellShufflePhase.GUESS: return 'Players, choose your cup!'
+    case ShellShufflePhase.ROUND_RESULT: return 'Reveal!'
     default: return ''
   }
 })
 
 const showTimer = computed(
   () =>
-    hostData.value.phase === ShellGamePhase.REVEAL ||
-    hostData.value.phase === ShellGamePhase.GUESS ||
-    hostData.value.phase === ShellGamePhase.ROUND_RESULT
+    hostData.value.phase === ShellShufflePhase.REVEAL ||
+    hostData.value.phase === ShellShufflePhase.GUESS ||
+    hostData.value.phase === ShellShufflePhase.ROUND_RESULT
 )
 
 const timerSeconds = computed(() =>
@@ -205,22 +205,12 @@ const renderGame = (g: Graphics) => {
     g.beginFill(COLOR_CUP_RIM)
     g.drawRoundedRect(cx - cw / 2 - 2 * ds, cy, cw + 4 * ds, 10 * ds, 4 * ds)
     g.endFill()
-
-    // Number label background circle (during GUESS and ROUND_RESULT)
-    // if (phase === ShellGamePhase.GUESS || phase === ShellGamePhase.ROUND_RESULT) {
-    //   const label = cupLabelMap.value[i]
-    //   if (label !== undefined) {
-    //     g.beginFill(0x000000, 0.5)
-    //     g.drawCircle(cx, (CUP_Y - 32) * sv, 16 * sv)
-    //     g.endFill()
-    //   }
-    // }
   })
 }
 
 // ─── Podium ──────────────────────────────────────────────────────────────────
 
-type PodiumGroup = { placement: number; players: ShellGameResultPair[] }
+type PodiumGroup = { placement: number; players: ShellShuffleResultPair[] }
 
 const podium = computed(() => {
   const sorted = gameResult.value?.results.slice().sort((a, b) => a.placement - b.placement) ?? []
@@ -259,22 +249,22 @@ const formatOrdinals = (n: number) => `${n}${suffixes.get(pr.select(n))}`
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
-    case GameStateType.ShellGameHost: {
+    case GameStateType.ShellShuffleHost: {
       viewState.value = ViewState.MiniGame
-      hostData.value = parseShellGameHostPayload(data)
+      hostData.value = parseShellShuffleHostPayload(data)
       // Clear round result overlay when leaving ROUND_RESULT phase
-      if (hostData.value.phase !== ShellGamePhase.ROUND_RESULT) {
+      if (hostData.value.phase !== ShellShufflePhase.ROUND_RESULT) {
         roundResult.value = null
       }
       break
     }
-    case GameStateType.ShellGameRoundResult: {
-      roundResult.value = parseShellGameRoundResult(data)
+    case GameStateType.ShellShuffleRoundResult: {
+      roundResult.value = parseShellShuffleRoundResult(data)
       break
     }
-    case GameStateType.ShellGameResult: {
+    case GameStateType.ShellShuffleResult: {
       viewState.value = ViewState.Results
-      gameResult.value = parseShellGameResult(data)
+      gameResult.value = parseShellShuffleResult(data)
       break
     }
     case GameStateType.MiniGameIntroduction: {
@@ -296,7 +286,7 @@ defineExpose({ update })
 
 <template>
   <template v-if="viewState === ViewState.Introduction">
-    <Introduction logoSVG="/assets/games/shellGame/shellGameLogo.svg" :data="intro" />
+    <Introduction logoSVG="/assets/games/shellShuffle/shellShuffleLogo.svg" :data="intro" />
   </template>
 
   <template v-else-if="viewState === ViewState.MiniGame">
@@ -323,7 +313,7 @@ defineExpose({ update })
         </Application>
 
         <!-- Cup number labels HTML overlay (during GUESS / ROUND_RESULT) -->
-        <template v-if="hostData.phase === ShellGamePhase.GUESS || hostData.phase === ShellGamePhase.ROUND_RESULT">
+        <template v-if="hostData.phase === ShellShufflePhase.GUESS || hostData.phase === ShellShufflePhase.ROUND_RESULT">
           <div
             v-for="(cup, i) in hostData.cups"
             :key="i"
@@ -353,7 +343,7 @@ defineExpose({ update })
 
       <!-- Round result overlay -->
       <div
-        v-if="roundResult && hostData.phase === ShellGamePhase.ROUND_RESULT"
+        v-if="roundResult && hostData.phase === ShellShufflePhase.ROUND_RESULT"
         class="absolute inset-x-0 bottom-0 bg-black bg-opacity-75 px-4 py-3"
       >
         <div class="text-white text-center text-lg font-bold mb-2">
@@ -377,7 +367,7 @@ defineExpose({ update })
   <template v-else-if="viewState === ViewState.Results">
     <div class="flex flex-col w-full h-full bg-black text-white overflow-hidden">
       <!-- Title -->
-      <div class="text-center text-4xl font-bold text-yellow-300 pt-5 pb-2 shrink-0">Shell Game Results</div>
+      <div class="text-center text-4xl font-bold text-yellow-300 pt-5 pb-2 shrink-0">Shell Shuffle Results</div>
 
       <!-- Podium area: 2nd (left) — 1st (center) — 3rd (right) -->
       <div class="flex items-end justify-center gap-6 px-12 flex-1 min-h-0">

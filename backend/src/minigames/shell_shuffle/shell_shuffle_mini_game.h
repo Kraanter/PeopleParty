@@ -1,7 +1,7 @@
 // Created by PeopleParty on 2026-03-27.
 
-#ifndef PEOPLEPARTY_BACKEND_SHELL_GAME_MINI_GAME_H
-#define PEOPLEPARTY_BACKEND_SHELL_GAME_MINI_GAME_H
+#ifndef PEOPLEPARTY_BACKEND_SHELL_SHUFFLE_MINI_GAME_H
+#define PEOPLEPARTY_BACKEND_SHELL_SHUFFLE_MINI_GAME_H
 
 #include "../minigame.h"
 #include "../../flatbuffer/messageClass_generated.h"
@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <random>
 
-enum class ShellGame_Phase : uint8_t
+enum class ShellShuffle_Phase : uint8_t
 {
     REVEAL = 0,
     SHUFFLE = 1,
@@ -18,7 +18,7 @@ enum class ShellGame_Phase : uint8_t
     ROUND_RESULT = 3
 };
 
-struct ShellGame_Cup
+struct ShellShuffle_Cup
 {
     float x_pos;
     float target_x;
@@ -27,7 +27,7 @@ struct ShellGame_Cup
     bool is_at_target() const { return std::abs(x_pos - target_x) < 1.0f; }
 };
 
-struct ShellGame_Player
+struct ShellShuffle_Player
 {
     Client* client = nullptr;
     bool eliminated = false;
@@ -36,11 +36,11 @@ struct ShellGame_Player
     bool was_correct = false;
 };
 
-class ShellGame_MiniGame : public MiniGame
+class ShellShuffle_MiniGame : public MiniGame
 {
 public:
-    ShellGame_MiniGame(Game* game);
-    ~ShellGame_MiniGame() override;
+    ShellShuffle_MiniGame(Game* game);
+    ~ShellShuffle_MiniGame() override;
 
     void start_introduction() override;
     void start_minigame() override;
@@ -96,14 +96,14 @@ private:
     ThreadTimer introduction_timer;
     ThreadTimer result_timer;
 
-    std::map<int, ShellGame_Player> players;
+    std::map<int, ShellShuffle_Player> players;
 
-    ShellGame_Phase current_phase;
+    ShellShuffle_Phase current_phase;
     int current_round;
     int remaining_time;
 
     // Cup state
-    std::vector<ShellGame_Cup> cups;
+    std::vector<ShellShuffle_Cup> cups;
     int ball_cup_id;        // array index of the cup that holds the ball (constant per round)
 
     // Shuffle state
@@ -117,7 +117,7 @@ private:
     // Per-phase timing
     int reveal_time;
     int guess_time;
-    const int round_result_time = 5 SECONDS;
+    const int round_result_time = 4 SECONDS;
 
     // Difficulty settings (updated each round)
     int total_swaps;
@@ -130,4 +130,4 @@ private:
     std::mt19937 rng;
 };
 
-#endif //PEOPLEPARTY_BACKEND_SHELL_GAME_MINI_GAME_H
+#endif //PEOPLEPARTY_BACKEND_SHELL_SHUFFLE_MINI_GAME_H

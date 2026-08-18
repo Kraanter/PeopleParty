@@ -1,14 +1,14 @@
-table FBShellGameRoundPlayerResult {
+table FBShellShuffleRoundPlayerResult {
   name: string;
   was_correct: bool;
   guessed_cup: short;   // -1 = did not guess in time
 }
 
-table ShellGameRoundResultPayload {
+table ShellShuffleRoundResultPayload {
   current_round: ushort;
   correct_cup_index: ushort;           // left-to-right 0-based position of ball cup
-  player_results: [FBShellGameRoundPlayerResult];
+  player_results: [FBShellShuffleRoundPlayerResult];
   players_remaining: ushort;
 }
 
-root_type ShellGameRoundResultPayload;
+root_type ShellShuffleRoundResultPayload;

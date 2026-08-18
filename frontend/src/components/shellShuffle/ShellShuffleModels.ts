@@ -1,27 +1,27 @@
-export enum ShellGamePhase {
+export enum ShellShufflePhase {
   REVEAL = 0,
   SHUFFLE = 1,
   GUESS = 2,
   ROUND_RESULT = 3
 }
 
-export interface ShellGameCup {
+export interface ShellShuffleCup {
   x_pos: number
   depth: number  // sin-arc value: +1 = closest, -1 = farthest, 0 = idle
 }
 
-export interface ShellGameHostData {
-  phase: ShellGamePhase
+export interface ShellShuffleHostData {
+  phase: ShellShufflePhase
   current_round: number
   time_left: number       // -1 during SHUFFLE (no countdown)
-  cups: ShellGameCup[]
+  cups: ShellShuffleCup[]
   ball_cup_index: number  // array index of ball cup; -1 if hidden
   active_players: number
   map_width: number
 }
 
-export interface ShellGamePlayerData {
-  phase: number           // 0-3, use ShellGamePhase for comparison
+export interface ShellShufflePlayerData {
+  phase: number           // 0-3, use ShellShufflePhase for comparison
   current_round: number
   time_left: number
   num_cups: number
@@ -30,25 +30,25 @@ export interface ShellGamePlayerData {
   was_correct: boolean
 }
 
-export interface ShellGameRoundPlayerResult {
+export interface ShellShuffleRoundPlayerResult {
   name: string
   was_correct: boolean
   guessed_cup: number     // -1 = didn't guess in time
 }
 
-export interface ShellGameRoundResult {
+export interface ShellShuffleRoundResult {
   current_round: number
   correct_cup_index: number  // left-to-right 0-based position
-  player_results: ShellGameRoundPlayerResult[]
+  player_results: ShellShuffleRoundPlayerResult[]
   players_remaining: number
 }
 
-export interface ShellGameResultPair {
+export interface ShellShuffleResultPair {
   name: string
   placement: number
   rounds_survived: number
 }
 
-export interface ShellGameResult {
-  results: ShellGameResultPair[]
+export interface ShellShuffleResult {
+  results: ShellShuffleResultPair[]
 }

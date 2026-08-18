@@ -1,24 +1,24 @@
 // Created by PeopleParty on 2026-03-27.
 
-#include "shell_game_mini_game.h"
+#include "shell_shuffle_mini_game.h"
 #include "../../game.h"
 #include "../../util/globals.h"
 #include <cmath>
 #include <climits>
 
-ShellGame_MiniGame::ShellGame_MiniGame(Game* game) : MiniGame(game)
+ShellShuffle_MiniGame::ShellShuffle_MiniGame(Game* game) : MiniGame(game)
 {
-    min_players = 2;
+    min_players = 1;
     max_players = -1;
 
-    current_phase = ShellGame_Phase::REVEAL;
+    current_phase = ShellShuffle_Phase::REVEAL;
     current_round = 0;
     remaining_time = 0;
     ball_cup_id = 0;
     swaps_remaining = 0;
     swap_cup_a = -1;
     swap_cup_b = -1;
-    swap_duration = 700;
+    swap_duration = 650;
     current_swap_speed = 0.0f;
     reveal_time = 4 SECONDS;
     guess_time = 8 SECONDS;
@@ -28,7 +28,7 @@ ShellGame_MiniGame::ShellGame_MiniGame(Game* game) : MiniGame(game)
     rng = std::mt19937(std::random_device{}());
 }
 
-ShellGame_MiniGame::~ShellGame_MiniGame()
+ShellShuffle_MiniGame::~ShellShuffle_MiniGame()
 {
     introduction_timer.clear();
     timer.clear();
@@ -37,7 +37,7 @@ ShellGame_MiniGame::~ShellGame_MiniGame()
 
 // ─── Introduction ────────────────────────────────────────────────────────────
 
-void ShellGame_MiniGame::start_introduction()
+void ShellShuffle_MiniGame::start_introduction()
 {
     update_interval = 500 MILLISECONDS;
     introduction_timer.setInterval([this]()
@@ -46,7 +46,7 @@ void ShellGame_MiniGame::start_introduction()
     }, update_interval);
 }
 
-void ShellGame_MiniGame::introduction_update(int dt)
+void ShellShuffle_MiniGame::introduction_update(int dt)
 {
     introduction_time -= dt;
     send_minigame_introduction(
@@ -64,12 +64,12 @@ void ShellGame_MiniGame::introduction_update(int dt)
 
 // ─── Game start ──────────────────────────────────────────────────────────────
 
-void ShellGame_MiniGame::start_minigame()
+void ShellShuffle_MiniGame::start_minigame()
 {
     for (auto* client : game->get_clients())
     {
         if (client->party->host == client) continue;
-        players[client->client_id] = ShellGame_Player{};
+        players[client->client_id] = ShellShuffle_Player{};
         players[client->client_id].client = client;
     }
 
@@ -87,20 +87,20 @@ void ShellGame_MiniGame::start_minigame()
 
 // ─── Main update loop ────────────────────────────────────────────────────────
 
-void ShellGame_MiniGame::update(int dt)
+void ShellShuffle_MiniGame::update(int dt)
 {
     switch (current_phase)
     {
-        case ShellGame_Phase::REVEAL:
+        case ShellShuffle_Phase::REVEAL:
             update_reveal_phase(dt);
             break;
-        case ShellGame_Phase::SHUFFLE:
+        case ShellShuffle_Phase::SHUFFLE:
             update_shuffle_phase(dt);
             break;
-        case ShellGame_Phase::GUESS:
+        case ShellShuffle_Phase::GUESS:
             update_guess_phase(dt);
             break;
-        case ShellGame_Phase::ROUND_RESULT:
+        case ShellShuffle_Phase::ROUND_RESULT:
             update_round_result_phase(dt);
             return;
             break;
@@ -110,7 +110,7 @@ void ShellGame_MiniGame::update(int dt)
     send_all_player_updates();
 }
 
-void ShellGame_MiniGame::update_reveal_phase(int dt)
+void ShellShuffle_MiniGame::update_reveal_phase(int dt)
 {
     remaining_time -= dt;
     if (remaining_time <= 0)
@@ -119,7 +119,7 @@ void ShellGame_MiniGame::update_reveal_phase(int dt)
     }
 }
 
-void ShellGame_MiniGame::update_shuffle_phase(int dt)
+void ShellShuffle_MiniGame::update_shuffle_phase(int dt)
 {
     update_cup_positions(dt);
 
@@ -136,7 +136,7 @@ void ShellGame_MiniGame::update_shuffle_phase(int dt)
     }
 }
 
-void ShellGame_MiniGame::update_guess_phase(int dt)
+void ShellShuffle_MiniGame::update_guess_phase(int dt)
 {
     remaining_time -= dt;
     if (remaining_time <= 0 || all_active_players_guessed())
@@ -145,7 +145,7 @@ void ShellGame_MiniGame::update_guess_phase(int dt)
     }
 }
 
-void ShellGame_MiniGame::update_round_result_phase(int dt)
+void ShellShuffle_MiniGame::update_round_result_phase(int dt)
 {
     remaining_time -= dt;
     send_all_player_updates();
@@ -157,16 +157,16 @@ void ShellGame_MiniGame::update_round_result_phase(int dt)
 
 // ─── Phase transitions ───────────────────────────────────────────────────────
 
-void ShellGame_MiniGame::start_reveal_phase()
+void ShellShuffle_MiniGame::start_reveal_phase()
 {
-    current_phase = ShellGame_Phase::REVEAL;
+    current_phase = ShellShuffle_Phase::REVEAL;
     remaining_time = reveal_time;
     send_all_player_updates();
 }
 
-void ShellGame_MiniGame::start_shuffle_phase()
+void ShellShuffle_MiniGame::start_shuffle_phase()
 {
-    current_phase = ShellGame_Phase::SHUFFLE;
+    current_phase = ShellShuffle_Phase::SHUFFLE;
     remaining_time = -1;
     swaps_remaining = total_swaps;
     swap_cup_a = -1;
@@ -175,16 +175,16 @@ void ShellGame_MiniGame::start_shuffle_phase()
     start_next_swap();
 }
 
-void ShellGame_MiniGame::start_guess_phase()
+void ShellShuffle_MiniGame::start_guess_phase()
 {
-    current_phase = ShellGame_Phase::GUESS;
+    current_phase = ShellShuffle_Phase::GUESS;
     remaining_time = guess_time;
     send_all_player_updates();
 }
 
-void ShellGame_MiniGame::start_round_result_phase()
+void ShellShuffle_MiniGame::start_round_result_phase()
 {
-    current_phase = ShellGame_Phase::ROUND_RESULT;
+    current_phase = ShellShuffle_Phase::ROUND_RESULT;
     remaining_time = round_result_time;
 
     // Determine correct position and evaluate guesses
@@ -204,7 +204,7 @@ void ShellGame_MiniGame::start_round_result_phase()
     send_all_player_updates();
 }
 
-void ShellGame_MiniGame::process_round_end()
+void ShellShuffle_MiniGame::process_round_end()
 {
     if (count_active_players() <= 1)
     {
@@ -216,7 +216,7 @@ void ShellGame_MiniGame::process_round_end()
     }
 }
 
-void ShellGame_MiniGame::start_next_round()
+void ShellShuffle_MiniGame::start_next_round()
 {
     current_round++;
     set_difficulty(current_round);
@@ -227,7 +227,7 @@ void ShellGame_MiniGame::start_next_round()
 
 // ─── Result ──────────────────────────────────────────────────────────────────
 
-void ShellGame_MiniGame::start_result()
+void ShellShuffle_MiniGame::start_result()
 {
     timer.clear();
     send_result_data();
@@ -239,7 +239,7 @@ void ShellGame_MiniGame::start_result()
 
 // ─── Cup animation ───────────────────────────────────────────────────────────
 
-void ShellGame_MiniGame::update_cup_positions(int dt)
+void ShellShuffle_MiniGame::update_cup_positions(int dt)
 {
     if (swap_cup_a == -1) return;
 
@@ -278,7 +278,7 @@ void ShellGame_MiniGame::update_cup_positions(int dt)
     }
 }
 
-void ShellGame_MiniGame::start_next_swap()
+void ShellShuffle_MiniGame::start_next_swap()
 {
     if (cups.size() < 2) return;
 
@@ -316,7 +316,7 @@ void ShellGame_MiniGame::start_next_swap()
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-int ShellGame_MiniGame::get_ball_position_index() const
+int ShellShuffle_MiniGame::get_ball_position_index() const
 {
     auto sorted = get_cups_sorted_by_x();
     for (int i = 0; i < (int)sorted.size(); i++)
@@ -326,7 +326,7 @@ int ShellGame_MiniGame::get_ball_position_index() const
     return 0;
 }
 
-std::vector<int> ShellGame_MiniGame::get_cups_sorted_by_x() const
+std::vector<int> ShellShuffle_MiniGame::get_cups_sorted_by_x() const
 {
     std::vector<int> indices((int)cups.size());
     for (int i = 0; i < (int)cups.size(); i++) indices[i] = i;
@@ -337,7 +337,7 @@ std::vector<int> ShellGame_MiniGame::get_cups_sorted_by_x() const
     return indices;
 }
 
-void ShellGame_MiniGame::set_difficulty(int round)
+void ShellShuffle_MiniGame::set_difficulty(int round)
 {
     // Number of cups: starts at 3, +1 every 3 rounds, max 6
     num_cups = std::min(3 + (round - 1) / 3, 6);
@@ -348,12 +348,15 @@ void ShellGame_MiniGame::set_difficulty(int round)
     {
         // add some swap time during the rounds a cup is added
         swap_duration = std::min(swap_duration + 50, 1000);
+    } else if (round < 3) {
+        // slower decrease in early game
+        swap_duration = std::max(200, swap_duration - 75);
     } else if (round < 8) {
-        // slightly decrease swap time
-        swap_duration = std::max(250, swap_duration - 50);
+        // decrease swap time
+        swap_duration = std::max(200, swap_duration - 100);
     } else {
-        // even less decrease
-        swap_duration = std::max(250, swap_duration - 25);
+        // even less decrease when high in rounds
+        swap_duration = std::max(200, swap_duration - 50);
     }
 
     // Number of swaps: 5 base + 1 per round, capped at 22
@@ -366,7 +369,7 @@ void ShellGame_MiniGame::set_difficulty(int round)
     guess_time = std::max(4000, 8000 - (round - 1) * 200);
 }
 
-void ShellGame_MiniGame::reset_cups()
+void ShellShuffle_MiniGame::reset_cups()
 {
     cups.clear();
 
@@ -375,7 +378,7 @@ void ShellGame_MiniGame::reset_cups()
 
     for (int i = 0; i < num_cups; i++)
     {
-        ShellGame_Cup cup;
+        ShellShuffle_Cup cup;
         cup.x_pos = (num_cups == 1) ? MAP_WIDTH / 2.0f : CUP_MARGIN + i * spacing;
         cup.target_x = cup.x_pos;
         cups.push_back(cup);
@@ -385,7 +388,7 @@ void ShellGame_MiniGame::reset_cups()
     ball_cup_id = std::uniform_int_distribution<int>(0, num_cups - 1)(rng);
 }
 
-void ShellGame_MiniGame::reset_player_guesses()
+void ShellShuffle_MiniGame::reset_player_guesses()
 {
     for (auto& [id, player] : players)
     {
@@ -394,7 +397,7 @@ void ShellGame_MiniGame::reset_player_guesses()
     }
 }
 
-int ShellGame_MiniGame::count_active_players() const
+int ShellShuffle_MiniGame::count_active_players() const
 {
     int count = 0;
     for (const auto& [id, player] : players)
@@ -404,7 +407,7 @@ int ShellGame_MiniGame::count_active_players() const
     return count;
 }
 
-bool ShellGame_MiniGame::all_active_players_guessed() const
+bool ShellShuffle_MiniGame::all_active_players_guessed() const
 {
     for (const auto& [id, player] : players)
     {
@@ -415,17 +418,17 @@ bool ShellGame_MiniGame::all_active_players_guessed() const
 
 // ─── Input handling ──────────────────────────────────────────────────────────
 
-void ShellGame_MiniGame::process_input(const MiniGamePayloadType* payload, Client* from)
+void ShellShuffle_MiniGame::process_input(const MiniGamePayloadType* payload, Client* from)
 {
-    if (payload->gamestatetype() != GameStateType_ShellGamePlayerInput) return;
+    if (payload->gamestatetype() != GameStateType_ShellShufflePlayerInput) return;
 
-    if (current_phase != ShellGame_Phase::GUESS) return;
+    if (current_phase != ShellShuffle_Phase::GUESS) return;
 
     auto it = players.find(from->client_id);
     if (it == players.end() || it->second.eliminated) return;
     if (it->second.guessed_cup != -1) return;  // already guessed
 
-    auto input = payload->gamestatepayload_as_ShellGamePlayerInputPayload();
+    auto input = payload->gamestatepayload_as_ShellShufflePlayerInputPayload();
     if (input == nullptr) return;
 
     int chosen = (int)input->cup_index();
@@ -437,28 +440,28 @@ void ShellGame_MiniGame::process_input(const MiniGamePayloadType* payload, Clien
 
 // ─── FlatBuffer sending ──────────────────────────────────────────────────────
 
-void ShellGame_MiniGame::send_host_update()
+void ShellShuffle_MiniGame::send_host_update()
 {
     flatbuffers::FlatBufferBuilder builder;
 
     // Build cups vector (must be created before the table that references it)
-    std::vector<flatbuffers::Offset<FBShellGameCup>> cup_offsets;
+    std::vector<flatbuffers::Offset<FBShellShuffleCup>> cup_offsets;
     cup_offsets.reserve(cups.size());
     for (const auto& cup : cups)
     {
-        cup_offsets.push_back(CreateFBShellGameCup(builder, cup.x_pos, cup.depth));
+        cup_offsets.push_back(CreateFBShellShuffleCup(builder, cup.x_pos, cup.depth));
     }
     auto cups_vec = builder.CreateVector(cup_offsets);
 
     // Ball is only visible in REVEAL and ROUND_RESULT
     short ball_index = -1;
-    if (current_phase == ShellGame_Phase::REVEAL || current_phase == ShellGame_Phase::ROUND_RESULT)
+    if (current_phase == ShellShuffle_Phase::REVEAL || current_phase == ShellShuffle_Phase::ROUND_RESULT)
     {
         ball_index = (short)ball_cup_id;
     }
 
-    auto payload = CreateShellGameHostPayload(builder,
-        (ShellGamePhase)(int8_t)current_phase,
+    auto payload = CreateShellShuffleHostPayload(builder,
+        (ShellShufflePhase)(int8_t)current_phase,
         (uint16_t)current_round,
         remaining_time,
         cups_vec,
@@ -470,8 +473,8 @@ void ShellGame_MiniGame::send_host_update()
     auto game_name = builder.CreateString(get_camel_case_name());
     auto gs_payload = CreateMiniGamePayloadType(builder,
         game_name,
-        GameStateType_ShellGameHost,
-        GameStatePayload_ShellGameHostPayload,
+        GameStateType_ShellShuffleHost,
+        GameStatePayload_ShellShuffleHostPayload,
         payload.Union()
     );
 
@@ -482,16 +485,16 @@ void ShellGame_MiniGame::send_host_update()
     );
 }
 
-void ShellGame_MiniGame::send_player_update(int client_id)
+void ShellShuffle_MiniGame::send_player_update(int client_id)
 {
     auto it = players.find(client_id);
     if (it == players.end()) return;
 
-    const ShellGame_Player& player = it->second;
+    const ShellShuffle_Player& player = it->second;
 
     flatbuffers::FlatBufferBuilder builder;
 
-    auto payload = CreateShellGamePlayerPayload(builder,
+    auto payload = CreateShellShufflePlayerPayload(builder,
         (int8_t)current_phase,
         (uint16_t)current_round,
         remaining_time,
@@ -504,8 +507,8 @@ void ShellGame_MiniGame::send_player_update(int client_id)
     auto game_name = builder.CreateString(get_camel_case_name());
     auto gs_payload = CreateMiniGamePayloadType(builder,
         game_name,
-        GameStateType_ShellGamePlayer,
-        GameStatePayload_ShellGamePlayerPayload,
+        GameStateType_ShellShufflePlayer,
+        GameStatePayload_ShellShufflePlayerPayload,
         payload.Union()
     );
 
@@ -517,7 +520,7 @@ void ShellGame_MiniGame::send_player_update(int client_id)
     );
 }
 
-void ShellGame_MiniGame::send_all_player_updates()
+void ShellShuffle_MiniGame::send_all_player_updates()
 {
     for (const auto& [id, player] : players)
     {
@@ -525,18 +528,18 @@ void ShellGame_MiniGame::send_all_player_updates()
     }
 }
 
-void ShellGame_MiniGame::send_round_result_to_host()
+void ShellShuffle_MiniGame::send_round_result_to_host()
 {
     flatbuffers::FlatBufferBuilder builder;
 
     // Build player results vector
-    std::vector<flatbuffers::Offset<FBShellGameRoundPlayerResult>> result_offsets;
+    std::vector<flatbuffers::Offset<FBShellShuffleRoundPlayerResult>> result_offsets;
     result_offsets.reserve(players.size());
     for (const auto& [id, player] : players)
     {
         if (player.client == nullptr) continue;
         auto name = builder.CreateString(player.client->name);
-        result_offsets.push_back(CreateFBShellGameRoundPlayerResult(builder,
+        result_offsets.push_back(CreateFBShellShuffleRoundPlayerResult(builder,
             name,
             player.was_correct,
             (int16_t)player.guessed_cup
@@ -544,7 +547,7 @@ void ShellGame_MiniGame::send_round_result_to_host()
     }
     auto results_vec = builder.CreateVector(result_offsets);
 
-    auto payload = CreateShellGameRoundResultPayload(builder,
+    auto payload = CreateShellShuffleRoundResultPayload(builder,
         (uint16_t)current_round,
         (uint16_t)get_ball_position_index(),
         results_vec,
@@ -554,8 +557,8 @@ void ShellGame_MiniGame::send_round_result_to_host()
     auto game_name = builder.CreateString(get_camel_case_name());
     auto gs_payload = CreateMiniGamePayloadType(builder,
         game_name,
-        GameStateType_ShellGameRoundResult,
-        GameStatePayload_ShellGameRoundResultPayload,
+        GameStateType_ShellShuffleRoundResult,
+        GameStatePayload_ShellShuffleRoundResultPayload,
         payload.Union()
     );
 
@@ -566,13 +569,13 @@ void ShellGame_MiniGame::send_round_result_to_host()
     );
 }
 
-void ShellGame_MiniGame::send_result_data()
+void ShellShuffle_MiniGame::send_result_data()
 {
     auto result = getMinigameResult();
 
     flatbuffers::FlatBufferBuilder builder;
 
-    std::vector<flatbuffers::Offset<FBShellGameResultPair>> pair_offsets;
+    std::vector<flatbuffers::Offset<FBShellShuffleResultPair>> pair_offsets;
     pair_offsets.reserve(result.size());
 
     for (const auto& [client, placement] : result)
@@ -584,7 +587,7 @@ void ShellGame_MiniGame::send_result_data()
             : current_round;
 
         auto name = builder.CreateString(client->name);
-        pair_offsets.push_back(CreateFBShellGameResultPair(builder,
+        pair_offsets.push_back(CreateFBShellShuffleResultPair(builder,
             name,
             (uint16_t)placement,
             (uint16_t)rounds_survived
@@ -592,13 +595,13 @@ void ShellGame_MiniGame::send_result_data()
     }
     auto pairs_vec = builder.CreateVector(pair_offsets);
 
-    auto payload = CreateShellGameResultPayload(builder, pairs_vec);
+    auto payload = CreateShellShuffleResultPayload(builder, pairs_vec);
 
     auto game_name = builder.CreateString(get_camel_case_name());
     auto gs_payload = CreateMiniGamePayloadType(builder,
         game_name,
-        GameStateType_ShellGameResult,
-        GameStatePayload_ShellGameResultPayload,
+        GameStateType_ShellShuffleResult,
+        GameStatePayload_ShellShuffleResultPayload,
         payload.Union()
     );
 
@@ -611,17 +614,17 @@ void ShellGame_MiniGame::send_result_data()
 
 // ─── Results / metadata ──────────────────────────────────────────────────────
 
-std::vector<std::pair<Client*, int>> ShellGame_MiniGame::getMinigameResult()
+std::vector<std::pair<Client*, int>> ShellShuffle_MiniGame::getMinigameResult()
 {
     // Sort players: those who lasted longer rank higher
-    std::vector<ShellGame_Player*> sorted;
+    std::vector<ShellShuffle_Player*> sorted;
     sorted.reserve(players.size());
     for (auto& [id, player] : players)
     {
         sorted.push_back(&player);
     }
 
-    std::sort(sorted.begin(), sorted.end(), [](const ShellGame_Player* a, const ShellGame_Player* b)
+    std::sort(sorted.begin(), sorted.end(), [](const ShellShuffle_Player* a, const ShellShuffle_Player* b)
     {
         int ra = (a->finished_round == -1) ? INT_MAX : a->finished_round;
         int rb = (b->finished_round == -1) ? INT_MAX : b->finished_round;
@@ -646,20 +649,20 @@ std::vector<std::pair<Client*, int>> ShellGame_MiniGame::getMinigameResult()
     return results;
 }
 
-std::string ShellGame_MiniGame::get_display_name() { return "Shell Game"; }
-std::string ShellGame_MiniGame::get_camel_case_name() { return "shellGame"; }
-std::string ShellGame_MiniGame::get_description() { return "Watch which cup hides the ball, then track it through the shuffle!"; }
+std::string ShellShuffle_MiniGame::get_display_name() { return "Shell Shuffle"; }
+std::string ShellShuffle_MiniGame::get_camel_case_name() { return "shellShuffle"; }
+std::string ShellShuffle_MiniGame::get_description() { return "Watch which cup hides the ball, then track it through the shuffle!"; }
 
-void ShellGame_MiniGame::clients_changed(int client_id, bool joined) { }
+void ShellShuffle_MiniGame::clients_changed(int client_id, bool joined) { }
 
-void ShellGame_MiniGame::pause()
+void ShellShuffle_MiniGame::pause()
 {
     introduction_timer.pause();
     timer.pause();
     result_timer.pause();
 }
 
-void ShellGame_MiniGame::resume()
+void ShellShuffle_MiniGame::resume()
 {
     introduction_timer.resume();
     timer.resume();

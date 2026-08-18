@@ -1,0 +1,11 @@
+table FBShellShuffleResultPair {
+  name: string;
+  placement: ushort;
+  rounds_survived: ushort;
+}
+
+table ShellShuffleResultPayload {
+  results: [FBShellShuffleResultPair];
+}
+
+root_type ShellShuffleResultPayload;

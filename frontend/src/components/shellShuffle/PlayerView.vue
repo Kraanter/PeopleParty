@@ -10,13 +10,13 @@ import {
   MiniGameIntroductionPayload,
   MiniGamePayloadType,
   Payload,
-  ShellGamePlayerInputPayload
+  ShellShufflePlayerInputPayload
 } from '@/flatbuffers/messageClass'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import { useWebSocketStore } from '@/stores/confettiStore'
-import { parseShellGamePlayerPayload, parseShellGameResult } from './ShellGameProcessor'
-import type { ShellGamePlayerData, ShellGameResult } from './ShellGameModels'
-import { ShellGamePhase } from './ShellGameModels'
+import { parseShellShufflePlayerPayload, parseShellShuffleResult } from './ShellShuffleProcessor'
+import type { ShellShufflePlayerData, ShellShuffleResult } from './ShellShuffleModels'
+import { ShellShufflePhase } from './ShellShuffleModels'
 
 defineProps<{
   width: number
@@ -37,8 +37,8 @@ enum ViewState {
 const viewState = ref<ViewState>(ViewState.None)
 const intro = ref<IntroductionData>({ title: '', description: '', time_left: 0 })
 
-const playerData = ref<ShellGamePlayerData>({
-  phase: ShellGamePhase.REVEAL,
+const playerData = ref<ShellShufflePlayerData>({
+  phase: ShellShufflePhase.REVEAL,
   current_round: 0,
   time_left: 0,
   num_cups: 3,
@@ -47,7 +47,7 @@ const playerData = ref<ShellGamePlayerData>({
   was_correct: false
 })
 
-const gameResult = ref<ShellGameResult | null>(null)
+const gameResult = ref<ShellShuffleResult | null>(null)
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
 
@@ -69,22 +69,22 @@ const formatOrdinals = (n: number) => `${n}${suffixes.get(pr.select(n))}`
 
 const sendCupGuess = (cupIndex: number) => {
   if (playerData.value.has_guessed || playerData.value.is_eliminated) return
-  if (playerData.value.phase !== ShellGamePhase.GUESS) return
+  if (playerData.value.phase !== ShellShufflePhase.GUESS) return
 
   const builder = new flatbuffers.Builder()
 
-  const inputPayload = ShellGamePlayerInputPayload.createShellGamePlayerInputPayload(
+  const inputPayload = ShellShufflePlayerInputPayload.createShellShufflePlayerInputPayload(
     builder,
     cupIndex
   )
 
-  const gameName = builder.createString('shellGame')
+  const gameName = builder.createString('shellShuffle')
 
   const mgPayload = MiniGamePayloadType.createMiniGamePayloadType(
     builder,
     gameName,
-    GameStateType.ShellGamePlayerInput,
-    GameStatePayload.ShellGamePlayerInputPayload,
+    GameStateType.ShellShufflePlayerInput,
+    GameStatePayload.ShellShufflePlayerInputPayload,
     inputPayload
   )
 
@@ -97,14 +97,14 @@ const sendCupGuess = (cupIndex: number) => {
 
 const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
-    case GameStateType.ShellGamePlayer: {
+    case GameStateType.ShellShufflePlayer: {
       viewState.value = ViewState.MiniGame
-      playerData.value = parseShellGamePlayerPayload(data)
+      playerData.value = parseShellShufflePlayerPayload(data)
       break
     }
-    case GameStateType.ShellGameResult: {
+    case GameStateType.ShellShuffleResult: {
       viewState.value = ViewState.Results
-      gameResult.value = parseShellGameResult(data)
+      gameResult.value = parseShellShuffleResult(data)
       break
     }
     case GameStateType.MiniGameIntroduction: {
@@ -151,7 +151,7 @@ defineExpose({ update })
   </template>
 
   <!-- In-game: REVEAL phase -->
-  <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellGamePhase.REVEAL">
+  <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellShufflePhase.REVEAL">
     <div class="flex flex-col h-full justify-center items-center gap-6 p-6 text-center">
       <p class="text-4xl text-white font-bold">Watch the ball!</p>
       <p class="text-2xl text-yellow-300">Round {{ playerData.current_round }}</p>
@@ -162,7 +162,7 @@ defineExpose({ update })
   </template>
 
   <!-- In-game: SHUFFLE phase -->
-  <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellGamePhase.SHUFFLE">
+  <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellShufflePhase.SHUFFLE">
     <div class="flex flex-col h-full justify-center items-center gap-6 p-6 text-center">
       <p class="text-4xl text-white font-bold">Don't lose it!</p>
       <p class="text-2xl text-yellow-300">Track the cup with the ball…</p>
@@ -170,7 +170,7 @@ defineExpose({ update })
   </template>
 
   <!-- In-game: GUESS phase -->
-  <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellGamePhase.GUESS">
+  <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellShufflePhase.GUESS">
     <div class="flex flex-col h-full justify-center items-center gap-4 p-4 text-center">
       <p class="text-3xl text-white font-bold">Which cup?</p>
       <div class="mt-2">
@@ -199,7 +199,7 @@ defineExpose({ update })
   </template>
 
   <!-- In-game: ROUND_RESULT phase -->
-  <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellGamePhase.ROUND_RESULT">
+  <template v-else-if="viewState === ViewState.MiniGame && playerData.phase === ShellShufflePhase.ROUND_RESULT">
     <div class="flex flex-col h-full justify-center items-center gap-6 p-6 text-center">
       <template v-if="playerData.was_correct">
         <p class="text-5xl text-green-400 font-bold">Correct!</p>
