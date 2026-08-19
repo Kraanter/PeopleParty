@@ -117,17 +117,22 @@ defineExpose({ update })
       </div>
       <div
         class="flex justify-center mt-8 relative overflow-clip tems-center row-span-2 h-full w-full"
-        @click="click"
       >
-        <button :disabled="locked" @click="click" class="eject-button">
-          <span v-if="locked">Locked</span>
-          <span v-else>Sell</span>
-        </button>
+        <div class="eject-button-hit-area" @click="click">
+          <button :disabled="locked" class="eject-button" tabindex="-1">
+            <span v-if="locked">Locked</span>
+            <span v-else>Sell</span>
+          </button>
+        </div>
       </div>
     </div>
   </template>
 </template>
 <style scoped>
+.eject-button-hit-area {
+  display: inline-flex;
+}
+
 .eject-button {
   background-color: red;
   color: white;
@@ -144,17 +149,19 @@ defineExpose({ update })
   box-shadow: 0rem 0.4em 0em 0.04em darkred;
   transition:
     box-shadow 0.3s,
-    transform 0.3s !important;
+    transform 0.3s;
+  /* The hit-area wrapper owns the tap; this element only renders visuals, so
+     it can never be the touch target that moves out from under the finger. */
+  pointer-events: none;
 }
 
 .eject-button:disabled {
   background-color: slategray;
-  transform: translateY(0.3em) !important;
-  box-shadow: 0rem 0.1em 0 0.04em black !important;
+  box-shadow: 0rem 0.1em 0 0.04em black;
 }
 
-.eject-button:active:not(:disabled) {
-  transform: translateY(0.3em) !important;
-  box-shadow: 0rem 0.1em 0 0.04em darkred !important;
+.eject-button-hit-area:active .eject-button:not(:disabled) {
+  transform: translateY(0.3em);
+  box-shadow: 0rem 0.1em 0 0.04em darkred;
 }
 </style>

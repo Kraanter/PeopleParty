@@ -11,6 +11,9 @@ struct RightOnTime_Minigame_Player_Data {
     int round_2_diff;
     int round_3_diff;
     int total_diff;
+    bool round_1_submitted;
+    bool round_2_submitted;
+    bool round_3_submitted;
 };
 
 struct RightOnTime_Minigame_Target {

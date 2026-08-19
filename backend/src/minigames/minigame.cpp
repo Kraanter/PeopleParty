@@ -25,6 +25,7 @@ void MiniGame::process_input(const Message *payload, Client *from) {
         case MessageType::MessageType_MiniGame: {
             auto miniGamePayload = payload->payload_as_MiniGamePayloadType();
             process_input(miniGamePayload, from);
+            break;
         }
         case MessageType::MessageType_Pause: {
             auto pausePayload = payload->payload_as_PausePayloadType();

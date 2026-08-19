@@ -49,8 +49,16 @@ const payloadData = ref<RightOnTimeData>({
   submitted: []
 })
 
+// Local lock so a tap can never be reverted by a broadcast that was computed
+// before the server processed it (see confettiStore's 100ms broadcast cadence).
+const hasSubmittedLocally = ref(false)
+const submittedRound = ref(0)
+
 const submitted = computed(() => {
-  return payloadData.value.submitted.includes(websocketStore.clientName)
+  return (
+    payloadData.value.submitted.includes(websocketStore.clientName) ||
+    (hasSubmittedLocally.value && submittedRound.value === payloadData.value.round)
+  )
 })
 
 const roundResultTime = ref<number>(0)
@@ -65,12 +73,17 @@ const update = (data: MiniGamePayloadType) => {
     case GameStateType.RightOnTime: {
       viewState.value = ViewState.MiniGame
 
-      payloadData.value = parseRightOnTimePayload(data)
+      const incoming = parseRightOnTimePayload(data)
+      if (incoming.round !== payloadData.value.round) {
+        hasSubmittedLocally.value = false
+      }
+      payloadData.value = incoming
 
       // if not pressed in time, lock the button and say not pressed in time
       if (payloadData.value.time >= payloadData.value.target + 9800) {
         if (roundResultTime.value === 0) {
-          payloadData.value.submitted.push(websocketStore.clientName)
+          hasSubmittedLocally.value = true
+          submittedRound.value = payloadData.value.round
           roundResultTime.value = 0
         }
       }
@@ -99,6 +112,8 @@ const update = (data: MiniGamePayloadType) => {
 }
 
 const sendPlayerAction = () => {
+  if (submitted.value) return
+
   let builder = new flatbuffers.Builder()
 
   let playerInput = RightOnTimePayload.createRightOnTimePayload(
@@ -120,12 +135,20 @@ const sendPlayerAction = () => {
     playerInput
   )
 
-  websocketStore.sendMessage(
+  const sent = websocketStore.sendMessage(
     buildMessage(builder, miniGamePayload, MessageType.MiniGame, Payload.MiniGamePayloadType)
   )
 
-  payloadData.value.submitted.push(websocketStore.clientName)
-  roundResultTime.value = payloadData.value.time
+  if (sent) {
+    hasSubmittedLocally.value = true
+    submittedRound.value = payloadData.value.round
+    roundResultTime.value = payloadData.value.time
+  }
+}
+
+function onTap() {
+  if (submitted.value) return
+  sendPlayerAction()
 }
 
 defineExpose({
@@ -157,10 +180,12 @@ defineExpose({
         </div>
         <div class="grid grid-rows-1 grid-cols-1">
           <div class="flex justify-center mt-8 mb-16 relative overflow-visible tems-center h-full w-full">
-            <button :disabled="submitted" @click="sendPlayerAction" class="eject-button">
-              <span v-if="submitted">Locked</span>
-              <span v-else>Submit</span>
-            </button>
+            <div class="eject-button-hit-area" @click="onTap">
+              <button :disabled="submitted" class="eject-button" tabindex="-1">
+                <span v-if="submitted">Locked</span>
+                <span v-else>Submit</span>
+              </button>
+            </div>
           </div>
         </div>
         <div class="grid grid-rows-2 grid-cols-2 justify-center mt-24">
@@ -214,6 +239,10 @@ defineExpose({
 </template>
 
 <style scoped>
+.eject-button-hit-area {
+  display: inline-flex;
+}
+
 .eject-button {
   background-color: red;
   color: white;
@@ -230,17 +259,19 @@ defineExpose({
   box-shadow: 0rem 0.4em 0em 0.04em darkred;
   transition:
     box-shadow 0.3s,
-    transform 0.3s !important;
+    transform 0.3s;
+  /* The hit-area wrapper owns the tap; this element only renders visuals, so
+     it can never be the touch target that moves out from under the finger. */
+  pointer-events: none;
 }
 
 .eject-button:disabled {
   background-color: slategray;
-  transform: translateY(0.3em) !important;
-  box-shadow: 0rem 0.1em 0 0.04em black !important;
+  box-shadow: 0rem 0.1em 0 0.04em black;
 }
 
-.eject-button:active:not(:disabled) {
-  transform: translateY(0.3em) !important;
-  box-shadow: 0rem 0.1em 0 0.04em darkred !important;
+.eject-button-hit-area:active .eject-button:not(:disabled) {
+  transform: translateY(0.3em);
+  box-shadow: 0rem 0.1em 0 0.04em darkred;
 }
 </style>

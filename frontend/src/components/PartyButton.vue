@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-defineProps<{
+const props = defineProps<{
   disabled?: boolean
   btnClass?: string
   cndClass?: any // conditional class like normal :class behavior
@@ -11,6 +11,7 @@ const emit = defineEmits<{
 }>()
 
 const handleClick = () => {
+  if (props.disabled) return
   emit('click')
 }
 </script>

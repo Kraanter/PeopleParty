@@ -80,6 +80,9 @@ void RightOnTime_Minigame::start_minigame() {
             players[client].round_2_diff = 0;
             players[client].round_3_diff = 0;
             players[client].total_diff = 0;
+            players[client].round_1_submitted = false;
+            players[client].round_2_submitted = false;
+            players[client].round_3_submitted = false;
         }
     }
 
@@ -93,7 +96,8 @@ void RightOnTime_Minigame::update(int delta_time) {
         bool all_submitted = true;
 
         for (auto &player : players) {
-            if (current_round == 1 && player.second.round_1_diff == 0 ? true : current_round == 2 && player.second.round_2_diff == 0 ? true : current_round == 3 && player.second.round_3_diff == 0 ? true : false) {
+            bool player_submitted = current_round == 1 ? player.second.round_1_submitted : current_round == 2 ? player.second.round_2_submitted : player.second.round_3_submitted;
+            if (!player_submitted) {
                 all_submitted = false;
                 break;
             }
@@ -175,14 +179,17 @@ void RightOnTime_Minigame::update(int delta_time) {
 
 void RightOnTime_Minigame::handle_not_pressed(int round, int round_target) {
     for (auto &player : players) {
-        if (round == 1 && player.second.round_1_diff == 0) {
+        if (round == 1 && !player.second.round_1_submitted) {
             player.second.round_1_diff = round_target;
+            player.second.round_1_submitted = true;
         }
-        else if (round == 2 && player.second.round_2_diff == 0) {
+        else if (round == 2 && !player.second.round_2_submitted) {
             player.second.round_2_diff = round_target;
+            player.second.round_2_submitted = true;
         }
-        else if (round == 3 && player.second.round_3_diff == 0) {
+        else if (round == 3 && !player.second.round_3_submitted) {
             player.second.round_3_diff = round_target;
+            player.second.round_3_submitted = true;
         }
     }
 }
@@ -192,16 +199,21 @@ void RightOnTime_Minigame::process_input(const MiniGamePayloadType *payload, Cli
         case GameStateType_RightOnTime: {
             auto input = payload->gamestatepayload_as_RightOnTimePayload();
 
-
+            // First submission wins: ignore duplicate/late taps for a round that's
+            // already recorded, so a client-side race can't silently overwrite a
+            // good time with a worse one.
             if (current_phase == 0) {
-                if (current_round == 1) {
+                if (current_round == 1 && !players[from].round_1_submitted) {
                     players[from].round_1_diff = input->time() - target->round_1_target;
+                    players[from].round_1_submitted = true;
                 }
-                else if (current_round == 2) {
+                else if (current_round == 2 && !players[from].round_2_submitted) {
                     players[from].round_2_diff = input->time() - target->round_2_target;
+                    players[from].round_2_submitted = true;
                 }
-                else if (current_round == 3) {
+                else if (current_round == 3 && !players[from].round_3_submitted) {
                     players[from].round_3_diff = input->time() - target->round_3_target;
+                    players[from].round_3_submitted = true;
                 }
             }
         }
@@ -213,7 +225,8 @@ void RightOnTime_Minigame::send_payload_data(int client_id, int round_target, bo
 
     std::vector<flatbuffers::Offset<flatbuffers::String>> submitted_players;
     for (auto &player : players) {
-        if (current_round == 1 && player.second.round_1_diff != 0 ? true : current_round == 2 && player.second.round_2_diff != 0 ? true : current_round == 3 && player.second.round_3_diff != 0 ? true : false) {
+        bool player_submitted = current_round == 1 ? player.second.round_1_submitted : current_round == 2 ? player.second.round_2_submitted : player.second.round_3_submitted;
+        if (player_submitted) {
             submitted_players.push_back(builder.CreateString(player.first->name));
         }
     }

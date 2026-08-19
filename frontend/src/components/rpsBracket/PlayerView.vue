@@ -241,7 +241,7 @@ defineExpose({ update })
         <!-- choice buttons //only on match screen -->
         <div v-if="!isResultScreen()" class="w-full mt-36 px-4">
           <div class="grid grid-cols-3 gap-4">
-            <div v-for="(choice, i) in RPSMap" @click="player_action(i)" :key="choice">
+            <div v-for="(choice, i) in RPSMap" :key="choice">
               <PartyButton
                 :disabled="playerData.winner != ''"
                 btnClass="m-2 !text-lg"
@@ -252,7 +252,6 @@ defineExpose({ update })
                 @click="player_action(i)"
               >
                 <img
-                  @click="player_action(i)"
                   class="size-12 m-auto"
                   :src="`/assets/games/rpsBracket/${choice.toLowerCase()}.svg`"
                 />

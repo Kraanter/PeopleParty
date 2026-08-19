@@ -83,12 +83,13 @@ export const useWebSocketStore = defineStore('websocket', () => {
     setUpListeners()
   }
 
-  function sendMessage(message: Uint8Array) {
-    if (websocket.value) {
+  function sendMessage(message: Uint8Array): boolean {
+    if (websocket.value && websocket.value.readyState === WebSocket.OPEN) {
       websocket.value.send(message)
-    } else {
-      console.error('WebSocket is not initialized.')
+      return true
     }
+    console.error('WebSocket is not open, message not sent.')
+    return false
   }
 
   function setUpListeners() {
