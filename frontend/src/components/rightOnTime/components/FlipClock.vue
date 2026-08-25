@@ -51,10 +51,7 @@
             </div>
           </div>
         </div>
-        <div
-          class="flip card"
-          :style="`transform: rotateX(-${computedRealClock[1].degree}deg);`"
-        >
+        <div class="flip card" :style="`transform: rotateX(-${computedRealClock[1].degree}deg);`">
           <div class="front inner" :style="coreStyle">
             <div class="content">
               {{ computedRealClock[1].currentFormat.slice(-1) }}
@@ -73,86 +70,91 @@
 
 <script>
 export default {
-  name: "flip-clock",
+  name: 'flip-clock',
   props: {
     innerColor: {
       type: String,
-      default: "rgb(41 128 185)",
+      default: 'rgb(41 128 185)'
     },
     number: {
       type: Number,
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     return {
       realClock: [
         { max: 9, current: 0, degree: 0 }, // Represents the tens place
-        { max: 9, current: 0, degree: 0 }, // Represents the units place
-      ],
-    };
+        { max: 9, current: 0, degree: 0 } // Represents the units place
+      ]
+    }
   },
   computed: {
     isFlipping() {
-      return this.realClock.some((clock) => clock.degree > 0);
+      return this.realClock.some((clock) => clock.degree > 0)
     },
     computedRealClock() {
-      const { realClock } = this;
-      const numberString = (this.isFlipping ? this.number - 1 : this.number).toString().padStart(2, "0"); // Ensure the number is 2 digits
+      const { realClock } = this
+      const numberString = (this.isFlipping ? this.number - 1 : this.number)
+        .toString()
+        .padStart(2, '0') // Ensure the number is 2 digits
 
       return realClock.map((clock, index) => {
-        const currentDigit = parseInt(numberString[index]);
-        const nextDigit = currentDigit + 1 > clock.max ? 0 : currentDigit + 1;
+        const currentDigit = parseInt(numberString[index])
+        const nextDigit = currentDigit + 1 > clock.max ? 0 : currentDigit + 1
 
         return {
           ...clock,
           current: currentDigit,
           nextFormat: `0${nextDigit}`,
           currentFormat: `0${currentDigit}`,
-          ifTens: index === 1 ? parseInt(currentDigit / 10) !== parseInt(nextDigit / 10) : this.number % 10 === 0,
-        };
-      });
+          ifTens:
+            index === 1
+              ? parseInt(currentDigit / 10) !== parseInt(nextDigit / 10)
+              : this.number % 10 === 0
+        }
+      })
     },
     coreStyle() {
-      return "background: " + this.innerColor;
-    },
+      return 'background: ' + this.innerColor
+    }
   },
   methods: {
     flip(newVal, index = 1) {
-      const clock = this.realClock[index];
+      const clock = this.realClock[index]
 
       if (clock.degree < 180) {
-        clock.degree += 4;
+        clock.degree += 4
         requestAnimationFrame(() => {
-          this.flip(newVal, index);
-        });
+          this.flip(newVal, index)
+        })
       } else {
-        clock.degree = 0;
-        clock.current = newVal;
+        clock.degree = 0
+        clock.current = newVal
       }
     },
     updateClock() {
-      const numberString = this.number.toString().padStart(2, "0"); // Ensure the number is 2 digits
+      const numberString = this.number.toString().padStart(2, '0') // Ensure the number is 2 digits
 
       this.realClock.forEach((clock, index) => {
-        const currentDigit = parseInt(numberString[index]);
+        const currentDigit = parseInt(numberString[index])
         if (clock.current !== currentDigit) {
           requestAnimationFrame(() => {
-            this.flip(currentDigit, index);
-          });
+            this.flip(currentDigit, index)
+          })
         }
-      });
-    },
+      })
+    }
   },
   watch: {
     number() {
-      this.updateClock();
-    },
+      this.updateClock()
+    }
   },
   created() {
-    this.updateClock();
-  },
-};
+    this.updateClock()
+  }
+}
 </script>
 
 <style>
@@ -179,7 +181,7 @@ export default {
 }
 
 .container::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   right: 0;

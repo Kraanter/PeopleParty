@@ -14,7 +14,12 @@ import {
   parseShellShuffleRoundResult,
   parseShellShuffleResult
 } from './ShellShuffleProcessor'
-import type { ShellShuffleHostData, ShellShuffleRoundResult, ShellShuffleResult, ShellShuffleResultPair } from './ShellShuffleModels'
+import type {
+  ShellShuffleHostData,
+  ShellShuffleRoundResult,
+  ShellShuffleResult,
+  ShellShuffleResultPair
+} from './ShellShuffleModels'
 import { ShellShufflePhase } from './ShellShuffleModels'
 
 const props = defineProps<{
@@ -31,10 +36,10 @@ const MAP_ASPECT = GAME_MAP_WIDTH / GAME_MAP_HEIGHT
 // Cup visual constants (in game world units)
 const CUP_WIDTH = 88
 const CUP_HEIGHT = 120
-const CUP_Y = 240          // top of cup in game world
-const SURFACE_Y = CUP_Y + CUP_HEIGHT  // = 360
+const CUP_Y = 240 // top of cup in game world
+const SURFACE_Y = CUP_Y + CUP_HEIGHT // = 360
 const BALL_RADIUS = 34
-const BALL_Y = SURFACE_Y - BALL_RADIUS - 4  // sits just above the surface line
+const BALL_Y = SURFACE_Y - BALL_RADIUS - 4 // sits just above the surface line
 
 // Colors
 const COLOR_TABLE = 0x1a7a3c
@@ -110,11 +115,16 @@ const canvasOffsetY = computed(() => (containerHeight.value - canvasHeight.value
 
 const phaseLabel = computed(() => {
   switch (hostData.value.phase) {
-    case ShellShufflePhase.REVEAL: return 'Watch the ball!'
-    case ShellShufflePhase.SHUFFLE: return 'Shuffling…'
-    case ShellShufflePhase.GUESS: return 'Players, choose your cup!'
-    case ShellShufflePhase.ROUND_RESULT: return 'Reveal!'
-    default: return ''
+    case ShellShufflePhase.REVEAL:
+      return 'Watch the ball!'
+    case ShellShufflePhase.SHUFFLE:
+      return 'Shuffling…'
+    case ShellShufflePhase.GUESS:
+      return 'Players, choose your cup!'
+    case ShellShufflePhase.ROUND_RESULT:
+      return 'Reveal!'
+    default:
+      return ''
   }
 })
 
@@ -125,9 +135,7 @@ const showTimer = computed(
     hostData.value.phase === ShellShufflePhase.ROUND_RESULT
 )
 
-const timerSeconds = computed(() =>
-  Math.max(0, Math.ceil(hostData.value.time_left / 1000))
-)
+const timerSeconds = computed(() => Math.max(0, Math.ceil(hostData.value.time_left / 1000)))
 
 // Sort cup indices by x position to determine left-to-right labels
 const cupLabelMap = computed(() => {
@@ -135,7 +143,7 @@ const cupLabelMap = computed(() => {
   const indices = cups.map((_, i) => i).sort((a, b) => cups[a].x_pos - cups[b].x_pos)
   const labels: Record<number, number> = {}
   indices.forEach((arrayIdx, pos) => {
-    labels[arrayIdx] = pos + 1   // 1-based label
+    labels[arrayIdx] = pos + 1 // 1-based label
   })
   return labels
 })
@@ -178,9 +186,7 @@ const renderGame = (g: Graphics) => {
   // Lift the ball cup upward during REVEAL and ROUND_RESULT.
   const LIFT_Y = 60
   const MAX_DEPTH_SCALE = 0.25
-  const drawOrder = cups
-    .map((cup, i) => ({ cup, i }))
-    .sort((a, b) => a.cup.depth - b.cup.depth)  // most negative (farthest) drawn first
+  const drawOrder = cups.map((cup, i) => ({ cup, i })).sort((a, b) => a.cup.depth - b.cup.depth) // most negative (farthest) drawn first
 
   drawOrder.forEach(({ cup, i }) => {
     const cx = cup.x_pos * sv
@@ -225,8 +231,8 @@ const podium = computed(() => {
     }
   }
   return {
-    slots: groups.slice(0, 3),   // top 3 distinct placement groups for the podium
-    rest: groups.slice(3).flatMap(g => g.players)  // everyone beyond the 3rd distinct group
+    slots: groups.slice(0, 3), // top 3 distinct placement groups for the podium
+    rest: groups.slice(3).flatMap((g) => g.players) // everyone beyond the 3rd distinct group
   }
 })
 
@@ -234,15 +240,18 @@ const podium = computed(() => {
 
 const roundResultRows = computed(() => {
   if (!roundResult.value) return []
-  return roundResult.value.player_results
-    .slice()
-    .filter(a => !a.was_correct)
+  return roundResult.value.player_results.slice().filter((a) => !a.was_correct)
 })
 
 // ─── Ordinal formatting ───────────────────────────────────────────────────────
 
 const pr = new Intl.PluralRules('en-US', { type: 'ordinal' })
-const suffixes = new Map([['one', 'st'], ['two', 'nd'], ['few', 'rd'], ['other', 'th']])
+const suffixes = new Map([
+  ['one', 'st'],
+  ['two', 'nd'],
+  ['few', 'rd'],
+  ['other', 'th']
+])
 const formatOrdinals = (n: number) => `${n}${suffixes.get(pr.select(n))}`
 
 // ─── Update handler ───────────────────────────────────────────────────────────
@@ -269,7 +278,9 @@ const update = (data: MiniGamePayloadType) => {
     }
     case GameStateType.MiniGameIntroduction: {
       viewState.value = ViewState.Introduction
-      const p: MiniGameIntroductionPayload = data.gamestatepayload(new MiniGameIntroductionPayload())
+      const p: MiniGameIntroductionPayload = data.gamestatepayload(
+        new MiniGameIntroductionPayload()
+      )
       intro.value = {
         title: p.name() || '',
         description: p.instruction() || '',
@@ -301,7 +312,10 @@ defineExpose({ update })
       </div>
 
       <!-- Canvas area -->
-      <div ref="canvasContainerRef" class="flex-1 overflow-hidden relative flex items-center justify-center">
+      <div
+        ref="canvasContainerRef"
+        class="flex-1 overflow-hidden relative flex items-center justify-center"
+      >
         <Application
           v-if="canvasWidth > 0"
           :width="canvasWidth"
@@ -313,7 +327,12 @@ defineExpose({ update })
         </Application>
 
         <!-- Cup number labels HTML overlay (during GUESS / ROUND_RESULT) -->
-        <template v-if="hostData.phase === ShellShufflePhase.GUESS || hostData.phase === ShellShufflePhase.ROUND_RESULT">
+        <template
+          v-if="
+            hostData.phase === ShellShufflePhase.GUESS ||
+            hostData.phase === ShellShufflePhase.ROUND_RESULT
+          "
+        >
           <div
             v-for="(cup, i) in hostData.cups"
             :key="i"
@@ -332,11 +351,11 @@ defineExpose({ update })
       </div>
 
       <!-- Timer bar: always rendered to keep layout stable; invisible keeps the space -->
-      <div class="flex justify-center items-center py-2 bg-black bg-opacity-60" :class="{ invisible: !showTimer }">
-        <div
-          class="text-5xl font-bold"
-          :class="timerSeconds <= 3 ? 'text-red-400' : 'text-white'"
-        >
+      <div
+        class="flex justify-center items-center py-2 bg-black bg-opacity-60"
+        :class="{ invisible: !showTimer }"
+      >
+        <div class="text-5xl font-bold" :class="timerSeconds <= 3 ? 'text-red-400' : 'text-white'">
           {{ timerSeconds }}
         </div>
       </div>
@@ -347,7 +366,7 @@ defineExpose({ update })
         class="absolute inset-x-0 bottom-0 bg-black bg-opacity-75 px-4 py-3"
       >
         <div class="text-white text-center text-lg font-bold mb-2">
-          Ball was under cup {{ roundResult.correct_cup_index + 1 }} <br>
+          Ball was under cup {{ roundResult.correct_cup_index + 1 }} <br />
           {{ roundResult.players_remaining }} player(s) continue
         </div>
         <div class="flex flex-wrap justify-center gap-2">
@@ -367,19 +386,22 @@ defineExpose({ update })
   <template v-else-if="viewState === ViewState.Results">
     <div class="flex flex-col w-full h-full bg-black text-white overflow-hidden">
       <!-- Title -->
-      <div class="text-center text-4xl font-bold text-yellow-300 pt-5 pb-2 shrink-0">Shell Shuffle Results</div>
+      <div class="text-center text-4xl font-bold text-yellow-300 pt-5 pb-2 shrink-0">
+        Shell Shuffle Results
+      </div>
 
       <!-- Podium area: 2nd (left) — 1st (center) — 3rd (right) -->
       <div class="flex items-end justify-center gap-6 px-12 flex-1 min-h-0">
-
         <!-- 2nd distinct placement — silver, left -->
         <div v-if="podium.slots[1]" class="flex flex-col items-center">
           <div class="flex flex-col items-center gap-0.5 mb-2 max-w-36">
             <div
-              v-for="p in (podium.slots[1]?.players ?? [])"
+              v-for="p in podium.slots[1]?.players ?? []"
               :key="p.name"
               class="text-2xl font-bold text-gray-200 text-center truncate max-w-full"
-            >{{ p.name }}</div>
+            >
+              {{ p.name }}
+            </div>
             <div v-if="!podium.slots[1]" class="text-base text-gray-600">—</div>
           </div>
           <div
@@ -401,10 +423,12 @@ defineExpose({ update })
         <div v-if="podium.slots[0]" class="flex flex-col items-center">
           <div class="flex flex-col items-center gap-0.5 mb-2 max-w-40">
             <div
-              v-for="p in (podium.slots[0]?.players ?? [])"
+              v-for="p in podium.slots[0]?.players ?? []"
               :key="p.name"
               class="text-2xl font-bold text-yellow-300 text-center truncate max-w-full"
-            >{{ p.name }}</div>
+            >
+              {{ p.name }}
+            </div>
             <div v-if="!podium.slots[0]" class="text-lg text-gray-600">—</div>
           </div>
           <div
@@ -426,10 +450,12 @@ defineExpose({ update })
         <div v-if="podium.slots[2]" class="flex flex-col items-center">
           <div class="flex flex-col items-center gap-0.5 mb-2 max-w-36">
             <div
-              v-for="p in (podium.slots[2]?.players ?? [])"
+              v-for="p in podium.slots[2]?.players ?? []"
               :key="p.name"
               class="text-2xl font-bold text-amber-600 text-center truncate max-w-full"
-            >{{ p.name }}</div>
+            >
+              {{ p.name }}
+            </div>
             <div v-if="!podium.slots[2]" class="text-base text-gray-600">—</div>
           </div>
           <div
@@ -455,9 +481,13 @@ defineExpose({ update })
           :key="r.name"
           class="flex items-center gap-3 border-b border-white border-opacity-10 py-2"
         >
-          <span class="text-gray-400 font-bold w-10 text-right">{{ formatOrdinals(r.placement) }}</span>
+          <span class="text-gray-400 font-bold w-10 text-right">{{
+            formatOrdinals(r.placement)
+          }}</span>
           <span class="flex-1 text-lg text-gray-200">{{ r.name }}</span>
-          <span class="text-sm text-gray-500">{{ r.rounds_survived }} round{{ r.rounds_survived !== 1 ? 's' : '' }}</span>
+          <span class="text-sm text-gray-500"
+            >{{ r.rounds_survived }} round{{ r.rounds_survived !== 1 ? 's' : '' }}</span
+          >
         </div>
       </div>
     </div>

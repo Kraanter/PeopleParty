@@ -7,21 +7,21 @@ export enum ShellShufflePhase {
 
 export interface ShellShuffleCup {
   x_pos: number
-  depth: number  // sin-arc value: +1 = closest, -1 = farthest, 0 = idle
+  depth: number // sin-arc value: +1 = closest, -1 = farthest, 0 = idle
 }
 
 export interface ShellShuffleHostData {
   phase: ShellShufflePhase
   current_round: number
-  time_left: number       // -1 during SHUFFLE (no countdown)
+  time_left: number // -1 during SHUFFLE (no countdown)
   cups: ShellShuffleCup[]
-  ball_cup_index: number  // array index of ball cup; -1 if hidden
+  ball_cup_index: number // array index of ball cup; -1 if hidden
   active_players: number
   map_width: number
 }
 
 export interface ShellShufflePlayerData {
-  phase: number           // 0-3, use ShellShufflePhase for comparison
+  phase: number // 0-3, use ShellShufflePhase for comparison
   current_round: number
   time_left: number
   num_cups: number
@@ -33,12 +33,12 @@ export interface ShellShufflePlayerData {
 export interface ShellShuffleRoundPlayerResult {
   name: string
   was_correct: boolean
-  guessed_cup: number     // -1 = didn't guess in time
+  guessed_cup: number // -1 = didn't guess in time
 }
 
 export interface ShellShuffleRoundResult {
   current_round: number
-  correct_cup_index: number  // left-to-right 0-based position
+  correct_cup_index: number // left-to-right 0-based position
   player_results: ShellShuffleRoundPlayerResult[]
   players_remaining: number
 }

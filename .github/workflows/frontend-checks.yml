@@ -1,0 +1,45 @@
+name: Frontend checks
+
+on:
+  pull_request:
+    branches: [main, staging]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Type-check, lint, format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Keep in sync with frontend/Dockerfile's `FROM node:20.11.1-alpine`
+          node-version: '20.11.1'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build FlatBuffers
+        run: |
+          npm install
+          npm run build
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type-check
+        working-directory: frontend
+        run: npm run type-check
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint:check
+
+      - name: Format check
+        working-directory: frontend
+        run: npm run format:check

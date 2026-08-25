@@ -213,10 +213,13 @@ function renderMinigame(graphics: Graphics) {
     </div>
     <div class="flex ml-4 mt-4 w-full justify-start items-start">
       <div class="z-20 justify-start items-start">
-        <span class="text text-[2vw] text-white ">Sell when the price is the highest!<br> But whatch out for the big crash.</span>
+        <span class="text text-[2vw] text-white"
+          >Sell when the price is the highest!<br />
+          But whatch out for the big crash.</span
+        >
       </div>
     </div>
-    <div class="flex w-full justify-center items-center mt" style="margin-top: -6rem;">
+    <div class="flex w-full justify-center items-center mt" style="margin-top: -6rem">
       <MoneyCounter :value />
     </div>
   </template>

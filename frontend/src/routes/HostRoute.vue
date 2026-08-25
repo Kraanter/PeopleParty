@@ -19,7 +19,7 @@ import {
 } from '@/flatbuffers/messageClass'
 import { watch } from 'vue'
 import { useReleasesStore } from '@/stores/releasesStore'
-import { format } from 'date-fns';
+import { format } from 'date-fns'
 
 const audio = new Audio('/soundtrack.wav')
 audio.loop = true
@@ -28,11 +28,14 @@ audio.volume = 0.5
 const websocketStore = useWebSocketStore()
 const { partyCode } = storeToRefs(websocketStore)
 
-watch(() => websocketStore.partyPrepSettings?.music_volume, (newValue) => {
-  if (audio.volume !== newValue) {
-    audio.volume = newValue;
+watch(
+  () => websocketStore.partyPrepSettings?.music_volume,
+  (newValue) => {
+    if (audio.volume !== newValue) {
+      audio.volume = newValue
+    }
   }
-})
+)
 
 const viewStore = useViewStore()
 const { viewState, viewData } = storeToRefs(viewStore)
@@ -90,15 +93,30 @@ const skipLeaderboard = () => {
   </div>
   <div v-else class="grid grid-rows-2 pt-12">
     <!-- only show the new version when the latest date is less then 90 days old -->
-    <div v-if="releasesStore.releases.length > 0 
-            && releasesStore.releases[0].date 
-            && ((new Date().getTime() - new Date(releasesStore.releases[0].date).getTime()) / (1000 * 60 * 60 * 24)) < 90"
-          class="fixed size-96" style="right: 9%; top: 40%; transform: rotate(10deg);">
-      <img src="/assets/update-sticker.svg" class="absolute mt-2" style="z-index: -10; transform: rotate(-8deg);" />
+    <div
+      v-if="
+        releasesStore.releases.length > 0 &&
+        releasesStore.releases[0].date &&
+        (new Date().getTime() - new Date(releasesStore.releases[0].date).getTime()) /
+          (1000 * 60 * 60 * 24) <
+          90
+      "
+      class="fixed size-96"
+      style="right: 9%; top: 40%; transform: rotate(10deg)"
+    >
+      <img
+        src="/assets/update-sticker.svg"
+        class="absolute mt-2"
+        style="z-index: -10; transform: rotate(-8deg)"
+      />
       <div class="flex flex-col justify-center items-center mt-28">
         <div>
           <span class="text text-4xl">
-            <router-link v-if="releasesStore.releases[0].date" to="/releases" class="underline text text-white font-bold">
+            <router-link
+              v-if="releasesStore.releases[0].date"
+              to="/releases"
+              class="underline text text-white font-bold"
+            >
               New version!
             </router-link>
           </span>
@@ -117,7 +135,9 @@ const skipLeaderboard = () => {
       </div>
 
       <div class="grid grid-cols-3 justify-between w-full">
-        <router-link to="/releases" class="flex underline">{{ releasesStore.versionNumber }}</router-link>
+        <router-link to="/releases" class="flex underline">{{
+          releasesStore.versionNumber
+        }}</router-link>
         <div class="flex justify-center items-center">
           <router-link to="/join" class="underline">Join a party!</router-link>
         </div>

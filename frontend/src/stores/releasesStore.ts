@@ -3,9 +3,9 @@ import { ref } from 'vue'
 import axios from 'axios'
 
 export type Release = {
-    tag_name: string
-    date: Date
-    body: string
+  tag_name: string
+  date: Date
+  body: string
 }
 
 export const useReleasesStore = defineStore('releases', () => {
@@ -33,9 +33,7 @@ export const useReleasesStore = defineStore('releases', () => {
 
   async function getReleases() {
     try {
-      const data = await axios.get(
-        'https://api.github.com/repos/Kraanter/PeopleParty/releases'
-      )
+      const data = await axios.get('https://api.github.com/repos/Kraanter/PeopleParty/releases')
       releases.value = data.data.map((release: any) => {
         return {
           tag_name: release.tag_name,

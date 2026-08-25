@@ -45,8 +45,8 @@ export type PartyPrepSettings = {
   music_volume?: number // client side only
   loop: boolean //client side only
   minigames: {
-    name: string,
-    enabled: boolean,
+    name: string
+    enabled: boolean
     image: string // client side only
   }[]
 }
@@ -126,11 +126,9 @@ export const useWebSocketStore = defineStore('websocket', () => {
   }
 
   function nameToCamelCase(name: string) {
-    return name.replace(/([-_][a-z])/ig, ($1) => {
-        return $1.toUpperCase()
-            .replace('-', '')
-            .replace('_', '');
-    });
+    return name.replace(/([-_][a-z])/gi, ($1) => {
+      return $1.toUpperCase().replace('-', '').replace('_', '')
+    })
   }
 
   function nameToImagePath(name: string) {
@@ -145,7 +143,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
         minigame.image = path
       }
       img.onerror = () => {
-        minigame.image = ""
+        minigame.image = ''
       }
       img.src = nameToImagePath(minigame.name)
     })
@@ -173,7 +171,9 @@ export const useWebSocketStore = defineStore('websocket', () => {
       }
       case MessageType.Pause: {
         const pausePayload = receivedMessage.payload(new PausePayloadType())
-        if (pausePayload) { isPaused.value = pausePayload.pause() }
+        if (pausePayload) {
+          isPaused.value = pausePayload.pause()
+        }
         break
       }
       case MessageType.MiniGame: {
@@ -217,7 +217,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
               minigames.push({
                 name: decodeURI(payload.minigames(i)?.name() ?? ''),
                 enabled: payload.minigames(i)?.enabled() ?? false,
-                image: ""
+                image: ''
               })
             }
 
@@ -271,7 +271,12 @@ export const useWebSocketStore = defineStore('websocket', () => {
               if (submittedString === null) continue
               voteSkippedPlayers.push(decodeURI(submittedString))
             }
-            console.log('vote skipped players', voteSkippedPlayers, clientName.value, voteSkippedPlayers.includes(clientName.value))
+            console.log(
+              'vote skipped players',
+              voteSkippedPlayers,
+              clientName.value,
+              voteSkippedPlayers.includes(clientName.value)
+            )
 
             viewStore.setViewData({
               time_left: Number(payload.leaderboardTimeLeft()),
@@ -300,6 +305,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
     clientName,
     isHosting,
     isPaused,
-    partyPrepSettings,
+    partyPrepSettings
   }
 })

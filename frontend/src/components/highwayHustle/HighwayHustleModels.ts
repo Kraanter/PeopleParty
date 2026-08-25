@@ -1,23 +1,23 @@
 // host
 export interface HighwayHustleData {
-  players: HighwayHustleEntity[];
-  obstacles: HighwayHustleEntity[];
-  distance: number;
+  players: HighwayHustleEntity[]
+  obstacles: HighwayHustleEntity[]
+  distance: number
 }
 
 export interface HighwayHustleEntity {
-  id: string;
-  x: number;
-  y: number;
-  carType: number;
-  isDead: boolean;
+  id: string
+  x: number
+  y: number
+  carType: number
+  isDead: boolean
 }
 
 // player
 export interface HighwayHustlePlayerData {
-  score: number;
-  isDead: boolean;
-  carType: number;
+  score: number
+  isDead: boolean
+  carType: number
 }
 
 // result

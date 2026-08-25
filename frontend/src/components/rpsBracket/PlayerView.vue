@@ -66,21 +66,21 @@ interface playerDataPayload {
 // game data
 const playerData = ref<playerDataPayload>()
 
-const timerId = ref(null);
-const showMatchResultBool = ref(false);
-const firstTime = ref(true);
+const timerId = ref(null)
+const showMatchResultBool = ref(false)
+const firstTime = ref(true)
 
 function startTimer() {
   if (timerId.value) {
-    clearTimeout(timerId.value);
+    clearTimeout(timerId.value)
   }
 
-  showMatchResultBool.value = true;
+  showMatchResultBool.value = true
 
   timerId.value = setTimeout(() => {
-    showMatchResultBool.value = false;
-  }, 6000);
-};
+    showMatchResultBool.value = false
+  }, 6000)
+}
 
 function update(payload: MiniGamePayloadType) {
   switch (payload.gamestatetype()) {
@@ -150,7 +150,11 @@ function player_action(action: RPSChoice) {
 }
 
 function isResultScreen() {
-  return playerData.value.opponentChoice && playerData.value.winner != '' || playerData.value.choice != RPSChoice.None && playerData.value.choice == playerData.value.opponentChoice
+  return (
+    (playerData.value.opponentChoice && playerData.value.winner != '') ||
+    (playerData.value.choice != RPSChoice.None &&
+      playerData.value.choice == playerData.value.opponentChoice)
+  )
 }
 
 defineExpose({ update })
@@ -172,11 +176,20 @@ defineExpose({ update })
   </template>
   <template v-else-if="viewState === ViewState.MiniGame && playerData">
     <div class="flex flex-col m-2 text-center gap-4 h-full">
-      <div v-if="!showMatchResultBool && playerData.winner != '' && playerData.winner != playerData.opponentName">
+      <div
+        v-if="
+          !showMatchResultBool &&
+          playerData.winner != '' &&
+          playerData.winner != playerData.opponentName
+        "
+      >
         <span class="text text-white text-2xl mr-4">Waiting for opponent...</span>
       </div>
       <div v-else-if="!showMatchResultBool && playerData.winner != ''">
-        <span class="text text-white text-2xl mr-4">You are eliminated<br> from this tournement.</span>
+        <span class="text text-white text-2xl mr-4"
+          >You are eliminated<br />
+          from this tournement.</span
+        >
       </div>
       <div v-else class="w-full">
         <!-- top component that shows opponents name //both screens -->
@@ -199,11 +212,13 @@ defineExpose({ update })
         </div>
         <!-- card component that shows the outcome of the match //only on result screen -->
         <div v-if="isResultScreen()" class="mt-16 top-2 right-1 left-1">
-          <n-card 
-            class="text-2xl text-white w-full" 
-            :class="{ 
-              'background-green' : playerData.winner != '' && playerData.winner != playerData.opponentName, 
-              'background-red' : playerData.winner != '' && playerData.winner == playerData.opponentName
+          <n-card
+            class="text-2xl text-white w-full"
+            :class="{
+              'background-green':
+                playerData.winner != '' && playerData.winner != playerData.opponentName,
+              'background-red':
+                playerData.winner != '' && playerData.winner == playerData.opponentName
             }"
           >
             <div class="flex justify-center items-center gap-10">
@@ -211,18 +226,24 @@ defineExpose({ update })
                 <p class="text-xl mb-4">You:</p>
                 <div v-if="!Number.isNaN(playerData.choice)">
                   <img
-                  class="m-auto size-32 aspect-square"
-                  :src="`/assets/games/rpsBracket/${RPSChoiceMap[playerData.choice]?.toLowerCase()}.svg`"
+                    class="m-auto size-32 aspect-square"
+                    :src="`/assets/games/rpsBracket/${RPSChoiceMap[playerData.choice]?.toLowerCase()}.svg`"
                   />
                   {{ RPSChoiceMap[playerData.choice] }}
                 </div>
               </div>
-              <div v-if="playerData.opponentChoice && playerData.winner != '' || playerData.choice != RPSChoice.None && playerData.choice == playerData.opponentChoice">
+              <div
+                v-if="
+                  (playerData.opponentChoice && playerData.winner != '') ||
+                  (playerData.choice != RPSChoice.None &&
+                    playerData.choice == playerData.opponentChoice)
+                "
+              >
                 <p class="text-xl mb-4">{{ playerData.opponentName }}:</p>
                 <div v-if="!Number.isNaN(playerData.opponentChoice)">
                   <img
-                  class="m-auto size-32 aspect-square"
-                  :src="`/assets/games/rpsBracket/${RPSChoiceMap[playerData.opponentChoice]?.toLowerCase()}.svg`"
+                    class="m-auto size-32 aspect-square"
+                    :src="`/assets/games/rpsBracket/${RPSChoiceMap[playerData.opponentChoice]?.toLowerCase()}.svg`"
                   />
                   {{ RPSChoiceMap[playerData.opponentChoice] }}
                 </div>
@@ -264,14 +285,14 @@ defineExpose({ update })
         <div class="w-full flex mt-4 px-4 justify-center items-center">
           <div v-if="playerData.winner != '' && playerData.winner != playerData.opponentName">
             <span class="text text-white text-3xl mr-4">
-              <div> Waiting for next </div>
-              <div> match to start! </div>
+              <div>Waiting for next</div>
+              <div>match to start!</div>
             </span>
           </div>
           <div v-else-if="playerData.winner != ''">
             <span class="text text-white text-3xl mr-4">
-              <div> You are eliminated </div>
-              <div> from this tournement. </div>
+              <div>You are eliminated</div>
+              <div>from this tournement.</div>
             </span>
           </div>
         </div>
@@ -281,10 +302,10 @@ defineExpose({ update })
 </template>
 <style scoped>
 .background-green {
-  background-color: rgb(0 255 0 / .5);
+  background-color: rgb(0 255 0 / 0.5);
 }
 
 .background-red {
-  background-color: rgb(255 0 0 / .5);
+  background-color: rgb(255 0 0 / 0.5);
 }
 </style>

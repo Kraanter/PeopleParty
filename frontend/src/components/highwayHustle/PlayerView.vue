@@ -2,10 +2,17 @@
 import { ref, defineProps, computed } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
-import { GameStateType, MiniGameIntroductionPayload, MiniGamePayloadType } from '@/flatbuffers/messageClass'
+import {
+  GameStateType,
+  MiniGameIntroductionPayload,
+  MiniGamePayloadType
+} from '@/flatbuffers/messageClass'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import type { HighwayHustlePlayerData, HighwayHustleResult } from './HighwayHustleModels'
-import { parseHighwayHustlePlayerPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
+import {
+  parseHighwayHustlePlayerPayload,
+  parseHighwayHustleResultPayload
+} from './HighwayHustleProcessor'
 //import Joystick from 'vue-joystick-component'
 import JoystickComponent from '@/components/shared/JoystickComponent.vue'
 import { getPlayerSprite, getPlayerSpriteDimensions } from './HighwayHustleSpriteMap'
@@ -38,7 +45,7 @@ const intro = ref<IntroductionData>({
 const payloadData = ref<HighwayHustlePlayerData>({
   score: 0,
   isDead: false,
-  carType: 0,
+  carType: 0
 })
 
 // minigame results
@@ -73,7 +80,7 @@ const update = (data: MiniGamePayloadType) => {
     case GameStateType.HighwayHustleResult: {
       viewState.value = ViewState.Results
       results.value = parseHighwayHustleResultPayload(data)
-      break;
+      break
     }
   }
   return []
@@ -99,7 +106,6 @@ const formatOrdinals = (n: number) => {
 defineExpose({
   update
 })
-
 </script>
 <template>
   <template v-if="viewState == ViewState.Introduction">
@@ -119,9 +125,7 @@ defineExpose({
   <template v-else-if="viewState == ViewState.MiniGame">
     <div class="flex flex-col h-full w-full justify-center items-center">
       <div class="flex flex-col justify-center items-center">
-        <div class="text text-3xl mb-2">
-          your car:
-        </div>
+        <div class="text text-3xl mb-2">your car:</div>
         <img
           :src="getPlayerSprite(payloadData.carType)"
           :width="getPlayerSpriteDimensions(payloadData.carType).width * 3"
@@ -129,9 +133,7 @@ defineExpose({
         />
       </div>
       <div class="mt-12 mb-12 flex flex-col justify-center items-center">
-        <div class="text text-2xl">
-          Your score:
-        </div>
+        <div class="text text-2xl">Your score:</div>
         <div class="text text-white text-6xl mt-2 bg-gray-600 p-2 rounded-2xl">
           {{ Math.round(payloadData.score / 10) < 0 ? 0 : Math.round(payloadData.score / 10) }}
         </div>
@@ -151,7 +153,10 @@ defineExpose({
     </div>
   </template>
   <template v-else-if="viewState == ViewState.Results">
-    <div v-if="personalResult" class="flex flex-col gap-4 w-full h-full justify-center items-center">
+    <div
+      v-if="personalResult"
+      class="flex flex-col gap-4 w-full h-full justify-center items-center"
+    >
       <div class="flex flex-col justify-center items-center">
         <div class="flex flex-col justify-center items-center">
           <div class="p-6">
@@ -161,17 +166,13 @@ defineExpose({
               :height="getPlayerSpriteDimensions(payloadData.carType).height * 3"
             />
           </div>
-          <div class="text text-3xl mb-2">
-            you got:
-          </div>
+          <div class="text text-3xl mb-2">you got:</div>
           <div class="text text-6xl m-4">
             {{ formatOrdinals(personalResult.placement) }}
           </div>
         </div>
         <div class="mt-12 mb-12 flex flex-col justify-center items-center">
-          <div class="text text-2xl">
-            Your score:
-          </div>
+          <div class="text text-2xl">Your score:</div>
           <div class="text text-white text-6xl mt-4 bg-gray-600 p-2 rounded-2xl">
             {{ Math.round(personalResult.score) }}
           </div>
@@ -181,5 +182,4 @@ defineExpose({
   </template>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

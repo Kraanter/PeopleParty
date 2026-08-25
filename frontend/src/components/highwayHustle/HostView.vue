@@ -7,12 +7,24 @@ import {
   MiniGameIntroductionPayload,
   type MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
-import { type HighwayHustleData, type HighwayHustleResult, type HighwayHustleResultPair } from './HighwayHustleModels'
-import { parseHighwayHustleHostPayload, parseHighwayHustleResultPayload } from './HighwayHustleProcessor'
+import {
+  type HighwayHustleData,
+  type HighwayHustleResult,
+  type HighwayHustleResultPair
+} from './HighwayHustleModels'
+import {
+  parseHighwayHustleHostPayload,
+  parseHighwayHustleResultPayload
+} from './HighwayHustleProcessor'
 import { Application } from 'vue3-pixi'
 import { Graphics, Sprite, Text, TextStyle, CanvasTextMetrics } from 'pixi.js'
 import { watch } from 'vue'
-import { getPlayerSprite, getPlayerSpriteDimensions, getObstacleSprite, getObstacleDimensions} from './HighwayHustleSpriteMap'
+import {
+  getPlayerSprite,
+  getPlayerSpriteDimensions,
+  getObstacleSprite,
+  getObstacleDimensions
+} from './HighwayHustleSpriteMap'
 
 const props = defineProps<{
   width: number
@@ -39,7 +51,7 @@ const intro = ref<IntroductionData>({
 const payloadData = ref<HighwayHustleData>({
   players: [],
   obstacles: [],
-  distance: 0,
+  distance: 0
 })
 
 // const interpolatePosition = (entity: HighwayHustlePlayer): HighwayHustlePlayer => {
@@ -77,7 +89,7 @@ const update = (data: MiniGamePayloadType) => {
     case GameStateType.HighwayHustleResult: {
       viewState.value = ViewState.Results
       results.value = parseHighwayHustleResultPayload(data)
-      break;
+      break
     }
   }
   return []
@@ -107,14 +119,14 @@ const render = (graphics: Graphics) => {
 
   if (viewState.value == ViewState.Results) {
     // draw placement 'bracket'
-    graphics.lineStyle(3, 0xFFFFFF)
-    let localLeaderboardLocations: { x: number, y: number }[] = [];
+    graphics.lineStyle(3, 0xffffff)
+    let localLeaderboardLocations: { x: number; y: number }[] = []
 
     for (let i = 0; i < 12; i++) {
-      let y = (i + 1) * verticalSpacing - verticalSpacing / 2 - 2 * i;
-      if (y >= canvasHeight) y -= canvasHeight;
+      let y = (i + 1) * verticalSpacing - verticalSpacing / 2 - 2 * i
+      if (y >= canvasHeight) y -= canvasHeight
 
-      const x = canvasWidth - (canvasWidth / 15) * i - 50;
+      const x = canvasWidth - (canvasWidth / 15) * i - 50
 
       localLeaderboardLocations.push({ x, y })
 
@@ -128,11 +140,11 @@ const render = (graphics: Graphics) => {
       graphics.lineTo(x - 20, y + 20)
     }
 
-    playerLeaderboardLocations.value = localLeaderboardLocations;
+    playerLeaderboardLocations.value = localLeaderboardLocations
   }
 }
 
-const playerLeaderboardLocations = ref<{ x: number, y: number }[]>([])
+const playerLeaderboardLocations = ref<{ x: number; y: number }[]>([])
 
 const applicationId = ref(0)
 
@@ -145,7 +157,7 @@ watch(
       const oldObj = oldVal.find((obj) => obj.id === newObj.id)
       if (!oldObj) {
         // force rerender of the application
-        applicationId.value += 1;
+        applicationId.value += 1
       }
     })
   },
@@ -166,27 +178,38 @@ const formatOrdinals = (n: number) => {
   return `${n}${suffix}`
 }
 
-const getResultSpritePostions = (entity: HighwayHustleResultPair, index: number): { x: number, y: number } => {
+const getResultSpritePostions = (
+  entity: HighwayHustleResultPair,
+  index: number
+): { x: number; y: number } => {
   if (!playerLeaderboardLocations.value[index]) {
     return { x: -100, y: 0 }
   }
   return {
-    x: playerLeaderboardLocations.value[index].x 
-      - getPlayerSpriteDimensions(payloadData.value.players.find(a => a.id === entity.name).carType).width * 1.5 
-      - 10,
-    y: playerLeaderboardLocations.value[index].y 
-      - getPlayerSpriteDimensions(payloadData.value.players.find(a => a.id === entity.name).carType).height * 1.5 / 2}
+    x:
+      playerLeaderboardLocations.value[index].x -
+      getPlayerSpriteDimensions(payloadData.value.players.find((a) => a.id === entity.name).carType)
+        .width *
+        1.5 -
+      10,
+    y:
+      playerLeaderboardLocations.value[index].y -
+      (getPlayerSpriteDimensions(
+        payloadData.value.players.find((a) => a.id === entity.name).carType
+      ).height *
+        1.5) /
+        2
+  }
 }
 
-const style = new TextStyle(
-  { 
-    fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
-    fontSize: 18,
-    fill: 'white',
-    stroke: 'black',
-    // @ts-expect-error: 'strokeThickness' is not in TextStyleOptions type, but is valid for PixiJS, the new format breaks it
-    strokeThickness: 4 // use string key to bypass TS error
-  });
+const style = new TextStyle({
+  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+  fontSize: 18,
+  fill: 'white',
+  stroke: 'black',
+  // @ts-expect-error: 'strokeThickness' is not in TextStyleOptions type, but is valid for PixiJS, the new format breaks it
+  strokeThickness: 4 // use string key to bypass TS error
+})
 const getCenteredTextPosition = (text: string, x: number): number => {
   const metrics = CanvasTextMetrics.measureText(text, style)
   return x - metrics.width / 2
@@ -195,7 +218,6 @@ const getCenteredTextPosition = (text: string, x: number): number => {
 defineExpose({
   update
 })
-
 </script>
 <template>
   <div class="h-full">
@@ -205,16 +227,19 @@ defineExpose({
     <div v-else-if="viewState == ViewState.MiniGame || viewState == ViewState.Results">
       <div class="flex flex-col h-full w-full justify-center items-center">
         <div class="text-4xl m-6">
-          <span v-if="viewState == ViewState.MiniGame">Score: {{ Math.max(0, Math.round(payloadData.distance / 10)) }}</span>
+          <span v-if="viewState == ViewState.MiniGame"
+            >Score: {{ Math.max(0, Math.round(payloadData.distance / 10)) }}</span
+          >
           <!-- empty span to keep the layout consistent -->
           <span v-else>Minigame Result</span>
         </div>
         <div class="absolute top-0 text text-white z-10">
           <div class="flex flex-col justify-center items-center mt-64">
-            <div v-if="Math.round(payloadData.distance / 10) < 0 && viewState != ViewState.Results" class="text-4xl flex flex-col justify-center items-center">
-              <div>
-                Check on your screen which car you are!
-              </div>
+            <div
+              v-if="Math.round(payloadData.distance / 10) < 0 && viewState != ViewState.Results"
+              class="text-4xl flex flex-col justify-center items-center"
+            >
+              <div>Check on your screen which car you are!</div>
               <div>
                 Racing starts in {{ Math.abs(Math.round(payloadData.distance / 1000)) }} seconds
               </div>
@@ -225,10 +250,10 @@ defineExpose({
           <!-- black background, for when the application is rerendering -->
           <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
           <div class="relative">
-            <Application :width="800" :height="530" background-color="black" >
+            <Application :width="800" :height="530" background-color="black">
               <Graphics :x="0" :y="0" @render="render" />
               <template v-if="viewState == ViewState.MiniGame && payloadData.players.length > 0">
-                <template v-for="(entity) in payloadData.obstacles" :key="entity.id">
+                <template v-for="entity in payloadData.obstacles" :key="entity.id">
                   <Sprite
                     :position="{ x: entity.x || 0, y: entity.y || 0 }"
                     :width="getObstacleDimensions(entity.carType).width * 1.5"
@@ -236,7 +261,7 @@ defineExpose({
                     :texture="getObstacleSprite(entity.carType)"
                   />
                 </template>
-                <template v-for="(entity) in payloadData.players" :key="entity.id">
+                <template v-for="entity in payloadData.players" :key="entity.id">
                   <Sprite
                     :position="{ x: entity.x, y: entity.y }"
                     :width="getPlayerSpriteDimensions(entity.carType).width * 1.5"
@@ -253,31 +278,66 @@ defineExpose({
                   <!-- // player name in game -->
                   <Text
                     :position="{
-                      x: getCenteredTextPosition(`${entity.id}`, entity.x) + getPlayerSpriteDimensions(entity.carType).width * 1.5 / 2,
+                      x:
+                        getCenteredTextPosition(`${entity.id}`, entity.x) +
+                        (getPlayerSpriteDimensions(entity.carType).width * 1.5) / 2,
                       y: entity.y - 18 * 1.5
                     }"
                     :text="`${entity.id}`"
-                    :style="{fontFamily: ['Helvetica', 'Arial', 'sans-serif'], fontSize: 18, fill: 'white', stroke: 'black', strokeThickness: 4}"
+                    :style="{
+                      fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+                      fontSize: 18,
+                      fill: 'white',
+                      stroke: 'black',
+                      strokeThickness: 4
+                    }"
                   />
-                  </template>
+                </template>
               </template>
-              <template v-if="viewState == ViewState.Results && results.results.length > 0 && playerLeaderboardLocations.length > 0">
+              <template
+                v-if="
+                  viewState == ViewState.Results &&
+                  results.results.length > 0 &&
+                  playerLeaderboardLocations.length > 0
+                "
+              >
                 <template v-for="(entity, i) in results.results" :key="entity.name">
                   <Sprite
                     :position="getResultSpritePostions(entity, i)"
-                    :width="getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5"
-                    :height="getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).height * 1.5"
-                    :texture="getPlayerSprite(payloadData.players.find(a => a.id === entity.name).carType)"
+                    :width="
+                      getPlayerSpriteDimensions(
+                        payloadData.players.find((a) => a.id === entity.name).carType
+                      ).width * 1.5
+                    "
+                    :height="
+                      getPlayerSpriteDimensions(
+                        payloadData.players.find((a) => a.id === entity.name).carType
+                      ).height * 1.5
+                    "
+                    :texture="
+                      getPlayerSprite(payloadData.players.find((a) => a.id === entity.name).carType)
+                    "
                   />
                   <!-- // player name in minigame result -->
                   <Text
                     :position="{
-                      x: getCenteredTextPosition(`${entity.name}`, playerLeaderboardLocations[i].x) 
-                        - getPlayerSpriteDimensions(payloadData.players.find(a => a.id === entity.name).carType).width * 1.5 / 2,
+                      x:
+                        getCenteredTextPosition(`${entity.name}`, playerLeaderboardLocations[i].x) -
+                        (getPlayerSpriteDimensions(
+                          payloadData.players.find((a) => a.id === entity.name).carType
+                        ).width *
+                          1.5) /
+                          2,
                       y: getResultSpritePostions(entity, i).y - 18 * 1.5
                     }"
                     :text="`${entity.name}`"
-                    :style="{fontFamily: ['Helvetica', 'Arial', 'sans-serif'], fontSize: 18, fill: 'white', stroke: 'black', strokeThickness: 4}"
+                    :style="{
+                      fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+                      fontSize: 18,
+                      fill: 'white',
+                      stroke: 'black',
+                      strokeThickness: 4
+                    }"
                   />
                   <Text
                     :position="{
@@ -285,7 +345,7 @@ defineExpose({
                       y: playerLeaderboardLocations[i].y - 15
                     }"
                     :text="`${formatOrdinals(entity.placement)}.`"
-                    style="fill: white;"
+                    style="fill: white"
                   />
                 </template>
               </template>
@@ -297,5 +357,4 @@ defineExpose({
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

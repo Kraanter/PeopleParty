@@ -7,9 +7,17 @@ import {
   MiniGameIntroductionPayload,
   type MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
-import { type UnscrambledHostData, type UnscrambledResults, type UnscrambledRoundResults } from './UnscrambledModels'
+import {
+  type UnscrambledHostData,
+  type UnscrambledResults,
+  type UnscrambledRoundResults
+} from './UnscrambledModels'
 import { NScrollbar, NCard } from 'naive-ui'
-import { parseUnscrambledHostPayload, parseUnscrambledResults, parseUnscrambledRoundResults } from './UnscrambledProcessor'
+import {
+  parseUnscrambledHostPayload,
+  parseUnscrambledResults,
+  parseUnscrambledRoundResults
+} from './UnscrambledProcessor'
 
 const props = defineProps<{
   width: number
@@ -36,7 +44,7 @@ const intro = ref<IntroductionData>({
 const gameData = ref<UnscrambledHostData>({
   time: 0,
   round: 0,
-  scrambled_word: '',
+  scrambled_word: ''
 })
 
 // round results
@@ -90,7 +98,6 @@ const update = (data: MiniGamePayloadType) => {
 defineExpose({
   update
 })
-
 </script>
 <template>
   <div class="h-full">

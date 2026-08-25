@@ -246,11 +246,11 @@ defineExpose({
   <template v-else-if="viewState == ViewState.RoundPrep">
     <div class="flex flex-col items-center justify-center w-full h-full p-6">
       <div class="text-4xl text-white font-bold mb-6">Round {{ roundPrepData.current_round }}</div>
-      <div class="text-2xl text-white mb-6">Starting in {{ formatTime(roundPrepData.time_left) }}s</div>
+      <div class="text-2xl text-white mb-6">
+        Starting in {{ formatTime(roundPrepData.time_left) }}s
+      </div>
 
-      <div
-        :class="[getRoundPrepTeamColor(), 'p-6 rounded-lg mb-4']"
-      >
+      <div :class="[getRoundPrepTeamColor(), 'p-6 rounded-lg mb-4']">
         <div class="text-3xl text-white font-bold text-center">{{ getRoundPrepTeamName() }}</div>
       </div>
     </div>
@@ -285,7 +285,11 @@ defineExpose({
       </div>
 
       <div class="text-white text-center text-lg mb-4">
-        {{ payloadData.is_still_playing ? 'Move the joystick UP/DOWN to control your paddle!' : 'Watch the game on the big screen!' }}
+        {{
+          payloadData.is_still_playing
+            ? 'Move the joystick UP/DOWN to control your paddle!'
+            : 'Watch the game on the big screen!'
+        }}
       </div>
     </div>
   </template>
@@ -301,15 +305,11 @@ defineExpose({
         <div
           v-if="isInNextRound()"
           class="text-4xl text-white font-bold p-6 rounded-lg"
-          :class="[
-            getNextTeamName() === 'Team A (Green)' ? 'bg-green-700' : 'bg-red-700'
-          ]"
+          :class="[getNextTeamName() === 'Team A (Green)' ? 'bg-green-700' : 'bg-red-700']"
         >
           You're in {{ getNextTeamName() }}!
         </div>
-        <div v-else class="text-3xl text-red-500 font-bold">
-          You've been eliminated!
-        </div>
+        <div v-else class="text-3xl text-red-500 font-bold">You've been eliminated!</div>
       </template>
       <template v-else>
         <div class="text-3xl text-white">Game Over!</div>
@@ -323,9 +323,13 @@ defineExpose({
       class="flex flex-col gap-4 w-full h-full justify-center items-center p-4"
     >
       <div class="text-5xl text-white font-bold mb-4">You placed:</div>
-      <div class="text-8xl text-white font-bold mb-6">{{ formatOrdinals(personalResult.placement) }}</div>
+      <div class="text-8xl text-white font-bold mb-6">
+        {{ formatOrdinals(personalResult.placement) }}
+      </div>
 
-      <div class="flex flex-col justify-center items-center bg-gray-800 bg-opacity-70 rounded-lg p-6">
+      <div
+        class="flex flex-col justify-center items-center bg-gray-800 bg-opacity-70 rounded-lg p-6"
+      >
         <div class="text-2xl text-white mb-2">Rounds Won:</div>
         <div class="text-6xl text-white font-bold">{{ personalResult.rounds_won }}</div>
       </div>

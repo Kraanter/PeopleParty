@@ -18,9 +18,7 @@ import { TeambasedPongResultPayload } from '@/flatbuffers/teambased-pong-result-
 import { TeambasedPongRoundPrepPayload } from '@/flatbuffers/teambased-pong-round-prep-payload'
 
 export function parseTeambasedPongHostPayload(data: MiniGamePayloadType): TeambasedPongHostData {
-  const payload: TeambasedPongHostPayload = data.gamestatepayload(
-    new TeambasedPongHostPayload()
-  )
+  const payload: TeambasedPongHostPayload = data.gamestatepayload(new TeambasedPongHostPayload())
 
   const team_a_players: TeamPlayer[] = []
   for (let i = 0; i < payload.teamAPlayersLength(); i++) {
@@ -77,9 +75,7 @@ export function parseTeambasedPongPlayerPayload(
   }
 }
 
-export function parseTeambasedPongRoundResult(
-  data: MiniGamePayloadType
-): TeambasedPongRoundResult {
+export function parseTeambasedPongRoundResult(data: MiniGamePayloadType): TeambasedPongRoundResult {
   const payload: TeambasedPongRoundResultPayload = data.gamestatepayload(
     new TeambasedPongRoundResultPayload()
   )

@@ -10,11 +10,15 @@ import {
 import {
   type RightOnTimeData,
   type RightOnTimeRoundResults,
-  type RightOnTimeResults,
+  type RightOnTimeResults
 } from './RightOnTimeModels'
 import { NScrollbar, NCard } from 'naive-ui'
-import { parseRightOnTimePayload, parseRightOnTimeResults, parseRightOnTimeRoundResults } from './RightOnTimeProcessor'
-import FlipClock from './components/FlipClock.vue';
+import {
+  parseRightOnTimePayload,
+  parseRightOnTimeResults,
+  parseRightOnTimeRoundResults
+} from './RightOnTimeProcessor'
+import FlipClock from './components/FlipClock.vue'
 
 const props = defineProps<{
   width: number
@@ -97,7 +101,6 @@ const update = (data: MiniGamePayloadType) => {
 defineExpose({
   update
 })
-
 </script>
 <template>
   <div class="h-full">
@@ -113,13 +116,18 @@ defineExpose({
           </div>
           <div class="flex justify-center">
             <span class="text-6xl flex justify-center mt-7 mr-6">Target: </span>
-            <span class="text-primary text-9xl flex justify-center">{{ (payloadData.target / 1000).toFixed(0) }}s</span>
+            <span class="text-primary text-9xl flex justify-center"
+              >{{ (payloadData.target / 1000).toFixed(0) }}s</span
+            >
           </div>
         </div>
       </div>
       <div class="flex flex-col h-full w-full justify-center items-center">
         <div class="mt-16">
-          <flip-clock :number="Number((payloadData.time / 1000).toFixed(0))" :class="{ 'fade-out-button': payloadData.fade_out }"/>
+          <flip-clock
+            :number="Number((payloadData.time / 1000).toFixed(0))"
+            :class="{ 'fade-out-button': payloadData.fade_out }"
+          />
         </div>
         <div class="mt-12">
           <span class="text text-white text-6xl">Watch out! The clock can disapear anytime.</span>
@@ -135,13 +143,19 @@ defineExpose({
           </div>
           <div class="flex justify-center">
             <span class="text-6xl flex justify-center mt-7 mr-6">Target: </span>
-            <span class="text-primary text-9xl flex justify-center">{{ (payloadData.target / 1000).toFixed(0) }}s</span>
+            <span class="text-primary text-9xl flex justify-center"
+              >{{ (payloadData.target / 1000).toFixed(0) }}s</span
+            >
           </div>
         </div>
         <p class="text-4xl w-full text-center text-white mt-4">Round results:</p>
         <n-scrollbar class="-mb-4">
           <div class="grid gap-4">
-            <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in roundResultsData.results" :key="i">
+            <div
+              class="mx-auto mb-2 w-4/5"
+              v-for="(player, i) in roundResultsData.results"
+              :key="i"
+            >
               <n-card>
                 <div class="w-full inline-flex justify-between text-2xl px-1">
                   <p class="inline-flex">
@@ -149,8 +163,17 @@ defineExpose({
                     ><span class="font-bold col-span-5">{{ player.player }}</span>
                   </p>
                   <p>
-                    <span v-if="player.diff == roundResultsData.target">Not pressed (+<span class="font-bold">{{ roundResultsData.target/1000 }}</span>s)</span>
-                    <span v-else>difference: <span class="font-bold">{{ (player.diff / 1000).toFixed(1) }}</span>s</span>
+                    <span v-if="player.diff == roundResultsData.target"
+                      >Not pressed (+<span class="font-bold">{{
+                        roundResultsData.target / 1000
+                      }}</span
+                      >s)</span
+                    >
+                    <span v-else
+                      >difference:
+                      <span class="font-bold">{{ (player.diff / 1000).toFixed(1) }}</span
+                      >s</span
+                    >
                   </p>
                 </div>
               </n-card>
@@ -177,7 +200,7 @@ defineExpose({
           <div class="grid gap-4">
             <div class="mx-auto mb-2 w-4/5" v-for="(player, i) in resultsData.results" :key="i">
               <n-card>
-                <div class="w-full inline-flex justify-between text-2xl px-1 pr-6"> 
+                <div class="w-full inline-flex justify-between text-2xl px-1 pr-6">
                   <p class="inline-flex w-1/2">
                     <span class="w-16">{{ i + 1 }}.</span
                     ><span class="font-bold col-span-5">{{ player.name }}</span>
@@ -196,7 +219,9 @@ defineExpose({
                   </p>
                   <p>
                     <span v-if="player.average_diff_time == 0">Not pressed</span>
-                    <span v-else class="font-bold">{{ (player.average_diff_time / 1000).toFixed(1) }}s</span>
+                    <span v-else class="font-bold"
+                      >{{ (player.average_diff_time / 1000).toFixed(1) }}s</span
+                    >
                   </p>
                 </div>
               </n-card>
@@ -210,11 +235,15 @@ defineExpose({
 
 <style scoped>
 @keyframes fade-out {
-  from {opacity: 100%;}
-  to {opacity: 0%;}
+  from {
+    opacity: 100%;
+  }
+  to {
+    opacity: 0%;
+  }
 }
 
-.fade-out-button{
+.fade-out-button {
   animation: fade-out 3s forwards;
 }
 </style>

@@ -1,8 +1,8 @@
-export const minigamePlayerBoundExceptions: { name: string, min: number, max: number }[] = [
-    { name: "rps_bracket", min: 2, max: 64 },
-    { name: "highway_hustle", min: 2, max: 12 },
-    { name: "memory_mixer", min: 2, max: -1 },
-    { name: "teambased_pong", min: 2, max: -1 },
+export const minigamePlayerBoundExceptions: { name: string; min: number; max: number }[] = [
+  { name: 'rps_bracket', min: 2, max: 64 },
+  { name: 'highway_hustle', min: 2, max: 12 },
+  { name: 'memory_mixer', min: 2, max: -1 },
+  { name: 'teambased_pong', min: 2, max: -1 }
 ]
 
 // default min = 1

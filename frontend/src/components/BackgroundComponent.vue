@@ -1,72 +1,62 @@
 <script setup lang="ts">
-import { type ObservablePoint } from 'pixi.js'
-import { Application, onTick } from 'vue3-pixi'
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useColorStore } from '@/stores/colorStore'
-import { storeToRefs } from 'pinia'
 
-const colorStore = useColorStore()
-const { colorPalette } = storeToRefs(colorStore)
-
-const bgTexture = '/drawing.png'
-
-// @ts-ignore
-const bgScale: ObservablePoint = { x: 0.3, y: 0.3 }
-
-// Use non-reactive position that resets to prevent infinite growth
-let xPosition = 0
-const ANIMATION_SPEED = 0.5
-const RESET_THRESHOLD = 512 * bgScale.x // multiple with the scale
-// needs to be a multiple of 512 (image width)
-
-// Create reactive position that updates efficiently
-const bgPos = ref({ x: 0, y: 0 })
-
-// Optimized animation loop
-onTick(() => {
-  // Increment internal position
-  xPosition += ANIMATION_SPEED
-  
-  // Reset position periodically to prevent infinite growth
-  if (xPosition >= RESET_THRESHOLD) {
-    xPosition = 0
-  }
-  
-  // Update reactive position (only when necessary)
-  bgPos.value = { x: xPosition, y: 0 }
-})
-
-const width = ref(window.innerWidth)
-const height = ref(window.innerHeight)
-
-// Optimized resize function
-const resize = () => {
-  width.value = window.innerWidth
-  height.value = window.innerHeight
+// --color-secondary-dark is a live CSS custom property maintained by colorStore.ts
+// regardless of who reads it, so tinting works here with zero store import.
+const isHidden = ref(document.hidden)
+const handleVisibilityChange = () => {
+  isHidden.value = document.hidden
 }
 
-// Properly manage event listeners
 onMounted(() => {
-  window.addEventListener('resize', resize, { passive: true })
+  document.addEventListener('visibilitychange', handleVisibilityChange)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', resize)
-  // Reset position on cleanup
-  xPosition = 0
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 </script>
 
 <template>
-  <Application :width :height :background-alpha="0">
-    <tiling-sprite
-      :width
-      :height
-      :texture="bgTexture"
-      :tile-scale="bgScale"
-      :tint="colorPalette.secondary.dark.number"
-      :tile-position="bgPos"
-    >
-    </tiling-sprite>
-  </Application>
+  <div
+    class="scrolling-background"
+    :class="{ 'scrolling-background--paused': isHidden }"
+    aria-hidden="true"
+  ></div>
 </template>
+
+<style scoped>
+.scrolling-background {
+  --bg-tile-size: 153.6px;
+  background-color: var(--color-secondary-dark);
+  pointer-events: none;
+  -webkit-mask-image: url('/drawing.png');
+  mask-image: url('/drawing.png');
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: var(--bg-tile-size) var(--bg-tile-size);
+  mask-size: var(--bg-tile-size) var(--bg-tile-size);
+  animation: bg-scroll 5.12s linear infinite;
+}
+
+.scrolling-background--paused {
+  animation-play-state: paused;
+}
+
+@keyframes bg-scroll {
+  from {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+  to {
+    -webkit-mask-position: calc(var(--bg-tile-size) * -1) 0;
+    mask-position: calc(var(--bg-tile-size) * -1) 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrolling-background {
+    animation: none;
+  }
+}
+</style>

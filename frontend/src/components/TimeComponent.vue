@@ -9,7 +9,7 @@ const props = defineProps<{
 const { timeLeft } = toRefs(props)
 
 let previousTime = timeLeft.value
-const recentlyChanged = ref(true);
+const recentlyChanged = ref(true)
 
 watch(timeLeft, (newTime: number) => {
   if (newTime !== previousTime) {
@@ -21,7 +21,6 @@ watch(timeLeft, (newTime: number) => {
     recentlyChanged.value = false
   }, 1000)
 })
-
 
 const timeIsLow = computed(() => timeLeft.value < 15 * 1000)
 </script>

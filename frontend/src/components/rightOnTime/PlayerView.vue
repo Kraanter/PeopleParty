@@ -9,7 +9,7 @@ import {
   MiniGameIntroductionPayload,
   MiniGamePayloadType,
   Payload,
-  RightOnTimePayload,
+  RightOnTimePayload
 } from '@/flatbuffers/messageClass'
 import { type RightOnTimeData, type RightOnTimeResults } from './RightOnTimeModels'
 import * as flatbuffers from 'flatbuffers'
@@ -154,7 +154,6 @@ function onTap() {
 defineExpose({
   update
 })
-
 </script>
 <template>
   <template v-if="viewState == ViewState.Introduction">
@@ -179,7 +178,9 @@ defineExpose({
           <span class="text-primary text-7xl flex justify-center">{{ payloadData.round }}</span>
         </div>
         <div class="grid grid-rows-1 grid-cols-1">
-          <div class="flex justify-center mt-8 mb-16 relative overflow-visible tems-center h-full w-full">
+          <div
+            class="flex justify-center mt-8 mb-16 relative overflow-visible tems-center h-full w-full"
+          >
             <div class="eject-button-hit-area" @click="onTap">
               <button :disabled="submitted" class="eject-button" tabindex="-1">
                 <span v-if="submitted">Locked</span>
@@ -189,11 +190,25 @@ defineExpose({
           </div>
         </div>
         <div class="grid grid-rows-2 grid-cols-2 justify-center mt-24">
-          <span class="text-4xl flex justify-center mb-2" :class="{'col-span-2': !submitted}">Target: </span>
+          <span class="text-4xl flex justify-center mb-2" :class="{ 'col-span-2': !submitted }"
+            >Target:
+          </span>
           <span class="text-4xl flex justify-center mb-2" v-if="submitted">Got: </span>
-          <span class="text-primary text-7xl flex justify-center" :class="{'col-span-2': !submitted}">{{ payloadData.target / 1000 }}s</span>
-          <span class="text-primary text-7xl flex justify-center" style="margin-top: -8px;" v-if="submitted">
-            <span class="text-3xl flex flex-col justify-center items-center" v-if="roundResultTime == 0"><span>Not</span><span>pressed</span>(+{{ payloadData.target / 1000 }}s diff)</span>
+          <span
+            class="text-primary text-7xl flex justify-center"
+            :class="{ 'col-span-2': !submitted }"
+            >{{ payloadData.target / 1000 }}s</span
+          >
+          <span
+            class="text-primary text-7xl flex justify-center"
+            style="margin-top: -8px"
+            v-if="submitted"
+          >
+            <span
+              class="text-3xl flex flex-col justify-center items-center"
+              v-if="roundResultTime == 0"
+              ><span>Not</span><span>pressed</span>(+{{ payloadData.target / 1000 }}s diff)</span
+            >
             <span v-else>{{ roundResultTime / 1000 }}s</span>
           </span>
         </div>

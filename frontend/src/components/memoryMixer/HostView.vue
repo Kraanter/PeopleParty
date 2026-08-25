@@ -147,7 +147,9 @@ defineExpose({
         </div>
         <div v-if="grid.phase == 0" class="mt-8">
           <p class="text-4xl w-full text-center text-white">Memorise the icons!</p>
-          <p class="text-2xl w-full text-center text-primary">When the time is up,<br>select the shown icon.</p>
+          <p class="text-2xl w-full text-center text-primary">
+            When the time is up,<br />select the shown icon.
+          </p>
         </div>
         <div v-else>
           <p class="text-4xl w-full text-center mt-8 text-white">Answers locked:</p>

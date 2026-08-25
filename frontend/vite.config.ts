@@ -4,9 +4,10 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import { compilerOptions, transformAssetUrls } from 'vue3-pixi'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     vue({
       template: {
@@ -17,6 +18,11 @@ export default defineConfig({
       },
     }),
     VueDevTools(),
+    // Only runs on `npm run build:analyze` (vite build --mode analyze) so a normal
+    // build/CI/Docker run stays untouched.
+    ...(mode === 'analyze'
+      ? [visualizer({ filename: 'dist/stats.html', gzipSize: true, brotliSize: true, open: true })]
+      : []),
   ],
   resolve: {
     alias: {
@@ -31,5 +37,31 @@ export default defineConfig({
         ws: true,
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Vite's own tiny dynamic-import runtime helper. Left unhandled, Rollup can
+          // hoist its canonical definition into whichever named vendor chunk below is
+          // also one of its consumers (pixi.js/vue3-pixi use dynamic import internally),
+          // which then forces the entry chunk to eagerly import that entire vendor
+          // chunk on every page load — defeating the point of splitting it out.
+          if (id.includes('vite/preload-helper')) {
+            return 'vite-runtime'
+          }
+          const normalizedId = id.replace(/\\/g, '/')
+          if (
+            normalizedId.includes('node_modules/pixi.js/') ||
+            normalizedId.includes('node_modules/vue3-pixi/')
+          ) {
+            return 'pixi'
+          }
+          if (normalizedId.includes('node_modules/naive-ui/')) {
+            return 'naive-ui'
+          }
+        }
+      }
+    }
   }
-})
+}))

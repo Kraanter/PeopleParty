@@ -12,15 +12,10 @@ import { useWebSocketStore } from '@/stores/confettiStore'
 
 const websocketStore = useWebSocketStore()
 
-
 export const sendPlayerAction = (minigameName: string, x: number, y: number) => {
   const builder = new flatbuffers.Builder()
 
-  const playerInput = JoystickDataPayload.createJoystickDataPayload(
-    builder,
-    x,
-    y,
-  )
+  const playerInput = JoystickDataPayload.createJoystickDataPayload(builder, x, y)
 
   const miniGame = builder.createString(minigameName)
 
@@ -40,7 +35,7 @@ export const sendPlayerAction = (minigameName: string, x: number, y: number) => 
 export const sendPlayerEvent = (minigameName: string, event: string) => {
   const builder = new flatbuffers.Builder()
 
-  let eventType: JoystickEventType;
+  let eventType: JoystickEventType
   switch (event) {
     case 'start':
       eventType = JoystickEventType.Start
@@ -53,10 +48,7 @@ export const sendPlayerEvent = (minigameName: string, event: string) => {
       break
   }
 
-  const playerInput = JoystickEventPayload.createJoystickEventPayload(
-    builder,
-    eventType,
-  )
+  const playerInput = JoystickEventPayload.createJoystickEventPayload(builder, eventType)
 
   const miniGame = builder.createString(minigameName)
 

@@ -1,202 +1,274 @@
 <script setup lang="ts">
-import { useWebSocketStore } from '@/stores/confettiStore';
-import { NInputNumber, NSwitch, NSlider, } from 'naive-ui'
+import { useWebSocketStore } from '@/stores/confettiStore'
+import { NInputNumber, NSwitch, NSlider } from 'naive-ui'
 import * as flatbuffers from 'flatbuffers'
-import { MessageType, PartyPrepPayload, PartyPrepPayloadType, PartyPrepSettingsMiniGamePayload, PartyPrepSettingsRoundsPayload, PartyPrepType, Payload } from '@/flatbuffers/messageClass';
-import { buildMessage } from '@/util/flatbufferMessageBuilder';
-import { minigamePlayerBoundExceptions } from './minigamePlayerBounds';
+import {
+  MessageType,
+  PartyPrepPayload,
+  PartyPrepPayloadType,
+  PartyPrepSettingsMiniGamePayload,
+  PartyPrepSettingsRoundsPayload,
+  PartyPrepType,
+  Payload
+} from '@/flatbuffers/messageClass'
+import { buildMessage } from '@/util/flatbufferMessageBuilder'
+import { minigamePlayerBoundExceptions } from './minigamePlayerBounds'
 import { defineProps } from 'vue'
 
 const websocketStore = useWebSocketStore()
 
 // input playerCount
 defineProps<{
-    playerCount: number
+  playerCount: number
 }>()
 
 const handleChange = (value: boolean) => {
-    if (!value) {
-        //websocketStore.partyPrepSettings.number_of_rounds = websocketStore.partyPrepSettings.minigames.length
-        sendNewNumberOfRounds(websocketStore.partyPrepSettings.minigames.length)
-    } else {
-        //websocketStore.partyPrepSettings.number_of_rounds = 0
-        sendNewNumberOfRounds(0)
-    }
+  if (!value) {
+    //websocketStore.partyPrepSettings.number_of_rounds = websocketStore.partyPrepSettings.minigames.length
+    sendNewNumberOfRounds(websocketStore.partyPrepSettings.minigames.length)
+  } else {
+    //websocketStore.partyPrepSettings.number_of_rounds = 0
+    sendNewNumberOfRounds(0)
+  }
 }
 
 const handleNumberChange = (value: number) => {
-    sendNewNumberOfRounds(value)
+  sendNewNumberOfRounds(value)
 }
 
 const nameToFirstLetterCapital = (name: string) => {
-    if (!name.includes('_')) return name
+  if (!name.includes('_')) return name
 
-    name = name.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.substring(1)).join(' ')
+  name = name
+    .replace('_', ' ')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.substring(1))
+    .join(' ')
 
-    return nameToFirstLetterCapital(name)
+  return nameToFirstLetterCapital(name)
 }
 
 const minigameIsOutOfBounds = (name: string, enabled: boolean, playerCount: number) => {
-    if (playerCount <= 0) return false
-    if (!enabled) return false
-    const minigame = minigamePlayerBoundExceptions.find(mg => mg.name === name)
-    if (!minigame) return false // no exception so no bounds
+  if (playerCount <= 0) return false
+  if (!enabled) return false
+  const minigame = minigamePlayerBoundExceptions.find((mg) => mg.name === name)
+  if (!minigame) return false // no exception so no bounds
 
-    if (minigame.min > 0 && playerCount < minigame.min) return true
-    if (minigame.max > 0 && playerCount > minigame.max) return true
+  if (minigame.min > 0 && playerCount < minigame.min) return true
+  if (minigame.max > 0 && playerCount > minigame.max) return true
 
-    return false
+  return false
 }
 
 // flatbuffer functions
 const sendToggleMiniGame = (name: string, enable: boolean) => {
-    let builder = new flatbuffers.Builder()
+  let builder = new flatbuffers.Builder()
 
-    let miniGameMessage = PartyPrepSettingsMiniGamePayload.createPartyPrepSettingsMiniGamePayload(
-        builder,
-        builder.createString(name),
-        enable
-    )
+  let miniGameMessage = PartyPrepSettingsMiniGamePayload.createPartyPrepSettingsMiniGamePayload(
+    builder,
+    builder.createString(name),
+    enable
+  )
 
-    let message = PartyPrepPayloadType.createPartyPrepPayloadType(
-        builder,
-        PartyPrepType.PartyPrepSettingsMiniGame,
-        PartyPrepPayload.PartyPrepSettingsMiniGamePayload,
-        miniGameMessage
-    )
+  let message = PartyPrepPayloadType.createPartyPrepPayloadType(
+    builder,
+    PartyPrepType.PartyPrepSettingsMiniGame,
+    PartyPrepPayload.PartyPrepSettingsMiniGamePayload,
+    miniGameMessage
+  )
 
-    websocketStore.sendMessage(
-        buildMessage(builder, message, MessageType.PartyPrep, Payload.PartyPrepPayloadType)
-    )
+  websocketStore.sendMessage(
+    buildMessage(builder, message, MessageType.PartyPrep, Payload.PartyPrepPayloadType)
+  )
 }
 
 const sendNewNumberOfRounds = (newNumber: number) => {
-    let builder = new flatbuffers.Builder()
+  let builder = new flatbuffers.Builder()
 
-    let miniGameMessage = PartyPrepSettingsRoundsPayload.createPartyPrepSettingsRoundsPayload(
-        builder,
-        BigInt(newNumber)
-    )
+  let miniGameMessage = PartyPrepSettingsRoundsPayload.createPartyPrepSettingsRoundsPayload(
+    builder,
+    BigInt(newNumber)
+  )
 
-    let message = PartyPrepPayloadType.createPartyPrepPayloadType(
-        builder,
-        PartyPrepType.PartyPrepSettingsRounds,
-        PartyPrepPayload.PartyPrepSettingsRoundsPayload,
-        miniGameMessage
-    )
+  let message = PartyPrepPayloadType.createPartyPrepPayloadType(
+    builder,
+    PartyPrepType.PartyPrepSettingsRounds,
+    PartyPrepPayload.PartyPrepSettingsRoundsPayload,
+    miniGameMessage
+  )
 
-    websocketStore.sendMessage(
-        buildMessage(builder, message, MessageType.PartyPrep, Payload.PartyPrepPayloadType)
-    )
+  websocketStore.sendMessage(
+    buildMessage(builder, message, MessageType.PartyPrep, Payload.PartyPrepPayloadType)
+  )
 }
 
 const formatTooltip = (value: number) => {
-    return `${Math.round(value*200)}%`
+  return `${Math.round(value * 200)}%`
 }
 
 const updateVolume = (value: number) => {
-    websocketStore.partyPrepSettings.music_volume = value
+  websocketStore.partyPrepSettings.music_volume = value
 }
-
 </script>
 <template>
   <div class="w-full h-full max-h-full">
     <div class="grid max-h-full h-full w-full">
-
-        <div class="row-span-1 grid grid-cols-3 mb-5">
-            <div class="col-span-1">
-                Music volume:
-            </div>
-            <div class="col-span-2 w-2/3 flex gap-5">
-                <span>Volume:</span>
-                <n-slider :default-value="websocketStore.partyPrepSettings.music_volume" :step="0.025" :min="0.0" :max="0.5" :format-tooltip="formatTooltip" :on-update:value="updateVolume" />
-                <span>{{ formatTooltip(websocketStore.partyPrepSettings.music_volume) }}</span>
-            </div>
+      <div class="row-span-1 grid grid-cols-3 mb-5">
+        <div class="col-span-1">Music volume:</div>
+        <div class="col-span-2 w-2/3 flex gap-5">
+          <span>Volume:</span>
+          <n-slider
+            :default-value="websocketStore.partyPrepSettings.music_volume"
+            :step="0.025"
+            :min="0.0"
+            :max="0.5"
+            :format-tooltip="formatTooltip"
+            :on-update:value="updateVolume"
+          />
+          <span>{{ formatTooltip(websocketStore.partyPrepSettings.music_volume) }}</span>
         </div>
+      </div>
 
-        <div class="row-span-1 grid grid-cols-3">
-            <div class="col-span-1">
-                Ammount of minigames:
+      <div class="row-span-1 grid grid-cols-3">
+        <div class="col-span-1">Ammount of minigames:</div>
+        <div class="col-span-2 h-full w-full">
+          <div class="grid grid-cols-2 mb-4">
+            <span>Loop:</span>
+            <div>
+              <n-switch
+                class=""
+                v-model:value="websocketStore.partyPrepSettings.loop"
+                @update:value="handleChange"
+              />
             </div>
-            <div class="col-span-2 h-full w-full">
-                <div class="grid grid-cols-2 mb-4">
-                    <span>Loop:</span> 
-                    <div><n-switch class="" v-model:value="websocketStore.partyPrepSettings.loop" @update:value="handleChange"/></div>
-                    
-                </div>
-                <div v-if="!websocketStore.partyPrepSettings.loop" class="grid grid-cols-2 mb-4">
-                    <span>Number of rounds (minigames): </span>
-                    <n-input-number 
-                        class="w-24"
-                        placeholder="0"
-                        :min="0"
-                        :max="999"
-                        v-model:value="websocketStore.partyPrepSettings.number_of_rounds"
-                        @update:value="handleNumberChange"
-                    >
-                    </n-input-number>
-                </div>
-            </div>
+          </div>
+          <div v-if="!websocketStore.partyPrepSettings.loop" class="grid grid-cols-2 mb-4">
+            <span>Number of rounds (minigames): </span>
+            <n-input-number
+              class="w-24"
+              placeholder="0"
+              :min="0"
+              :max="999"
+              v-model:value="websocketStore.partyPrepSettings.number_of_rounds"
+              @update:value="handleNumberChange"
+            >
+            </n-input-number>
+          </div>
         </div>
+      </div>
 
-        <div class="row-span-1 grid grid-cols-3 mt-4">
-            <div class="col-span-1">
-                Sellect minigames:
-            </div>
-            <div class="col-span-2">
-                <div class="mb-2">
-                    <span>Click to enable or disable</span>
-                </div>
-                <div class="grid grid-cols-3 rounded-xl" style="background-color: rgb(0 0 0 / .4)">
-                    <div v-for="(miniGame, i) in websocketStore.partyPrepSettings.minigames" :key="i" class="m-2 mb-1 mt-1">
-                        <div :class="{ 'mt-2' : i < 3 }">
-                            <button v-on:click="sendToggleMiniGame(miniGame.name, !miniGame.enabled)" class="h-full w-full">
-                                <div v-if="!miniGame.enabled" class="fixed h-full w-full z-40 rounded-xl" style="border: 5px solid red;"></div>
-                                <div v-else-if="minigameIsOutOfBounds(miniGame.name, miniGame.enabled, playerCount)" class="absolute h-full w-full z-40 rounded-xl" style="border: 5px solid orange"></div>
-                                <div v-else-if="miniGame.enabled" class="fixed h-full w-full z-40 rounded-xl" style="border: 5px solid green;"></div>
+      <div class="row-span-1 grid grid-cols-3 mt-4">
+        <div class="col-span-1">Sellect minigames:</div>
+        <div class="col-span-2">
+          <div class="mb-2">
+            <span>Click to enable or disable</span>
+          </div>
+          <div class="grid grid-cols-3 rounded-xl" style="background-color: rgb(0 0 0 / 0.4)">
+            <div
+              v-for="(miniGame, i) in websocketStore.partyPrepSettings.minigames"
+              :key="i"
+              class="m-2 mb-1 mt-1"
+            >
+              <div :class="{ 'mt-2': i < 3 }">
+                <button
+                  v-on:click="sendToggleMiniGame(miniGame.name, !miniGame.enabled)"
+                  class="h-full w-full"
+                >
+                  <div
+                    v-if="!miniGame.enabled"
+                    class="fixed h-full w-full z-40 rounded-xl"
+                    style="border: 5px solid red"
+                  ></div>
+                  <div
+                    v-else-if="minigameIsOutOfBounds(miniGame.name, miniGame.enabled, playerCount)"
+                    class="absolute h-full w-full z-40 rounded-xl"
+                    style="border: 5px solid orange"
+                  ></div>
+                  <div
+                    v-else-if="miniGame.enabled"
+                    class="fixed h-full w-full z-40 rounded-xl"
+                    style="border: 5px solid green"
+                  ></div>
 
-                                <div v-if="!miniGame.enabled" class="fixed h-full w-full z-30 rounded-xl" style="background-color: rgb(0 0 0 / .6)"></div>
-                                <img
-                                    v-if="miniGame.image !== ''"
-                                    :src="miniGame.image" 
-                                    alt="logo"
-                                    class="h-full w-full rounded-xl"
-                                />
-                                
-                                <div v-else class="h-full w-full flex justify-center items-center">
-                                    <img src="assets/games/crazyCounting/crazyCountingLogo.svg" alt="logo" class="h-full w-full opacity-0 rounded-xl"/>
-                                    <!-- This ^ is not really the way to do it, but it makes sure the empty placeholder is the same size -->
-                                    <div class="absolute h-full w-full flex justify-center items-center">
-                                        <span class="text-2xl">{{ nameToFirstLetterCapital(miniGame.name) }}</span>
-                                    </div>
-                                </div>
+                  <div
+                    v-if="!miniGame.enabled"
+                    class="fixed h-full w-full z-30 rounded-xl"
+                    style="background-color: rgb(0 0 0 / 0.6)"
+                  ></div>
+                  <img
+                    v-if="miniGame.image !== ''"
+                    :src="miniGame.image"
+                    alt="logo"
+                    class="h-full w-full rounded-xl"
+                  />
 
-                                <!-- recommended amount of players -->
-                                <div v-if="playerCount > 0 && minigameIsOutOfBounds(miniGame.name, miniGame.enabled, playerCount)" class="absolute left-2 bottom-2">
-                                    <div class="rounded-xl px-2 py-1 flex items-center gap-1" style="background-color: rgb(255 255 255);">
-                                        <img :src="`./assets/person.svg`" class="h-4 w-4"/>
-                                        <span class="text-sm font-bold text-black">
-                                            {{
-                                                    minigamePlayerBoundExceptions.find(mg => mg.name === miniGame.name)?.min + (minigamePlayerBoundExceptions.find(mg => mg.name === miniGame.name)?.max && minigamePlayerBoundExceptions.find(mg => mg.name === miniGame.name)?.max > 0 ? ' - ' + minigamePlayerBoundExceptions.find(mg => mg.name === miniGame.name)?.max : '+')
-                                            }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </button>
-                        </div>
-                        <div class="ml-2" style="margin-top: -0.4rem;">
-                            <span class="text text-black">{{ nameToFirstLetterCapital(miniGame.name) }}</span>
-                        </div>
+                  <div v-else class="h-full w-full flex justify-center items-center">
+                    <img
+                      src="assets/games/crazyCounting/crazyCountingLogo.svg"
+                      alt="logo"
+                      class="h-full w-full opacity-0 rounded-xl"
+                    />
+                    <!-- This ^ is not really the way to do it, but it makes sure the empty placeholder is the same size -->
+                    <div class="absolute h-full w-full flex justify-center items-center">
+                      <span class="text-2xl">{{ nameToFirstLetterCapital(miniGame.name) }}</span>
                     </div>
-                </div>
-                <!-- Warning if a minigame is out of bounds -->
-                <div v-if="websocketStore.partyPrepSettings.minigames.some(mg => minigameIsOutOfBounds(mg.name, mg.enabled, playerCount))" class="mt-2 p-2 rounded-xl" style="background-color: rgb(255 0 0 / .5);">
-                    <span class="text-black">Some minigames do not meet the player count requirement. These minigames will be skipped</span>
-                </div>
-            </div>
-        </div>
+                  </div>
 
-        <!-- <div class="row-span-1 grid grid-cols-3">
+                  <!-- recommended amount of players -->
+                  <div
+                    v-if="
+                      playerCount > 0 &&
+                      minigameIsOutOfBounds(miniGame.name, miniGame.enabled, playerCount)
+                    "
+                    class="absolute left-2 bottom-2"
+                  >
+                    <div
+                      class="rounded-xl px-2 py-1 flex items-center gap-1"
+                      style="background-color: rgb(255 255 255)"
+                    >
+                      <img :src="`./assets/person.svg`" class="h-4 w-4" />
+                      <span class="text-sm font-bold text-black">
+                        {{
+                          minigamePlayerBoundExceptions.find((mg) => mg.name === miniGame.name)
+                            ?.min +
+                          (minigamePlayerBoundExceptions.find((mg) => mg.name === miniGame.name)
+                            ?.max &&
+                          minigamePlayerBoundExceptions.find((mg) => mg.name === miniGame.name)
+                            ?.max > 0
+                            ? ' - ' +
+                              minigamePlayerBoundExceptions.find((mg) => mg.name === miniGame.name)
+                                ?.max
+                            : '+')
+                        }}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              </div>
+              <div class="ml-2" style="margin-top: -0.4rem">
+                <span class="text text-black">{{ nameToFirstLetterCapital(miniGame.name) }}</span>
+              </div>
+            </div>
+          </div>
+          <!-- Warning if a minigame is out of bounds -->
+          <div
+            v-if="
+              websocketStore.partyPrepSettings.minigames.some((mg) =>
+                minigameIsOutOfBounds(mg.name, mg.enabled, playerCount)
+              )
+            "
+            class="mt-2 p-2 rounded-xl"
+            style="background-color: rgb(255 0 0 / 0.5)"
+          >
+            <span class="text-black"
+              >Some minigames do not meet the player count requirement. These minigames will be
+              skipped</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="row-span-1 grid grid-cols-3">
             <div class="col-span-1">
                 The name of setting
             </div>
@@ -204,20 +276,21 @@ const updateVolume = (value: number) => {
                 the sellector / setting itself
             </div>
         </div> -->
-
     </div>
   </div>
 </template>
 <style scoped>
-.n-input-number :deep(button), button {
-  box-shadow: 0.0rem 0.0rem 0 #000 !important;
+.n-input-number :deep(button),
+button {
+  box-shadow: 0rem 0rem 0 #000 !important;
   transition:
     transform 0.1s ease-in-out,
     box-shadow 0.1s ease-in-out !important;
 }
 
-.n-input-number :deep(button):active, button {
+.n-input-number :deep(button):active,
+button {
   transform: translate(0.1rem, 0.1rem) !important;
-  box-shadow: 0.0rem 0.0rem 0 #000 !important;
+  box-shadow: 0rem 0rem 0 #000 !important;
 }
 </style>

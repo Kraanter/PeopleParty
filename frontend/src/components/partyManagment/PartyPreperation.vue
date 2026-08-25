@@ -33,7 +33,7 @@ const emit = defineEmits(['click'])
             <PartyButton
               @click="showSettings = !showSettings"
               btnClass="flex justify-center items-center"
-            ><span class="text-xl">{{ showSettings ? 'Players' : 'Settings' }}</span>
+              ><span class="text-xl">{{ showSettings ? 'Players' : 'Settings' }}</span>
             </PartyButton>
           </div>
         </div>

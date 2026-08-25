@@ -1,12 +1,12 @@
-import type { MiniGamePayloadType } from "@/flatbuffers/mini-game-payload-type"
+import type { MiniGamePayloadType } from '@/flatbuffers/mini-game-payload-type'
 
 // NEW schema imports — adjust paths to your generated files
-import { MarbleManiaHostPayload } from "@/flatbuffers/marble-mania-host-payload"
-import { FBEntityType } from "@/flatbuffers/fbentity-type"
-import { FBShape } from "@/flatbuffers/fbshape"
-import { FBCircle } from "@/flatbuffers/fbcircle"
-import { FBRect } from "@/flatbuffers/fbrect"
-import { FBPoly } from "@/flatbuffers/fbpoly"
+import { MarbleManiaHostPayload } from '@/flatbuffers/marble-mania-host-payload'
+import { FBEntityType } from '@/flatbuffers/fbentity-type'
+import { FBShape } from '@/flatbuffers/fbshape'
+import { FBCircle } from '@/flatbuffers/fbcircle'
+import { FBRect } from '@/flatbuffers/fbrect'
+import { FBPoly } from '@/flatbuffers/fbpoly'
 // end new schema imports
 
 import type {
@@ -16,10 +16,10 @@ import type {
   MarbleManiaResult,
   MarbleManiaResultPair,
   MMShape
-} from "./MarbleManiaModels"
+} from './MarbleManiaModels'
 
-import { MarbleManiaResultPayload } from "@/flatbuffers/marble-mania-result-payload"
-import { MarbleManiaPlayerPayload } from "@/flatbuffers/marble-mania-player-payload"
+import { MarbleManiaResultPayload } from '@/flatbuffers/marble-mania-result-payload'
+import { MarbleManiaPlayerPayload } from '@/flatbuffers/marble-mania-player-payload'
 
 export function parseMarbleManiaHostPayload(data: MiniGamePayloadType): MarbleManiaData {
   const payload = data.gamestatepayload(new MarbleManiaHostPayload())
@@ -30,8 +30,7 @@ export function parseMarbleManiaHostPayload(data: MiniGamePayloadType): MarbleMa
 
     // type
     const typeEnum = e.type()
-    const type: MarbleManiaEntity["type"] =
-      typeEnum === FBEntityType.Marble ? "marble" : "obstacle"
+    const type: MarbleManiaEntity['type'] = typeEnum === FBEntityType.Marble ? 'marble' : 'obstacle'
 
     // center position
     const posObj = e.pos()!
@@ -42,12 +41,12 @@ export function parseMarbleManiaHostPayload(data: MiniGamePayloadType): MarbleMa
     switch (e.shapeType()) {
       case FBShape.FBCircle: {
         const c = e.shape(new FBCircle())!
-        shape = { kind: "circle", radius: c.radius() }
+        shape = { kind: 'circle', radius: c.radius() }
         break
       }
       case FBShape.FBRect: {
         const r = e.shape(new FBRect())!
-        shape = { kind: "rect", width: r.width(), height: r.height() }
+        shape = { kind: 'rect', width: r.width(), height: r.height() }
         break
       }
       case FBShape.FBPoly: {
@@ -57,7 +56,7 @@ export function parseMarbleManiaHostPayload(data: MiniGamePayloadType): MarbleMa
           const v = p.vertices(vi)!
           verts.push({ x: v.x(), y: v.y() })
         }
-        shape = { kind: "poly", vertices: verts }
+        shape = { kind: 'poly', vertices: verts }
         break
       }
       default:
@@ -72,7 +71,7 @@ export function parseMarbleManiaHostPayload(data: MiniGamePayloadType): MarbleMa
       rotation: e.rotation(),
       finished: e.finished(),
       player_name: e.playerName() ? decodeURI(e.playerName()!) : undefined,
-      shape: shape!,
+      shape: shape!
     })
   }
 

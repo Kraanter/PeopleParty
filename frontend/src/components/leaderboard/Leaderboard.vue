@@ -70,8 +70,8 @@ const amountOfPlayersVoteSkipped = computed(() => {
 })
 
 const minPlayersToSkip = computed(() => {
-  const min = Math.ceil((leaderboard?.value?.players.length ?? 1) / 2);
-  return min == 0 ? 1 : min;
+  const min = Math.ceil((leaderboard?.value?.players.length ?? 1) / 2)
+  return min == 0 ? 1 : min
 })
 
 const skipLeaderboard = () => {
@@ -124,9 +124,15 @@ const skipVotePlayerLeaderboard = () => {
     <div class="flex flex-col gap-4 w-full h-full">
       <PeoplePartyHeader />
       <div class="h-full w-full overflow-hidden">
-        <div v-if="websocketStore.isPaused" class="fixed left-0 h-full w-full justify-center items-center z-30">
-          <div style="background-color: rgb(0 0 0 / .4)" class="fixed flex h-full w-full justify-center items-center z-30">
-            <div style="background-color: rgb(0 0 0 / .65);" class="rounded-xl mb-32">
+        <div
+          v-if="websocketStore.isPaused"
+          class="fixed left-0 h-full w-full justify-center items-center z-30"
+        >
+          <div
+            style="background-color: rgb(0 0 0 / 0.4)"
+            class="fixed flex h-full w-full justify-center items-center z-30"
+          >
+            <div style="background-color: rgb(0 0 0 / 0.65)" class="rounded-xl mb-32">
               <span class="text-6xl text-white m-3 flex">Game is paused</span>
             </div>
           </div>
@@ -134,7 +140,7 @@ const skipVotePlayerLeaderboard = () => {
         </div>
       </div>
       <div class="w-full grid grid-cols-3 grid-rows-1 px-24">
-        <div v-if="leaderboard.podium" class="col-start-1" >
+        <div v-if="leaderboard.podium" class="col-start-1">
           <span class="text-6xl text-black ml-12">Podium</span>
         </div>
         <div class="col-start-2 mx-auto">
@@ -144,7 +150,9 @@ const skipVotePlayerLeaderboard = () => {
           <div>
             <div v-if="amountOfPlayersVoteSkipped !== 0" class="mt-2">
               <span class="text-2xl text-primary">players voted to skip: </span>
-              <span class="text-2xl font-bold">{{ amountOfPlayersVoteSkipped }} / {{ minPlayersToSkip }}</span>
+              <span class="text-2xl font-bold"
+                >{{ amountOfPlayersVoteSkipped }} / {{ minPlayersToSkip }}</span
+              >
             </div>
           </div>
           <div class="mx-auto mt-2">
@@ -154,26 +162,33 @@ const skipVotePlayerLeaderboard = () => {
                 viewBox="0 0 24 24"
                 fill="currentColor"
                 class="size-12 text-white mx-8"
-                >
+              >
                 <path
-                d="M5.055 7.06C3.805 6.347 2.25 7.25 2.25 8.69v8.122c0 1.44 1.555 2.343 2.805 1.628L12 14.471v2.34c0 1.44 1.555 2.343 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256l-7.108-4.061C13.555 6.346 12 7.249 12 8.689v2.34L5.055 7.061Z"
+                  d="M5.055 7.06C3.805 6.347 2.25 7.25 2.25 8.69v8.122c0 1.44 1.555 2.343 2.805 1.628L12 14.471v2.34c0 1.44 1.555 2.343 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256l-7.108-4.061C13.555 6.346 12 7.249 12 8.689v2.34L5.055 7.061Z"
                 />
               </svg>
             </PartyButton>
           </div>
         </div>
       </div>
-      <div v-if="leaderboard.podium && sortedLeaderboard.length > 2" style="height: 75vh;">
+      <div v-if="leaderboard.podium && sortedLeaderboard.length > 2" style="height: 75vh">
         <!-- podium -->
         <n-scrollbar class="-mb-4">
           <div class="mx-auto mb-4 w-4/5 mt-4" v-for="(player, i) in sortedLeaderboard" :key="i">
             <!-- First 3 -->
             <div v-if="i == 0" class="grid grid-cols-3">
-              <div v-for="(player2, i) in sortedLeaderboard.slice(0, 3)" :key="i" class="ml-8 mr-8" :class="{'pos-1': i == 0, 'pos-2': i == 1, 'pos-3': i == 2}">
+              <div
+                v-for="(player2, i) in sortedLeaderboard.slice(0, 3)"
+                :key="i"
+                class="ml-8 mr-8"
+                :class="{ 'pos-1': i == 0, 'pos-2': i == 1, 'pos-3': i == 2 }"
+              >
                 <n-card class="flex extended">
                   <div class="w-full text-2xl flex justify-center items-center">
                     <div class="flex justify-center items-center">
-                      <span class="font-bold ml-4 text-4xl col-span-5 mt-8">{{ player2.name }}</span>
+                      <span class="font-bold ml-4 text-4xl col-span-5 mt-8">{{
+                        player2.name
+                      }}</span>
                     </div>
                     <div class="absolute bottom-0 mb-4">
                       <span class="font-bold">{{ formatOrdinals(i + 1) }}.</span> with
@@ -189,7 +204,11 @@ const skipVotePlayerLeaderboard = () => {
                 <div class="w-full inline-flex justify-between text-2xl px-4">
                   <p class="inline-flex">
                     <!-- don't show ordinals if placement is the same -->
-                    <span class="w-16"><span v-if="i + 1 === player.position">{{ formatOrdinals(i + 1) }}.</span></span>
+                    <span class="w-16"
+                      ><span v-if="i + 1 === player.position"
+                        >{{ formatOrdinals(i + 1) }}.</span
+                      ></span
+                    >
                     <span class="font-bold ml-4 col-span-5">{{ player.name }}</span>
                   </p>
                   <p>
@@ -201,7 +220,7 @@ const skipVotePlayerLeaderboard = () => {
           </div>
         </n-scrollbar>
       </div>
-      <div v-else style="height: 75vh;">
+      <div v-else style="height: 75vh">
         <!-- normal leaderboard-->
         <n-scrollbar class="h-full">
           <div class="mx-auto mb-4 w-4/5" v-for="(player, i) in sortedLeaderboard" :key="i">
@@ -209,8 +228,13 @@ const skipVotePlayerLeaderboard = () => {
               <div class="w-full inline-flex justify-between text-2xl px-4">
                 <p class="inline-flex">
                   <!-- don't show ordinals if placement is the same -->
-                  <span class="w-16"><span v-if="i + 1 === player.position">{{ formatOrdinals(i + 1) }}.</span></span>
-                  <span v-if="!leaderboard.podium"
+                  <span class="w-16"
+                    ><span v-if="i + 1 === player.position"
+                      >{{ formatOrdinals(i + 1) }}.</span
+                    ></span
+                  >
+                  <span
+                    v-if="!leaderboard.podium"
                     class="w-12"
                     :class="player.deltaPosition > 0 ? 'text-green-600' : 'text-red-600'"
                   >
@@ -254,7 +278,7 @@ const skipVotePlayerLeaderboard = () => {
                 <p>
                   <span class="font-bold">{{ player.score }}</span> Points
                   <span
-                    v-if="!leaderboard.podium" 
+                    v-if="!leaderboard.podium"
                     class="text-base"
                     :class="player.deltaScore > 0 ? 'text-green-600' : 'text-gray-600'"
                   >
@@ -271,9 +295,15 @@ const skipVotePlayerLeaderboard = () => {
   </div>
   <div v-if="!websocketStore.isHosting" class="flex flex-col gap-4 h-full overflow">
     <!-- pause screen -->
-    <div v-if="websocketStore.isPaused" class="fixed h-full w-full top-0 left-0 justify-center items-center z-30">
-      <div style="background-color: rgb(0 0 0 / .4)" class="fixed flex h-full w-full justify-center items-center z-30">
-        <div style="background-color: rgb(0 0 0 / .65);" class="rounded-xl m-4">
+    <div
+      v-if="websocketStore.isPaused"
+      class="fixed h-full w-full top-0 left-0 justify-center items-center z-30"
+    >
+      <div
+        style="background-color: rgb(0 0 0 / 0.4)"
+        class="fixed flex h-full w-full justify-center items-center z-30"
+      >
+        <div style="background-color: rgb(0 0 0 / 0.65)" class="rounded-xl m-4">
           <span class="text-6xl text-white m-3 flex">Game is paused</span>
         </div>
       </div>
@@ -297,7 +327,9 @@ const skipVotePlayerLeaderboard = () => {
           <div class="w-full inline-flex justify-between text-2xl px-1">
             <p class="inline-flex">
               <!-- don't show ordinals if placement is the same -->
-              <span class="w-16"><span v-if="i + 1 === player.position">{{ formatOrdinals(i + 1) }}.</span></span>
+              <span class="w-16"
+                ><span v-if="i + 1 === player.position">{{ formatOrdinals(i + 1) }}.</span></span
+              >
               <span class="font-bold col-span-5">{{ player.name }}</span>
             </p>
             <p>
@@ -308,7 +340,7 @@ const skipVotePlayerLeaderboard = () => {
       </div>
     </n-scrollbar>
     <!-- vote skip button -->
-     <div v-if="!playerVoteSkipped" class="absolute bottom-0 w-full flex justify-center mb-14">
+    <div v-if="!playerVoteSkipped" class="absolute bottom-0 w-full flex justify-center mb-14">
       <div>
         <PartyButton btnClass="pb-3 px-3" @click="skipVotePlayerLeaderboard">
           <span class="text-xl">Vote Skip</span>
@@ -321,7 +353,7 @@ const skipVotePlayerLeaderboard = () => {
 .pos-1 {
   grid-column-start: 2;
   grid-row-start: 1;
-  
+
   .extended {
     background-color: #ffd700;
     height: 40vh;
@@ -332,7 +364,7 @@ const skipVotePlayerLeaderboard = () => {
   grid-column-start: 1;
   grid-row-start: 1;
   align-self: flex-end;
-  
+
   .extended {
     background-color: #c0c0c0;
     height: 30vh;

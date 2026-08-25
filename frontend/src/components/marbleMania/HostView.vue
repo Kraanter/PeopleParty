@@ -13,16 +13,18 @@ import {
   type MarbleManiaEntity,
   type MMVec2
 } from './MarbleManiaModels'
-import {
-  parseMarbleManiaHostPayload,
-  parseMarbleManiaResultPayload
-} from './MarbleManiaProcessor'
+import { parseMarbleManiaHostPayload, parseMarbleManiaResultPayload } from './MarbleManiaProcessor'
 import { Application } from 'vue3-pixi'
 import { Graphics, Sprite, Text, TextStyle, CanvasTextMetrics } from 'pixi.js'
 
 defineProps<{ width: number; height: number }>()
 
-enum ViewState { None, Introduction, MiniGame, Results }
+enum ViewState {
+  None,
+  Introduction,
+  MiniGame,
+  Results
+}
 const viewState = ref<ViewState>(ViewState.None)
 
 // Container dimensions
@@ -68,7 +70,7 @@ const colorPalette = [
   0x84cc16, // Lime
   0xf472b6, // Pink
   0x6366f1, // Indigo
-  0x14b8a6  // Teal
+  0x14b8a6 // Teal
 ]
 
 const getPlayerColor = (playerId: string): number => {
@@ -102,30 +104,30 @@ const updateCamera = () => {
     cameraOffset.value.y = targetY
     return
   }
-  
+
   // Find the lowest marble (highest Y value since Y increases downward)
-  const lowestMarble = marbles.reduce((lowest, marble) => 
+  const lowestMarble = marbles.reduce((lowest, marble) =>
     marble.pos.y > lowest.pos.y && !marble.finished ? marble : lowest
   )
-  
+
   // Calculate camera viewport height in world units
   const worldWidth = payloadData.value.world_max.x - payloadData.value.world_min.x
-  
+
   // How much world space does our fixed camera viewport cover?
   const cameraWorldHeight = (canvasHeight.value / canvasWidth.value) * worldWidth // Maintain aspect ratio
 
   // Position camera so lowest marble appears at 66% down from the top of viewport
-  let targetCameraTop = lowestMarble.pos.y - (cameraWorldHeight * 0.66)
-  
+  let targetCameraTop = lowestMarble.pos.y - cameraWorldHeight * 0.66
+
   // Clamp camera so it doesn't go beyond world boundaries
   const maxCameraTop = payloadData.value.world_max.y - cameraWorldHeight
   const minCameraTop = payloadData.value.world_min.y
-  
+
   targetCameraTop = Math.max(minCameraTop, Math.min(maxCameraTop, targetCameraTop))
-  
+
   // Smooth camera interpolation - gradually move toward target
   smoothedCameraY.value += (targetCameraTop - smoothedCameraY.value) * cameraSmoothing
-  
+
   cameraOffset.value.y = smoothedCameraY.value
   cameraOffset.value.x = payloadData.value.world_min.x // Always show full width
 }
@@ -159,9 +161,9 @@ const update = (data: MiniGamePayloadType) => {
         payloadData.value.placement_time_left = newData.placement_time_left
         payloadData.value.finish_line_y = newData.finish_line_y
         // Update marble positions and finished states
-        payloadData.value.entities = payloadData.value.entities.map(e => {
+        payloadData.value.entities = payloadData.value.entities.map((e) => {
           if (e.type !== 'marble') return e // Only update marbles
-          const updated = newData.entities.find(ne => ne.id === e.id && ne.type === 'marble')
+          const updated = newData.entities.find((ne) => ne.id === e.id && ne.type === 'marble')
           return updated ? { ...e, pos: updated.pos, finished: updated.finished } : e
         })
       }
@@ -207,27 +209,28 @@ const PAD = 10 // border padding
 
 const worldToScreen = (w: MMVec2) => {
   const worldWidth = payloadData.value.world_max.x - payloadData.value.world_min.x
-  
+
   // Calculate how much world space our camera viewport covers
   const cameraWorldHeight = (canvasHeight.value / canvasWidth.value) * worldWidth
-  
+
   // Camera world bounds
   const cameraWorldMin = {
     x: cameraOffset.value.x,
     y: cameraOffset.value.y
   }
-  
+
   // Map world coordinates to screen coordinates within the camera viewport
-  const x = (w.x - cameraWorldMin.x) * (canvasWidth.value - 2 * PAD) / worldWidth + PAD
-  const y = (w.y - cameraWorldMin.y) * (canvasHeight.value - 2 * PAD) / cameraWorldHeight + PAD
-  
+  const x = ((w.x - cameraWorldMin.x) * (canvasWidth.value - 2 * PAD)) / worldWidth + PAD
+  const y = ((w.y - cameraWorldMin.y) * (canvasHeight.value - 2 * PAD)) / cameraWorldHeight + PAD
+
   return { x, y }
 }
 
 const getEntityCenter = (e: MarbleManiaEntity) => worldToScreen(e.pos)
 
 const rotateLocal = (v: MMVec2, rot: number): MMVec2 => {
-  const c = Math.cos(rot), s = Math.sin(rot)
+  const c = Math.cos(rot),
+    s = Math.sin(rot)
   return { x: v.x * c - v.y * s, y: v.x * s + v.y * c }
 }
 
@@ -237,19 +240,19 @@ const add = (a: MMVec2, b: MMVec2): MMVec2 => ({ x: a.x + b.x, y: a.y + b.y })
 const isEntityInCameraView = (entity: MarbleManiaEntity): boolean => {
   const worldWidth = payloadData.value.world_max.x - payloadData.value.world_min.x
   const cameraWorldHeight = (canvasHeight.value / canvasWidth.value) * worldWidth
-  
+
   // Current camera bounds in world coordinates
   const cameraMinX = cameraOffset.value.x
   const cameraMaxX = cameraOffset.value.x + worldWidth
   const cameraMinY = cameraOffset.value.y
   const cameraMaxY = cameraOffset.value.y + cameraWorldHeight
-  
+
   // Calculate entity bounds with some margin for edge cases
   let entityMinX = entity.pos.x
   let entityMaxX = entity.pos.x
   let entityMinY = entity.pos.y
   let entityMaxY = entity.pos.y
-  
+
   // Add entity size-based margins
   if (entity.shape.kind === 'circle') {
     const radius = entity.shape.radius
@@ -278,17 +281,21 @@ const isEntityInCameraView = (entity: MarbleManiaEntity): boolean => {
     entityMinY -= maxExtent
     entityMaxY += maxExtent
   }
-  
+
   // Add extra margin to prevent pop-in/pop-out
   const margin = 50 // World units
   entityMinX -= margin
   entityMaxX += margin
   entityMinY -= margin
   entityMaxY += margin
-  
+
   // Check if entity bounds intersect with camera bounds
-  return !(entityMaxX < cameraMinX || entityMinX > cameraMaxX || 
-           entityMaxY < cameraMinY || entityMinY > cameraMaxY)
+  return !(
+    entityMaxX < cameraMinX ||
+    entityMinX > cameraMaxX ||
+    entityMaxY < cameraMinY ||
+    entityMinY > cameraMaxY
+  )
 }
 
 // ---------- Drawing primitives ----------
@@ -306,11 +313,12 @@ const renderMarble = (g: Graphics, e: MarbleManiaEntity) => {
   // Get player-specific color
   const playerId = e.player_name || e.id
   const playerColor = getPlayerColor(playerId)
-  
+
   // Calculate darker border color (reduce brightness by ~40%)
-  const borderColor = Math.floor((playerColor & 0xff) * 0.6) |
-                     (Math.floor(((playerColor >> 8) & 0xff) * 0.6) << 8) |
-                     (Math.floor(((playerColor >> 16) & 0xff) * 0.6) << 16)
+  const borderColor =
+    Math.floor((playerColor & 0xff) * 0.6) |
+    (Math.floor(((playerColor >> 8) & 0xff) * 0.6) << 8) |
+    (Math.floor(((playerColor >> 16) & 0xff) * 0.6) << 16)
 
   g.lineStyle(2, borderColor)
   g.beginFill(playerColor)
@@ -318,10 +326,11 @@ const renderMarble = (g: Graphics, e: MarbleManiaEntity) => {
   g.endFill()
 
   // little highlight (lighter version of player color)
-  const highlightColor = Math.min(255, Math.floor((playerColor & 0xff) * 1.3)) |
-                        (Math.min(255, Math.floor(((playerColor >> 8) & 0xff) * 1.3)) << 8) |
-                        (Math.min(255, Math.floor(((playerColor >> 16) & 0xff) * 1.3)) << 16)
-  
+  const highlightColor =
+    Math.min(255, Math.floor((playerColor & 0xff) * 1.3)) |
+    (Math.min(255, Math.floor(((playerColor >> 8) & 0xff) * 1.3)) << 8) |
+    (Math.min(255, Math.floor(((playerColor >> 16) & 0xff) * 1.3)) << 16)
+
   g.lineStyle(0)
   g.beginFill(highlightColor, 0.6)
   g.drawCircle(center.x - r * 0.3, center.y - r * 0.3, r * 0.3)
@@ -354,27 +363,27 @@ const renderRectObstacle = (g: Graphics, e: MarbleManiaEntity) => {
     { x: -hw, y: +hh }
   ]
   // rotate + translate to world, then map to screen
-  const pts = corners.map(c => {
+  const pts = corners.map((c) => {
     const world = add(e.pos, rotateLocal(c, e.rotation || 0))
     return worldToScreen(world)
   })
 
   g.lineStyle(2, 0x333333)
   g.beginFill(0x8b4513)
-  g.drawPolygon(pts.flatMap(p => [p.x, p.y]))
+  g.drawPolygon(pts.flatMap((p) => [p.x, p.y]))
   g.endFill()
 }
 
 const renderPolyObstacle = (g: Graphics, e: MarbleManiaEntity) => {
   if (e.shape.kind !== 'poly') return
-  const pts = e.shape.vertices.map(v => {
+  const pts = e.shape.vertices.map((v) => {
     const world = add(e.pos, rotateLocal(v, e.rotation || 0))
     return worldToScreen(world)
   })
 
   g.lineStyle(2, 0x333333)
   g.beginFill(0xb8860b)
-  g.drawPolygon(pts.flatMap(p => [p.x, p.y]))
+  g.drawPolygon(pts.flatMap((p) => [p.x, p.y]))
   g.endFill()
 }
 
@@ -382,50 +391,56 @@ const renderPolyObstacle = (g: Graphics, e: MarbleManiaEntity) => {
 const renderOffScreenIndicators = (g: Graphics) => {
   const marbles = getMarbles()
   const cameraMinY = cameraOffset.value.y
-  
+
   // Find marbles that are above the camera view (have lower Y values than camera min)
-  const offScreenMarbles = marbles.filter(marble => {
+  const offScreenMarbles = marbles.filter((marble) => {
     // Marble is above camera view if its Y position is less than camera minimum Y
     return marble.pos.y < cameraMinY
   })
-  
+
   // Render indicators for off-screen marbles
-  offScreenMarbles.forEach(marble => {
+  offScreenMarbles.forEach((marble) => {
     // Convert marble's world X position to screen X
     const screenPos = worldToScreen({ x: marble.pos.x, y: cameraMinY })
-    
+
     // Calculate distance above camera view
     const distanceAbove = Math.round(cameraMinY - marble.pos.y)
-    
+
     // Get player-specific color for the dot
     const playerId = marble.player_name || marble.id
     const playerColor = getPlayerColor(playerId)
-    
+
     // Calculate darker border color (same logic as marble rendering)
-    const borderColor = Math.floor((playerColor & 0xff) * 0.6) |
-                       (Math.floor(((playerColor >> 8) & 0xff) * 0.6) << 8) |
-                       (Math.floor(((playerColor >> 16) & 0xff) * 0.6) << 16)
-    
+    const borderColor =
+      Math.floor((playerColor & 0xff) * 0.6) |
+      (Math.floor(((playerColor >> 8) & 0xff) * 0.6) << 8) |
+      (Math.floor(((playerColor >> 16) & 0xff) * 0.6) << 16)
+
     // Draw dot at top of screen (use same color as the player's marble)
     const dotY = 20 // 20 pixels from top
     g.lineStyle(2, borderColor) // Same border color as marbles
     g.beginFill(playerColor) // Same fill color as marbles
     g.drawCircle(screenPos.x, dotY, 6) // 6 pixel radius dot
     g.endFill()
-    
+
     // Create and render text using PIXI Text
     const textY = dotY + 18
     const distanceText = `${distanceAbove}`
-    
+
     // Draw text background (simplified approach)
     const textWidth = distanceText.length * 8 // Approximate width
     const textHeight = 14
-    
+
     g.lineStyle(0)
     g.beginFill(0x000000, 0.8)
-    g.drawRect(screenPos.x - textWidth/2 - 2, textY - textHeight/2 - 1, textWidth + 4, textHeight + 2)
+    g.drawRect(
+      screenPos.x - textWidth / 2 - 2,
+      textY - textHeight / 2 - 1,
+      textWidth + 4,
+      textHeight + 2
+    )
     g.endFill()
-    
+
     // Text will be rendered via HTML overlay (see template)
   })
 }
@@ -437,13 +452,13 @@ const render = (g: Graphics) => {
 
   // World boundaries - only left and right borders (fixed to world, not camera)
   g.lineStyle(4, 0xffffff)
-  
+
   // Left world boundary
   const leftBoundary = worldToScreen({ x: payloadData.value.world_min.x, y: 0 })
   g.moveTo(leftBoundary.x, 0)
   g.lineTo(leftBoundary.x, canvasHeight.value)
-  
-  // Right world boundary  
+
+  // Right world boundary
   const rightBoundary = worldToScreen({ x: payloadData.value.world_max.x, y: 0 })
   g.moveTo(rightBoundary.x, 0)
   g.lineTo(rightBoundary.x, canvasHeight.value)
@@ -451,20 +466,37 @@ const render = (g: Graphics) => {
   // drop zone (top band) - only show during placement phase
   if (payloadData.value.game_phase === 0) {
     // Position drop zone to match backend bounds exactly
-    const dropZoneLeft = worldToScreen({ x: payloadData.value.world_min.x + 10, y: payloadData.value.world_min.y + 20 })
-    const dropZoneRight = worldToScreen({ x: payloadData.value.world_max.x - 10, y: payloadData.value.world_min.y + 120 })
-    
+    const dropZoneLeft = worldToScreen({
+      x: payloadData.value.world_min.x + 10,
+      y: payloadData.value.world_min.y + 20
+    })
+    const dropZoneRight = worldToScreen({
+      x: payloadData.value.world_max.x - 10,
+      y: payloadData.value.world_min.y + 120
+    })
+
     g.lineStyle(2, 0x00ff00)
     g.beginFill(0x00ff00, 0.1)
-    g.drawRect(dropZoneLeft.x, dropZoneLeft.y, dropZoneRight.x - dropZoneLeft.x, dropZoneRight.y - dropZoneLeft.y)
+    g.drawRect(
+      dropZoneLeft.x,
+      dropZoneLeft.y,
+      dropZoneRight.x - dropZoneLeft.x,
+      dropZoneRight.y - dropZoneLeft.y
+    )
     g.endFill()
   }
 
   // finish line
   const fy = worldToScreen({ x: 0, y: payloadData.value.finish_line_y }).y
-  const finishLeft = worldToScreen({ x: payloadData.value.world_min.x, y: payloadData.value.finish_line_y })
-  const finishRight = worldToScreen({ x: payloadData.value.world_max.x, y: payloadData.value.finish_line_y })
-  
+  const finishLeft = worldToScreen({
+    x: payloadData.value.world_min.x,
+    y: payloadData.value.finish_line_y
+  })
+  const finishRight = worldToScreen({
+    x: payloadData.value.world_max.x,
+    y: payloadData.value.finish_line_y
+  })
+
   g.lineStyle(4, 0xff0000)
   g.moveTo(finishLeft.x, fy)
   g.lineTo(finishRight.x, fy)
@@ -478,7 +510,10 @@ const render = (g: Graphics) => {
 
   // placement timer
   if (payloadData.value.game_phase === 0 && payloadData.value.placement_time_left > 0) {
-    const timerW = 200, timerH = 20, timerX = canvasWidth.value / 2 - timerW / 2, timerY = PAD + 120
+    const timerW = 200,
+      timerH = 20,
+      timerX = canvasWidth.value / 2 - timerW / 2,
+      timerY = PAD + 120
     g.lineStyle(2, 0xffffff)
     g.beginFill(0x333333)
     g.drawRect(timerX, timerY, timerW, timerH)
@@ -492,7 +527,7 @@ const render = (g: Graphics) => {
   // obstacles - only render those visible in camera view
   for (const e of getObstacles()) {
     if (!isEntityInCameraView(e)) continue // Skip off-screen obstacles
-    
+
     if (e.shape.kind === 'circle') renderCircleObstacle(g, e)
     else if (e.shape.kind === 'rect') renderRectObstacle(g, e)
     else renderPolyObstacle(g, e)
@@ -523,11 +558,12 @@ const renderResults = (g: Graphics) => {
 
     // Get player-specific color
     const playerColor = getPlayerColor(result.name)
-    
+
     // Calculate darker border color
-    const borderColor = Math.floor((playerColor & 0xff) * 0.6) |
-                       (Math.floor(((playerColor >> 8) & 0xff) * 0.6) << 8) |
-                       (Math.floor(((playerColor >> 16) & 0xff) * 0.6) << 16)
+    const borderColor =
+      Math.floor((playerColor & 0xff) * 0.6) |
+      (Math.floor(((playerColor >> 8) & 0xff) * 0.6) << 8) |
+      (Math.floor(((playerColor >> 16) & 0xff) * 0.6) << 16)
 
     // Draw marble with player's color
     g.lineStyle(2, borderColor)
@@ -536,10 +572,11 @@ const renderResults = (g: Graphics) => {
     g.endFill()
 
     // Add marble highlight (lighter version of player color)
-    const highlightColor = Math.min(255, Math.floor((playerColor & 0xff) * 1.3)) |
-                          (Math.min(255, Math.floor(((playerColor >> 8) & 0xff) * 1.3)) << 8) |
-                          (Math.min(255, Math.floor(((playerColor >> 16) & 0xff) * 1.3)) << 16)
-    
+    const highlightColor =
+      Math.min(255, Math.floor((playerColor & 0xff) * 1.3)) |
+      (Math.min(255, Math.floor(((playerColor >> 8) & 0xff) * 1.3)) << 8) |
+      (Math.min(255, Math.floor(((playerColor >> 16) & 0xff) * 1.3)) << 16)
+
     g.lineStyle(0)
     g.beginFill(highlightColor, 0.6)
     g.drawCircle(marbleX - marbleRadius * 0.3, marbleY - marbleRadius * 0.3, marbleRadius * 0.3)
@@ -548,17 +585,17 @@ const renderResults = (g: Graphics) => {
 }
 
 // utils
-const getMarbles = () => payloadData.value.entities.filter(e => e.type === 'marble')
-const getObstacles = () => payloadData.value.entities.filter(e => e.type === 'obstacle')
+const getMarbles = () => payloadData.value.entities.filter((e) => e.type === 'marble')
+const getObstacles = () => payloadData.value.entities.filter((e) => e.type === 'obstacle')
 
 // Get off-screen marble indicators data
 const getOffScreenMarbles = () => {
   const marbles = getMarbles()
   const cameraMinY = cameraOffset.value.y
-  
+
   return marbles
-    .filter(marble => marble.pos.y < cameraMinY)
-    .map(marble => {
+    .filter((marble) => marble.pos.y < cameraMinY)
+    .map((marble) => {
       const screenPos = worldToScreen({ x: marble.pos.x, y: cameraMinY })
       const distanceAbove = Math.round((cameraMinY - marble.pos.y) / 5) // scale down for readability
       return {
@@ -573,7 +610,9 @@ const getOffScreenMarbles = () => {
 const applicationId = ref(0)
 watch(
   () => payloadData.value.entities,
-  (n, o) => { if (o && n && n.length !== o.length) applicationId.value++ },
+  (n, o) => {
+    if (o && n && n.length !== o.length) applicationId.value++
+  },
   { immediate: true }
 )
 
@@ -621,7 +660,10 @@ defineExpose({ update })
 
         <div class="absolute top-0 text text-white z-10">
           <div class="flex flex-col justify-center items-center mt-72">
-            <div v-if="payloadData.game_phase === 0" class="text-3xl flex flex-col justify-center items-center">
+            <div
+              v-if="payloadData.game_phase === 0"
+              class="text-3xl flex flex-col justify-center items-center"
+            >
               <div>Drop your marbles in the green zone!</div>
             </div>
           </div>
@@ -630,44 +672,59 @@ defineExpose({ update })
         <div class="relative">
           <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
           <div class="relative">
-            <Application 
-              :key="applicationId" 
-              :width="canvasWidth" 
-              :height="canvasHeight" 
+            <Application
+              :key="applicationId"
+              :width="canvasWidth"
+              :height="canvasHeight"
               background-color="black"
             >
               <Graphics :x="0" :y="0" @render="render" />
-              
+
               <!-- Off-screen marble indicator texts -->
               <template v-for="marble in getOffScreenMarbles()" :key="`off-screen-${marble.id}`">
                 <Text
                   :position="{ x: marble.screenX, y: 38 }"
                   :text="marble.distance.toString()"
-                  :style="{ 
-                    fontFamily: ['Arial','sans-serif'], 
-                    fontSize: 20, 
-                    fill: 'white', 
-                    stroke: 'black', 
+                  :style="{
+                    fontFamily: ['Arial', 'sans-serif'],
+                    fontSize: 20,
+                    fill: 'white',
+                    stroke: 'black',
                     strokeThickness: 3,
                     align: 'center'
                   }"
                   anchor="0.5"
                 />
               </template>
-              
+
               <!-- marble labels & finished icons - only for visible marbles -->
-              <template v-for="marble in getMarbles().filter(m => isEntityInCameraView(m))" :key="marble.id">
+              <template
+                v-for="marble in getMarbles().filter((m) => isEntityInCameraView(m))"
+                :key="marble.id"
+              >
                 <Text
                   :position="{
-                    x: getCenteredTextPosition(marble.player_name || marble.id, getEntityCenter(marble).x),
+                    x: getCenteredTextPosition(
+                      marble.player_name || marble.id,
+                      getEntityCenter(marble).x
+                    ),
                     y: getEntityCenter(marble).y - 24
                   }"
                   :text="marble.player_name || marble.id"
-                  :style="{ fontFamily: ['Helvetica','Arial','sans-serif'], fontSize: 18, fill: 'white', stroke: 'black', strokeThickness: 4 }"
+                  :style="{
+                    fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+                    fontSize: 18,
+                    fill: 'white',
+                    stroke: 'black',
+                    strokeThickness: 4
+                  }"
                 />
                 <Sprite
                   v-if="marble.finished"
-                  :position="{ x: getEntityCenter(marble).x - 20, y: getEntityCenter(marble).y - 20 }"
+                  :position="{
+                    x: getEntityCenter(marble).x - 20,
+                    y: getEntityCenter(marble).y - 20
+                  }"
                   :width="40"
                   :height="40"
                   texture="/assets/games/marbleMania/checkmark.png"
@@ -679,7 +736,10 @@ defineExpose({ update })
       </div>
     </div>
 
-    <div v-else-if="viewState == ViewState.Results" class="flex flex-col h-full w-full justify-center items-center">
+    <div
+      v-else-if="viewState == ViewState.Results"
+      class="flex flex-col h-full w-full justify-center items-center"
+    >
       <div class="text-4xl m-6">Marble Mania Results</div>
       <div class="relative">
         <div class="absolute top-0 left-0 w-full h-full bg-black"></div>
@@ -690,19 +750,46 @@ defineExpose({ update })
               <Text
                 :position="{ x: 150, y: 25 + idx * 60 }"
                 :text="`${formatOrdinals(result.placement)}. ${result.name}`"
-                :style="{ fontFamily: ['Helvetica','Arial','sans-serif'], fontSize: 24, fill: result.has_finished ? 'white' : 'gray', stroke: 'black', strokeThickness: 3 }"
+                :style="{
+                  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+                  fontSize: 24,
+                  fill: result.has_finished ? 'white' : 'gray',
+                  stroke: 'black',
+                  strokeThickness: 3
+                }"
               />
               <Text
                 v-if="result.has_finished"
-                :position="{ x: getCenteredTextPosition(`Time: ${result.time_to_finish.toFixed(2)}s`, canvasWidth / 2 - 100), y: 50 + idx * 60 }"
+                :position="{
+                  x: getCenteredTextPosition(
+                    `Time: ${result.time_to_finish.toFixed(2)}s`,
+                    canvasWidth / 2 - 100
+                  ),
+                  y: 50 + idx * 60
+                }"
                 :text="`Time: ${result.time_to_finish.toFixed(2)}s`"
-                :style="{ fontFamily: ['Helvetica','Arial','sans-serif'], fontSize: 16, fill: 'lightblue', stroke: 'black', strokeThickness: 2 }"
+                :style="{
+                  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+                  fontSize: 16,
+                  fill: 'lightblue',
+                  stroke: 'black',
+                  strokeThickness: 2
+                }"
               />
               <Text
                 v-else
-                :position="{ x: getCenteredTextPosition('Did not finish', canvasWidth / 2 - 100), y: 50 + idx * 60 }"
+                :position="{
+                  x: getCenteredTextPosition('Did not finish', canvasWidth / 2 - 100),
+                  y: 50 + idx * 60
+                }"
                 text="Did not finish"
-                :style="{ fontFamily: ['Helvetica','Arial','sans-serif'], fontSize: 16, fill: 'red', stroke: 'black', strokeThickness: 2 }"
+                :style="{
+                  fontFamily: ['Helvetica', 'Arial', 'sans-serif'],
+                  fontSize: 16,
+                  fill: 'red',
+                  stroke: 'black',
+                  strokeThickness: 2
+                }"
               />
             </template>
           </Application>
@@ -712,5 +799,4 @@ defineExpose({ update })
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

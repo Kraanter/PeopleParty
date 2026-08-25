@@ -9,14 +9,22 @@ import {
   MiniGameIntroductionPayload,
   MiniGamePayloadType,
   Payload,
-  UnscrambledPlayerInputPayload,
+  UnscrambledPlayerInputPayload
 } from '@/flatbuffers/messageClass'
-import type { UnscrambledRoundResults, UnscrambledPlayerData, UnscrambledResults } from './UnscrambledModels'
+import type {
+  UnscrambledRoundResults,
+  UnscrambledPlayerData,
+  UnscrambledResults
+} from './UnscrambledModels'
 import * as flatbuffers from 'flatbuffers'
 import { buildMessage } from '@/util/flatbufferMessageBuilder'
 import { useWebSocketStore } from '@/stores/confettiStore'
 import { NScrollbar, NCard } from 'naive-ui'
-import { parseUnscrambledPlayerPayload, parseUnscrambledResults, parseUnscrambledRoundResults } from './UnscrambledProcessor'
+import {
+  parseUnscrambledPlayerPayload,
+  parseUnscrambledResults,
+  parseUnscrambledRoundResults
+} from './UnscrambledProcessor'
 
 const websocketStore = useWebSocketStore()
 
@@ -123,7 +131,6 @@ const sendPlayerAction = (index: number) => {
 defineExpose({
   update
 })
-
 </script>
 <template>
   <template v-if="viewState == ViewState.Introduction">
@@ -153,7 +160,6 @@ defineExpose({
           {{ value }}
         </button>
       </template>
-
     </div>
   </template>
   <template v-else-if="viewState == ViewState.RoundResults">

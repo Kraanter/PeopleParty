@@ -9,10 +9,10 @@ export type IntroductionData = {
   time_left: number
 }
 
-const noPicture = ref(false);
+const noPicture = ref(false)
 
 function onError() {
-  noPicture.value = true;
+  noPicture.value = true
 }
 
 const props = defineProps<{

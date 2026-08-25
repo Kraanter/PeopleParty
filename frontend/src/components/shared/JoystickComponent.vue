@@ -5,43 +5,43 @@ import type { CSSProperties } from 'vue'
 // TYPES: REMOVE ============
 
 enum Shape {
-    Circle = "circle",
-    Square = "square"
+  Circle = 'circle',
+  Square = 'square'
 }
 enum InteractionEvents {
-    PointerDown = "pointerdown",
-    PointerMove = "pointermove",
-    PointerUp = "pointerup",
-    FollowStop = "FOLLOW_STOP"
+  PointerDown = 'pointerdown',
+  PointerMove = 'pointermove',
+  PointerUp = 'pointerup',
+  FollowStop = 'FOLLOW_STOP'
 }
-type Direction = 'FORWARD' | 'RIGHT' | 'LEFT' | 'BACKWARD';
+type Direction = 'FORWARD' | 'RIGHT' | 'LEFT' | 'BACKWARD'
 interface UpdateEvent {
-    type: 'move' | 'stop' | 'start';
-    x?: number;
-    y?: number;
-    direction?: Direction;
-    distance?: number;
+  type: 'move' | 'stop' | 'start'
+  x?: number
+  y?: number
+  direction?: Direction
+  distance?: number
 }
 interface Coordinates {
-    relativeX: number;
-    relativeY: number;
-    axisX: number;
-    axisY: number;
-    direction: Direction;
-    distance: number;
+  relativeX: number
+  relativeY: number
+  axisX: number
+  axisY: number
+  direction: Direction
+  distance: number
 }
 interface State {
-    dragging: boolean;
-    coordinates?: Coordinates;
+  dragging: boolean
+  coordinates?: Coordinates
 }
 /**
  * Radians identifying the direction of the joystick
  */
 enum RadianQuadrantBinding {
-    TopRight = 2.35619449,
-    TopLeft = -2.35619449,
-    BottomRight = 0.785398163,
-    BottomLeft = -0.785398163
+  TopRight = 2.35619449,
+  TopLeft = -2.35619449,
+  BottomRight = 0.785398163,
+  BottomLeft = -0.785398163
 }
 
 // =========================
@@ -101,7 +101,7 @@ const props = withDefaults(defineProps<JoystickComponentProps>(), {
   baseShape: Shape.Circle,
   stickShape: Shape.Circle,
   controlPlaneShape: Shape.Circle,
-  minDistance: 0,
+  minDistance: 0
 })
 
 const emit = defineEmits<{
@@ -136,7 +136,7 @@ const shapeBoundsFactory = (
   dist: number,
   radius: number,
   baseSize: number,
-  parentRect: DOMRect,
+  parentRect: DOMRect
 ) => {
   if (shape === Shape.Square) {
     relativeX = getWithinBounds(absoluteX - parentRect.left - baseSize / 2, baseSize)
@@ -181,7 +181,7 @@ const baseStyle = computed(() => {
     background: baseColor,
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   } as CSSProperties
 
   if (props.baseImage) {
@@ -204,7 +204,7 @@ const stickStyle = computed(() => {
     width: stickSize,
     border: 'none',
     flexShrink: 0,
-    touchAction: 'none',
+    touchAction: 'none'
   } as CSSProperties
 
   if (props.stickImage) {
@@ -216,7 +216,7 @@ const stickStyle = computed(() => {
     stickStyle = {
       ...stickStyle,
       position: 'absolute',
-      transform: `translate3d(${state.dragging ? state.coordinates.relativeX : 0}px, ${state.dragging ? state.coordinates.relativeY : 0}px, 0)`,
+      transform: `translate3d(${state.dragging ? state.coordinates.relativeX : 0}px, ${state.dragging ? state.coordinates.relativeY : 0}px, 0)`
     }
   }
 
@@ -236,7 +236,7 @@ const _updatePos = (coordinates: Coordinates) => {
     x: (coordinates.relativeX * 2) / props.size,
     y: -((coordinates.relativeY * 2) / props.size),
     direction: coordinates.direction,
-    distance: coordinates.distance,
+    distance: coordinates.distance
   })
 }
 
@@ -244,7 +244,8 @@ const _updatePos = (coordinates: Coordinates) => {
  * Handle pointerdown event
  */
 const _onStart = () => {
-  if (!_isClient || props.disabled || props.followCursor || !baseRef.value || !stickRef.value) return
+  if (!_isClient || props.disabled || props.followCursor || !baseRef.value || !stickRef.value)
+    return
 
   _parentRect.value = baseRef.value.getBoundingClientRect()
   state.dragging = true
@@ -263,7 +264,7 @@ const _onStart = () => {
  */
 const _onMove = (e: MouseEvent | TouchEvent) => {
   if (!state.dragging || !_parentRect.value) return
-  
+
   // Only call preventDefault if the event is cancelable
   if (e.cancelable) {
     e.preventDefault()
@@ -294,7 +295,7 @@ const _onMove = (e: MouseEvent | TouchEvent) => {
     dist,
     _radius.value,
     props.size,
-    _parentRect.value,
+    _parentRect.value
   )
 
   relativeX = bounded.relativeX
@@ -307,7 +308,7 @@ const _onMove = (e: MouseEvent | TouchEvent) => {
     distance: _distanceToPercentile(dist),
     direction: _getDirection(atan2),
     axisX: clientX - _parentRect.value.left,
-    axisY: clientY - _parentRect.value.top,
+    axisY: clientY - _parentRect.value.top
   })
 }
 
@@ -331,13 +332,12 @@ const _onEnd = () => {
       x: (state.coordinates.relativeX * 2) / props.size,
       y: (state.coordinates.relativeY * 2) / props.size,
       direction: state.coordinates.direction,
-      distance: state.coordinates.distance,
+      distance: state.coordinates.distance
     }
   }
 
   emit('stop', evt)
 }
-
 
 /**
  * Use ArcTan2 (4 Quadrant inverse tangent) to identify the direction the joystick is pointing
@@ -345,16 +345,10 @@ const _onEnd = () => {
  * @param atan2: number
  */
 const _getDirection = (atan2: number): Direction => {
-  if (
-    atan2 > RadianQuadrantBinding.TopRight ||
-    atan2 < RadianQuadrantBinding.TopLeft
-  ) {
+  if (atan2 > RadianQuadrantBinding.TopRight || atan2 < RadianQuadrantBinding.TopLeft) {
     return 'FORWARD'
   }
-  if (
-    atan2 < RadianQuadrantBinding.TopRight &&
-    atan2 > RadianQuadrantBinding.BottomRight
-  ) {
+  if (atan2 < RadianQuadrantBinding.TopRight && atan2 > RadianQuadrantBinding.BottomRight) {
     return 'RIGHT'
   }
   if (atan2 < RadianQuadrantBinding.BottomLeft) {
@@ -401,7 +395,7 @@ const _pointerMove = (event: PointerEvent) => {
       dist,
       _radius.value,
       props.size,
-      _parentRect.value,
+      _parentRect.value
     )
     relativeX = bounded.relativeX
     relativeY = bounded.relativeY
@@ -413,7 +407,7 @@ const _pointerMove = (event: PointerEvent) => {
       distance: _distanceToPercentile(dist),
       direction: _getDirection(atan2),
       axisX: absoluteX - _parentRect.value.left,
-      axisY: absoluteY - _parentRect.value.top,
+      axisY: absoluteY - _parentRect.value.top
     })
   }
 }
@@ -423,17 +417,13 @@ const _pointerMove = (event: PointerEvent) => {
  */
 const _pointerUp = (event: PointerEvent) => {
   if (!_isClient) return
-  if (
-    event.pointerId !== _pointerId.value &&
-    event.type !== InteractionEvents.FollowStop
-  ) {
+  if (event.pointerId !== _pointerId.value && event.type !== InteractionEvents.FollowStop) {
     return
   }
 
-  
   window.removeEventListener(InteractionEvents.PointerUp, _onPointerUp)
   window.removeEventListener(InteractionEvents.PointerMove, _onPointerMove)
-  
+
   window.requestAnimationFrame(() => {
     state.dragging = false
     if (!props.sticky) state.coordinates = undefined
@@ -448,7 +438,7 @@ const _pointerUp = (event: PointerEvent) => {
       x: (state.coordinates.relativeX * 2) / props.size,
       y: (state.coordinates.relativeY * 2) / props.size,
       direction: state.coordinates.direction,
-      distance: state.coordinates.distance,
+      distance: state.coordinates.distance
     }
   }
   emit('stop', evt)
@@ -474,15 +464,13 @@ const _followStop = () => {
 watch(
   () => props.followCursor,
   () => (props.followCursor ? _followStart() : _followStop()),
-  { immediate: true },
+  { immediate: true }
 )
-
-onMounted(() => {
+;(onMounted(() => {
   baseRef.value.addEventListener('contextmenu', (e) => e.preventDefault())
   stickRef.value.addEventListener('contextmenu', (e) => e.preventDefault())
 }),
-
-onBeforeUnmount(() => _followStop())
+  onBeforeUnmount(() => _followStop()))
 </script>
 
 <template>
@@ -491,9 +479,9 @@ onBeforeUnmount(() => _followStop())
     class="joystick"
     :class="{ 'joystick--disabled': props.disabled }"
     :style="baseStyle"
-    style="touch-action: none;"
+    style="touch-action: none"
   >
-  <button
+    <button
       ref="stickRef"
       :disabled="props.disabled"
       tabindex="0"
@@ -505,4 +493,3 @@ onBeforeUnmount(() => _followStop())
     />
   </div>
 </template>
-
