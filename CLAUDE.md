@@ -199,6 +199,15 @@ npm install
 npm run dev  # binds 0.0.0.0 for mobile device testing on the same network
 ```
 
+**PixiJS composable playground** (dev only, once the frontend dev server above is running):
+```
+open http://localhost:5173/dev/pixi-playground
+```
+Live reference/regression check for the `useGameCanvas`/`createEntityLayer`/`useSnapshotBuffer`
+composables (`frontend/src/composables/pixi/`) — see `frontend/README.md` for what it shows and
+how to read it. Dev-only route (`import.meta.env.DEV`-gated in `frontend/src/router/index.ts`),
+never present in a production build.
+
 **Schema regeneration** (required after any `.fbs` change — errors from stale generated code are
 cryptic):
 ```bash
