@@ -43,6 +43,17 @@ const routes: RouteRecordRaw[] = [
           path: '/dev/pixi-playground',
           name: 'dev-pixi-playground',
           component: () => import('../routes/PixiPlaygroundRoute.vue')
+        },
+        // Phase 2 migration verification harnesses — same dev-only convention as above.
+        {
+          path: '/dev/shellshuffle-harness',
+          name: 'dev-shellshuffle-harness',
+          component: () => import('../routes/ShellShuffleHarnessRoute.vue')
+        },
+        {
+          path: '/dev/marblemania-harness',
+          name: 'dev-marblemania-harness',
+          component: () => import('../routes/MarbleManiaHarnessRoute.vue')
         }
       ]
     : []),

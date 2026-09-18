@@ -183,7 +183,11 @@ export function useGameCanvas(options: UseGameCanvasOptions): GameCanvasHandle {
     scaleRef.value = scale
     offsetXRef.value = offsetX
     offsetYRef.value = offsetY
-    root.position.set(offsetX, offsetY)
+    // offsetX/Y describe where the (smaller, fitted) canvas element sits within its container —
+    // a CSS/flex-centering concern. The canvas itself is already exactly `width`×`height`, so
+    // root must start at its origin; positioning it at offsetX/Y here would shift content by
+    // that amount inside a canvas that was never that much bigger, clipping it off the far edge.
+    root.position.set(0, 0)
     root.scale.set(scale)
 
     if (width <= 0 || height <= 0) return // not laid out yet — wait for a real size
