@@ -54,6 +54,22 @@ const routes: RouteRecordRaw[] = [
           path: '/dev/marblemania-harness',
           name: 'dev-marblemania-harness',
           component: () => import('../routes/MarbleManiaHarnessRoute.vue')
+        },
+        // Phase 4 migration verification harnesses — same dev-only convention as above.
+        {
+          path: '/dev/highwayhustle-harness',
+          name: 'dev-highwayhustle-harness',
+          component: () => import('../routes/HighwayHustleHarnessRoute.vue')
+        },
+        {
+          path: '/dev/teambasedpong-harness',
+          name: 'dev-teambasedpong-harness',
+          component: () => import('../routes/TeambasedPongHarnessRoute.vue')
+        },
+        {
+          path: '/dev/businessbailout-harness',
+          name: 'dev-businessbailout-harness',
+          component: () => import('../routes/BusinessBailoutHarnessRoute.vue')
         }
       ]
     : []),

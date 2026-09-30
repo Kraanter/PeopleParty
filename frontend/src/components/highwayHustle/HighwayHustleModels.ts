@@ -30,3 +30,14 @@ export interface HighwayHustleResultPair {
 export interface HighwayHustleResult {
   results: HighwayHustleResultPair[]
 }
+
+// canvas snapshot — combines whichever of race/results is currently live so the GameView can
+// stay a single canvas (matching the pre-migration single-Application design) without needing
+// two separately-watched props racing each other
+export type HighwayHustlePhase = 'race' | 'results'
+
+export interface HighwayHustleSnapshot {
+  phase: HighwayHustlePhase
+  payload: HighwayHustleData
+  results: HighwayHustleResult
+}

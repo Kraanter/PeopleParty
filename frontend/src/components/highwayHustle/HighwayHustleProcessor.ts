@@ -31,7 +31,7 @@ export function parseHighwayHustleHostPayload(data: MiniGamePayloadType): Highwa
       x: payload.obstacles(i).xPos(),
       y: payload.obstacles(i).yPos(),
       carType: payload.obstacles(i).carType(),
-      isDead: payload.entities(i).isDead()
+      isDead: payload.obstacles(i).isDead()
     })
   }
 

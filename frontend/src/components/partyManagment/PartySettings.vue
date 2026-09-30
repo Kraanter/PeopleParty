@@ -204,7 +204,7 @@ const updateVolume = (value: number) => {
 
                   <div v-else class="h-full w-full flex justify-center items-center">
                     <img
-                      src="assets/games/crazyCounting/crazyCountingLogo.svg"
+                      src="/assets/games/crazyCounting/crazyCountingLogo.svg"
                       alt="logo"
                       class="h-full w-full opacity-0 rounded-xl"
                     />

@@ -3,26 +3,18 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import VueDevTools from 'vite-plugin-vue-devtools'
-import { compilerOptions, transformAssetUrls } from 'vue3-pixi'
 import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [
-    vue({
-      template: {
-        // support for custom elements and remove the unknown element warnings
-        compilerOptions,
-        // support for asset url conversion
-        transformAssetUrls,
-      },
-    }),
+    vue(),
     VueDevTools(),
     // Only runs on `npm run build:analyze` (vite build --mode analyze) so a normal
     // build/CI/Docker run stays untouched.
     ...(mode === 'analyze'
       ? [visualizer({ filename: 'dist/stats.html', gzipSize: true, brotliSize: true, open: true })]
-      : []),
+      : [])
   ],
   resolve: {
     alias: {
@@ -31,10 +23,10 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     proxy: {
-      "/confetti": {
+      '/confetti': {
         target: 'ws://localhost:7899/',
         rewrite: (path) => path.replace(/^\/confetti/, ''),
-        ws: true,
+        ws: true
       }
     }
   },
@@ -51,10 +43,7 @@ export default defineConfig(({ mode }) => ({
             return 'vite-runtime'
           }
           const normalizedId = id.replace(/\\/g, '/')
-          if (
-            normalizedId.includes('node_modules/pixi.js/') ||
-            normalizedId.includes('node_modules/vue3-pixi/')
-          ) {
+          if (normalizedId.includes('node_modules/pixi.js/')) {
             return 'pixi'
           }
           if (normalizedId.includes('node_modules/naive-ui/')) {

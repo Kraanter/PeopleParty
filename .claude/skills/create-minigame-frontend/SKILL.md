@@ -23,30 +23,56 @@ and SpriteMap files.
 Before writing any code, read existing implementations to match established patterns. Read BOTH
 `<script>` and `<template>` sections for each.
 
+**Migration status, read this first**: `shellShuffle` and `marbleMania` have been migrated onto the
+new `@/composables/pixi` layer (`useGameCanvas`/`createEntityLayer`/`useSnapshotBuffer`) and are the
+primary references below for any new canvas-based minigame. `teambasedPong`, `highwayHustle`,
+`rpsBracket`, `businessBailout`, and `crazyCounting` still use the older `vue3-pixi` library — real,
+currently-shipping code, still worth reading for non-canvas concerns, but **not** the canvas-setup
+pattern to copy (full backfill is tracked separately in `docs/frontend-infrastructure-plan.md`,
+Phase 4). Build every new minigame on the composable layer regardless of how many existing
+minigames still look like the old pattern.
+
 **Required reading — reference games** (read ALL files in each directory):
-- `frontend/src/components/teambasedPong/` — aspect-ratio-locked canvas via computed
-  `canvasWidth`/`canvasHeight` with `MAP_ASPECT`, responsive team display, scale factor from map
-  dimensions, joystick input, multi-phase ViewState (RoundPrep, MiniGame, RoundResult, Results)
-- `frontend/src/components/shellShuffle/` — newest addition, same PixiJS + `@render` +
-  `defineExpose({ update })` pattern as the others; good second reference alongside teambasedPong
-- `frontend/src/components/highwayHustle/` — PixiJS with sprite maps, joystick input, entity
-  rendering, `Application` + `Graphics` + `Sprite` + `Text` from `pixi.js` / `vue3-pixi`
+- `frontend/src/components/shellShuffle/` — **primary reference for simple/single-entity
+  canvases.** Migrated onto `@/composables/pixi` (`useGameCanvas` + `useSnapshotBuffer`, no
+  `createEntityLayer`): one shared `Graphics` redrawn on every `invalidate()`, `worldSize`
+  letterboxing, HTML overlay positioning synced to `canvas.scale`/`offsetX`/`offsetY` (the
+  cup-number labels), `defineExpose({ push })` on the canvas-owning child with a template-ref call
+  from `HostView.vue` (fine here — one always-present child, no mount-timing race)
+- `frontend/src/components/marbleMania/` — **primary reference for pooled/variable-count
+  entities.** Also migrated onto `@/composables/pixi`: three `createEntityLayer` pools across
+  z-ordered sub-`Container`s, `canvas.startAnimating()`/`stopAnimating()` for camera easing, and a
+  prop + `watch(..., { immediate: true })` pattern (not a template-ref push) for getting live host
+  data into the canvas-owning child — the pattern to default to for new minigames, see the
+  Responsive Design section below
+- `frontend/src/components/highwayHustle/` — **old pattern, not yet migrated** (still
+  `vue3-pixi`/`<Application>`/`<Graphics @render>`). Still worth reading for its sprite-map
+  approach (`Application` + `Graphics` + `Sprite` + `Text`) and joystick input — don't copy its
+  canvas setup or `ResizeObserver` handling into a new minigame
 - `frontend/src/components/memoryMixer/` — Grid-based layout (non-PixiJS), GridView subcomponent,
   card flipping, `NCard`/`NScrollbar` from Naive UI, `sendPlayerAction` inline pattern
-- `frontend/src/components/crazyCounting/` — PixiJS with entity rendering,
-  `appSize = Math.min(width, height)` canvas sizing pattern
+- `frontend/src/components/crazyCounting/` — **old pattern, not yet migrated.** PixiJS with entity
+  rendering, `appSize = Math.min(width, height)` canvas sizing — don't copy the canvas setup; see
+  the Responsive Design section below for the new-pattern equivalent (the `size:` sizing mode)
 
 **Recommended reading — additional patterns** (scan files):
-- `frontend/src/components/marbleMania/` — PixiJS with camera system, dynamic container sizing
-- `frontend/src/components/businessBailout/` — PixiJS for graphs, parser pattern, multiple
-  subcomponents
-- `frontend/src/components/rpsBracket/` — PixiJS for bracket visualization
-- `frontend/src/components/unscrambled/` — text-based, Models + Processor pattern
+- `frontend/src/components/teambasedPong/` — **old pattern, not yet migrated** (still
+  `vue3-pixi`). Its multi-phase `ViewState` (RoundPrep, MiniGame, RoundResult, Results) and
+  joystick input are still good references; ignore its `canvasWidth`/`canvasHeight`/`MAP_ASPECT`/
+  `ResizeObserver` sizing code and its `watch(payloadData, () => {}, { deep: true })` — the latter
+  is a known dead no-op left over from fighting `vue3-pixi`'s implicit redraw trigger, not a
+  pattern to learn from
+- `frontend/src/components/businessBailout/` — **old pattern, not yet migrated** (`vue3-pixi`).
+  PixiJS for graphs, parser pattern, multiple subcomponents — don't copy its canvas setup
+- `frontend/src/components/rpsBracket/` — **old pattern, not yet migrated** (`vue3-pixi`). PixiJS
+  for bracket visualization — don't copy its canvas setup
+- `frontend/src/components/unscrambled/` — text-based, Models + Processor pattern (unaffected by
+  the PixiJS changes)
 - `frontend/src/components/rightOnTime/` — FlipClock subcomponent, Models + Processor, custom
-  input sending
+  input sending (unaffected by the PixiJS changes)
 - `frontend/src/components/launchParty/` — LightsComponent subcomponent, simple button
   interaction, `<style scoped>` for CSS animations (one of several components that do this — see
-  the styling note below)
+  the styling note below; unaffected by the PixiJS changes)
 
 **Required reading — infrastructure**:
 - `frontend/src/components/GameManager.vue` — dynamic component loading by `gameName`,
@@ -241,71 +267,160 @@ defineExpose({
 
 #### Responsive Design — PixiJS Games
 
-For games rendering a canvas with PixiJS, use the aspect-ratio-locked pattern from teambasedPong —
-this is the actual current implementation, confirmed against `teambasedPong/HostView.vue`:
-
-```ts
-// Canvas sizing — dynamically tracks container width and maintains aspect ratio
-const gameCanvasRef = ref<HTMLElement | null>(null)
-const canvasWidth = ref(780) // default fallback
-const MAP_ASPECT = 16 / 9   // or whatever your game world ratio is (e.g., 800/600)
-const canvasHeight = computed(() => Math.round(canvasWidth.value / MAP_ASPECT))
-const scale = computed(() => canvasWidth.value / GAME_WORLD_WIDTH)
-
-// ResizeObserver to track container width changes
-let resizeObserver: ResizeObserver | null = null
-watch(gameCanvasRef, (el) => {
-  resizeObserver?.disconnect()
-  if (el) {
-    canvasWidth.value = el.clientWidth
-    resizeObserver = new ResizeObserver((entries) => {
-      canvasWidth.value = entries[0].contentRect.width
-    })
-    resizeObserver.observe(el)
-  }
-})
-onUnmounted(() => {
-  resizeObserver?.disconnect()
-})
-```
-
-Note this only tracks width and derives height from the aspect ratio — it does not independently
-observe container height. On unusually short/wide containers the derived height could in theory
-exceed available space; none of the existing games guard against this, so match the existing
-pattern unless the user specifically asks you to handle that edge case.
-
-In the template, bind the canvas container with `ref="gameCanvasRef"` and use the `Application`
-component:
+For a new minigame, all canvas rendering goes through the shared composables in
+`@/composables/pixi` (`useGameCanvas`, `createEntityLayer`, `useSnapshotBuffer`) — never
+`vue3-pixi`, and never a hand-rolled `ResizeObserver`. There is no `<Application>` or `<Graphics
+@render>` in this pattern at all; the template is just a plain mount point:
 
 ```vue
-<div ref="gameCanvasRef" class="bg-black rounded-lg overflow-hidden flex-1">
-  <Application
-    :width="canvasWidth"
-    :height="canvasHeight"
-    :backgroundAlpha="1"
-    :backgroundColor="0x000000"
-  >
-    <Graphics @render="renderGame" />
-  </Application>
-</div>
+<template>
+  <div ref="containerRef" class="bg-black rounded-lg overflow-hidden flex-1" />
+</template>
 ```
 
-Drawing happens imperatively inside the `@render` event handler on `<Graphics>` — there is no
-`:draw` prop used anywhere in this codebase, don't introduce one.
-
-In all render functions, **ALWAYS use the scale factor** — never hardcode pixel values:
+**Simple tier — one shared `Graphics`, redrawn on every update** (see `shellShuffle`):
 
 ```ts
-const renderGame = (graphics: Graphics) => {
-  graphics.clear()
-  const s = scale.value
+import { ref, computed } from 'vue'
+import { Graphics } from 'pixi.js'
+import { useGameCanvas, useSnapshotBuffer } from '@/composables/pixi'
 
-  // All positions multiplied by scale
-  graphics.beginFill(0xffffff)
-  graphics.drawCircle(entity.x * s, entity.y * s, radius * s)
-  graphics.endFill()
+const containerRef = ref<HTMLElement | null>(null)
+const gfx = new Graphics()
+
+const canvas = useGameCanvas({
+  container: containerRef,
+  worldSize: { width: GAME_MAP_WIDTH, height: GAME_MAP_HEIGHT }, // world units, not pixels
+  backgroundColor: 0x1a7a3c,
+  backgroundAlpha: 1,
+  render: drawScene
+})
+canvas.root.addChild(gfx)
+
+const buffer = useSnapshotBuffer<{GameName}HostData, {GameName}Hud>(initialSnapshot, {
+  invalidate: canvas.invalidate,
+  toHud: (d) => ({ /* the handful of fields a DOM overlay needs */ })
+})
+// toHud(initial) runs synchronously before this line returns — safe non-null assertion.
+const hud = computed(() => buffer.hud.value!)
+
+function drawScene() {
+  const data = buffer.current
+  gfx.clear()
+  gfx.rect(0, 0, GAME_MAP_WIDTH, GAME_MAP_HEIGHT).fill(0x1a7a3c)
+  // ... draw everything in world units; canvas.root's transform already carries the letterbox scale
+}
+
+function push(data: {GameName}HostData) {
+  buffer.push(data) // calls canvas.invalidate() internally — no separate invalidate() call needed
+}
+
+defineExpose({ push })
+```
+
+**Complex tier — pooled, variable-count entities** (see `marbleMania`): use `createEntityLayer`
+instead of a `v-for`/`:key`-driven Application recreation. `parent` is usually `canvas.root`, or a
+`Container` added under it when you need explicit z-ordering across multiple entity kinds:
+
+```ts
+import { Graphics, Container } from 'pixi.js'
+import { createEntityLayer } from '@/composables/pixi'
+
+const marblesContainer = new Container()
+canvas.root.addChild(marblesContainer) // added in the order you want it to draw relative to siblings
+
+const marbleLayer = createEntityLayer<MarbleEntity, Graphics>(marblesContainer, {
+  key: (entity) => entity.id,
+  create: () => new Graphics(),
+  update: (display, entity) => {
+    display.clear()
+    display.circle(0, 0, entity.radius).fill(entity.color)
+    display.position.set(entity.x, entity.y)
+  }
+})
+
+function drawScene() {
+  marbleLayer.sync(buffer.current.marbles) // full-snapshot diff; missing entities go back to the pool
 }
 ```
+
+Duplicate keys passed to one `sync()` call are dropped (with a `console.warn`), not merged — make
+sure entity ids are unique before calling it. `clear()` releases everything to the pool (e.g. on a
+phase reset) without destroying; `destroy()` is the final teardown. z-order isn't stable across
+recycling by default (reused/new displays always append last) — fine for flat, non-interactive,
+≤16-entity games; if a future game needs stable stacking, set `parent.sortableChildren = true` and
+give each display object a stable `.zIndex`.
+
+**Getting live data from `HostView.vue` into the canvas-owning child** — default to a prop +
+`watch(..., { immediate: true })` in the child, not a template-ref `push()` call from the parent:
+
+```ts
+// HostView.vue
+const hostData = shallowRef<{GameName}HostData | null>(null)
+const update = (data: MiniGamePayloadType) => {
+  switch (data.gamestatetype()) {
+    case GameStateType.{GameName}Host: {
+      viewState.value = ViewState.MiniGame
+      hostData.value = parse{GameName}HostPayload(data)
+      break
+    }
+    // ...
+  }
+  return []
+}
+```
+
+```vue
+<{GameName}GameView :host-data="hostData" />
+```
+
+```ts
+// {GameName}GameView.vue
+const props = defineProps<{ hostData: {GameName}HostData | null }>()
+watch(
+  () => props.hostData,
+  (data) => { if (data) buffer.push(data) },
+  { immediate: true }
+)
+```
+
+**Why**: `update()` typically sets `hostData.value` and flips `viewState.value` in the same
+synchronous tick. A template ref into the child isn't populated yet at that point (Vue defers ref
+population until after the DOM update), so a `gameViewRef.value?.push(...)` call silently drops
+the very first message — a real bug this exact fix shipped for in `marbleMania`. A prop watched
+with `{ immediate: true }` doesn't have that race. `shellShuffle`'s simpler template-ref `push()`
+call is still valid — it's a single, always-present child with no such race — but don't reach for
+it reflexively in new code; default to prop + watch unless you're confident there's no race.
+
+**Sizing modes** — `useGameCanvas` supports exactly two, pick one (mutually exclusive):
+- **`worldSize: { width, height }`** (used by both `shellShuffle` and `marbleMania`) — letterboxes
+  to that aspect ratio via the container element's own `ResizeObserver`, computing
+  `canvas.scale`/`canvas.offsetX`/`canvas.offsetY` for you. Draw in world units inside `render`.
+- **`size: () => ({ width, height })`** — "trust the parent" mode (e.g. wiring straight to
+  `GameManager`'s own `width`/`height` props) instead of a second, redundant `ResizeObserver`. No
+  letterboxing math runs (`scale` stays `1`). This is the direct replacement for the old
+  `appSize = Math.min(props.width, props.height)` square-canvas pattern — compute whatever shape
+  you need once inside the `size()` callback instead of hand-rolling it.
+
+Neither migrated minigame currently uses `size:` (both use `worldSize`) — it's a fully supported
+option, just not yet exercised by a shipped example.
+
+**HTML overlays aligned with the canvas** (e.g. shellShuffle's cup-number labels) — read
+`canvas.scale.value`, `canvas.offsetX.value`, `canvas.offsetY.value`. These are `ComputedRef`s and
+are **not** auto-unwrapped in the template, because `canvas` itself isn't a top-level `ref` —
+always write `canvas.scale.value`, never `canvas.scale`.
+
+**Continuous animation** — for frame-rate-independent interpolation that must run every frame
+regardless of network cadence (camera easing — see `marbleMania`'s `animateCamera`), call
+`canvas.startAnimating((ctx) => { /* ctx.dt is ms since last frame */ })`. This is opt-in on top of
+the default invalidate-on-push model. **It is never auto-stopped** — call `canvas.stopAnimating()`
+yourself once the interpolation has settled (e.g. on a phase change), or an idle scene keeps
+rendering every frame forever for no reason.
+
+**Static one-shot canvas** — a third, simpler tier for a canvas built once and never updated again
+(see `MarbleManiaResultsView.vue`): call `useGameCanvas` with a no-op `render: () => {}`, build the
+scene once by adding display objects to `canvas.root`, then call `canvas.invalidate()` once. No
+`useSnapshotBuffer`/`createEntityLayer` needed.
 
 **Mental test**: "Would this look correct on a 13-inch laptop AND a 65-inch TV?"
 
@@ -321,15 +436,6 @@ For games using HTML/Tailwind (no canvas):
 - **Naive UI is available and expected** for structured UI — use `NCard` for card styling,
   `NScrollbar` for scrollable lists (see `memoryMixer`, `crazyCounting`, `unscrambled`,
   `rightOnTime` for real examples). Prefer it over hand-rolled equivalents
-
-#### Alternative Canvas Sizing Pattern
-
-For games where the canvas should be a square fitted to the smallest dimension (like
-crazyCounting):
-
-```ts
-const appSize = computed(() => Math.min(props.width, props.height))
-```
 
 #### `<style>` blocks
 
@@ -656,8 +762,9 @@ After implementation, verify:
   `teambasedPong` not `TeambasedPong` or `teambased_pong`
 - **Forgetting `defineExpose({ update })`** — GameManager calls `gameViewRef.value?.update(data)`,
   won't work without expose
-- **Hardcoded pixel values in HostView** — breaks on different screen sizes; always use scale
-  factor or relative units
+- **Hardcoded pixel values in HostView** — breaks on different screen sizes; draw in world units
+  and let `useGameCanvas`'s `worldSize` letterboxing (or its `size:` callback) handle scaling —
+  never multiply coordinates by a hand-rolled scale factor
 - **Not wrapping FlatBuffer bigints with `Number()`** — causes TypeScript type errors or NaN
   rendering
 - **Not decoding FlatBuffer strings with `decodeURI()`** — player names with special characters
@@ -674,9 +781,18 @@ After implementation, verify:
   `websocketStore.clientName` and display it prominently
 - **Missing `return []`** — the `update()` function should return `[]` at the end (convention
   from existing games)
-- **Canvas not responsive** — always use ResizeObserver + computed dimensions or
-  `Math.min(width, height)` patterns
-- **Using a `:draw` prop on `<Graphics>`** — this codebase always uses the `@render` event; there
-  are zero uses of `:draw` anywhere in `frontend/src`
+- **Hand-rolling a `ResizeObserver` for canvas sizing** — `useGameCanvas`'s `worldSize`/`size`
+  modes already handle this; a second, independent `ResizeObserver` (or a manually computed
+  `Math.min(width, height)`) duplicates work it already does and is a sign the composable isn't
+  being used
+- **Importing from `vue3-pixi`, or writing an `<Application>`/`<Graphics @render>` template block,
+  in a NEW minigame** — that library and pattern are legacy (5 not-yet-migrated minigames still use
+  them; full removal is a separate future phase, see `docs/frontend-infrastructure-plan.md`). New
+  canvas code goes through `@/composables/pixi` only: a plain `<div ref="containerRef">` mount
+  point plus raw PixiJS display objects added imperatively to `canvas.root`
+- **Forgetting `canvas.stopAnimating()`** after a `startAnimating()`-driven camera ease or similar
+  — it is never auto-stopped, so an idle scene will keep rendering every frame forever
+- **Duplicate keys in one `createEntityLayer.sync()` call** — silently dropped with a
+  `console.warn`, not merged; make sure your entity list has unique keys before calling `sync()`
 - **Forgetting Naive UI exists** — for non-canvas result/settings screens, check whether `NCard`/
   `NScrollbar`/etc. already covers what you're about to hand-roll in Tailwind

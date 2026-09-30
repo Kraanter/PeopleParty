@@ -6,3 +6,5 @@ export type { EntityLayerOptions, EntityLayerHandle } from './createEntityLayer'
 
 export { useSnapshotBuffer } from './useSnapshotBuffer'
 export type { SnapshotBufferOptions, SnapshotBufferHandle } from './useSnapshotBuffer'
+
+export { loadTexture } from './loadTexture'

@@ -1,40 +1,25 @@
 <script lang="ts" setup>
-import { Application } from 'vue3-pixi'
 import { NCard, NScrollbar } from 'naive-ui'
-import { ref, toRefs, defineProps, computed } from 'vue'
+import { ref, shallowRef } from 'vue'
 import TimeComponent from '../TimeComponent.vue'
 import {
-  CrazyCountingHostEntitiesPayload,
-  CrazyCountingResultPayload,
-  FBCrazyCountingEntity,
   GameStateType,
   MiniGameIntroductionPayload,
-  MiniGamePayloadType
+  type MiniGamePayloadType
 } from '@/flatbuffers/messageClass'
 import { type IntroductionData } from '@/components/introduction/Introduction.vue'
 import Introduction from '@/components/introduction/Introduction.vue'
+import {
+  parseCrazyCountingHostPayload,
+  parseCrazyCountingResultPayload
+} from './CrazyCountingProcessor'
+import type { CrazyCountingEntity, CrazyCountingResult } from './CrazyCountingModels'
+import CrazyCountingGameView from './CrazyCountingGameView.vue'
 
-const size = computed(() => appSize.value / 10)
-
-const props = defineProps<{
+defineProps<{
   width: number
   height: number
 }>()
-
-interface PosData {
-  x: number
-  y: number
-}
-
-interface ResultsPair {
-  name: string
-  guess: number
-}
-
-interface Result {
-  correct: number
-  results: ResultsPair[]
-}
 
 enum ViewState {
   None,
@@ -45,19 +30,6 @@ enum ViewState {
 
 const viewState = ref<ViewState>(ViewState.None)
 
-const { width, height } = toRefs(props)
-
-const appSize = computed(() => {
-  return Math.min(width.value, height.value)
-})
-
-const interpolatePosition = (entity: FBCrazyCountingEntity): PosData => {
-  return {
-    x: entity.xPos() * (appSize.value - size.value),
-    y: entity.yPos() * (appSize.value - size.value)
-  }
-}
-
 // introduction
 const intro = ref<IntroductionData>({
   title: '',
@@ -65,12 +37,12 @@ const intro = ref<IntroductionData>({
   time_left: 0
 })
 // game data
-const entities = ref<PosData[]>([])
+const entities = shallowRef<CrazyCountingEntity[]>([])
 const timeLeft = ref<number>(0)
 const submittedPlayers = ref<string[]>([])
 // results
-const results = ref<Result>({
-  correct: 0,
+const results = ref<CrazyCountingResult>({
+  correct_answer: 0,
   results: []
 })
 
@@ -78,51 +50,16 @@ const update = (data: MiniGamePayloadType) => {
   switch (data.gamestatetype()) {
     case GameStateType.CrazyCountingHostEntities: {
       viewState.value = ViewState.MiniGame
-      const hostEntitiesPayload: CrazyCountingHostEntitiesPayload = data.gamestatepayload(
-        new CrazyCountingHostEntitiesPayload()
-      )
-
-      let localEntities: PosData[] = []
-      for (let i = 0; i < hostEntitiesPayload.entitiesLength(); i++) {
-        const entity = hostEntitiesPayload.entities(i)
-        if (entity === null) continue
-        localEntities.push(interpolatePosition(entity))
-      }
-      entities.value = localEntities
-
-      timeLeft.value = Number(hostEntitiesPayload.timeLeft())
-
-      let newSubmittedPlayers: string[] = []
-      for (let i = 0; i < hostEntitiesPayload.submittedLength(); i++) {
-        const submittedString = hostEntitiesPayload.submitted(i)
-        if (submittedString === null) continue
-        newSubmittedPlayers.push(decodeURI(submittedString))
-      }
-      submittedPlayers.value = newSubmittedPlayers
-
-      return localEntities
+      const parsed = parseCrazyCountingHostPayload(data)
+      entities.value = parsed.entities
+      timeLeft.value = parsed.time_left
+      submittedPlayers.value = parsed.submitted
+      break
     }
     case GameStateType.CrazyCountingResult: {
       viewState.value = ViewState.Results
-      const resultsPayload: CrazyCountingResultPayload = data.gamestatepayload(
-        new CrazyCountingResultPayload()
-      )
-
-      let newSubmittedPlayers: ResultsPair[] = []
-      for (let i = 0; i < resultsPayload.resultsLength(); i++) {
-        const submittedString = resultsPayload.results(i)
-        if (submittedString === null) continue
-        newSubmittedPlayers.push({
-          name: decodeURI(submittedString.name() || ''),
-          guess: submittedString.guess()
-        })
-      }
-
-      results.value = {
-        correct: resultsPayload.correctAnswer(),
-        results: newSubmittedPlayers
-      }
-      return results.value
+      results.value = parseCrazyCountingResultPayload(data)
+      break
     }
     case GameStateType.MiniGameIntroduction: {
       viewState.value = ViewState.Introduction
@@ -134,7 +71,7 @@ const update = (data: MiniGamePayloadType) => {
         description: introPayload.instruction() || '',
         time_left: Number(introPayload.timeLeft())
       }
-      return intro.value
+      break
     }
   }
   return []
@@ -148,7 +85,7 @@ defineExpose({
   <div v-if="viewState == ViewState.Introduction">
     <Introduction :data="intro" logoSVG="/assets/games/crazyCounting/crazyCountingLogo.svg" />
   </div>
-  <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch">
+  <div v-else-if="viewState == ViewState.MiniGame" class="flex justify-stretch w-full h-full">
     <div class="mt-4 w-full h-full flex flex-col justify-center">
       <div class="mx-auto mb-4">
         <TimeComponent :timeLeft />
@@ -168,24 +105,15 @@ defineExpose({
         </div>
       </n-scrollbar>
     </div>
-    <div class="relative">
-      <Application key="gameview" :width="appSize" :height="appSize" background-color="white">
-        <sprite
-          v-for="(entity, i) in entities"
-          :position="entity"
-          :width="size"
-          :height="size"
-          :key="i"
-          texture="/assets/games/crazyCounting/partyhat.svg"
-        />
-      </Application>
+    <div class="relative w-full h-full">
+      <CrazyCountingGameView :entities="entities" />
     </div>
   </div>
   <div v-else-if="viewState == ViewState.Results">
     <div class="flex flex-col gap-4 w-full h-full">
       <div class="flex">
         <p class="text-9xl w-full text-center m-auto text-primary">
-          {{ results.correct }}
+          {{ results.correct_answer }}
         </p>
       </div>
       <p class="text-4xl w-full text-center text-white">Players guesses:</p>

@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { ref, defineProps, toRefs, computed } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
 import MoneyCounter from './components/MoneyCounter.vue'
 import ResultGraph from './components/ResultGraph.vue'
 import Introduction from '../introduction/Introduction.vue'
-import { Graphics, type PointData } from 'pixi.js'
-import { Application } from 'vue3-pixi'
+import type { PointData } from 'pixi.js'
 import type { MiniGamePayloadType } from '@/flatbuffers/mini-game-payload-type'
 import { GameStateType } from '@/flatbuffers/game-state-type'
 import { MiniGameIntroductionPayload } from '@/flatbuffers/mini-game-introduction-payload'
-import { useColorStore } from '@/stores/colorStore'
 import {
   parseBusinessBailoutHostPayload,
   parseBusinessBailoutResultPayload,
-  type BailedPlayer
+  type BailedPlayer,
+  type BusinessBailoutHostData
 } from './parser'
+import BusinessBailoutGameView from './BusinessBailoutGameView.vue'
 
 enum ViewState {
   None,
@@ -33,36 +33,22 @@ const intro = ref<IntroductionData>({
   time_left: 0
 })
 
-const colorStore = useColorStore()
-
 const viewState = ref<ViewState>(ViewState.None)
-const value = computed(() => points.value[points.value.length - 1].y)
-const maxValue = computed(() => Math.max(...points.value.map((point) => point.y)))
-const time = computed(() => points.value[points.value.length - 1].x)
-// Angle between value and last value
-const angle = computed(() => {
-  const numPoints = points.value.length
-  if (numPoints < 2) return 0
 
-  // Choose how many points to look back for a smoother angle
-  const lookbackSteps = Math.min(5, numPoints - 1)
-
-  const currentPoint = interpPosition(points.value[numPoints - 1])
-  const earlierPoint = interpPosition(points.value[numPoints - 1 - lookbackSteps])
-
-  // Calculate angle from earlier point to current point
-  return Math.atan2(currentPoint[0] - earlierPoint[0], currentPoint[1] - earlierPoint[1])
-})
-const size = ref(75)
-
-const props = defineProps<{
+defineProps<{
   height: number
   width: number
 }>()
-const { height, width } = toRefs(props)
 
-const points = ref<PointData[]>([])
-const bailedPlayers = ref<BailedPlayer[]>([])
+const points = shallowRef<PointData[]>([])
+const bailedPlayers = shallowRef<BailedPlayer[]>([])
+
+const value = computed(() => points.value[points.value.length - 1]?.y ?? 0)
+
+const hostData = computed<BusinessBailoutHostData>(() => ({
+  points: points.value,
+  bailed_players: bailedPlayers.value
+}))
 
 const createPointData = (value: number, time: number): PointData => ({ x: time, y: value })
 
@@ -93,7 +79,7 @@ function update(payload: MiniGamePayloadType) {
         bailedPlayers.value = bailed_players
       }
 
-      points.value.push(createPointData(newValue, newTime))
+      points.value = [...points.value, createPointData(newValue, newTime)]
       break
     }
     case GameStateType.BusinessBailoutResult: {
@@ -109,75 +95,24 @@ function update(payload: MiniGamePayloadType) {
   }
 }
 
-defineExpose({ update })
-
-const yMargin = 25
-const xMargin = 25
-
-const xWidth = computed(() => width.value - xMargin * 2)
-const yHeight = computed(() => height.value - yMargin * 2)
-
-function interpPosition(position: PointData): [number, number] {
-  const xStep = xWidth.value / time.value
-  const yStep = yHeight.value / maxValue.value
-  const newX = position.x * xStep + xMargin
-  const newY = height.value - (position.y * yStep + yMargin)
-
-  return [newX, newY]
-}
-
-function renderMinigame(graphics: Graphics) {
-  graphics.clear()
-
-  graphics.lineStyle(10, colorStore.colorPalette.primary.base.number)
-  graphics.moveTo(...interpPosition(points.value[0]))
-  points.value.forEach((point) => {
-    graphics.lineTo(...interpPosition(point))
-  })
-
-  // Draw the x axis
-  graphics.lineStyle(4, 0xffffff)
-  graphics.moveTo(...interpPosition({ x: 0, y: 0 }))
-  for (let timeIncrement = 0; timeIncrement < time.value; timeIncrement += 2000) {
-    const point = { x: timeIncrement, y: 0 }
-    const position = interpPosition(point)
-    graphics.lineTo(...position)
-    graphics.lineTo(position[0], position[1] + 10)
-    graphics.lineTo(position[0], position[1] - 10)
-    graphics.lineTo(...position)
-  }
-  graphics.lineTo(...interpPosition({ x: time.value, y: 0 }))
-
-  graphics.lineStyle(4, 0x100000)
-  // Draw the y axis
-  graphics.lineStyle(4, 0xffffff)
-  graphics.moveTo(xWidth.value + xMargin, interpPosition({ x: 0, y: yMargin })[1])
-  for (
-    let valueIncrement = 0;
-    interpPosition({ x: 0, y: valueIncrement })[1] > 10;
-    valueIncrement += 4000
-  ) {
-    const point = { x: 0, y: valueIncrement }
-    graphics.lineTo(xWidth.value + xMargin, interpPosition(point)[1])
-    graphics.lineTo(xWidth.value + 10 + xMargin, interpPosition(point)[1])
-    graphics.lineTo(xWidth.value - 10 + xMargin, interpPosition(point)[1])
-    graphics.lineTo(xWidth.value + xMargin, interpPosition(point)[1])
-  }
-  graphics.lineTo(xWidth.value + xMargin, yMargin)
-
-  graphics.lineStyle(4, 0xff0000)
-  bailedPlayers.value.forEach((bailedPlayer) => {
-    // Draw a vertical line at the time the player bailed
-    const [x, y] = interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })
-    graphics.moveTo(x, interpPosition({ x: 0, y: 0 })[1])
-    graphics.lineTo(x, y)
-
-    // Draw a circle at the point where the player bailed
-    graphics.beginFill(0xff0000)
-    graphics.drawCircle(x, y, 15)
-    graphics.endFill()
-  })
-}
+defineExpose({
+  update,
+  ...(import.meta.env.DEV
+    ? {
+        __devUpdateHost: (newValue: number, newTime: number, newBailed: BailedPlayer[]) => {
+          viewState.value = ViewState.MiniGame
+          if (bailedPlayers.value.length != newBailed.length) {
+            bailedPlayers.value = newBailed
+          }
+          points.value = [...points.value, createPointData(newValue, newTime)]
+        },
+        __devUpdateResults: (submittedPlayers: BailedPlayer[]) => {
+          viewState.value = ViewState.Results
+          bailedPlayers.value = submittedPlayers
+        }
+      }
+    : {})
+})
 </script>
 <template>
   <template v-if="viewState === ViewState.Introduction">
@@ -187,29 +122,7 @@ function renderMinigame(graphics: Graphics) {
   </template>
   <template v-else-if="viewState === ViewState.MiniGame">
     <div class="absolute h-full w-full">
-      <Application :height :width background-color="black">
-        <Graphics :x="0" :y="0" @render="renderMinigame" />
-        <Text
-          v-for="bailedPlayer in bailedPlayers"
-          :key="bailedPlayer.name"
-          :style="{ fill: 'white' }"
-          :anchor-x="1.1"
-          :anchor-y="0.07"
-          :x="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[0] + 10"
-          :y="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[1]"
-          :text="bailedPlayer.name"
-          :rotation="Math.PI * 0.25"
-        />
-        <Sprite
-          :position-x="interpPosition(points[points.length - 1])[0]"
-          :position-y="interpPosition(points[points.length - 1])[1]"
-          :width="size"
-          :anchor-x="0.5"
-          :height="size * 2"
-          :rotation="Math.PI - angle"
-          texture="/assets/games/businessBailout/rocket.svg"
-        />
-      </Application>
+      <BusinessBailoutGameView :host-data="hostData" />
     </div>
     <div class="flex ml-4 mt-4 w-full justify-start items-start">
       <div class="z-20 justify-start items-start">
@@ -225,7 +138,7 @@ function renderMinigame(graphics: Graphics) {
   </template>
   <template v-if="viewState === ViewState.Results">
     <div class="absolute h-full w-full">
-      <ResultGraph :points :height :width :bailed-players="bailedPlayers" />
+      <ResultGraph :points :bailed-players="bailedPlayers" />
     </div>
   </template>
   <template v-else> </template>

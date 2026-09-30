@@ -110,7 +110,7 @@ onMounted(() => {
           </n-text>
         </n-h1>
         <div class="flex flex-col items-center mb-4">
-          <img :class="isMobile() ? 'w-full' : 'w-1/2'" src="assets/devices.png" />
+          <img :class="isMobile() ? 'w-full' : 'w-1/2'" src="/assets/devices.png" />
         </div>
         <div>
           People Party is easy to play and requires no special skills or equipment. Simply create a
@@ -136,11 +136,11 @@ onMounted(() => {
             :style="{ width: isMobile() ? '100%' : '50%' }"
             class="mb-4 rounded-xl"
           >
-            <img class="carousel-img" src="assets/games/crazyCounting/crazyCountingLogo.svg" />
-            <img class="carousel-img" src="assets/games/memoryMixer/memoryMixerLogo.svg" />
-            <img class="carousel-img" src="assets/games/businessBailout/businessBailoutLogo.svg" />
-            <img class="carousel-img" src="assets/games/launchParty/launchPartyLogo.svg" />
-            <img class="carousel-img" src="assets/games/rpsBracket/rpsBracketLogo.svg" />
+            <img class="carousel-img" src="/assets/games/crazyCounting/crazyCountingLogo.svg" />
+            <img class="carousel-img" src="/assets/games/memoryMixer/memoryMixerLogo.svg" />
+            <img class="carousel-img" src="/assets/games/businessBailout/businessBailoutLogo.svg" />
+            <img class="carousel-img" src="/assets/games/launchParty/launchPartyLogo.svg" />
+            <img class="carousel-img" src="/assets/games/rpsBracket/rpsBracketLogo.svg" />
           </n-carousel>
         </div>
         <div>

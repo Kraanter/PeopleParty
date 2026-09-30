@@ -140,18 +140,53 @@ doesn't implement it.
   `get_camel_case_name()`, and the files must be named exactly `HostView.vue`/`PlayerView.vue`
 - Both views must `defineExpose({ update(data: MiniGamePayloadType) { ... } })`; by convention
   `update()` returns `[]` at the end
-- **PixiJS** (`vue3-pixi` + `pixi.js` v8): `<Application>` as the canvas container, drawing done
-  imperatively inside `<Graphics @render="renderFn">` (the `@render` event, not a `:draw` prop —
-  there are zero uses of `:draw` in this codebase)
-- **Responsive canvas sizing** (see `teambasedPong/HostView.vue` for the current pattern): track
-  the container's `clientWidth` via `ResizeObserver`, derive `canvasHeight` from a fixed aspect
-  ratio, and compute a `scale` factor (`canvasWidth / GAME_WORLD_WIDTH`) — multiply every drawn
-  coordinate by `scale`, never hardcode pixels. `crazyCounting` instead uses
-  `Math.min(width, height)` for a square canvas — pick whichever fits the game's aspect needs
-- Reference components worth reading: `teambasedPong` (newest complex example — phases, joystick,
-  Box2D-driven rendering) and `shellShuffle` (newest addition) alongside `highwayHustle` (PixiJS +
-  sprites) and `memoryMixer` (non-canvas, Naive UI grid). `shellGame` was deleted — don't reference
-  it, even if you see stray build artifacts mentioning it in `frontend/dist/`
+- **PixiJS — new minigames use raw `pixi.js` v8 behind the composables in
+  `frontend/src/composables/pixi/`** (`useGameCanvas`, `createEntityLayer`, `useSnapshotBuffer`,
+  all exported from `@/composables/pixi`) — never `vue3-pixi`, and never `pixi.js` directly outside
+  that directory. `vue3-pixi` is still an installed, transitional dependency: 5 minigames
+  (`highwayHustle`, `teambasedPong`, `rpsBracket`, `businessBailout`, `crazyCounting`) haven't been
+  migrated off it and still use its `<Application>`/`<Graphics @render>` template pattern — don't
+  copy that into a new minigame. Removing `vue3-pixi` entirely is a separate, tracked phase (see
+  `docs/frontend-infrastructure-plan.md`, Phase 4)
+- **The three composables**: `useGameCanvas({ container, render, worldSize?, size?,
+  backgroundColor?, ... })` owns the `Application` lifecycle (async init/teardown), a shared
+  cross-canvas `requestAnimationFrame` loop gated by an explicit `invalidate()` dirty flag (never a
+  `maxFPS` cap), and sizing — two mutually-exclusive modes: `worldSize: {width, height}` letterboxes
+  via the container's own `ResizeObserver` (computing `canvas.scale`/`offsetX`/`offsetY`, all
+  `ComputedRef`s — not auto-unwrapped in templates, since `canvas` itself isn't a ref); `size: () =>
+  ({width, height})` instead trusts a size the parent already computed (e.g. `GameManager`'s
+  props), with no letterboxing math. Add your scene graph to `canvas.root`, never `canvas.app.stage`
+  directly. `canvas.startAnimating(cb)`/`stopAnimating()` opts into a continuous per-frame `{dt}`
+  callback for interpolation (camera easing etc.) on top of the default invalidate-on-push model —
+  `startAnimating` is never auto-stopped, call `stopAnimating()` once settled. `createEntityLayer
+  (parent, { key, create, update, release? })` is a keyed object pool diffed against a full
+  snapshot on every `sync(entities)` call — the replacement for `:key`-driven Application
+  recreation when an entity count changes; duplicate keys in one call are dropped (`console.warn`),
+  not merged. `useSnapshotBuffer(initial, { invalidate, toHud? })` is a plain non-reactive holder
+  for state a render/animate callback reads every frame (`buffer.current`); `push(next)` replaces
+  it and always calls `invalidate()`; `toHud` projects the fields a DOM overlay needs into a
+  `ShallowRef` safe to read in templates. `initial` must be a real first snapshot, not a
+  placeholder — `GameManager.vue`'s 500ms mount debounce means several backend snapshots can arrive
+  and be dropped before this is even constructed
+- **Passing live data into a canvas-owning child component**: default to a prop +
+  `watch(() => props.someData, handler, { immediate: true })` in the child (see `marbleMania`), not
+  a template-ref `push()` call from the parent — `HostView.vue`'s `update()` typically sets a prop
+  and flips `viewState` in the same synchronous tick, so a template ref into the not-yet-mounted
+  child isn't populated yet on the very first message (a real bug this fixed). `shellShuffle`'s
+  simpler template-ref `push()` call is still fine for a genuinely single-child view with no such
+  race — it's not deprecated, just don't reach for it by default in new code
+- Reference components — `shellShuffle` (simple: one shared `Graphics`, redrawn on
+  `invalidate()`) and `marbleMania` (complex: pooled `createEntityLayer` entities across z-ordered
+  containers, `startAnimating` camera easing, prop+`watch` data intake, plus a third "static
+  one-shot canvas" tier in `MarbleManiaResultsView.vue`) are the two migrated, new-pattern
+  references — read these first for any new canvas minigame. See Development Workflows below for
+  their live dev harness routes. `teambasedPong`/`highwayHustle`/`crazyCounting`/`rpsBracket`/
+  `businessBailout` are **not yet migrated** — still real, shipping `vue3-pixi` code, worth reading
+  for non-canvas concerns (e.g. `highwayHustle`'s sprite maps) but don't copy their canvas setup,
+  `ResizeObserver` handling, or `<Application>`/`<Graphics @render>` template usage into new work.
+  `memoryMixer` remains the reference for non-canvas, Naive UI grid layouts. `shellGame` was
+  deleted — don't reference it, even if you see stray build artifacts mentioning it in
+  `frontend/dist/`
 - Routes: `host`, `join`, `info`, `releases`, defined in `frontend/src/router/index.ts` with
   lazy-loaded route components
 
@@ -199,14 +234,20 @@ npm install
 npm run dev  # binds 0.0.0.0 for mobile device testing on the same network
 ```
 
-**PixiJS composable playground** (dev only, once the frontend dev server above is running):
+**PixiJS dev harnesses** (dev only, once the frontend dev server above is running):
 ```
-open http://localhost:5173/dev/pixi-playground
+http://localhost:5173/dev/pixi-playground        # synthetic composable regression/reference check
+http://localhost:5173/dev/shellshuffle-harness   # mounts the real ShellShuffleGameView + __devPush hook
+http://localhost:5173/dev/marblemania-harness    # mounts the real marbleMania HostView + __devUpdateHost hook
 ```
-Live reference/regression check for the `useGameCanvas`/`createEntityLayer`/`useSnapshotBuffer`
-composables (`frontend/src/composables/pixi/`) — see `frontend/README.md` for what it shows and
-how to read it. Dev-only route (`import.meta.env.DEV`-gated in `frontend/src/router/index.ts`),
-never present in a production build.
+All three are `import.meta.env.DEV`-gated routes in `frontend/src/router/index.ts`, never present
+in a production build. `/dev/pixi-playground` exercises `useGameCanvas`/`createEntityLayer`/
+`useSnapshotBuffer` (`frontend/src/composables/pixi/`) against synthetic scenarios — see
+`frontend/README.md` for what it shows and how to read it. `/dev/shellshuffle-harness` drives the
+canvas-owning child directly (no mount-race to worry about there); `/dev/marblemania-harness`
+mounts the real `HostView.vue` and drives it through the same prop-setting path `update()` uses,
+which is what makes it able to catch mount-timing/data-race bugs a shortcut into the child would
+hide. Use these to manually re-verify `shellShuffle`/`marbleMania` after touching either one.
 
 **Schema regeneration** (required after any `.fbs` change — errors from stale generated code are
 cryptic):

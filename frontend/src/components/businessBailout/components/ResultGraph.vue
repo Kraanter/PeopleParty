@@ -1,55 +1,84 @@
 <script setup lang="ts">
-import { Application } from 'vue3-pixi'
-import { computed, defineProps, ref, onMounted, toRefs } from 'vue'
-import { Graphics, type PointData } from 'pixi.js'
+import { computed, ref } from 'vue'
+import { Graphics, Sprite, Text, type PointData } from 'pixi.js'
+import { useGameCanvas, createEntityLayer, loadTexture } from '@/composables/pixi'
 import { useColorStore } from '@/stores/colorStore'
 import { unLerp } from '@/util/funcs'
 import { deCasteljau } from '../spline'
 import type { BailedPlayer } from '../parser'
 
 const props = defineProps<{
-  width: number
-  height: number
   points: PointData[]
   bailedPlayers: BailedPlayer[]
 }>()
 
 const colorStore = useColorStore()
 
-const { width, height, points, bailedPlayers } = toRefs(props)
+// Same two-independent-axes chart as the live view — no aspect ratio to preserve, so this
+// deliberately omits worldSize/size and trusts the container's own measured box.
+const xMargin = 10
+const ROCKET_SIZE = 75
+const ROCKET_TEXTURE = '/assets/games/businessBailout/rocket.svg'
 
-// Get the unix timestamp of the start of the result page
-const pageStartTime = Date.now()
+// points/bailedPlayers are set once when the Results screen mounts and never change again
+// (HostView freezes `points` the moment it flips to the Results state) — no snapshot buffer
+// needed, drawScene() can just read the props directly.
+
+// 9-second auto-pan replay reveal, driven by real per-frame dt off the shared rAF loop instead
+// of the original's own setInterval(10ms) + Date.now() timer.
 const pageTime = 9 * 1000
-const pageCurTime = ref(Date.now() - pageStartTime)
+let pageCurTime = 0
 
-onMounted(() => {
-  const interval = setInterval(() => {
-    pageCurTime.value = Date.now() - pageStartTime
-  }, 10)
+const containerRef = ref<HTMLElement | null>(null)
+const gfx = new Graphics()
 
-  return () => clearInterval(interval)
+const canvas = useGameCanvas({
+  container: containerRef,
+  render: () => drawScene()
+})
+canvas.root.addChild(gfx)
+
+const rocket = new Sprite()
+rocket.anchor.set(0.5, 0)
+rocket.width = ROCKET_SIZE
+rocket.height = ROCKET_SIZE * 2
+rocket.rotation = Math.PI
+canvas.root.addChild(rocket)
+loadTexture(rocket, ROCKET_TEXTURE, canvas.invalidate)
+
+const labelLayer = createEntityLayer<BailedPlayer, Text>(canvas.root, {
+  key: (player) => player.name,
+  create: () => {
+    const text = new Text({ text: '', style: { fill: 0xffffff } })
+    text.anchor.set(1.1, 0.07)
+    text.rotation = Math.PI * 0.25
+    return text
+  },
+  update: (text, player) => {
+    text.text = player.name
+    const [x, y] = interpPosition({ x: player.time, y: player.value })
+    text.position.set(x + 10, y)
+  }
 })
 
-const endTime = computed(() => points.value[points.value.length - 1].x)
-const maxValue = computed(() => Math.max(...points.value.map((point) => point.y)))
+const endTime = computed(() => props.points[props.points.length - 1].x)
+const maxValue = computed(() => Math.max(...props.points.map((point) => point.y)))
+const xWidth = computed(() => canvas.width.value - xMargin * 2)
+const yHeight = computed(() => canvas.height.value - 10)
 
-const curPointPercent = computed(() =>
-  unLerp(-(pageTime / 5), pageTime, Math.min(pageCurTime.value, pageTime))
-)
-
-const xMargin = 10
-const xWidth = computed(() => width.value - xMargin * 2)
-const yHeight = computed(() => height.value - 10)
+function curPointPercent(): number {
+  return unLerp(-(pageTime / 5), pageTime, Math.min(pageCurTime, pageTime))
+}
 
 function interpPosition(point: PointData): [number, number] {
-  const focusPointIndex = curPointPercent.value * (points.value.length - 1)
+  const percent = curPointPercent()
+  const focusPointIndex = percent * (props.points.length - 1)
 
-  const controlPoints = points.value.slice(
+  const controlPoints = props.points.slice(
     Math.max(0, Math.floor(focusPointIndex) - 25),
-    Math.min(points.value.length, Math.floor(focusPointIndex) + 25)
+    Math.min(props.points.length, Math.floor(focusPointIndex) + 25)
   )
-  const focusPoint = deCasteljau(controlPoints, curPointPercent.value)
+  const focusPoint = deCasteljau(controlPoints, percent)
 
   const viewPortWidth = (endTime.value / 10) * 2
   const viewPortHeight = (maxValue.value / 10) * 2
@@ -63,48 +92,35 @@ function interpPosition(point: PointData): [number, number] {
   return [x, yHeight.value - y]
 }
 
-function render(graphics: Graphics) {
-  graphics.clear()
+function drawScene() {
+  if (props.points.length === 0) return
 
-  graphics.lineStyle(10, colorStore.colorPalette.primary.base.number)
-  graphics.moveTo(...interpPosition(points.value[0]))
-  points.value.forEach((point) => {
-    graphics.lineTo(...interpPosition(point))
-  })
+  gfx.clear()
+  gfx.moveTo(...interpPosition(props.points[0]))
+  for (const point of props.points) gfx.lineTo(...interpPosition(point))
+  gfx.stroke({ width: 10, color: colorStore.colorPalette.primary.base.number })
 
-  graphics.lineStyle(4, 0xff0000)
-  bailedPlayers.value.forEach((bailedPlayer) => {
-    // Draw a vertical line at the time the player bailed
-    const [x, y] = interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })
-    // Draw a circle at the point where the player bailed
-    graphics.beginFill(0xff0000)
-    graphics.drawCircle(x, y, 15)
-    graphics.endFill()
-  })
+  if (props.bailedPlayers.length > 0) {
+    for (const bailedPlayer of props.bailedPlayers) {
+      const [x, y] = interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })
+      gfx.circle(x, y, 15)
+    }
+    gfx.fill({ color: 0xff0000 })
+    gfx.stroke({ width: 4, color: 0xff0000 })
+  }
+
+  labelLayer.sync(props.bailedPlayers)
+
+  const [rx, ry] = interpPosition(props.points[props.points.length - 1])
+  rocket.position.set(rx, ry)
 }
+
+canvas.startAnimating(({ dt }) => {
+  pageCurTime = Math.min(pageCurTime + dt, pageTime)
+  if (pageCurTime >= pageTime) canvas.stopAnimating()
+})
 </script>
+
 <template>
-  <Application :height :width backgroud-color="black">
-    <Graphics :x="0" :y="0" @render="render" />
-    <Text
-      v-for="bailedPlayer in bailedPlayers"
-      :key="bailedPlayer.name"
-      :style="{ fill: 'white' }"
-      :anchor-x="1.1"
-      :anchor-y="0.07"
-      :x="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[0] + 10"
-      :y="interpPosition({ x: bailedPlayer.time, y: bailedPlayer.value })[1]"
-      :text="bailedPlayer.name"
-      :rotation="Math.PI * 0.25"
-    />
-    <Sprite
-      :position-x="interpPosition(points[points.length - 1])[0]"
-      :position-y="interpPosition(points[points.length - 1])[1]"
-      :width="75"
-      :anchor-x="0.5"
-      :height="75 * 2"
-      :rotation="Math.PI"
-      texture="/assets/games/businessBailout/rocket.svg"
-    />
-  </Application>
+  <div ref="containerRef" class="w-full h-full"></div>
 </template>

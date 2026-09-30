@@ -20,7 +20,7 @@ const handleClick = () => {
 
     <button
       :disabled="disabled"
-      :class="`${btnClass} ${cndClass}`"
+      :class="[btnClass, cndClass]"
       class="bg-primary text-4xl text-white font-bold rounded-2xl w-full h-full disabled:bg-slate-400"
       style="pointer-events: auto"
     >

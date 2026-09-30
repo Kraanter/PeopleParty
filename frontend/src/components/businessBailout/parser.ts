@@ -2,6 +2,7 @@ import { BusinessBailoutHostPayload } from '@/flatbuffers/business-bailout-host-
 import { BusinessBailoutPlayerPayload } from '@/flatbuffers/business-bailout-player-payload'
 import { BusinessBailoutResultPayload } from '@/flatbuffers/business-bailout-result-payload'
 import type { MiniGamePayloadType } from '@/flatbuffers/mini-game-payload-type'
+import type { PointData } from 'pixi.js'
 
 export function parseBusinessBailoutPlayerPayload(payload: MiniGamePayloadType) {
   const bbpp: BusinessBailoutPlayerPayload = payload.gamestatepayload(
@@ -20,6 +21,11 @@ export type BailedPlayer = {
   name: string
   time: number
   value: number
+}
+
+export interface BusinessBailoutHostData {
+  points: PointData[]
+  bailed_players: BailedPlayer[]
 }
 
 export function parseBusinessBailoutHostPayload(payload: MiniGamePayloadType) {
